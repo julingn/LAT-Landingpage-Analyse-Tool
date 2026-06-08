@@ -115,16 +115,17 @@ app/
 
 ## Phase 3B+4 — nach UI/UX-Überarbeitung
 
-> UI/UX-Überarbeitung wird VOR Phase 3B und 4 durchgeführt (Entscheidung 08.06.2026).
-> Grund: Alle Datenpunkte vorhanden, Oberfläche muss zuerst aufgeräumt werden.
+> UI/UX-Überarbeitung abgeschlossen am 08.06.2026. ✅
 
-### Schritt 3B — M6: Keyword-Fit-Modul- **Was:** Bewertet ob die analysierte Seite die richtigen Keywords targetet
+### Schritt 3B — M6: Keyword-Fit-Modul
+- **Was:** Bewertet ob die analysierte Seite die richtigen Keywords targetet
 - **Datenquellen:**
   - GSC-Daten (bereits vorhanden): aktuelle Rankings
   - Sistrix `domain.opportunities`: verpasste Chancen
   - Sistrix `keyword.seo.searchintent`: passt Intent zur Seite?
   - DataforSEO `search_volume/live`: Volumen der GSC-Top-Keywords
 - **Output:** Score 0–100 + Liste: "Seite targetet X, sollte aber Y targetieren"
+- **Status:** ❌ Noch nicht implementiert
 
 ### Schritt 3.2 — Übergreifende KI-Synthese
 - **Was:** Ein LLM-Call NACH allen Modulen mit strukturiertem Gesamt-Input
@@ -138,11 +139,11 @@ app/
   }
   ```
 - **Output:** 3 Prioritäten + Kausalanalyse ("Technical blockiert trotz gutem Content die Rankings")
+- **Status:** ❌ Noch nicht implementiert (3A bereits fertig als Interim-Lösung)
 
-### Schritt 3.3 — Score-Hero erweitern
-- Übergreifender Gesamtscore aus gewichteten Modul-Scores
-- Modul-Scores als Radar-Chart oder Balken-Übersicht
-- Gewichtung: SQEG 30%, Technical 25%, Performance 20%, GEO 15%, Keywords 10%
+### Schritt 3.3 — Score-Hero erweitern ✅
+- ~~Modul-Scores als Radar-Chart oder Balken-Übersicht~~ → **Radar-Chart implementiert** (`e33efee`)
+- Übergreifender Gesamtscore aus gewichteten Modul-Scores → noch offen
 
 ---
 
@@ -167,7 +168,7 @@ app/
 | # | Frage | Betrifft |
 |---|---|---|
 | ~~OE-1~~ | ~~GEO-Panel: Entity-Name als Eingabefeld im Header oder automatisch aus Domain ableiten?~~ | ✅ Automatisch aus Domain — entschieden 08.06.2026 |
-| OE-2 | Railway Preview-Deploy einrichten (Dashboard-Klick) | Phase 2, Schritt 2.1 |
+| ~~OE-2~~ | ~~Railway Preview-Deploy einrichten~~ | ✅ Erledigt |
 | OE-3 | Screenshot-API für UX-Modul auswählen | Phase 4, Schritt 4.1 |
 
 ---
@@ -176,6 +177,12 @@ app/
 
 | Datum | Version | Änderung |
 |---|---|---|
+| 08.06.2026 | v3.1 | Score-Radar-Chart (SVG, 3 Achsen: SQEG/Performance/GEO) in Übersicht — `e33efee` |
+| 08.06.2026 | v3.1 | Settings: ENV-Quellen-Transparenz — Felder gesperrt wenn Railway ENV aktiv, Status-Leiste — `e310563` |
+| 08.06.2026 | v3.1 | Settings vollständig: DataforSEO, Sistrix, PageSpeed, OpenAI, GSC + Domain-Verwaltung; Tooltips für SERP-Badges/Score-Chips/GSC-Header — `5502147` |
+| 08.06.2026 | v3.0 | Multi-View Dashboard: Übersicht/SQEG/Performance/GEO/Einstellungen mit Sidebar-Navigation, Modul-Kacheln, Top-Prioritäten — `7050e28` |
+| 08.06.2026 | v2.x | Phase 3A: Cross-Modul KI-Synthese im Executive Summary — `f7556ff` |
+| 08.06.2026 | v2.x | Phase 2: Modulare Architektur, Proxies, router.php Blockierung — `24243fc` |
 | 08.06.2026 | v2.x | Sistrix-Erweiterungen Phase 1 komplett: domain.opportunities, domain.competitors.seo, GEO-Panel (ai.entity.prompts + sources), SERP-Feature-Badges in GSC-Tabelle (AI/FS/KG) |
 | 22.05.2026 | v2.x | Sistrix API Parsing finalisiert — `d1c20c0` |
 | 22.05.2026 | v2.0 | Header-Eingabebereich, Progressbar-Redesign, API-Verbindungstest — `ff3b675` |
