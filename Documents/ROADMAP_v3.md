@@ -71,7 +71,7 @@ git checkout -b feature/v3-modular-structure
 ```
 - Railway: Preview-Deploy eingerichtet ✅ (08.06.2026)
 
-### Schritt 2.2 — Neue Dateistruktur anlegen
+### Schritt 2.2 — Neue Dateistruktur anlegen ✅
 ```
 app/
 ├── modules/
@@ -92,13 +92,12 @@ app/
 └── config.php          ← unverändert
 ```
 
-### Schritt 2.3 — `router.php` anpassen
-- Alle Proxy-Pfade von `app/*.php` auf `app/proxies/*.php` aktualisieren
-- Neue Module-Endpunkte registrieren
+### Schritt 2.3 — `router.php` anpassen ✅
+- Alle Proxy-Pfade bleiben kompatibel via Shim-Dateien in `app/`
+- Direkte Browser-Aufrufe auf `/app/proxies/` werden blockiert (HTTP 403)
 
-### Schritt 2.4 — Tests auf Preview-Deploy
-- Alle bestehenden Funktionen auf dem Feature-Branch testen
-- Erst nach grünem Test: PR → main → Auto-Deploy auf Railway Production
+### Schritt 2.4 — Tests auf Preview-Deploy ✅
+- Getestet, grünes Licht → Merge auf main → Deploy `24243fc`
 
 ---
 
@@ -108,8 +107,18 @@ app/
 > **Aufwand:** Groß  
 > **Von mir benötigt:** Nichts — reine Implementierung nach Architektur aus Phase 2
 
-### Schritt 3.1 — M6: Keyword-Fit-Modul
-- **Was:** Bewertet ob die analysierte Seite die richtigen Keywords targetet
+### Schritt 3A — Übergreifende KI-Synthese ✅
+- **Was:** Executive Summary erweitert mit Cross-Modul-Kontext (GSC, Sistrix, GEO/AEO)
+- **Umsetzung:** Kein zweiter LLM-Call — `generateExecSummary()` bekommt alle externen Datenpunkte als Kontext-Block; System-Prompt instruiert ganzheitliche Priorisierung
+- **Eingabe:** SQEG-Findings + GSC Top-Keywords + Sistrix Sichtbarkeit + Quick-Win-Keywords + Wettbewerber + GEO-Prompts
+- **Output:** Executive Summary priorisiert jetzt cross-modul (z.B. Quick-Wins vor SQEG-Detailpunkten wenn relevanter)
+
+## Phase 3B+4 — nach UI/UX-Überarbeitung
+
+> UI/UX-Überarbeitung wird VOR Phase 3B und 4 durchgeführt (Entscheidung 08.06.2026).
+> Grund: Alle Datenpunkte vorhanden, Oberfläche muss zuerst aufgeräumt werden.
+
+### Schritt 3B — M6: Keyword-Fit-Modul- **Was:** Bewertet ob die analysierte Seite die richtigen Keywords targetet
 - **Datenquellen:**
   - GSC-Daten (bereits vorhanden): aktuelle Rankings
   - Sistrix `domain.opportunities`: verpasste Chancen
