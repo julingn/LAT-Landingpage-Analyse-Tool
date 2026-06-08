@@ -15,6 +15,7 @@ $blockedPatterns = [
     '#/app/settings\.json$#i',        // Credentials-Fallback
     '#/app/config\.php$#i',           // Credential-Loader
     '#/app/gsc_domains\.json$#i',     // GSC-Domain-Konfiguration
+    '#/app/proxies/#i',               // Proxies nie direkt aus dem Browser abrufbar
     '#/config/#i',                    // config/ Verzeichnis
     '#/nixpacks\.toml$#i',
     '#/Dockerfile$#i',

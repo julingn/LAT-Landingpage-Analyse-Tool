@@ -65,11 +65,11 @@
 > **Aufwand:** Groß (1–2 intensive Sessions, kein neues Feature)  
 > **Von mir benötigt:** Git-Branch anlegen + Railway Preview-Deploy aktivieren (einmalig)
 
-### Schritt 2.1 — Feature-Branch anlegen
+### Schritt 2.1 — Feature-Branch anlegen ✅
 ```bash
 git checkout -b feature/v3-modular-structure
 ```
-- Railway: Preview-Deploy für diesen Branch einrichten (einmaliger Klick im Railway-Dashboard)
+- Railway: Preview-Deploy eingerichtet ✅ (08.06.2026)
 
 ### Schritt 2.2 — Neue Dateistruktur anlegen
 ```
