@@ -8,7 +8,7 @@ $csrfToken = $_SESSION['csrf_token'];
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LAT · SQEG Analyzer</title>
+<title>LAT · Landingpage Analyse</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -455,6 +455,52 @@ button{font-family:inherit}
 [data-theme="dark"] .settings-input:focus{background:var(--bg3)}
 [data-theme="dark"] .log-header{background:var(--bg2)}
 [data-theme="dark"] .log-header:hover{background:var(--bg3)}
+/* Nav score badges */
+.nav-score{margin-left:auto;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--bg4);color:var(--text3);font-family:'Geist Mono',monospace}
+.nav-score.green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.nav-score.amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.nav-score.red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+/* Module cards on overview */
+.module-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
+.module-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:20px 22px;box-shadow:var(--shadow-sm);cursor:pointer;
+  transition:box-shadow .15s,border-color .15s,transform .1s;
+  display:flex;flex-direction:column;gap:10px;
+}
+.module-card:hover{box-shadow:var(--shadow-md);border-color:var(--border2);transform:translateY(-1px)}
+.module-card-header{display:flex;align-items:center;gap:10px}
+.module-card-icon{width:34px;height:34px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.module-card-icon.sqeg{background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-border)}
+.module-card-icon.perf{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+.module-card-icon.geo{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.module-card-name{font-size:13px;font-weight:700;color:var(--text)}
+.module-card-sub{font-size:11px;color:var(--text3)}
+.module-card-score{font-size:28px;font-weight:700;line-height:1;font-family:'Inter',sans-serif}
+.module-card-score.green{color:var(--green)}
+.module-card-score.amber{color:var(--amber)}
+.module-card-score.red{color:var(--red)}
+.module-card-score.neutral{color:var(--text3)}
+.module-card-bar-bg{height:4px;background:var(--bg4);border-radius:999px;overflow:hidden}
+.module-card-bar{height:100%;border-radius:999px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.module-card-bar.green{background:var(--green)}
+.module-card-bar.amber{background:var(--amber)}
+.module-card-bar.red{background:var(--red)}
+.module-card-bar.neutral{background:var(--bg4)}
+.module-card-label{font-size:11px;color:var(--text3);margin-top:2px}
+/* View panels */
+.view-panel{display:none}
+.view-panel.active{display:block}
+/* Overview top priorities */
+.top-priorities{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px;margin-bottom:28px;box-shadow:var(--shadow-sm)}
+.top-priorities-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.top-prio-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.top-prio-item:last-child{border-bottom:none}
+.top-prio-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;flex-shrink:0;margin-top:2px;white-space:nowrap}
+.top-prio-badge.red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.top-prio-badge.amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.top-prio-text{color:var(--text2);line-height:1.5}
+@media(max-width:900px){.module-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -465,18 +511,34 @@ button{font-family:inherit}
     <span class="sidebar-brand">L·A·T</span>
   </div>
   <nav class="sidebar-nav">
-    <button class="nav-item active" data-tool="sqeg">
+    <div class="nav-section-label">Analyse</div>
+    <button class="nav-item active" data-view="overview" onclick="showView('overview')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Übersicht
+    </button>
+    <button class="nav-item" data-view="sqeg" onclick="showView('sqeg')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-      SQEG Analyzer
+      SQEG
+      <span class="nav-score" id="nav-score-sqeg" style="display:none"></span>
+    </button>
+    <button class="nav-item" data-view="performance" onclick="showView('performance')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Performance
+      <span class="nav-score" id="nav-score-perf" style="display:none"></span>
+    </button>
+    <button class="nav-item" data-view="geo" onclick="showView('geo')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8l4 4-4 4-4-4 4-4z"/></svg>
+      GEO / AEO
+      <span class="nav-score" id="nav-score-geo" style="display:none"></span>
     </button>
     <div class="nav-section-label">System</div>
-    <button class="nav-item" data-tool="settings">
+    <button class="nav-item" data-view="settings" onclick="showView('settings')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M21 12h-2M19.07 19.07l-1.41-1.41M12 21v-2M4.93 19.07l1.41-1.41M3 12h2M4.93 4.93l1.41 1.41"/></svg>
       Einstellungen
     </button>
   </nav>
   <div class="sidebar-footer">
-    <span>LAT v2.0</span>
+    <span>LAT v3.0</span>
     <div style="display:flex;align-items:center;gap:8px">
       <button class="theme-btn" id="btn-theme" onclick="toggleTheme()" title="Dark / Light Mode" aria-label="Theme wechseln">
         <svg class="icon-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
@@ -489,9 +551,9 @@ button{font-family:inherit}
 <div class="main-content">
 <header class="workspace-header">
   <div class="workspace-header-inner">
-    <span class="workspace-title">SQEG Analyzer</span>
+    <span class="workspace-title" id="view-title">Übersicht</span>
     <span class="workspace-divider"></span>
-    <span class="workspace-subtitle">Google Search Quality Evaluator Guidelines</span>
+    <span class="workspace-subtitle" id="view-subtitle">Landingpage Analyse Tool</span>
   </div>
   <div class="workspace-header-form" id="header-form">
     <div class="header-input-row">
@@ -535,7 +597,11 @@ button{font-family:inherit}
   </div>
 </header>
 <div class="container">
-<div class="tool-panel active" id="panel-sqeg">
+
+<!-- ═══════════════════════════════════════════════════════════
+     VIEW: ÜBERSICHT
+════════════════════════════════════════════════════════════ -->
+<div class="view-panel active" id="view-overview">
 
   <div id="progress-section" style="display:none">
     <div class="input-card">
@@ -559,22 +625,16 @@ button{font-family:inherit}
         <div class="log-box" id="log-box"></div>
       </div>
     </div>
-    <!-- Skeleton während Analyse -->
     <div id="skeleton-wrap" style="display:none">
       <div class="skeleton skeleton-score"></div>
       <div class="skeleton-stats"><div class="skeleton skeleton-stat"></div><div class="skeleton skeleton-stat"></div><div class="skeleton skeleton-stat"></div><div class="skeleton skeleton-stat"></div></div>
-      <div class="skeleton-clusters"><div class="skeleton skeleton-cluster"></div><div class="skeleton skeleton-cluster"></div><div class="skeleton skeleton-cluster"></div><div class="skeleton skeleton-cluster"></div><div class="skeleton skeleton-cluster"></div><div class="skeleton skeleton-cluster"></div><div class="skeleton skeleton-cluster"></div><div class="skeleton skeleton-cluster"></div></div>
+      <div class="skeleton-clusters"><div class="skeleton skeleton-cluster"></div><div class="skeleton skeleton-cluster"></div><div class="skeleton skeleton-cluster"></div><div class="skeleton skeleton-cluster"></div></div>
     </div>
   </div>
 
   <div id="results-section" style="display:none">
-    <div class="section-divider" style="margin-top:40px;margin-bottom:20px">
-      <div class="section-divider-line"></div>
-      <span class="section-divider-label">Analyseergebnis</span>
-      <div class="section-divider-line"></div>
-    </div>
     <!-- Score Hero -->
-    <div class="score-hero" id="score-hero">
+    <div class="score-hero" id="score-hero" style="margin-top:28px">
       <div class="score-hero-num green" id="score-hero-num">–</div>
       <div class="score-hero-divider"></div>
       <div class="score-hero-meta">
@@ -592,15 +652,14 @@ button{font-family:inherit}
       <div class="score-hero-actions">
         <button class="btn-secondary" onclick="startAnalysis()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg> Re-Analyse</button>
         <button class="btn-secondary" onclick="exportHtml()">↓ Bericht</button>
-        <button class="btn-secondary" onclick="window.print()">⎙ PDF</button>
       </div>
     </div>
-    <!-- hidden legacy badge (used by JS) -->
     <div id="score-badge" style="display:none"></div>
+
     <!-- Executive Summary -->
     <div class="exec-summary-card" id="exec-summary" style="display:none">
       <div class="exec-summary-header">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         <span class="exec-summary-title">Executive Summary</span>
       </div>
       <div class="exec-summary-loading" id="exec-summary-loading">
@@ -609,7 +668,55 @@ button{font-family:inherit}
       </div>
       <div id="exec-summary-content" style="display:none"></div>
     </div>
-    <div class="stat-grid">
+
+    <!-- Modul-Kacheln -->
+    <div class="module-grid" id="module-grid">
+      <div class="module-card" onclick="showView('sqeg')">
+        <div class="module-card-header">
+          <div class="module-card-icon sqeg"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div><div class="module-card-name">SQEG</div><div class="module-card-sub">Content &amp; Qualität</div></div>
+        </div>
+        <div class="module-card-score neutral" id="mc-sqeg-score">–</div>
+        <div class="module-card-bar-bg"><div class="module-card-bar neutral" id="mc-sqeg-bar" style="width:0%"></div></div>
+        <div class="module-card-label" id="mc-sqeg-label">Noch nicht analysiert</div>
+      </div>
+      <div class="module-card" onclick="showView('performance')">
+        <div class="module-card-header">
+          <div class="module-card-icon perf"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+          <div><div class="module-card-name">Performance</div><div class="module-card-sub">Sichtbarkeit &amp; Rankings</div></div>
+        </div>
+        <div class="module-card-score neutral" id="mc-perf-score">–</div>
+        <div class="module-card-bar-bg"><div class="module-card-bar neutral" id="mc-perf-bar" style="width:0%"></div></div>
+        <div class="module-card-label" id="mc-perf-label">Noch nicht analysiert</div>
+      </div>
+      <div class="module-card" onclick="showView('geo')">
+        <div class="module-card-header">
+          <div class="module-card-icon geo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8l4 4-4 4-4-4 4-4z"/></svg></div>
+          <div><div class="module-card-name">GEO / AEO</div><div class="module-card-sub">KI-Sichtbarkeit</div></div>
+        </div>
+        <div class="module-card-score neutral" id="mc-geo-score">–</div>
+        <div class="module-card-bar-bg"><div class="module-card-bar neutral" id="mc-geo-bar" style="width:0%"></div></div>
+        <div class="module-card-label" id="mc-geo-label">Noch nicht analysiert</div>
+      </div>
+    </div>
+
+    <!-- Top-Prioritäten -->
+    <div class="top-priorities" id="top-priorities" style="display:none">
+      <div class="top-priorities-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Top-Prioritäten
+      </div>
+      <div id="top-priorities-list"></div>
+    </div>
+  </div>
+</div><!-- /view-overview -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     VIEW: SQEG
+════════════════════════════════════════════════════════════ -->
+<div class="view-panel" id="view-sqeg">
+  <div id="sqeg-results" style="display:none">
+    <div class="stat-grid" style="margin-top:24px">
       <div class="stat-box green"><div class="stat-num" id="cnt-g">0</div><div class="stat-lbl">✓ Bestanden</div></div>
       <div class="stat-box amber"><div class="stat-num" id="cnt-a">0</div><div class="stat-lbl">◑ Verbesserungswürdig</div></div>
       <div class="stat-box red"><div class="stat-num" id="cnt-r">0</div><div class="stat-lbl">✗ Fehlerhaft</div></div>
@@ -626,18 +733,6 @@ button{font-family:inherit}
     <div class="needs-met-block" id="needs-met-block">
       <div class="needs-met-label">Cluster 8 · Needs Met (Suchabsicht)</div>
       <div id="needs-met-scale"></div>
-    </div>
-    <div class="needs-met-block" id="gsc-panel" style="display:none">
-      <div class="needs-met-label">GSC · Top-Keywords (90 Tage)</div>
-      <div id="gsc-panel-content"></div>
-    </div>
-    <div class="needs-met-block" id="sistrix-panel" style="display:none">
-      <div class="needs-met-label">Sistrix · URL-Sichtbarkeit (DE)</div>
-      <div id="sistrix-panel-content"></div>
-    </div>
-    <div class="needs-met-block" id="geo-panel" style="display:none">
-      <div class="needs-met-label">GEO · KI-Sichtbarkeit (AI Search)</div>
-      <div id="geo-panel-content"></div>
     </div>
     <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">Prioritäten-Matrix</span><div class="section-divider-line"></div></div>
     <div class="priority-matrix">
@@ -661,8 +756,51 @@ button{font-family:inherit}
       <tbody id="criteria-tbody"></tbody>
     </table>
   </div>
-</div><!-- /panel-sqeg -->
-<div class="tool-panel" id="panel-settings">
+  <div id="sqeg-empty" style="padding:48px 0;text-align:center;color:var(--text3)">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 12px;display:block;opacity:.4"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <div style="font-size:14px;font-weight:600;margin-bottom:4px">Noch keine Analyse</div>
+    <div style="font-size:12px">URL eingeben und Analyse starten</div>
+  </div>
+</div><!-- /view-sqeg -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     VIEW: PERFORMANCE
+════════════════════════════════════════════════════════════ -->
+<div class="view-panel" id="view-performance">
+  <div id="perf-results" style="display:none;margin-top:24px">
+    <div class="needs-met-block" id="gsc-panel" style="display:none">
+      <div class="needs-met-label">GSC · Top-Keywords (90 Tage)</div>
+      <div id="gsc-panel-content"></div>
+    </div>
+    <div class="needs-met-block" id="sistrix-panel" style="display:none">
+      <div class="needs-met-label">Sistrix · URL-Sichtbarkeit (DE)</div>
+      <div id="sistrix-panel-content"></div>
+    </div>
+  </div>
+  <div id="perf-empty" style="padding:48px 0;text-align:center;color:var(--text3)">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 12px;display:block;opacity:.4"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <div style="font-size:14px;font-weight:600;margin-bottom:4px">Noch keine Analyse</div>
+    <div style="font-size:12px">URL eingeben und Analyse starten</div>
+  </div>
+</div><!-- /view-performance -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     VIEW: GEO / AEO
+════════════════════════════════════════════════════════════ -->
+<div class="view-panel" id="view-geo">
+  <div id="geo-results" style="display:none;margin-top:24px">
+    <div class="needs-met-block" id="geo-panel" style="display:none">
+      <div class="needs-met-label">GEO · KI-Sichtbarkeit (AI Search)</div>
+      <div id="geo-panel-content"></div>
+    </div>
+  </div>
+  <div id="geo-empty" style="padding:48px 0;text-align:center;color:var(--text3)">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 12px;display:block;opacity:.4"><circle cx="12" cy="12" r="10"/><path d="M12 8l4 4-4 4-4-4 4-4z"/></svg>
+    <div style="font-size:14px;font-weight:600;margin-bottom:4px">Noch keine Analyse</div>
+    <div style="font-size:12px">URL eingeben und Analyse starten</div>
+  </div>
+</div><!-- /view-geo -->
+<div class="view-panel" id="view-settings">
   <div class="input-card">
     <div class="card-header">
       <div class="card-icon">
@@ -790,16 +928,35 @@ button{font-family:inherit}
 </div>
 <script>
 const CSRF_TOKEN = '<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>';
+
+// === VIEW TITLES ===
+const VIEW_META={
+  overview:{title:'Übersicht',sub:'Landingpage Analyse Tool'},
+  sqeg:{title:'SQEG',sub:'Google Search Quality Evaluator Guidelines'},
+  performance:{title:'Performance',sub:'Rankings · Sichtbarkeit · Quick Wins'},
+  geo:{title:'GEO / AEO',sub:'KI-Sichtbarkeit in AI-Suchmaschinen'},
+  settings:{title:'Einstellungen',sub:'API-Keys · Modell · Passwort'},
+};
+
 // === ROUTING ===
-function showTool(name){
-  document.querySelectorAll('.tool-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('[data-tool]').forEach(b=>b.classList.remove('active'));
-  const p=document.getElementById('panel-'+name);
+function showView(name){
+  document.querySelectorAll('.view-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('[data-view]').forEach(b=>b.classList.remove('active'));
+  const p=document.getElementById('view-'+name);
   if(p)p.classList.add('active');
-  const b=document.querySelector('[data-tool="'+name+'"]');
+  const b=document.querySelector('[data-view="'+name+'"]');
   if(b)b.classList.add('active');
+  const meta=VIEW_META[name]||{title:name,sub:''};
+  document.getElementById('view-title').textContent=meta.title;
+  document.getElementById('view-subtitle').textContent=meta.sub;
+  // Progress + results live in overview — move them there when switching
+  if(name==='overview'){
+    document.getElementById('progress-section').style.display=
+      document.getElementById('progress-section').dataset.active==='1'?'block':'none';
+  }
 }
-document.querySelectorAll('[data-tool]').forEach(btn=>btn.addEventListener('click',()=>showTool(btn.dataset.tool)));
+// Legacy alias
+function showTool(n){showView(n==='sqeg'?'overview':n);}
 
 // === MODE TOGGLE ===
 let currentMode='url';
@@ -997,6 +1154,9 @@ async function startDemo(){
   if(timerInterval)clearInterval(timerInterval);
   timerInterval=setInterval(updateTimer,1000);
   document.getElementById('progress-timer').textContent='';
+  ['sqeg-results','perf-results','geo-results'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  ['sqeg-empty','perf-empty','geo-empty'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='block';});
+  showView('overview');
 
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   currentUrl='https://www.beispiel-energie.de/strom/tarife';
@@ -1060,6 +1220,7 @@ async function startAnalysis(){
   document.getElementById('btn-demo').disabled=true;
   document.getElementById('header-form').classList.add('input-dimmed');
   document.getElementById('progress-section').style.display='block';
+  document.getElementById('progress-section').dataset.active='1';
   document.getElementById('progress-bar-wrap').style.display='block';
   document.getElementById('loader-wrap').style.display='block';
   document.getElementById('status-msg').style.display='block';
@@ -1073,9 +1234,12 @@ async function startAnalysis(){
   analysisStartTime=Date.now();lastPct=0;
   if(timerInterval)clearInterval(timerInterval);
   timerInterval=setInterval(updateTimer,1000);
+  // Reset module views
+  ['sqeg-results','perf-results','geo-results'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  ['sqeg-empty','perf-empty','geo-empty'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='block';});
   document.getElementById('progress-timer').textContent='';
   setProgress(0,'Analyse startet…','Vorbereitung…');
-  showTool('sqeg');
+  showView('overview');
 
   try{
     if(currentMode==='url'){
@@ -1431,6 +1595,58 @@ function parseExecSummary(text){
   };
 }
 
+// === MODULE CARDS + NAV BADGES ===
+function updateModuleCards(){
+  // SQEG Score
+  const sqegScore=calcScore();
+  document.getElementById('mc-sqeg-score').textContent=sqegScore+'%';
+  document.getElementById('nav-score-sqeg').textContent=sqegScore+'%';
+  const mcSqeg=document.getElementById('mc-sqeg');
+  if(mcSqeg){mcSqeg.classList.remove('mc-green','mc-amber','mc-red');mcSqeg.classList.add(sqegScore>=70?'mc-green':sqegScore>=45?'mc-amber':'mc-red');}
+
+  // Performance Score (Heuristik aus Sistrix Visibility)
+  let perfScore=0;
+  if(sistrixData?.success){
+    const vis=parseFloat(sistrixData.visibility||0);
+    perfScore=vis>=1?75:vis>=0.1?50:vis>0?30:15;
+    if(gscData?.keywords?.length>10)perfScore=Math.min(perfScore+15,100);
+  }else if(gscData?.keywords?.length){perfScore=35;}
+  const mcPerfEl=document.getElementById('mc-perf-score');
+  const navPerfEl=document.getElementById('nav-score-perf');
+  const mcPerfCard=document.getElementById('mc-perf');
+  if(mcPerfEl)mcPerfEl.textContent=perfScore?perfScore+'%':'–';
+  if(navPerfEl)navPerfEl.textContent=perfScore?perfScore+'%':'–';
+  if(mcPerfCard){mcPerfCard.classList.remove('mc-green','mc-amber','mc-red');if(perfScore)mcPerfCard.classList.add(perfScore>=70?'mc-green':perfScore>=45?'mc-amber':'mc-red');}
+
+  // GEO Score (Heuristik aus AI Prompts/Sources)
+  let geoScore=0;
+  if(geoData?.success){
+    const prompts=geoData.prompts?.length||0;
+    const sources=geoData.sources?.length||0;
+    geoScore=prompts>=5?80:prompts>=2?55:prompts>=1?35:sources>=1?25:10;
+  }
+  const mcGeoEl=document.getElementById('mc-geo-score');
+  const navGeoEl=document.getElementById('nav-score-geo');
+  const mcGeoCard=document.getElementById('mc-geo');
+  if(mcGeoEl)mcGeoEl.textContent=geoScore?geoScore+'%':'–';
+  if(navGeoEl)navGeoEl.textContent=geoScore?geoScore+'%':'–';
+  if(mcGeoCard){mcGeoCard.classList.remove('mc-green','mc-amber','mc-red');if(geoScore)mcGeoCard.classList.add(geoScore>=70?'mc-green':geoScore>=45?'mc-amber':'mc-red');}
+}
+
+// === TOP PRIORITIES ===
+function renderTopPriorities(){
+  const list=document.getElementById('top-priorities-list');
+  if(!list)return;
+  const issues=analysisResults.filter(r=>r.rating==='red'||r.rating==='amber').sort((a,b)=>{
+    const w={red:0,amber:1};return (w[a.rating]??2)-(w[b.rating]??2);
+  }).slice(0,5);
+  if(!issues.length){list.innerHTML='<li style="color:var(--text-secondary)">Keine kritischen Befunde.</li>';return;}
+  list.innerHTML=issues.map(r=>`<li class="top-prio-item top-prio-${r.rating}">
+    <span class="top-prio-dot" style="background:${r.rating==='red'?'var(--red)':'var(--amber)'}"></span>
+    <span class="top-prio-label">${escHtml(r.criterion||r.label||'')}</span>
+  </li>`).join('');
+}
+
 async function generateExecSummary(){
   document.getElementById('exec-summary').style.display='block';
   // Demo mode: static data, no API call
@@ -1662,6 +1878,22 @@ function renderResults(keyword){
   renderPriorityMatrix();
   renderClusterOverview();
   renderCriteriaTable(analysisResults,'all');
+  // Activate sub-views
+  document.getElementById('progress-section').dataset.active='0';
+  document.getElementById('sqeg-results').style.display='block';
+  document.getElementById('sqeg-empty').style.display='none';
+  if(gscData?.keywords?.length||sistrixData?.success){
+    document.getElementById('perf-results').style.display='block';
+    document.getElementById('perf-empty').style.display='none';
+  }
+  if(geoData?.success){
+    document.getElementById('geo-results').style.display='block';
+    document.getElementById('geo-empty').style.display='none';
+  }
+  // Modul-Kacheln updaten
+  updateModuleCards();
+  // Top-Prioritäten in Übersicht
+  renderTopPriorities();
   generateExecSummary();
 }
 
@@ -1897,6 +2129,8 @@ function saveDemoSetting(checked){
 loadDemoSetting();
 const _dmCb=document.getElementById('setting-dark-mode');
 if(_dmCb)_dmCb.checked=document.documentElement.getAttribute('data-theme')==='dark';
+// Initial view
+showView('overview');
 </script>
 </body>
 </html>
