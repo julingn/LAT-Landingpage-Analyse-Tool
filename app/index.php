@@ -635,6 +635,10 @@ button{font-family:inherit}
       <div class="needs-met-label">Sistrix · URL-Sichtbarkeit (DE)</div>
       <div id="sistrix-panel-content"></div>
     </div>
+    <div class="needs-met-block" id="geo-panel" style="display:none">
+      <div class="needs-met-label">GEO · KI-Sichtbarkeit (AI Search)</div>
+      <div id="geo-panel-content"></div>
+    </div>
     <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">Prioritäten-Matrix</span><div class="section-divider-line"></div></div>
     <div class="priority-matrix">
       <div class="priority-col"><div class="priority-col-header red">🔴 Sofort angehen</div><div id="pri-sofort"></div></div>
@@ -898,7 +902,7 @@ const MINI_CALLS=[
 // === STATE ===
 let analysisResults=[],pqResults=[],e8Result=null,ymylResult=null,currentUrl='',currentHtml='';
 let isDemoMode=false;
-let gscData=null,serpData=null,backlinkData=null,psiData=null,sistrixData=null;
+let gscData=null,serpData=null,backlinkData=null,psiData=null,sistrixData=null,geoData=null;
 let analysisStartTime=0,timerInterval=null,lastPct=0;
 
 // === LOG / PROGRESS ===
@@ -988,7 +992,7 @@ async function startDemo(){
   document.getElementById('log-wrap').classList.remove('collapsed');
   document.getElementById('log-box').innerHTML='';
   analysisResults=[];pqResults=[];e8Result=null;ymylResult=null;
-  gscData=null;serpData=null;backlinkData=null;psiData=null;sistrixData=null;
+  gscData=null;serpData=null;backlinkData=null;psiData=null;sistrixData=null;geoData=null;
   analysisStartTime=Date.now();lastPct=0;
   if(timerInterval)clearInterval(timerInterval);
   timerInterval=setInterval(updateTimer,1000);
@@ -1065,7 +1069,7 @@ async function startAnalysis(){
   document.getElementById('log-wrap').classList.remove('collapsed');
   document.getElementById('log-box').innerHTML='';
   analysisResults=[];pqResults=[];e8Result=null;ymylResult=null;
-  gscData=null;serpData=null;backlinkData=null;psiData=null;sistrixData=null;
+  gscData=null;serpData=null;backlinkData=null;psiData=null;sistrixData=null;geoData=null;
   analysisStartTime=Date.now();lastPct=0;
   if(timerInterval)clearInterval(timerInterval);
   timerInterval=setInterval(updateTimer,1000);
@@ -1098,19 +1102,21 @@ async function startAnalysis(){
     const effectiveKeyword=keyword||'';
 
     // Externe Daten parallel abrufen (Fehler blockieren nicht)
-    setProgress(5,'Daten abrufen…','GSC · SERP · Backlinks · PageSpeed · Sistrix…');
-    const [gscRes,serpRes,blRes,psiRes,sistrixRes]=await Promise.allSettled([
+    setProgress(5,'Daten abrufen…','GSC · SERP · Backlinks · PageSpeed · Sistrix · GEO…');
+    const [gscRes,serpRes,blRes,psiRes,sistrixRes,geoRes]=await Promise.allSettled([
       currentMode==='url'&&currentUrl?fetchGscData(currentUrl):Promise.resolve(null),
       effectiveKeyword?fetchSerpData(effectiveKeyword):Promise.resolve(null),
       currentMode==='url'&&currentUrl?fetchBacklinkData(currentUrl):Promise.resolve(null),
       currentMode==='url'&&currentUrl?fetchPageSpeedData(currentUrl):Promise.resolve(null),
       currentMode==='url'&&currentUrl?fetchSistrixData(currentUrl):Promise.resolve(null),
+      currentMode==='url'&&currentUrl?fetchGeoData(currentUrl):Promise.resolve(null),
     ]);
     gscData      = gscRes.status==='fulfilled'?gscRes.value:null;
     serpData     = serpRes.status==='fulfilled'?serpRes.value:null;
     backlinkData = blRes.status==='fulfilled'?blRes.value:null;
     psiData      = psiRes.status==='fulfilled'?psiRes.value:null;
     sistrixData  = sistrixRes.status==='fulfilled'?sistrixRes.value:null;
+    geoData      = geoRes.status==='fulfilled'?geoRes.value:null;
 
     if(gscData?.keywords?.length)log(`GSC: ${gscData.keywords.length} Keywords geladen`,'ok');
     else if(gscData?._empty)log('GSC: verbunden, aber keine Daten für diese URL (keine Impressionen in 90 Tagen?)');
@@ -1122,6 +1128,10 @@ async function startAnalysis(){
     else if(sistrixData?.error)log(`Sistrix: ${sistrixData.error}`,'err');
     else if(currentMode==='url')log('Sistrix: keine Daten (API-Key nicht konfiguriert oder Fehler)');
     else log('Sistrix: übersprungen (HTML-Modus)');
+    if(geoData?.success)log(`GEO: ${geoData.prompts?.length??0} AI-Prompts · ${geoData.sources?.length??0} Quellen gefunden`,'ok');
+    else if(geoData?.error)log(`GEO: ${geoData.error}`,'err');
+    else if(currentMode==='url')log('GEO: keine KI-Sichtbarkeitsdaten (Entity nicht in Sistrix AI-Index?)');
+    else log('GEO: übersprungen (HTML-Modus)');
     if(serpData?.tasks?.[0]?.result?.[0]?.items)log(`SERP: Top-10 für "${effectiveKeyword}" geladen`,'ok');
     else if(effectiveKeyword)log(`SERP: keine Daten für "${effectiveKeyword}"`);
     if(backlinkData?.tasks?.[0]?.result?.[0])log('Backlinks: Profil geladen','ok');
@@ -1207,6 +1217,14 @@ async function fetchGscData(url){
 async function fetchSistrixData(url){
   try{
     const res=await fetch('sistrix.php?action=url_data',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify({url,csrf_token:CSRF_TOKEN})});
+    if(!res.ok)return null;
+    const d=await res.json();
+    return d.success?d:null;
+  }catch(e){return null;}
+}
+async function fetchGeoData(url){
+  try{
+    const res=await fetch('sistrix.php?action=geo_data',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify({url,csrf_token:CSRF_TOKEN})});
     if(!res.ok)return null;
     const d=await res.json();
     return d.success?d:null;
@@ -1529,6 +1547,7 @@ function renderResults(keyword){
   if(sistrixData?.success&&!sistrixData.no_data){
     sistrixPanel.style.display='block';
     const vis=sistrixData.visibility,kwCnt=sistrixData.kw_count,kws=sistrixData.keywords||[];
+    const opps=sistrixData.opportunities||[],comps=sistrixData.competitors||[];
     let html='<div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">';
     if(vis!==null)html+=`<div style="background:var(--bg3);border-radius:var(--radius-sm);padding:8px 14px;text-align:center"><div style="font-size:11px;color:var(--text3);margin-bottom:2px">Sichtbarkeitsindex</div><div style="font-size:18px;font-weight:700;color:var(--accent)">${vis}</div></div>`;
     if(kwCnt!==null)html+=`<div style="background:var(--bg3);border-radius:var(--radius-sm);padding:8px 14px;text-align:center"><div style="font-size:11px;color:var(--text3);margin-bottom:2px">Keywords Top\u00a0100</div><div style="font-size:18px;font-weight:700;color:var(--text)">${kwCnt.toLocaleString('de-DE')}</div></div>`;
@@ -1542,8 +1561,56 @@ function renderResults(keyword){
           return`<tr><td style="padding:3px 8px 3px 0"><span style="display:inline-block;width:${bar}px;height:4px;background:var(--accent);border-radius:2px;vertical-align:middle;margin-right:6px;opacity:.55"></span>${escHtml(k.keyword)}</td><td style="text-align:right;padding:3px 4px;color:${posColor};font-weight:600">${k.position}</td><td style="text-align:right;padding:3px 4px">${k.volume.toLocaleString('de-DE')}</td></tr>`;
         }).join('')+'</tbody></table>';
     }else{html+='<p style="font-size:12px;color:var(--text3);margin:0">Keine Keywords f\u00fcr diese URL gefunden.</p>';}
+    // \u2500\u2500 Wettbewerber \u2500\u2500
+    if(comps.length){
+      html+='<div style="margin-top:16px"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Organische Wettbewerber</div>';
+      html+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
+      comps.forEach(c=>{
+        const pct=Math.round((c.competition||0)*100);
+        html+=`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:5px 10px;font-size:12px;display:flex;align-items:center;gap:8px"><span style="font-weight:500">${escHtml(c.domain)}</span><span style="font-size:10px;color:var(--text3)">${pct}%</span></div>`;
+      });
+      html+='</div></div>';
+    }
+    // \u2500\u2500 Quick Wins (domain.opportunities) \u2500\u2500
+    if(opps.length){
+      html+='<div style="margin-top:16px"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Quick Wins \u2014 Optimierungspotenzial</div>';
+      html+='<table style="width:100%;font-size:12px;border-collapse:collapse"><thead><tr style="color:var(--text3);font-size:11px"><th style="text-align:left;padding:3px 8px 3px 0">Keyword</th><th style="text-align:right;padding:3px 4px">Position</th><th style="text-align:right;padding:3px 4px">Gain</th><th style="text-align:right;padding:3px 4px">Wettbewerb</th></tr></thead><tbody>';
+      opps.forEach(o=>{
+        const gainColor=o.gain>=70?'var(--green)':o.gain>=40?'var(--amber)':'var(--text3)';
+        const posColor=o.position<=5?'var(--amber)':'var(--text3)';
+        html+=`<tr><td style="padding:3px 8px 3px 0">${escHtml(o.keyword)}</td><td style="text-align:right;padding:3px 4px;color:${posColor};font-weight:600">${o.position}</td><td style="text-align:right;padding:3px 4px;color:${gainColor};font-weight:600">${o.gain}</td><td style="text-align:right;padding:3px 4px;color:var(--text3)">${Math.round((o.competition||0)*100)}%</td></tr>`;
+      });
+      html+='</tbody></table></div>';
+    }
     document.getElementById('sistrix-panel-content').innerHTML=html;
   }else{sistrixPanel.style.display='none';}
+  // \u2500\u2500 GEO-Panel \u2500\u2500
+  const geoPanel=document.getElementById('geo-panel');
+  if(geoData?.success){
+    geoPanel.style.display='block';
+    const prompts=geoData.prompts||[],sources=geoData.sources||[];
+    let ghtml='';
+    if(prompts.length){
+      ghtml+='<div style="margin-bottom:14px"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">AI-Prompts \u2014 die Marke wird in diesen KI-Antworten erw\u00e4hnt</div>';
+      ghtml+='<div style="display:flex;flex-direction:column;gap:5px">';
+      prompts.slice(0,15).forEach(p=>{
+        const model=escHtml(p.model||'');
+        const modelBadge=model?`<span style="font-size:10px;background:var(--bg4);border-radius:4px;padding:2px 6px;color:var(--text3);white-space:nowrap">${model}</span>`:'';
+        ghtml+=`<div style="display:flex;align-items:center;gap:8px;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)"><span style="flex:1">${escHtml(p.prompt||'')}</span>${modelBadge}</div>`;
+      });
+      ghtml+='</div></div>';
+    }
+    if(sources.length){
+      ghtml+='<div><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Als KI-Quelle zitierte URLs der Domain</div>';
+      ghtml+='<div style="display:flex;flex-direction:column;gap:4px">';
+      sources.slice(0,10).forEach(s=>{
+        ghtml+=`<div style="font-size:12px;color:var(--accent);padding:2px 0;border-bottom:1px solid var(--border);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(s.url||s)}</div>`;
+      });
+      ghtml+='</div></div>';
+    }
+    if(!prompts.length&&!sources.length)ghtml='<p style="font-size:12px;color:var(--text3);margin:0">Keine KI-Sichtbarkeitsdaten gefunden (Entity nicht im Sistrix AI-Index).</p>';
+    document.getElementById('geo-panel-content').innerHTML=ghtml;
+  }else{geoPanel.style.display='none';}
   renderPriorityMatrix();
   renderClusterOverview();
   renderCriteriaTable(analysisResults,'all');
