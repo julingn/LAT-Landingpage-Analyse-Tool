@@ -258,6 +258,10 @@ button{font-family:inherit}
 .api-test-dot.ok{background:var(--green);border-color:var(--green)}
 .api-test-dot.err{background:var(--red);border-color:var(--red)}
 .api-test-dot.testing{background:var(--amber);border-color:var(--amber)}
+/* === TOOLTIPS === */
+[data-tip]{position:relative;cursor:default}
+[data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);font-size:11px;font-family:'Inter',sans-serif;font-weight:400;line-height:1.4;white-space:nowrap;max-width:260px;white-space:normal;text-align:center;padding:5px 9px;border-radius:6px;pointer-events:none;opacity:0;transition:opacity .15s;z-index:100}
+[data-tip]:hover::after{opacity:1}
 .api-test-name{font-size:13px;font-weight:600;color:var(--text)}
 .api-test-msg{font-size:11px;color:var(--text3);margin-top:2px;font-family:'Geist Mono','Courier New',monospace}
 .btn-sm{padding:4px 12px!important;font-size:12px!important;height:28px!important;min-height:28px!important}
@@ -644,9 +648,9 @@ button{font-family:inherit}
           <div class="score-hero-bar-bg"><div class="score-hero-bar green" id="score-hero-bar" style="width:0%"></div></div>
         </div>
         <div class="score-hero-chips">
-          <span class="score-chip" id="ymyl-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> –</span>
-          <span class="score-chip"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> <span id="hero-criteria-count">42 Kriterien</span></span>
-          <span class="score-chip" id="hero-timer-chip"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> –</span>
+          <span class="score-chip" id="ymyl-badge" data-tip="YMYL (Your Money or Your Life): Kennzeichnet Seiten, bei denen Google besonders hohe Qualitätsanforderungen stellt — z.B. Finanzen, Gesundheit, Recht"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> –</span>
+          <span class="score-chip" data-tip="Anzahl der bewerteten SQEG-Kriterien aus den Google Search Quality Evaluator Guidelines"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> <span id="hero-criteria-count">42 Kriterien</span></span>
+          <span class="score-chip" id="hero-timer-chip" data-tip="Dauer der Analyse (Zeit vom Start bis zum letzten API-Call)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> –</span>
         </div>
       </div>
       <div class="score-hero-actions">
@@ -921,6 +925,116 @@ button{font-family:inherit}
         </label>
       </div>
     </div>
+    <div style="height:1px;background:var(--border);margin:24px 0"></div>
+    <div class="settings-section">
+      <div class="settings-section-title">DataForSEO</div>
+      <div class="settings-section-desc">Login (E-Mail) und API-Passwort für DataForSEO. Erhältlich unter app.dataforseo.com.</div>
+      <form id="form-dataforseo" onsubmit="saveDataforSeo(event)">
+        <div class="settings-field">
+          <label class="settings-label" for="s-dfs-login">E-Mail (Login)</label>
+          <input type="email" id="s-dfs-login" class="settings-input" placeholder="user@example.com" autocomplete="off">
+        </div>
+        <div class="settings-field">
+          <label class="settings-label" for="s-dfs-pw">API-Passwort</label>
+          <div class="settings-input-wrap">
+            <input type="password" id="s-dfs-pw" class="settings-input" placeholder="Passwort" autocomplete="off">
+            <button type="button" class="settings-toggle-btn" onclick="toggleSettingsPw('s-dfs-pw',this)">Anzeigen</button>
+          </div>
+        </div>
+        <button type="submit" class="btn-save">Speichern</button>
+        <div class="success-msg" id="msg-dataforseo">✓ DataForSEO-Zugangsdaten gespeichert.</div>
+        <div class="err-box" id="err-dataforseo" style="display:none;margin-top:10px;"></div>
+      </form>
+    </div>
+    <div style="height:1px;background:var(--border);margin:24px 0"></div>
+    <div class="settings-section">
+      <div class="settings-section-title">Sistrix</div>
+      <div class="settings-section-desc">API-Key für Sistrix. Erhältlich unter app.sistrix.com unter API-Zugang.</div>
+      <form id="form-sistrix" onsubmit="saveSistrix(event)">
+        <div class="settings-field">
+          <label class="settings-label" for="s-sistrix">API-Key</label>
+          <div class="settings-input-wrap">
+            <input type="password" id="s-sistrix" class="settings-input" placeholder="Sistrix API-Key" autocomplete="off">
+            <button type="button" class="settings-toggle-btn" onclick="toggleSettingsPw('s-sistrix',this)">Anzeigen</button>
+          </div>
+        </div>
+        <button type="submit" class="btn-save">Speichern</button>
+        <div class="success-msg" id="msg-sistrix">✓ Sistrix API-Key gespeichert.</div>
+        <div class="err-box" id="err-sistrix" style="display:none;margin-top:10px;"></div>
+      </form>
+    </div>
+    <div style="height:1px;background:var(--border);margin:24px 0"></div>
+    <div class="settings-section">
+      <div class="settings-section-title">PageSpeed Insights</div>
+      <div class="settings-section-desc">Google API-Key für PageSpeed Insights (optional — ohne Key gilt ein Rate-Limit). Erstellen unter console.cloud.google.com.</div>
+      <form id="form-pagespeed" onsubmit="savePageSpeed(event)">
+        <div class="settings-field">
+          <label class="settings-label" for="s-pagespeed">API-Key</label>
+          <div class="settings-input-wrap">
+            <input type="password" id="s-pagespeed" class="settings-input" placeholder="AIza…" autocomplete="off">
+            <button type="button" class="settings-toggle-btn" onclick="toggleSettingsPw('s-pagespeed',this)">Anzeigen</button>
+          </div>
+        </div>
+        <button type="submit" class="btn-save">Speichern</button>
+        <div class="success-msg" id="msg-pagespeed">✓ PageSpeed API-Key gespeichert.</div>
+        <div class="err-box" id="err-pagespeed" style="display:none;margin-top:10px;"></div>
+      </form>
+    </div>
+    <div style="height:1px;background:var(--border);margin:24px 0"></div>
+    <div class="settings-section">
+      <div class="settings-section-title">OpenAI (optional)</div>
+      <div class="settings-section-desc">OpenAI API-Key als Alternative zu Anthropic. Erhältlich unter platform.openai.com.</div>
+      <form id="form-openai" onsubmit="saveOpenAI(event)">
+        <div class="settings-field">
+          <label class="settings-label" for="s-openai-key">API-Key</label>
+          <div class="settings-input-wrap">
+            <input type="password" id="s-openai-key" class="settings-input" placeholder="sk-…" autocomplete="off">
+            <button type="button" class="settings-toggle-btn" onclick="toggleSettingsPw('s-openai-key',this)">Anzeigen</button>
+          </div>
+        </div>
+        <div class="settings-field">
+          <label class="settings-label" for="s-openai-model">Modell</label>
+          <select id="s-openai-model" class="settings-input" style="font-family:'Inter',sans-serif;cursor:pointer">
+            <option value="">— kein OpenAI-Modell (Anthropic verwenden) —</option>
+            <option value="gpt-4o">gpt-4o</option>
+            <option value="gpt-4o-mini">gpt-4o-mini</option>
+            <option value="o1-mini">o1-mini</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-save">Speichern</button>
+        <div class="success-msg" id="msg-openai">✓ OpenAI-Einstellungen gespeichert.</div>
+        <div class="err-box" id="err-openai" style="display:none;margin-top:10px;"></div>
+      </form>
+    </div>
+    <div style="height:1px;background:var(--border);margin:24px 0"></div>
+    <div class="settings-section">
+      <div class="settings-section-title">Google Search Console</div>
+      <div class="settings-section-desc">Service-Account-JSON und Standard-Property für GSC. Service-Account unter console.cloud.google.com erstellen, dann in GSC als Nutzer hinzufügen.</div>
+      <form id="form-gsc-creds" onsubmit="saveGscCreds(event)">
+        <div class="settings-field">
+          <label class="settings-label" for="s-gsc-url">Standard-Property (Site-URL)</label>
+          <input type="url" id="s-gsc-url" class="settings-input" placeholder="https://www.example.com/" autocomplete="off">
+        </div>
+        <div class="settings-field">
+          <label class="settings-label" for="s-gsc-json">Service-Account JSON</label>
+          <textarea id="s-gsc-json" class="settings-input" rows="5" style="resize:vertical;font-family:'Geist Mono',monospace;font-size:11px" placeholder='{"type":"service_account","client_email":"...","private_key":"..."}'></textarea>
+        </div>
+        <button type="submit" class="btn-save">Speichern</button>
+        <div class="success-msg" id="msg-gsc-creds">✓ GSC-Credentials gespeichert.</div>
+        <div class="err-box" id="err-gsc-creds" style="display:none;margin-top:10px;"></div>
+      </form>
+    </div>
+    <div style="height:1px;background:var(--border);margin:24px 0"></div>
+    <div class="settings-section">
+      <div class="settings-section-title">GSC Domain-Verwaltung</div>
+      <div class="settings-section-desc">GSC-Properties verwalten, die bei der Analyse ausgewählt werden können.</div>
+      <div id="gsc-domain-list" style="display:flex;flex-direction:column;gap:8px;margin:14px 0 16px"></div>
+      <form id="form-gsc-domain" onsubmit="addGscDomain(event)" style="display:flex;gap:8px;align-items:flex-start">
+        <input type="url" id="s-gsc-domain-new" class="settings-input" placeholder="https://www.example.com/" style="flex:1" autocomplete="off">
+        <button type="submit" class="btn-save" style="white-space:nowrap;margin-top:0;flex-shrink:0">Hinzufügen</button>
+      </form>
+      <div class="err-box" id="err-gsc-domain" style="display:none;margin-top:10px;"></div>
+    </div>
   </div>
 </div>
 </div>
@@ -954,6 +1068,7 @@ function showView(name){
     document.getElementById('progress-section').style.display=
       document.getElementById('progress-section').dataset.active==='1'?'block':'none';
   }
+  if(name==='settings'){loadGscDomains();}
 }
 // Legacy alias
 function showTool(n){showView(n==='sqeg'?'overview':n);}
@@ -1406,9 +1521,9 @@ async function enrichGscWithSerpFeatures(keywords){
       const features=d.results[kw];
       if(!features)return;
       let badges='';
-      if(features.ai_overview>0)badges+=`<span style="font-size:9px;background:#6c47ff22;color:#6c47ff;border:1px solid #6c47ff44;border-radius:3px;padding:1px 4px;font-weight:600">AI</span>`;
-      if(features.featured_snippet>0)badges+=`<span style="font-size:9px;background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-border);border-radius:3px;padding:1px 4px;font-weight:600">FS</span>`;
-      if(features.knowledge_graph>0||features.knowledge_panel>0)badges+=`<span style="font-size:9px;background:var(--bg4);color:var(--text3);border:1px solid var(--border);border-radius:3px;padding:1px 4px">KG</span>`;
+      if(features.ai_overview>0)badges+=`<span data-tip="AI Overview: Google zeigt für dieses Keyword eine KI-generierte Antwort über den organischen Ergebnissen" style="font-size:9px;background:#6c47ff22;color:#6c47ff;border:1px solid #6c47ff44;border-radius:3px;padding:1px 4px;font-weight:600">AI</span>`;
+      if(features.featured_snippet>0)badges+=`<span data-tip="Featured Snippet: Google zeigt einen hervorgehobenen Textauszug direkt in den Suchergebnissen" style="font-size:9px;background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-border);border-radius:3px;padding:1px 4px;font-weight:600">FS</span>`;
+      if(features.knowledge_graph>0||features.knowledge_panel>0)badges+=`<span data-tip="Knowledge Graph: Google zeigt ein Informationspanel mit strukturierten Daten zu diesem Thema" style="font-size:9px;background:var(--bg4);color:var(--text3);border:1px solid var(--border);border-radius:3px;padding:1px 4px">KG</span>`;
       el.innerHTML=badges;
     });
   }catch(e){}
@@ -1798,7 +1913,7 @@ function renderResults(keyword){
     const maxClicks=Math.max(...top.map(k=>k.clicks),1);
     document.getElementById('gsc-panel-content').innerHTML=
       '<table style="width:100%;font-size:12px;border-collapse:collapse">'
-      +'<thead><tr style="color:var(--text3);font-size:11px"><th style="text-align:left;padding:3px 8px 3px 0">Keyword</th><th style="text-align:right;padding:3px 4px">Klicks</th><th style="text-align:right;padding:3px 4px">Imp.</th><th style="text-align:right;padding:3px 4px">CTR</th><th style="text-align:right;padding:3px 4px">Pos.</th></tr></thead>'
+      +'<thead><tr style="color:var(--text3);font-size:11px"><th style="text-align:left;padding:3px 8px 3px 0">Keyword</th><th style="text-align:right;padding:3px 4px" data-tip="Tatsächliche Klicks aus der Google Search Console (90-Tage-Zeitraum)">Klicks</th><th style="text-align:right;padding:3px 4px" data-tip="Impressionen: Wie oft die Seite in Suchergebnissen angezeigt wurde">Imp.</th><th style="text-align:right;padding:3px 4px" data-tip="Click-Through-Rate: Anteil der Impressionen die zu einem Klick geführt haben">CTR</th><th style="text-align:right;padding:3px 4px" data-tip="Durchschnittliche Google-Ranking-Position (1 = ganz oben)">Pos.</th></tr></thead>'
       +'<tbody>'+top.map(k=>{
         const bar=Math.round((k.clicks/maxClicks)*60);
         const posColor=k.position<=3?'var(--green)':k.position<=10?'var(--amber)':'var(--text3)';
@@ -2062,20 +2177,121 @@ async function savePassword(e){
     else{msgEl.style.display='block';document.getElementById('s-pw').value='';document.getElementById('s-pw2').value='';setTimeout(()=>msgEl.style.display='none',3000)}
   }catch(err){errEl.textContent=err.message;errEl.style.display='flex'}
 }
-async function savePassword(e){
+async function saveDataforSeo(e){
   e.preventDefault();
-  const pw=document.getElementById('s-pw').value,pw2=document.getElementById('s-pw2').value;
-  const errEl=document.getElementById('err-password'),msgEl=document.getElementById('msg-password');
+  const errEl=document.getElementById('err-dataforseo'),msgEl=document.getElementById('msg-dataforseo');
   errEl.style.display='none';msgEl.style.display='none';
-  if(pw.length<8){errEl.textContent='Passwort muss mindestens 8 Zeichen lang sein.';errEl.style.display='flex';return}
-  if(pw!==pw2){errEl.textContent='Passwörter stimmen nicht überein.';errEl.style.display='flex';return}
-  const fd=new FormData();fd.append('action','save_password');fd.append('new_password',pw);fd.append('confirm_password',pw2);fd.append('csrf_token',CSRF_TOKEN);
+  const fd=new FormData();fd.append('action','save_dataforseo');
+  fd.append('dataforseo_login',document.getElementById('s-dfs-login').value.trim());
+  fd.append('dataforseo_password',document.getElementById('s-dfs-pw').value.trim());
+  fd.append('csrf_token',CSRF_TOKEN);
   try{
     const r=await fetch('settings_save.php',{method:'POST',body:fd});
     const d=await r.json();
     if(d.error){errEl.textContent=d.error;errEl.style.display='flex'}
-    else{msgEl.style.display='block';document.getElementById('s-pw').value='';document.getElementById('s-pw2').value='';setTimeout(()=>msgEl.style.display='none',3000)}
+    else{msgEl.style.display='block';setTimeout(()=>msgEl.style.display='none',3000)}
   }catch(err){errEl.textContent=err.message;errEl.style.display='flex'}
+}
+async function saveSistrix(e){
+  e.preventDefault();
+  const errEl=document.getElementById('err-sistrix'),msgEl=document.getElementById('msg-sistrix');
+  errEl.style.display='none';msgEl.style.display='none';
+  const fd=new FormData();fd.append('action','save_sistrix');
+  fd.append('sistrix_api_key',document.getElementById('s-sistrix').value.trim());
+  fd.append('csrf_token',CSRF_TOKEN);
+  try{
+    const r=await fetch('settings_save.php',{method:'POST',body:fd});
+    const d=await r.json();
+    if(d.error){errEl.textContent=d.error;errEl.style.display='flex'}
+    else{msgEl.style.display='block';setTimeout(()=>msgEl.style.display='none',3000)}
+  }catch(err){errEl.textContent=err.message;errEl.style.display='flex'}
+}
+async function savePageSpeed(e){
+  e.preventDefault();
+  const errEl=document.getElementById('err-pagespeed'),msgEl=document.getElementById('msg-pagespeed');
+  errEl.style.display='none';msgEl.style.display='none';
+  const fd=new FormData();fd.append('action','save_pagespeed');
+  fd.append('pagespeed_api_key',document.getElementById('s-pagespeed').value.trim());
+  fd.append('csrf_token',CSRF_TOKEN);
+  try{
+    const r=await fetch('settings_save.php',{method:'POST',body:fd});
+    const d=await r.json();
+    if(d.error){errEl.textContent=d.error;errEl.style.display='flex'}
+    else{msgEl.style.display='block';setTimeout(()=>msgEl.style.display='none',3000)}
+  }catch(err){errEl.textContent=err.message;errEl.style.display='flex'}
+}
+async function saveOpenAI(e){
+  e.preventDefault();
+  const errEl=document.getElementById('err-openai'),msgEl=document.getElementById('msg-openai');
+  errEl.style.display='none';msgEl.style.display='none';
+  const fd=new FormData();fd.append('action','save_openai');
+  fd.append('openai_api_key',document.getElementById('s-openai-key').value.trim());
+  fd.append('openai_model',document.getElementById('s-openai-model').value);
+  fd.append('csrf_token',CSRF_TOKEN);
+  try{
+    const r=await fetch('settings_save.php',{method:'POST',body:fd});
+    const d=await r.json();
+    if(d.error){errEl.textContent=d.error;errEl.style.display='flex'}
+    else{msgEl.style.display='block';setTimeout(()=>msgEl.style.display='none',3000)}
+  }catch(err){errEl.textContent=err.message;errEl.style.display='flex'}
+}
+async function saveGscCreds(e){
+  e.preventDefault();
+  const errEl=document.getElementById('err-gsc-creds'),msgEl=document.getElementById('msg-gsc-creds');
+  errEl.style.display='none';msgEl.style.display='none';
+  const fd=new FormData();fd.append('action','save_gsc');
+  fd.append('gsc_site_url',document.getElementById('s-gsc-url').value.trim());
+  fd.append('gsc_service_account_json',document.getElementById('s-gsc-json').value.trim());
+  fd.append('csrf_token',CSRF_TOKEN);
+  try{
+    const r=await fetch('settings_save.php',{method:'POST',body:fd});
+    const d=await r.json();
+    if(d.error){errEl.textContent=d.error;errEl.style.display='flex'}
+    else{msgEl.style.display='block';setTimeout(()=>msgEl.style.display='none',3000)}
+  }catch(err){errEl.textContent=err.message;errEl.style.display='flex'}
+}
+// === GSC DOMAIN MANAGEMENT ===
+async function loadGscDomains(){
+  const list=document.getElementById('gsc-domain-list');
+  if(!list)return;
+  try{
+    const r=await fetch('gsc.php?action=list');
+    const d=await r.json();
+    const domains=d.domains||[];
+    if(!domains.length){list.innerHTML='<div style="font-size:13px;color:var(--text3)">Keine Domains konfiguriert.</div>';return;}
+    list.innerHTML=domains.map(dom=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm)">
+        <div>
+          <span style="font-family:'Geist Mono',monospace;font-size:12px;color:var(--text)">${escHtml(dom.site_url||dom.domain)}</span>
+          ${dom.sa_email?`<span style="font-size:11px;color:var(--text3);display:block;margin-top:2px">${escHtml(dom.sa_email)}</span>`:''}
+          ${dom.source==='env'?'<span style="font-size:10px;color:var(--accent);margin-left:6px">(ENV)</span>':''}
+        </div>
+        ${dom.source!=='env'?`<button type="button" class="btn-secondary btn-sm" style="color:var(--red);flex-shrink:0" onclick="deleteGscDomain(${JSON.stringify(dom.id)})">Entfernen</button>`:''}
+      </div>`).join('');
+  }catch(e){console.error('loadGscDomains:',e);}
+}
+async function addGscDomain(e){
+  e.preventDefault();
+  const inp=document.getElementById('s-gsc-domain-new');
+  const errEl=document.getElementById('err-gsc-domain');
+  const url=inp.value.trim();
+  errEl.style.display='none';
+  if(!url){errEl.textContent='Bitte URL eingeben.';errEl.style.display='flex';return;}
+  try{
+    const domain=url.replace(/^(sc-domain:|https?:\/\/)/i,'').replace(/\/$/,'');
+    const r=await fetch('gsc.php?action=save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({domain,site_url:url})});
+    const d=await r.json();
+    if(d.error){errEl.textContent=d.error;errEl.style.display='flex';return;}
+    inp.value='';
+    await loadGscDomains();
+  }catch(err){errEl.textContent=err.message;errEl.style.display='flex';}
+}
+async function deleteGscDomain(id){
+  if(!confirm('Domain entfernen?'))return;
+  try{
+    await fetch('gsc.php?action=delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
+    await loadGscDomains();
+  }catch(e){console.error('deleteGscDomain:',e);}
 }
 // === API-VERBINDUNGSTESTS ===
 async function testApiConn(name){
