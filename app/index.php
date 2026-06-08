@@ -513,6 +513,11 @@ button{font-family:inherit}
 .top-prio-badge.red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
 .top-prio-badge.amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
 .top-prio-text{color:var(--text2);line-height:1.5}
+/* === RADAR CHART === */
+.radar-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;margin-bottom:24px;box-shadow:var(--shadow-sm)}
+.radar-card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.radar-wrap{display:flex;justify-content:center;align-items:center}
+.radar-wrap svg{max-width:320px;width:100%;height:auto;overflow:visible}
 @media(max-width:900px){.module-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
@@ -711,6 +716,15 @@ button{font-family:inherit}
         <div class="module-card-bar-bg"><div class="module-card-bar neutral" id="mc-geo-bar" style="width:0%"></div></div>
         <div class="module-card-label" id="mc-geo-label">Noch nicht analysiert</div>
       </div>
+    </div>
+
+    <!-- Radar Chart -->
+    <div class="radar-card" id="radar-card" style="display:none">
+      <div class="radar-card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/></svg>
+        Score-Überblick
+      </div>
+      <div class="radar-wrap"><svg id="radar-svg" viewBox="0 0 300 200"></svg></div>
     </div>
 
     <!-- Top-Prioritäten -->
@@ -1778,6 +1792,61 @@ function updateModuleCards(){
   if(mcGeoEl)mcGeoEl.textContent=geoScore?geoScore+'%':'–';
   if(navGeoEl)navGeoEl.textContent=geoScore?geoScore+'%':'–';
   if(mcGeoCard){mcGeoCard.classList.remove('mc-green','mc-amber','mc-red');if(geoScore)mcGeoCard.classList.add(geoScore>=70?'mc-green':geoScore>=45?'mc-amber':'mc-red');}
+  renderRadarChart(sqegScore,perfScore,geoScore);
+}
+
+// === RADAR CHART ===
+function renderRadarChart(sqeg, perf, geo){
+  const svg=document.getElementById('radar-svg');
+  const card=document.getElementById('radar-card');
+  if(!svg||!card)return;
+  const cx=150,cy=105,r=78;
+  // 3 axes: SQEG top (-90°), Performance bottom-right (30°), GEO bottom-left (150°)
+  const axes=[
+    {label:'SQEG',         score:sqeg||0, angle:-Math.PI/2},
+    {label:'Performance',  score:perf||0, angle:Math.PI/6},
+    {label:'GEO\u202f/\u202fAEO',score:geo||0,  angle:5*Math.PI/6},
+  ];
+  const pt=(angle,frac)=>({
+    x:cx+r*frac*Math.cos(angle),
+    y:cy+r*frac*Math.sin(angle)
+  });
+  const toD=(pts)=>pts.map((p,i)=>(i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ')+' Z';
+
+  let h='';
+  // Grid rings
+  [0.25,0.5,0.75,1].forEach((frac,i)=>{
+    const pts=axes.map(a=>pt(a.angle,frac));
+    const dash=i<3?'stroke-dasharray="4 3"':'';
+    h+=`<path d="${toD(pts)}" fill="none" stroke="var(--border2)" stroke-width="${i===3?1.5:1}" ${dash} opacity="${i===3?0.8:0.5}"/>`;
+    if(i<3){
+      const lp=pt(-Math.PI/2,frac);
+      h+=`<text x="${(lp.x+4).toFixed(1)}" y="${(lp.y-3).toFixed(1)}" font-size="8" fill="var(--text3)" font-family="Inter,sans-serif">${frac*100}%</text>`;
+    }
+  });
+  // Axis lines
+  axes.forEach(a=>{
+    const ep=pt(a.angle,1);
+    h+=`<line x1="${cx}" y1="${cy}" x2="${ep.x.toFixed(1)}" y2="${ep.y.toFixed(1)}" stroke="var(--border2)" stroke-width="1" opacity="0.6"/>`;
+  });
+  // Data polygon
+  const dataPts=axes.map(a=>pt(a.angle,Math.max(a.score,2)/100));
+  h+=`<path d="${toD(dataPts)}" fill="var(--accent)" fill-opacity="0.12" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>`;
+  // Data dots
+  dataPts.forEach(p=>{
+    h+=`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4.5" fill="var(--accent)" stroke="var(--bg)" stroke-width="2.5"/>`;
+  });
+  // Labels
+  axes.forEach((a,i)=>{
+    const lp=pt(a.angle,1.28);
+    const anchor=Math.abs(a.angle+Math.PI/2)<0.1?'middle':Math.cos(a.angle)>0.05?'start':'end';
+    const scoreColor=a.score>=70?'var(--green)':a.score>=45?'var(--amber)':'var(--red)';
+    const displayScore=a.score?a.score+'%':'–';
+    h+=`<text x="${lp.x.toFixed(1)}" y="${(lp.y-5).toFixed(1)}" font-size="11" font-weight="600" fill="var(--text)" text-anchor="${anchor}" font-family="Inter,sans-serif">${a.label}</text>`;
+    h+=`<text x="${lp.x.toFixed(1)}" y="${(lp.y+10).toFixed(1)}" font-size="12" font-weight="700" fill="${scoreColor}" text-anchor="${anchor}" font-family="Inter,sans-serif">${displayScore}</text>`;
+  });
+  svg.innerHTML=h;
+  card.style.display='block';
 }
 
 // === TOP PRIORITIES ===
