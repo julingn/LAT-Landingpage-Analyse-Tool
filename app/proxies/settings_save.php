@@ -22,7 +22,7 @@ if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $csr
     exit;
 }
 
-$sf = __DIR__ . '/settings.json';
+$sf = __DIR__ . '/../settings.json';
 $settings = [];
 if (file_exists($sf)) {
     $settings = json_decode(file_get_contents($sf), true) ?? [];

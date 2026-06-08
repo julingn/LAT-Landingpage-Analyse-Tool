@@ -25,9 +25,9 @@ header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit; }
 
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/../config.php';
 
-define('DOMAINS_FILE', __DIR__ . '/gsc_domains.json');
+define('DOMAINS_FILE', __DIR__ . '/../gsc_domains.json');
 
 function loadDomains(): array {
     if (!file_exists(DOMAINS_FILE)) return [];

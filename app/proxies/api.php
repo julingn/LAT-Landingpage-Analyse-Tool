@@ -26,7 +26,7 @@ if (empty($_SESSION['logged_in'])) {
 // Lock sofort freigeben — API-Call kann Sekunden dauern, kein Session-Write nötig
 session_write_close();
 
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/../config.php';
 
 $provider = CFG_AI_PROVIDER; // 'anthropic' oder 'openai'
 
