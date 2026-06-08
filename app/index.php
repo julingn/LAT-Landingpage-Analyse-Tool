@@ -262,6 +262,15 @@ button{font-family:inherit}
 [data-tip]{position:relative;cursor:default}
 [data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);font-size:11px;font-family:'Inter',sans-serif;font-weight:400;line-height:1.4;white-space:nowrap;max-width:260px;white-space:normal;text-align:center;padding:5px 9px;border-radius:6px;pointer-events:none;opacity:0;transition:opacity .15s;z-index:100}
 [data-tip]:hover::after{opacity:1}
+/* === CREDENTIAL SOURCE BADGES === */
+.src-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;letter-spacing:.03em}
+.src-badge.env{background:#16a34a1a;color:#16a34a;border:1px solid #16a34a33}
+.src-badge.json{background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-border)}
+.src-badge.none{background:var(--bg4);color:var(--text3);border:1px solid var(--border)}
+.cred-status-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--bg2)}
+.cred-status-chip.ok{background:#16a34a1a;border-color:#16a34a33;color:#16a34a}
+.cred-status-chip.warn{background:var(--amber-bg,#fef3c7);border-color:#f59e0b33;color:#b45309}
+.cred-status-chip.miss{background:var(--bg3);border-color:var(--border);color:var(--text3)}
 .api-test-name{font-size:13px;font-weight:600;color:var(--text)}
 .api-test-msg{font-size:11px;color:var(--text3);margin-top:2px;font-family:'Geist Mono','Courier New',monospace}
 .btn-sm{padding:4px 12px!important;font-size:12px!important;height:28px!important;min-height:28px!important}
@@ -815,8 +824,16 @@ button{font-family:inherit}
         <div class="card-sub">API-Keys · Modell · Passwort</div>
       </div>
     </div>
+    <!-- Credential-Status-Übersicht -->
+    <div id="cred-status-bar" style="display:flex;flex-wrap:wrap;gap:8px;padding:12px 0 4px;margin-bottom:4px;border-bottom:1px solid var(--border)"></div>
+    <div style="font-size:11px;color:var(--text3);margin:8px 0 20px">
+      <strong style="color:var(--text)">Railway ENV</strong> hat immer Vorrang über hier gespeicherte Werte. Bei aktiven ENV-Variablen sind die Felder gesperrt.
+    </div>
     <div class="settings-section">
-      <div class="settings-section-title">Anthropic API-Key</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <div class="settings-section-title" style="margin:0">Anthropic API-Key</div>
+        <span id="src-badge-anthropic" class="src-badge"></span>
+      </div>
       <div class="settings-section-desc">Erforderlich für den SQEG Analyzer. Erhältlich unter console.anthropic.com.</div>
       <div id="key-masked-display" class="key-masked"></div>
       <form id="form-apikey" onsubmit="saveApiKey(event)">
@@ -827,7 +844,7 @@ button{font-family:inherit}
             <button type="button" class="settings-toggle-btn" onclick="toggleSettingsPw('s-apikey',this)">Anzeigen</button>
           </div>
         </div>
-        <button type="submit" class="btn-save">Speichern</button>
+        <button type="submit" class="btn-save" id="btn-save-anthropic">Speichern</button>
         <div class="success-msg" id="msg-apikey">✓ API-Key gespeichert.</div>
         <div class="err-box" id="err-apikey" style="display:none;margin-top:10px;"></div>
       </form>
@@ -851,21 +868,128 @@ button{font-family:inherit}
     </div>
     <div style="height:1px;background:var(--border);margin:24px 0"></div>
     <div class="settings-section">
-      <div class="settings-section-title">Login-Passwort ändern</div>
-      <div class="settings-section-desc">Mindestens 8 Zeichen. Gespeichert als sicherer Hash.</div>
-      <form id="form-password" onsubmit="savePassword(event)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <div class="settings-section-title" style="margin:0">DataForSEO</div>
+        <span id="src-badge-dataforseo" class="src-badge"></span>
+      </div>
+      <div class="settings-section-desc">Login (E-Mail) und API-Passwort für DataForSEO. Erhältlich unter app.dataforseo.com.</div>
+      <form id="form-dataforseo" onsubmit="saveDataforSeo(event)">
         <div class="settings-field">
-          <label class="settings-label" for="s-pw">Neues Passwort</label>
-          <input type="password" id="s-pw" class="settings-input" placeholder="Neues Passwort" autocomplete="new-password" minlength="8">
+          <label class="settings-label" for="s-dfs-login">E-Mail (Login)</label>
+          <input type="email" id="s-dfs-login" class="settings-input" placeholder="user@example.com" autocomplete="off">
         </div>
         <div class="settings-field">
-          <label class="settings-label" for="s-pw2">Passwort bestätigen</label>
-          <input type="password" id="s-pw2" class="settings-input" placeholder="Passwort wiederholen" autocomplete="new-password" minlength="8">
+          <label class="settings-label" for="s-dfs-pw">API-Passwort</label>
+          <div class="settings-input-wrap">
+            <input type="password" id="s-dfs-pw" class="settings-input" placeholder="Passwort" autocomplete="off">
+            <button type="button" class="settings-toggle-btn" onclick="toggleSettingsPw('s-dfs-pw',this)">Anzeigen</button>
+          </div>
         </div>
-        <button type="submit" class="btn-save">Passwort ändern</button>
-        <div class="success-msg" id="msg-password">✓ Passwort geändert.</div>
-        <div class="err-box" id="err-password" style="display:none;margin-top:10px;"></div>
+        <button type="submit" class="btn-save" id="btn-save-dataforseo">Speichern</button>
+        <div class="success-msg" id="msg-dataforseo">✓ DataForSEO-Zugangsdaten gespeichert.</div>
+        <div class="err-box" id="err-dataforseo" style="display:none;margin-top:10px;"></div>
       </form>
+    </div>
+    <div style="height:1px;background:var(--border);margin:24px 0"></div>
+    <div class="settings-section">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <div class="settings-section-title" style="margin:0">Sistrix</div>
+        <span id="src-badge-sistrix" class="src-badge"></span>
+      </div>
+      <div class="settings-section-desc">API-Key für Sistrix. Erhältlich unter app.sistrix.com unter API-Zugang.</div>
+      <form id="form-sistrix" onsubmit="saveSistrix(event)">
+        <div class="settings-field">
+          <label class="settings-label" for="s-sistrix">API-Key</label>
+          <div class="settings-input-wrap">
+            <input type="password" id="s-sistrix" class="settings-input" placeholder="Sistrix API-Key" autocomplete="off">
+            <button type="button" class="settings-toggle-btn" onclick="toggleSettingsPw('s-sistrix',this)">Anzeigen</button>
+          </div>
+        </div>
+        <button type="submit" class="btn-save" id="btn-save-sistrix">Speichern</button>
+        <div class="success-msg" id="msg-sistrix">✓ Sistrix API-Key gespeichert.</div>
+        <div class="err-box" id="err-sistrix" style="display:none;margin-top:10px;"></div>
+      </form>
+    </div>
+    <div style="height:1px;background:var(--border);margin:24px 0"></div>
+    <div class="settings-section">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <div class="settings-section-title" style="margin:0">PageSpeed Insights</div>
+        <span id="src-badge-pagespeed" class="src-badge"></span>
+      </div>
+      <div class="settings-section-desc">Google API-Key für PageSpeed Insights (optional — ohne Key gilt ein Rate-Limit). Erstellen unter console.cloud.google.com.</div>
+      <form id="form-pagespeed" onsubmit="savePageSpeed(event)">
+        <div class="settings-field">
+          <label class="settings-label" for="s-pagespeed">API-Key</label>
+          <div class="settings-input-wrap">
+            <input type="password" id="s-pagespeed" class="settings-input" placeholder="AIza…" autocomplete="off">
+            <button type="button" class="settings-toggle-btn" onclick="toggleSettingsPw('s-pagespeed',this)">Anzeigen</button>
+          </div>
+        </div>
+        <button type="submit" class="btn-save" id="btn-save-pagespeed">Speichern</button>
+        <div class="success-msg" id="msg-pagespeed">✓ PageSpeed API-Key gespeichert.</div>
+        <div class="err-box" id="err-pagespeed" style="display:none;margin-top:10px;"></div>
+      </form>
+    </div>
+    <div style="height:1px;background:var(--border);margin:24px 0"></div>
+    <div class="settings-section">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <div class="settings-section-title" style="margin:0">OpenAI (optional)</div>
+        <span id="src-badge-openai" class="src-badge"></span>
+      </div>
+      <div class="settings-section-desc">OpenAI API-Key als Alternative zu Anthropic. Erhältlich unter platform.openai.com.</div>
+      <form id="form-openai" onsubmit="saveOpenAI(event)">
+        <div class="settings-field">
+          <label class="settings-label" for="s-openai-key">API-Key</label>
+          <div class="settings-input-wrap">
+            <input type="password" id="s-openai-key" class="settings-input" placeholder="sk-…" autocomplete="off">
+            <button type="button" class="settings-toggle-btn" onclick="toggleSettingsPw('s-openai-key',this)">Anzeigen</button>
+          </div>
+        </div>
+        <div class="settings-field">
+          <label class="settings-label" for="s-openai-model">Modell</label>
+          <select id="s-openai-model" class="settings-input" style="font-family:'Inter',sans-serif;cursor:pointer">
+            <option value="">— kein OpenAI-Modell (Anthropic verwenden) —</option>
+            <option value="gpt-4o">gpt-4o</option>
+            <option value="gpt-4o-mini">gpt-4o-mini</option>
+            <option value="o1-mini">o1-mini</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-save" id="btn-save-openai">Speichern</button>
+        <div class="success-msg" id="msg-openai">✓ OpenAI-Einstellungen gespeichert.</div>
+        <div class="err-box" id="err-openai" style="display:none;margin-top:10px;"></div>
+      </form>
+    </div>
+    <div style="height:1px;background:var(--border);margin:24px 0"></div>
+    <div class="settings-section">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <div class="settings-section-title" style="margin:0">Google Search Console</div>
+        <span id="src-badge-gsc" class="src-badge"></span>
+      </div>
+      <div class="settings-section-desc">Service-Account-JSON und Standard-Property für GSC. Service-Account unter console.cloud.google.com erstellen, dann in GSC als Nutzer hinzufügen.</div>
+      <form id="form-gsc-creds" onsubmit="saveGscCreds(event)">
+        <div class="settings-field">
+          <label class="settings-label" for="s-gsc-url">Standard-Property (Site-URL)</label>
+          <input type="url" id="s-gsc-url" class="settings-input" placeholder="https://www.example.com/" autocomplete="off">
+        </div>
+        <div class="settings-field">
+          <label class="settings-label" for="s-gsc-json">Service-Account JSON</label>
+          <textarea id="s-gsc-json" class="settings-input" rows="5" style="resize:vertical;font-family:'Geist Mono',monospace;font-size:11px" placeholder='{"type":"service_account","client_email":"...","private_key":"..."}'></textarea>
+        </div>
+        <button type="submit" class="btn-save" id="btn-save-gsc-creds">Speichern</button>
+        <div class="success-msg" id="msg-gsc-creds">✓ GSC-Credentials gespeichert.</div>
+        <div class="err-box" id="err-gsc-creds" style="display:none;margin-top:10px;"></div>
+      </form>
+    </div>
+    <div style="height:1px;background:var(--border);margin:24px 0"></div>
+    <div class="settings-section">
+      <div class="settings-section-title">GSC Domain-Verwaltung</div>
+      <div class="settings-section-desc">GSC-Properties verwalten, die bei der Analyse ausgewählt werden können.</div>
+      <div id="gsc-domain-list" style="display:flex;flex-direction:column;gap:8px;margin:14px 0 16px"></div>
+      <form id="form-gsc-domain" onsubmit="addGscDomain(event)" style="display:flex;gap:8px;align-items:flex-start">
+        <input type="url" id="s-gsc-domain-new" class="settings-input" placeholder="https://www.example.com/" style="flex:1" autocomplete="off">
+        <button type="submit" class="btn-save" style="white-space:nowrap;margin-top:0;flex-shrink:0">Hinzufügen</button>
+      </form>
+      <div class="err-box" id="err-gsc-domain" style="display:none;margin-top:10px;"></div>
     </div>
     <div style="height:1px;background:var(--border);margin:24px 0"></div>
     <div class="settings-section">
@@ -897,6 +1021,24 @@ button{font-family:inherit}
     </div>
     <div style="height:1px;background:var(--border);margin:24px 0"></div>
     <div class="settings-section">
+      <div class="settings-section-title">Login-Passwort ändern</div>
+      <div class="settings-section-desc">Mindestens 8 Zeichen. Gespeichert als sicherer Hash.</div>
+      <form id="form-password" onsubmit="savePassword(event)">
+        <div class="settings-field">
+          <label class="settings-label" for="s-pw">Neues Passwort</label>
+          <input type="password" id="s-pw" class="settings-input" placeholder="Neues Passwort" autocomplete="new-password" minlength="8">
+        </div>
+        <div class="settings-field">
+          <label class="settings-label" for="s-pw2">Passwort bestätigen</label>
+          <input type="password" id="s-pw2" class="settings-input" placeholder="Passwort wiederholen" autocomplete="new-password" minlength="8">
+        </div>
+        <button type="submit" class="btn-save">Passwort ändern</button>
+        <div class="success-msg" id="msg-password">✓ Passwort geändert.</div>
+        <div class="err-box" id="err-password" style="display:none;margin-top:10px;"></div>
+      </form>
+    </div>
+    <div style="height:1px;background:var(--border);margin:24px 0"></div>
+    <div class="settings-section">
       <div class="settings-section-title">Darstellung</div>
       <div class="settings-section-desc">Helles oder dunkles Farbschema für das Interface wählen.</div>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:14px">
@@ -924,116 +1066,6 @@ button{font-family:inherit}
           <span class="toggle-slider"></span>
         </label>
       </div>
-    </div>
-    <div style="height:1px;background:var(--border);margin:24px 0"></div>
-    <div class="settings-section">
-      <div class="settings-section-title">DataForSEO</div>
-      <div class="settings-section-desc">Login (E-Mail) und API-Passwort für DataForSEO. Erhältlich unter app.dataforseo.com.</div>
-      <form id="form-dataforseo" onsubmit="saveDataforSeo(event)">
-        <div class="settings-field">
-          <label class="settings-label" for="s-dfs-login">E-Mail (Login)</label>
-          <input type="email" id="s-dfs-login" class="settings-input" placeholder="user@example.com" autocomplete="off">
-        </div>
-        <div class="settings-field">
-          <label class="settings-label" for="s-dfs-pw">API-Passwort</label>
-          <div class="settings-input-wrap">
-            <input type="password" id="s-dfs-pw" class="settings-input" placeholder="Passwort" autocomplete="off">
-            <button type="button" class="settings-toggle-btn" onclick="toggleSettingsPw('s-dfs-pw',this)">Anzeigen</button>
-          </div>
-        </div>
-        <button type="submit" class="btn-save">Speichern</button>
-        <div class="success-msg" id="msg-dataforseo">✓ DataForSEO-Zugangsdaten gespeichert.</div>
-        <div class="err-box" id="err-dataforseo" style="display:none;margin-top:10px;"></div>
-      </form>
-    </div>
-    <div style="height:1px;background:var(--border);margin:24px 0"></div>
-    <div class="settings-section">
-      <div class="settings-section-title">Sistrix</div>
-      <div class="settings-section-desc">API-Key für Sistrix. Erhältlich unter app.sistrix.com unter API-Zugang.</div>
-      <form id="form-sistrix" onsubmit="saveSistrix(event)">
-        <div class="settings-field">
-          <label class="settings-label" for="s-sistrix">API-Key</label>
-          <div class="settings-input-wrap">
-            <input type="password" id="s-sistrix" class="settings-input" placeholder="Sistrix API-Key" autocomplete="off">
-            <button type="button" class="settings-toggle-btn" onclick="toggleSettingsPw('s-sistrix',this)">Anzeigen</button>
-          </div>
-        </div>
-        <button type="submit" class="btn-save">Speichern</button>
-        <div class="success-msg" id="msg-sistrix">✓ Sistrix API-Key gespeichert.</div>
-        <div class="err-box" id="err-sistrix" style="display:none;margin-top:10px;"></div>
-      </form>
-    </div>
-    <div style="height:1px;background:var(--border);margin:24px 0"></div>
-    <div class="settings-section">
-      <div class="settings-section-title">PageSpeed Insights</div>
-      <div class="settings-section-desc">Google API-Key für PageSpeed Insights (optional — ohne Key gilt ein Rate-Limit). Erstellen unter console.cloud.google.com.</div>
-      <form id="form-pagespeed" onsubmit="savePageSpeed(event)">
-        <div class="settings-field">
-          <label class="settings-label" for="s-pagespeed">API-Key</label>
-          <div class="settings-input-wrap">
-            <input type="password" id="s-pagespeed" class="settings-input" placeholder="AIza…" autocomplete="off">
-            <button type="button" class="settings-toggle-btn" onclick="toggleSettingsPw('s-pagespeed',this)">Anzeigen</button>
-          </div>
-        </div>
-        <button type="submit" class="btn-save">Speichern</button>
-        <div class="success-msg" id="msg-pagespeed">✓ PageSpeed API-Key gespeichert.</div>
-        <div class="err-box" id="err-pagespeed" style="display:none;margin-top:10px;"></div>
-      </form>
-    </div>
-    <div style="height:1px;background:var(--border);margin:24px 0"></div>
-    <div class="settings-section">
-      <div class="settings-section-title">OpenAI (optional)</div>
-      <div class="settings-section-desc">OpenAI API-Key als Alternative zu Anthropic. Erhältlich unter platform.openai.com.</div>
-      <form id="form-openai" onsubmit="saveOpenAI(event)">
-        <div class="settings-field">
-          <label class="settings-label" for="s-openai-key">API-Key</label>
-          <div class="settings-input-wrap">
-            <input type="password" id="s-openai-key" class="settings-input" placeholder="sk-…" autocomplete="off">
-            <button type="button" class="settings-toggle-btn" onclick="toggleSettingsPw('s-openai-key',this)">Anzeigen</button>
-          </div>
-        </div>
-        <div class="settings-field">
-          <label class="settings-label" for="s-openai-model">Modell</label>
-          <select id="s-openai-model" class="settings-input" style="font-family:'Inter',sans-serif;cursor:pointer">
-            <option value="">— kein OpenAI-Modell (Anthropic verwenden) —</option>
-            <option value="gpt-4o">gpt-4o</option>
-            <option value="gpt-4o-mini">gpt-4o-mini</option>
-            <option value="o1-mini">o1-mini</option>
-          </select>
-        </div>
-        <button type="submit" class="btn-save">Speichern</button>
-        <div class="success-msg" id="msg-openai">✓ OpenAI-Einstellungen gespeichert.</div>
-        <div class="err-box" id="err-openai" style="display:none;margin-top:10px;"></div>
-      </form>
-    </div>
-    <div style="height:1px;background:var(--border);margin:24px 0"></div>
-    <div class="settings-section">
-      <div class="settings-section-title">Google Search Console</div>
-      <div class="settings-section-desc">Service-Account-JSON und Standard-Property für GSC. Service-Account unter console.cloud.google.com erstellen, dann in GSC als Nutzer hinzufügen.</div>
-      <form id="form-gsc-creds" onsubmit="saveGscCreds(event)">
-        <div class="settings-field">
-          <label class="settings-label" for="s-gsc-url">Standard-Property (Site-URL)</label>
-          <input type="url" id="s-gsc-url" class="settings-input" placeholder="https://www.example.com/" autocomplete="off">
-        </div>
-        <div class="settings-field">
-          <label class="settings-label" for="s-gsc-json">Service-Account JSON</label>
-          <textarea id="s-gsc-json" class="settings-input" rows="5" style="resize:vertical;font-family:'Geist Mono',monospace;font-size:11px" placeholder='{"type":"service_account","client_email":"...","private_key":"..."}'></textarea>
-        </div>
-        <button type="submit" class="btn-save">Speichern</button>
-        <div class="success-msg" id="msg-gsc-creds">✓ GSC-Credentials gespeichert.</div>
-        <div class="err-box" id="err-gsc-creds" style="display:none;margin-top:10px;"></div>
-      </form>
-    </div>
-    <div style="height:1px;background:var(--border);margin:24px 0"></div>
-    <div class="settings-section">
-      <div class="settings-section-title">GSC Domain-Verwaltung</div>
-      <div class="settings-section-desc">GSC-Properties verwalten, die bei der Analyse ausgewählt werden können.</div>
-      <div id="gsc-domain-list" style="display:flex;flex-direction:column;gap:8px;margin:14px 0 16px"></div>
-      <form id="form-gsc-domain" onsubmit="addGscDomain(event)" style="display:flex;gap:8px;align-items:flex-start">
-        <input type="url" id="s-gsc-domain-new" class="settings-input" placeholder="https://www.example.com/" style="flex:1" autocomplete="off">
-        <button type="submit" class="btn-save" style="white-space:nowrap;margin-top:0;flex-shrink:0">Hinzufügen</button>
-      </form>
-      <div class="err-box" id="err-gsc-domain" style="display:none;margin-top:10px;"></div>
     </div>
   </div>
 </div>
@@ -1068,7 +1100,7 @@ function showView(name){
     document.getElementById('progress-section').style.display=
       document.getElementById('progress-section').dataset.active==='1'?'block':'none';
   }
-  if(name==='settings'){loadGscDomains();}
+  if(name==='settings'){loadCredentialStatus();loadGscDomains();}
 }
 // Legacy alias
 function showTool(n){showView(n==='sqeg'?'overview':n);}
@@ -2176,6 +2208,56 @@ async function savePassword(e){
     if(d.error){errEl.textContent=d.error;errEl.style.display='flex'}
     else{msgEl.style.display='block';document.getElementById('s-pw').value='';document.getElementById('s-pw2').value='';setTimeout(()=>msgEl.style.display='none',3000)}
   }catch(err){errEl.textContent=err.message;errEl.style.display='flex'}
+}
+// === CREDENTIAL STATUS ===
+const CRED_LABELS={
+  anthropic:{label:'Anthropic',badge:'src-badge-anthropic'},
+  dataforseo:{label:'DataForSEO',badge:'src-badge-dataforseo'},
+  sistrix:{label:'Sistrix',badge:'src-badge-sistrix'},
+  pagespeed:{label:'PageSpeed',badge:'src-badge-pagespeed'},
+  openai:{label:'OpenAI',badge:'src-badge-openai'},
+  gsc:{label:'GSC',badge:'src-badge-gsc'},
+};
+async function loadCredentialStatus(){
+  try{
+    const r=await fetch('settings_save.php?action=status');
+    if(!r.ok)return;
+    const status=await r.json();
+    // Status-Bar
+    const bar=document.getElementById('cred-status-bar');
+    if(bar){
+      bar.innerHTML=Object.entries(CRED_LABELS).map(([key,meta])=>{
+        const src=status[key]||'none';
+        const cls=src==='env'?'ok':src==='json'?'ok':'miss';
+        const srcLabel=src==='env'?'Railway ENV':src==='json'?'settings.json':'nicht konfiguriert';
+        return`<span class="cred-status-chip ${cls}">${meta.label}: ${srcLabel}</span>`;
+      }).join('');
+    }
+    // Badges + Felder sperren wenn ENV
+    Object.entries(CRED_LABELS).forEach(([key,meta])=>{
+      const src=status[key]||'none';
+      const badgeEl=document.getElementById(meta.badge);
+      if(badgeEl){
+        badgeEl.className='src-badge '+(src==='env'?'env':src==='json'?'json':'none');
+        badgeEl.textContent=src==='env'?'Railway ENV':src==='json'?'settings.json':'nicht konfiguriert';
+      }
+      // Eingabefelder und Speichern-Button deaktivieren wenn ENV aktiv
+      const formMap={
+        anthropic:['s-apikey','btn-save-anthropic'],
+        dataforseo:['s-dfs-login','s-dfs-pw','btn-save-dataforseo'],
+        sistrix:['s-sistrix','btn-save-sistrix'],
+        pagespeed:['s-pagespeed','btn-save-pagespeed'],
+        openai:['s-openai-key','btn-save-openai'],
+        gsc:['s-gsc-url','s-gsc-json','btn-save-gsc-creds'],
+      };
+      if(src==='env'&&formMap[key]){
+        formMap[key].forEach(id=>{
+          const el=document.getElementById(id);
+          if(el){el.disabled=true;if(el.tagName==='INPUT'||el.tagName==='TEXTAREA')el.placeholder='Konfiguriert über Railway ENV — hier nicht änderbar';}
+        });
+      }
+    });
+  }catch(e){console.error('loadCredentialStatus:',e);}
 }
 async function saveDataforSeo(e){
   e.preventDefault();

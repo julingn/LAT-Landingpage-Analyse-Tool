@@ -8,6 +8,31 @@ if (empty($_SESSION['logged_in'])) {
 
 header('Content-Type: application/json; charset=utf-8');
 
+// GET ?action=status — gibt zurück welche Keys aus ENV kommen (kein CSRF nötig)
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['action'] ?? '') === 'status') {
+    require_once __DIR__ . '/../config.php';
+    $sf = __DIR__ . '/../settings.json';
+    $stored = file_exists($sf) ? (json_decode(file_get_contents($sf), true) ?? []) : [];
+
+    // Hilfsfunktion: Quelle ermitteln
+    $src = function(string $envKey, string $jsonKey) use ($stored): string {
+        if (getenv($envKey) !== false && getenv($envKey) !== '') return 'env';
+        if (!empty($stored[$jsonKey])) return 'json';
+        return 'none';
+    };
+
+    echo json_encode([
+        'anthropic'   => $src('ANTHROPIC_API_KEY',  'anthropic_api_key'),
+        'openai'      => $src('OPENAI_API_KEY',      'openai_api_key'),
+        'dataforseo'  => $src('DATAFORSEO_LOGIN',    'dataforseo_login'),
+        'sistrix'     => $src('SISTRIX_API_KEY',     'sistrix_api_key'),
+        'pagespeed'   => $src('PAGESPEED_API_KEY',   'pagespeed_api_key'),
+        'gsc'         => $src('GSC_SERVICE_ACCOUNT_JSON', 'gsc_service_account_json'),
+        'password'    => !empty($stored['login_password_hash']) ? 'json' : 'none',
+    ]);
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['error' => 'Method not allowed']);
