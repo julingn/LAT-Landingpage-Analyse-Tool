@@ -1230,6 +1230,25 @@ async function fetchGeoData(url){
     return d.success?d:null;
   }catch(e){return null;}
 }
+async function enrichGscWithSerpFeatures(keywords){
+  if(!keywords||!keywords.length)return;
+  try{
+    const res=await fetch('sistrix.php?action=serp_features',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify({keywords,csrf_token:CSRF_TOKEN})});
+    if(!res.ok)return;
+    const d=await res.json();
+    if(!d.results)return;
+    document.querySelectorAll('.serp-badges[data-kw]').forEach(el=>{
+      const kw=el.getAttribute('data-kw');
+      const features=d.results[kw];
+      if(!features)return;
+      let badges='';
+      if(features.ai_overview>0)badges+=`<span style="font-size:9px;background:#6c47ff22;color:#6c47ff;border:1px solid #6c47ff44;border-radius:3px;padding:1px 4px;font-weight:600">AI</span>`;
+      if(features.featured_snippet>0)badges+=`<span style="font-size:9px;background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-border);border-radius:3px;padding:1px 4px;font-weight:600">FS</span>`;
+      if(features.knowledge_graph>0||features.knowledge_panel>0)badges+=`<span style="font-size:9px;background:var(--bg4);color:var(--text3);border:1px solid var(--border);border-radius:3px;padding:1px 4px">KG</span>`;
+      el.innerHTML=badges;
+    });
+  }catch(e){}
+}
 async function fetchSerpData(keyword){
   try{const res=await fetch('dataforseo.php?action=serp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword,limit:10})});return await res.json();}catch(e){return null;}
 }
@@ -1540,8 +1559,10 @@ function renderResults(keyword){
       +'<tbody>'+top.map(k=>{
         const bar=Math.round((k.clicks/maxClicks)*60);
         const posColor=k.position<=3?'var(--green)':k.position<=10?'var(--amber)':'var(--text3)';
-        return`<tr><td style="padding:3px 8px 3px 0"><span style="display:inline-block;width:${bar}px;height:4px;background:var(--blue);border-radius:2px;vertical-align:middle;margin-right:6px"></span>${escHtml(k.query)}</td><td style="text-align:right;padding:3px 4px">${k.clicks}</td><td style="text-align:right;padding:3px 4px">${k.impressions}</td><td style="text-align:right;padding:3px 4px">${k.ctr}%</td><td style="text-align:right;padding:3px 4px;color:${posColor};font-weight:600">${k.position}</td></tr>`;
+        return`<tr><td style="padding:3px 8px 3px 0"><span style="display:inline-block;width:${bar}px;height:4px;background:var(--blue);border-radius:2px;vertical-align:middle;margin-right:6px"></span><span data-kw="${escHtml(k.query)}">${escHtml(k.query)}</span><span class="serp-badges" data-kw="${escHtml(k.query)}" style="display:inline-flex;gap:3px;margin-left:5px;vertical-align:middle"></span></td><td style="text-align:right;padding:3px 4px">${k.clicks}</td><td style="text-align:right;padding:3px 4px">${k.impressions}</td><td style="text-align:right;padding:3px 4px">${k.ctr}%</td><td style="text-align:right;padding:3px 4px;color:${posColor};font-weight:600">${k.position}</td></tr>`;
       }).join('')+'</tbody></table>';
+    // SERP-Features async nachladen (Top 5 Keywords)
+    enrichGscWithSerpFeatures(top.slice(0,5).map(k=>k.query));
   }else{gscPanel.style.display='none';}
   const sistrixPanel=document.getElementById('sistrix-panel');
   if(sistrixData?.success&&!sistrixData.no_data){

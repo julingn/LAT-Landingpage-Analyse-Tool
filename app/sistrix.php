@@ -321,5 +321,69 @@ if ($action === 'geo_data') {
     exit;
 }
 
+// ── POST: SERP-Features für GSC-Keywords ────────────────────────────────────
+
+if ($action === 'serp_features') {
+    $body  = json_decode(file_get_contents('php://input'), true) ?? [];
+    $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($body['csrf_token'] ?? '');
+    if ($token !== ($_SESSION['csrf_token'] ?? '')) {
+        http_response_code(403);
+        echo json_encode(['error' => 'CSRF-Token ungültig']);
+        exit;
+    }
+    session_write_close();
+
+    $keywords = array_slice(array_filter((array)($body['keywords'] ?? []), 'is_string'), 0, 5);
+    if (empty($keywords)) {
+        echo json_encode(['results' => []]);
+        exit;
+    }
+
+    $multi      = curl_multi_init();
+    $handles    = [];
+    $baseParams = ['api_key' => $apiKey, 'format' => 'json', 'country' => 'de'];
+
+    foreach ($keywords as $kw) {
+        $epUrl = 'https://api.sistrix.com/keyword.seo.serpfeatures?' . http_build_query(array_merge($baseParams, ['kw' => $kw]));
+        $ch    = curl_init($epUrl);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 15,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_USERAGENT      => 'LAT/2.0 (+https://github.com/julingn/LAT-Landingpage-Analyse-Tool)',
+            CURLOPT_FOLLOWLOCATION => true,
+        ]);
+        curl_multi_add_handle($multi, $ch);
+        $handles[$kw] = $ch;
+    }
+
+    $running = null;
+    do { curl_multi_exec($multi, $running); } while ($running > 0);
+
+    $results = [];
+    foreach ($handles as $kw => $ch) {
+        $resp = curl_multi_getcontent($ch);
+        curl_multi_remove_handle($multi, $ch);
+        curl_close($ch);
+        $data  = json_decode($resp ?: '{}', true) ?? [];
+        $items = $data['answer'][0]['result'] ?? $data['answer'][0] ?? [];
+        // Normalisiere: Feature-Name → Anzahl
+        $features = [];
+        if (is_array($items)) {
+            foreach ($items as $item) {
+                if (!is_array($item)) continue;
+                $name  = strtolower(str_replace([' ', '-'], '_', (string)($item['type'] ?? $item['serp_type'] ?? '')));
+                $count = (int)($item['count'] ?? $item['value'] ?? 1);
+                if ($name) $features[$name] = $count;
+            }
+        }
+        $results[$kw] = $features;
+    }
+    curl_multi_close($multi);
+
+    echo json_encode(['results' => $results]);
+    exit;
+}
+
 http_response_code(400);
 echo json_encode(['error' => 'Unbekannte Action: ' . htmlspecialchars($action, ENT_QUOTES)]);

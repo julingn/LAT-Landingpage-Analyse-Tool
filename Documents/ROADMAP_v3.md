@@ -50,11 +50,11 @@
 - **Entity-Ableitung:** Automatisch aus Domain — `preg_replace('/^www\./i', '', parse_url($url)['host'])` ✅
 - **Output:** Panel mit Prompt-Liste + Quellen-Liste
 
-### Schritt 1.4 — `keyword.seo.serpfeatures` als Badge in GSC-Tabelle
-- **Was:** Pro Top-5 GSC-Keyword prüfen ob AI Overview / Featured Snippet vorhanden
-- **Datei:** `app/sistrix.php` + `app/index.php`
+### Schritt 1.4 — `keyword.seo.serpfeatures` als Badge in GSC-Tabelle ✅
+- **Was:** Pro Top-5 GSC-Keyword prüfen ob AI Overview / Featured Snippet / Knowledge Graph vorhanden
+- **Datei:** `app/sistrix.php` (neuer `action=serp_features` Handler) + `app/index.php`
 - **Sistrix-Endpunkt:** `keyword.seo.serpfeatures?kw=X&country=de` (5× parallel via cURL Multi)
-- **Output:** Icon-Badge in der GSC-Keyword-Tabelle (AI-Symbol, Snippet-Symbol)
+- **Output:** Icon-Badges in der GSC-Keyword-Tabelle (`AI`, `FS`, `KG`) — async nach Erstrender
 - **Kosten:** 1 Credit pro Keyword
 
 ---
@@ -167,7 +167,7 @@ app/
 
 | Datum | Version | Änderung |
 |---|---|---|
-| 08.06.2026 | v2.x | Sistrix-Erweiterungen: domain.opportunities, domain.competitors.seo (beide in url_data integriert), GEO-Panel mit ai.entity.prompts + ai.entity.sources |
+| 08.06.2026 | v2.x | Sistrix-Erweiterungen Phase 1 komplett: domain.opportunities, domain.competitors.seo, GEO-Panel (ai.entity.prompts + sources), SERP-Feature-Badges in GSC-Tabelle (AI/FS/KG) |
 | 22.05.2026 | v2.x | Sistrix API Parsing finalisiert — `d1c20c0` |
 | 22.05.2026 | v2.0 | Header-Eingabebereich, Progressbar-Redesign, API-Verbindungstest — `ff3b675` |
 | 21.05.2026 | v2.0 | UI-Redesign: Inter/Geist, Slate-Palette, Score-Hero, Expand-Rows, Skeleton — `f61c90e` |
