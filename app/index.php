@@ -1329,13 +1329,13 @@ async function startDemo(){
   document.getElementById('log-wrap').classList.remove('collapsed');
   document.getElementById('log-box').innerHTML='';
   analysisResults=[];pqResults=[];e8Result=null;ymylResult=null;
-  gscData=null;serpData=null;backlinkData=null;psiData=null;sistrixData=null;geoData=null;
+  gscData=null;serpData=null;backlinkData=null;psiData=null;sistrixData=null;geoData=null;kwData=null;
   analysisStartTime=Date.now();lastPct=0;
   if(timerInterval)clearInterval(timerInterval);
   timerInterval=setInterval(updateTimer,1000);
   document.getElementById('progress-timer').textContent='';
-  ['sqeg-results','perf-results','geo-results'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
-  ['sqeg-empty','perf-empty','geo-empty'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='block';});
+  ['sqeg-results','perf-results','geo-results','kw-results'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  ['sqeg-empty','perf-empty','geo-empty','kw-empty'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='block';});
   showView('overview');
 
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -1463,14 +1463,13 @@ async function startAnalysis(){
   document.getElementById('log-wrap').classList.remove('collapsed');
   document.getElementById('log-box').innerHTML='';
   analysisResults=[];pqResults=[];e8Result=null;ymylResult=null;
-  gscData=null;serpData=null;backlinkData=null;psiData=null;sistrixData=null;geoData=null;
+  gscData=null;serpData=null;backlinkData=null;psiData=null;sistrixData=null;geoData=null;kwData=null;
   analysisStartTime=Date.now();lastPct=0;
   if(timerInterval)clearInterval(timerInterval);
   timerInterval=setInterval(updateTimer,1000);
-  // Reset module views
-  ['sqeg-results','perf-results','geo-results'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
-  ['sqeg-empty','perf-empty','geo-empty'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='block';});
   document.getElementById('progress-timer').textContent='';
+  ['sqeg-results','perf-results','geo-results','kw-results'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  ['sqeg-empty','perf-empty','geo-empty','kw-empty'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='block';});
   setProgress(0,'Analyse startet…','Vorbereitung…');
   showView('overview');
 
