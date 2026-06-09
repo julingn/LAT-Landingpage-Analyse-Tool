@@ -574,6 +574,11 @@ button{font-family:inherit}
       Keyword Fit
       <span class="nav-score" id="nav-score-kw" style="display:none"></span>
     </button>
+    <button class="nav-item" data-view="ux" onclick="showView('ux')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      UX / CRO
+      <span class="nav-score" id="nav-score-ux" style="display:none"></span>
+    </button>
     <div class="nav-section-label">System</div>
     <button class="nav-item" data-view="settings" onclick="showView('settings')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M21 12h-2M19.07 19.07l-1.41-1.41M12 21v-2M4.93 19.07l1.41-1.41M3 12h2M4.93 4.93l1.41 1.41"/></svg>
@@ -713,6 +718,15 @@ button{font-family:inherit}
         <div class="module-card-score neutral" id="mc-kw-score">–</div>
         <div class="module-card-bar-bg"><div class="module-card-bar neutral" id="mc-kw-bar" style="width:0%"></div></div>
         <div class="module-card-label" id="mc-kw-label">Noch nicht analysiert</div>
+      </div>
+      <div class="module-card" id="mc-ux" onclick="showView('ux')">
+        <div class="module-card-header">
+          <div class="module-card-icon" style="background:var(--bg4);color:var(--blue)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+          <div><div class="module-card-name">UX / CRO</div><div class="module-card-sub">Nutzererlebnis &amp; Conversion</div></div>
+        </div>
+        <div class="module-card-score neutral" id="mc-ux-score">–</div>
+        <div class="module-card-bar-bg"><div class="module-card-bar neutral" id="mc-ux-bar" style="width:0%"></div></div>
+        <div class="module-card-label" id="mc-ux-label">Noch nicht analysiert</div>
       </div>
     </div>
 
@@ -860,6 +874,58 @@ button{font-family:inherit}
     <div style="font-size:12px">URL eingeben und Analyse starten</div>
   </div>
 </div><!-- /view-keywords -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     VIEW: UX / CRO
+════════════════════════════════════════════════════════════ -->
+<div class="view-panel" id="view-ux">
+  <div id="ux-results" style="display:none;margin-top:24px">
+    <!-- Score Hero (UX) -->
+    <div class="score-hero" id="ux-score-hero" style="margin-bottom:20px">
+      <div class="score-hero-num green" id="ux-score-num">–</div>
+      <div class="score-hero-divider"></div>
+      <div class="score-hero-meta">
+        <div class="score-hero-level green" id="ux-score-level">–</div>
+        <div class="score-hero-interp" id="ux-score-interp"></div>
+        <div class="score-hero-bar-wrap">
+          <div class="score-hero-bar-bg"><div class="score-hero-bar green" id="ux-score-bar" style="width:0%"></div></div>
+        </div>
+        <div class="score-hero-chips">
+          <span class="score-chip green" id="ux-chip-g" data-tip="UX-Kriterien bestanden">✓ <span id="ux-cnt-g">0</span></span>
+          <span class="score-chip amber" id="ux-chip-a" data-tip="UX-Kriterien verbesserungswürdig">◑ <span id="ux-cnt-a">0</span></span>
+          <span class="score-chip red" id="ux-chip-r" data-tip="UX-Kriterien kritisch">✗ <span id="ux-cnt-r">0</span></span>
+        </div>
+      </div>
+    </div>
+    <!-- Screenshot -->
+    <div class="needs-met-block" id="ux-screenshot-panel" style="display:none;margin-bottom:16px">
+      <div class="needs-met-label">Screenshot (1280 × 900 px)</div>
+      <div id="ux-screenshot-wrap" style="margin-top:10px;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border)">
+        <img id="ux-screenshot-img" src="" alt="Seiten-Screenshot" style="width:100%;display:block">
+      </div>
+    </div>
+    <!-- Findings -->
+    <div class="needs-met-block" id="ux-findings-panel" style="display:none">
+      <div class="needs-met-label">UX-Analyse — 5 Kriterien</div>
+      <div id="ux-findings-content" style="margin-top:12px"></div>
+    </div>
+    <!-- Summary -->
+    <div class="needs-met-block" id="ux-summary-panel" style="display:none;margin-top:16px">
+      <div class="needs-met-label">Gesamtbewertung</div>
+      <div id="ux-summary-content" style="font-size:13px;line-height:1.6;color:var(--text2);margin-top:8px"></div>
+    </div>
+  </div>
+  <div id="ux-loading" style="display:none;padding:48px 0;text-align:center;color:var(--text3)">
+    <div class="loader-dots" style="justify-content:center;margin-bottom:12px"><div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div></div>
+    <div style="font-size:13px;font-weight:600;margin-bottom:4px">UX-Analyse läuft…</div>
+    <div style="font-size:12px" id="ux-loading-msg">Screenshot wird erstellt</div>
+  </div>
+  <div id="ux-empty" style="padding:48px 0;text-align:center;color:var(--text3)">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 12px;display:block;opacity:.4"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+    <div style="font-size:14px;font-weight:600;margin-bottom:4px">Noch keine Analyse</div>
+    <div style="font-size:12px">URL eingeben und Analyse starten</div>
+  </div>
+</div><!-- /view-ux -->
 
 <div class="view-panel" id="view-settings">
   <div class="input-card">
@@ -1262,7 +1328,7 @@ const MINI_CALLS=[
 // === STATE ===
 let analysisResults=[],pqResults=[],e8Result=null,ymylResult=null,currentUrl='',currentHtml='';
 let isDemoMode=false;
-let gscData=null,serpData=null,backlinkData=null,psiData=null,sistrixData=null,geoData=null,kwData=null;
+let gscData=null,serpData=null,backlinkData=null,psiData=null,sistrixData=null,geoData=null,kwData=null,ucrData=null;
 let analysisStartTime=0,timerInterval=null,lastPct=0;
 
 // === LOG / PROGRESS ===
@@ -1352,13 +1418,13 @@ async function startDemo(){
   document.getElementById('log-wrap').classList.remove('collapsed');
   document.getElementById('log-box').innerHTML='';
   analysisResults=[];pqResults=[];e8Result=null;ymylResult=null;
-  gscData=null;serpData=null;backlinkData=null;psiData=null;sistrixData=null;geoData=null;kwData=null;
+  gscData=null;serpData=null;backlinkData=null;psiData=null;sistrixData=null;geoData=null;kwData=null;ucrData=null;
   analysisStartTime=Date.now();lastPct=0;
   if(timerInterval)clearInterval(timerInterval);
   timerInterval=setInterval(updateTimer,1000);
   document.getElementById('progress-timer').textContent='';
-  ['sqeg-results','perf-results','geo-results','kw-results'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
-  ['sqeg-empty','perf-empty','geo-empty','kw-empty'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='block';});
+  ['sqeg-results','perf-results','geo-results','kw-results','ux-results'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  ['sqeg-empty','perf-empty','geo-empty','kw-empty','ux-empty'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='block';});
   showView('overview');
 
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -1441,6 +1507,19 @@ async function startDemo(){
   log('Sistrix: Sichtbarkeit 0.847 · 3241 Keywords (Demo)','ok');
   log('GEO: 5 AI-Prompts · 3 Quellen (Demo)','ok');
   log('Keyword-Fit: Intent für 6 Keywords analysiert (Demo)','ok');
+  // Demo UX/CRO-Daten (kein echter Screenshot)
+  ucrData={success:true,score:68,level:'Medium',
+    summary:'Die Seite hat einen klar strukturierten Aufbau mit erkennbarem Value Proposition. Der Haupt-CTA ist sichtbar, könnte aber visuell prominenter sein. Trust-Signale sind vorhanden, wirken aber noch ausbaufähig.',
+    findings:[
+      {area:'Value Proposition',rating:'green',issue:'Hauptnutzen (günstiger Strom, Tarifvergleich) ist im Header klar kommuniziert.',recommendation:'Stärker emotional formulieren — z.B. "Wechsel in 5 Minuten, spare bis zu 400 €/Jahr".'},
+      {area:'CTA',rating:'amber',issue:'Haupt-CTA "Tarif wählen" ist sichtbar, aber visuell nicht dominant genug.',recommendation:'Button-Farbe stärker vom Hintergrund abheben (Kontrastverhältnis ≥ 4.5:1) und Größe erhöhen.'},
+      {area:'Trust-Signale',rating:'amber',issue:'Kundenbewertungen (4.7/5) vorhanden, aber zu klein und weit unten.',recommendation:'Bewertungs-Widget und TÜV-Siegel in den oberen Viewport-Bereich verschieben.'},
+      {area:'Visuelle Hierarchie',rating:'green',issue:'Klare Struktur: Header → Vergleichstabelle → Vorteile → CTA. Schriftgrößen-Hierarchie eingehalten.',recommendation:'Abstände zwischen Sektionen leicht vergrößern, um Scan-Pfad zu verbessern.'},
+      {area:'Above-the-Fold',rating:'red',issue:'Vergleichstabelle beginnt erst nach dem Scroll. Hero-Bereich zu groß — wichtigster Content ist nicht sofort sichtbar.',recommendation:'Hero-Bereich verkleinern oder Teaser-Zeile der Vergleichstabelle already above the fold platzieren.'},
+    ],
+    sub_scores:{value_prop:78,cta:62,trust:60,hierarchy:80,above_fold:48},
+    screenshot_base64:null};
+  log('UX/CRO: Analyse mit 5 Kriterien abgeschlossen (Demo)','ok');
 
   setProgress(92,'Ergebnisse rendern…','Fast fertig…');
   renderResults('Strom Tarife Vergleich');
@@ -1486,13 +1565,13 @@ async function startAnalysis(){
   document.getElementById('log-wrap').classList.remove('collapsed');
   document.getElementById('log-box').innerHTML='';
   analysisResults=[];pqResults=[];e8Result=null;ymylResult=null;
-  gscData=null;serpData=null;backlinkData=null;psiData=null;sistrixData=null;geoData=null;kwData=null;
+  gscData=null;serpData=null;backlinkData=null;psiData=null;sistrixData=null;geoData=null;kwData=null;ucrData=null;
   analysisStartTime=Date.now();lastPct=0;
   if(timerInterval)clearInterval(timerInterval);
   timerInterval=setInterval(updateTimer,1000);
   document.getElementById('progress-timer').textContent='';
-  ['sqeg-results','perf-results','geo-results','kw-results'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
-  ['sqeg-empty','perf-empty','geo-empty','kw-empty'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='block';});
+  ['sqeg-results','perf-results','geo-results','kw-results','ux-results'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  ['sqeg-empty','perf-empty','geo-empty','kw-empty','ux-empty'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='block';});
   setProgress(0,'Analyse startet…','Vorbereitung…');
   showView('overview');
 
@@ -1560,6 +1639,28 @@ async function startAnalysis(){
         else log('Keyword-Fit: keine Intent-Daten (Sistrix nicht konfiguriert?)');
       }catch(e){kwData=null;log('Keyword-Fit: Fehler — '+e.message,'err');}
     }else{kwData=null;}
+    // UX/CRO Analyse async (Screenshot + Vision-LLM) — läuft parallel zu SQEG-Calls
+    if(currentMode==='url'&&currentUrl){
+      fetchUxData(currentUrl).then(d=>{
+        ucrData=d;
+        if(d?.success){
+          log('UX/CRO: Screenshot + Analyse abgeschlossen','ok');
+          renderUXAnalysis();
+          document.getElementById('ux-results').style.display='block';
+          document.getElementById('ux-empty').style.display='none';
+          document.getElementById('ux-loading').style.display='none';
+          updateModuleCards();
+        }else{
+          log('UX/CRO: '+(d?.error||'Fehler'),'err');
+          document.getElementById('ux-loading').style.display='none';
+          document.getElementById('ux-empty').style.display='block';
+        }
+      }).catch(e=>{log('UX/CRO: Fehler — '+e.message,'err');document.getElementById('ux-loading').style.display='none';document.getElementById('ux-empty').style.display='block';});
+      // Loading-State sofort anzeigen
+      document.getElementById('ux-empty').style.display='none';
+      document.getElementById('ux-loading').style.display='block';
+      document.getElementById('ux-loading-msg').textContent='Screenshot wird erstellt…';
+    }else{ucrData=null;}
     if(serpData?.tasks?.[0]?.result?.[0]?.items)log(`SERP: Top-10 für "${effectiveKeyword}" geladen`,'ok');
     else if(effectiveKeyword)log(`SERP: keine Daten für "${effectiveKeyword}"`);
     if(backlinkData?.tasks?.[0]?.result?.[0])log('Backlinks: Profil geladen','ok');
@@ -1666,6 +1767,77 @@ async function fetchKeywordData(keywords){
     const d=await res.json();
     return d.success?d:null;
   }catch(e){return null;}
+}
+async function fetchUxData(url){
+  try{
+    const res=await fetch('ux.php?action=analyze',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify({url,csrf_token:CSRF_TOKEN})});
+    if(!res.ok)return null;
+    const d=await res.json();
+    return d;
+  }catch(e){return null;}
+}
+function renderUXAnalysis(){
+  if(!ucrData?.success)return;
+  const score=ucrData.score||0;
+  const cls=score>=70?'green':score>=50?'amber':'red';
+  // Score Hero
+  const numEl=document.getElementById('ux-score-num');
+  const lvlEl=document.getElementById('ux-score-level');
+  const barEl=document.getElementById('ux-score-bar');
+  const interpEl=document.getElementById('ux-score-interp');
+  if(numEl){numEl.textContent=score+'%';numEl.className='score-hero-num '+cls;}
+  if(lvlEl){lvlEl.textContent=ucrData.level||'–';lvlEl.className='score-hero-level '+cls;}
+  if(barEl){barEl.className='score-hero-bar '+cls;barEl.style.width=score+'%';}
+  if(interpEl)interpEl.textContent=ucrData.summary||'';
+  // Chips
+  const findings=ucrData.findings||[];
+  const cntG=findings.filter(f=>f.rating==='green').length;
+  const cntA=findings.filter(f=>f.rating==='amber').length;
+  const cntR=findings.filter(f=>f.rating==='red').length;
+  const cntGEl=document.getElementById('ux-cnt-g');const cntAEl=document.getElementById('ux-cnt-a');const cntREl=document.getElementById('ux-cnt-r');
+  if(cntGEl)cntGEl.textContent=cntG;if(cntAEl)cntAEl.textContent=cntA;if(cntREl)cntREl.textContent=cntR;
+  // Screenshot
+  const shotPanel=document.getElementById('ux-screenshot-panel');
+  const shotImg=document.getElementById('ux-screenshot-img');
+  if(ucrData.screenshot_base64&&shotPanel&&shotImg){
+    shotImg.src='data:image/png;base64,'+ucrData.screenshot_base64;
+    shotPanel.style.display='block';
+  }else if(shotPanel){shotPanel.style.display='none';}
+  // Findings
+  const findPanel=document.getElementById('ux-findings-panel');
+  const findContent=document.getElementById('ux-findings-content');
+  if(findPanel&&findContent&&findings.length){
+    findPanel.style.display='block';
+    const ratingIcon={green:'✓',amber:'◑',red:'✗'};
+    const ratingColor={green:'var(--green)',amber:'var(--amber)',red:'var(--red)'};
+    const subScoreKey={
+      'Value Proposition':'value_prop','CTA':'cta',
+      'Trust-Signale':'trust','Visuelle Hierarchie':'hierarchy','Above-the-Fold':'above_fold'
+    };
+    let html='<div style="display:flex;flex-direction:column;gap:10px">';
+    findings.forEach(f=>{
+      const ic=ratingIcon[f.rating]||'◑';const col=ratingColor[f.rating]||'var(--text3)';
+      const subKey=subScoreKey[f.area];const subScore=subKey&&ucrData.sub_scores?ucrData.sub_scores[subKey]:null;
+      const scoreTag=subScore!=null?`<span style="font-size:10px;font-weight:700;color:${col};background:${col}18;border:1px solid ${col}44;border-radius:4px;padding:1px 6px;margin-left:6px">${subScore}%</span>`:'';
+      html+=`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px">`;
+      html+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">`;
+      html+=`<span style="font-size:13px;color:${col};font-weight:700">${ic}</span>`;
+      html+=`<span style="font-size:13px;font-weight:600;color:var(--text)">${escHtml(f.area)}</span>${scoreTag}`;
+      html+=`</div>`;
+      html+=`<div style="font-size:12px;color:var(--text2);margin-bottom:4px"><strong>Befund:</strong> ${escHtml(f.issue)}</div>`;
+      html+=`<div style="font-size:12px;color:var(--text3)"><strong>Empfehlung:</strong> ${escHtml(f.recommendation)}</div>`;
+      html+=`</div>`;
+    });
+    html+='</div>';
+    findContent.innerHTML=html;
+  }else if(findPanel){findPanel.style.display='none';}
+  // Summary
+  const sumPanel=document.getElementById('ux-summary-panel');
+  const sumContent=document.getElementById('ux-summary-content');
+  if(sumPanel&&sumContent&&ucrData.summary){
+    sumPanel.style.display='block';
+    sumContent.textContent=ucrData.summary;
+  }else if(sumPanel){sumPanel.style.display='none';}
 }
 async function enrichGscWithSerpFeatures(keywords){
   if(!keywords||!keywords.length)return;
@@ -1933,6 +2105,20 @@ function updateModuleCards(){
   if(navKwEl){navKwEl.textContent=kwScore?kwScore+'%':'–';navKwEl.style.display=kwScore?'':'none';}
   if(mcKwBar){mcKwBar.style.width=kwScore+'%';mcKwBar.className='module-card-bar '+(kwScore>=70?'green':kwScore>=45?'amber':kwScore>0?'red':'neutral');}
   if(mcKwLabel)mcKwLabel.textContent=kwScore>=70?'Gutes Targeting':kwScore>=45?'Targeting verbesserbar':kwScore>0?'Targeting-Mismatch':'Noch nicht analysiert';
+
+  // UX / CRO Score
+  const uxScore=ucrData?.success?(ucrData.score||0):0;
+  const mcUxEl=document.getElementById('mc-ux-score');
+  const navUxEl=document.getElementById('nav-score-ux');
+  const mcUxBar=document.getElementById('mc-ux-bar');
+  const mcUxLabel=document.getElementById('mc-ux-label');
+  const mcUxCard=document.getElementById('mc-ux');
+  if(mcUxEl){mcUxEl.textContent=uxScore?uxScore+'%':'–';mcUxEl.className='module-card-score '+(uxScore>=70?'green':uxScore>=50?'amber':uxScore>0?'red':'neutral');}
+  if(navUxEl){navUxEl.textContent=uxScore?uxScore+'%':'–';navUxEl.style.display=uxScore?'':'none';}
+  if(mcUxBar){mcUxBar.style.width=uxScore+'%';mcUxBar.className='module-card-bar '+(uxScore>=70?'green':uxScore>=50?'amber':uxScore>0?'red':'neutral');}
+  if(mcUxLabel)mcUxLabel.textContent=uxScore>=70?'Gute UX':uxScore>=50?'UX verbesserbar':uxScore>0?'UX kritisch':'Noch nicht analysiert';
+  if(mcUxCard){mcUxCard.classList.remove('mc-green','mc-amber','mc-red');if(uxScore)mcUxCard.classList.add(uxScore>=70?'mc-green':uxScore>=50?'mc-amber':'mc-red');}
+
   renderRadarChart(sqegScore,perfScore,geoScore);
 }
 
@@ -2241,6 +2427,12 @@ function renderResults(keyword){
     renderKeywordFit();
     document.getElementById('kw-results').style.display='block';
     document.getElementById('kw-empty').style.display='none';
+  }
+  // UX/CRO — wenn ucrData bereits vorhanden (Demo-Modus)
+  if(ucrData?.success){
+    renderUXAnalysis();
+    document.getElementById('ux-results').style.display='block';
+    document.getElementById('ux-empty').style.display='none';
   }
   // Modul-Kacheln updaten
   updateModuleCards();

@@ -13,9 +13,9 @@
 | **M1 — SQEG** | Ist der Content qualitativ & vertrauenswürdig? | LLM (Anthropic/OpenAI) | ✅ Vorhanden (LAT v2) |
 | **M2 — Technical SEO** | Ist die Seite technisch korrekt & indexierbar? | PageSpeed, HTML-Parsing | ⚠️ Teile vorhanden |
 | **M3 — Performance** | Wie sichtbar ist die Seite aktuell? | GSC, Sistrix, DataforSEO | ✅ Vorhanden (LAT v2) |
-| **M4 — GEO / AEO** | Wie präsent ist die Seite in KI-Antworten? | Sistrix `ai.*`-Endpunkte | ❌ Neu |
-| **M5 — UX / CRO** | Wie erlebt ein Nutzer diese Seite? | LLM + Vision, Screenshot | ❌ Geplant (spätere Phase) |
-| **M6 — Keyword Fit** | Targetet die Seite die richtigen Keywords? | Sistrix, DataforSEO, GSC | ❌ Neu |
+| **M4 — GEO / AEO** | Wie präsent ist die Seite in KI-Antworten? | Sistrix `ai.*`-Endpunkte | ✅ Vorhanden (Phase 1.3) |
+| **M5 — UX / CRO** | Wie erlebt ein Nutzer diese Seite? | LLM + Vision, Screenshot | ✅ Implementiert (09.06.2026) |
+| **M6 — Keyword Fit** | Targetet die Seite die richtigen Keywords? | Sistrix, DataforSEO, GSC | ✅ Implementiert (09.06.2026) |
 
 **KI-Synthese (übergreifend):** Ein LLM-Call mit allen Modul-Outputs → priorisierte Handlungsempfehlung über alle Dimensionen hinweg.
 
@@ -117,15 +117,13 @@ app/
 
 > UI/UX-Überarbeitung abgeschlossen am 08.06.2026. ✅
 
-### Schritt 3B — M6: Keyword-Fit-Modul
+### Schritt 3B — M6: Keyword-Fit-Modul ✅
 - **Was:** Bewertet ob die analysierte Seite die richtigen Keywords targetet
 - **Datenquellen:**
   - GSC-Daten (bereits vorhanden): aktuelle Rankings
-  - Sistrix `domain.opportunities`: verpasste Chancen
-  - Sistrix `keyword.seo.searchintent`: passt Intent zur Seite?
-  - DataforSEO `search_volume/live`: Volumen der GSC-Top-Keywords
-- **Output:** Score 0–100 + Liste: "Seite targetet X, sollte aber Y targetieren"
-- **Status:** ❌ Noch nicht implementiert
+  - Sistrix `keyword.seo.searchintent`: Intent-Analyse pro Keyword
+- **Output:** Score 0–100 + Intent-Tabelle (Commercial/Transactional/Informational/Navigational) + Mismatch-Warnung
+- **Implementiert:** `3182ef5` (09.06.2026) — `app/proxies/keywords.php`, `#view-keywords`, Sidebar-Nav, Demo-Daten
 
 ### Schritt 3.2 — Übergreifende KI-Synthese
 - **Was:** Ein LLM-Call NACH allen Modulen mit strukturiertem Gesamt-Input
@@ -147,19 +145,27 @@ app/
 
 ---
 
-## Phase 4 — M5: UX/CRO-Modul
+## Phase 4 — M5: UX/CRO-Modul ✅
 
-> **Ziel:** Analyse der Seite aus Nutzerperspektive  
-> **Aufwand:** Sehr groß (Vision-LLM, Screenshot-API)  
-> **Von mir benötigt:** Entscheidung über Screenshot-API (z.B. Browserless.io, ScreenshotOne)
+> **Implementiert:** 09.06.2026  
+> **Entscheidung:** Headless Chromium direkt im Railway-Container (kein externer Dienst)
 
-### Schritt 4.1 — Screenshot-Integration
-- Seiten-Screenshot via externer API oder Headless Chrome (Railway-Container)
-- Screenshot wird als Base64 an Vision-LLM (GPT-4o / Claude) übergeben
+### Schritt 4.1 — Screenshot-Integration ✅
+- Chromium in Alpine Dockerfile installiert (`apk add chromium nss freetype harfbuzz ttf-freefont`)
+- `app/proxies/ux.php`: Screenshot via `chromium --headless=new --screenshot` → Base64 PNG
+- Fallback auf verschiedene Chromium-Pfade (`/usr/bin/chromium`, `/usr/bin/chromium-browser`, etc.)
 
-### Schritt 4.2 — UX-Analyse-Prompt
-- Bewertet: Klarheit des Value Propositions, CTA-Sichtbarkeit, Trust-Signale, visuelle Hierarchie, mobile Darstellung
-- Output: Score 0–100 + 5 konkrete UX-Findings mit Screenshots-Markierungen (falls machbar)
+### Schritt 4.2 — UX-Analyse-Prompt ✅
+- Vision-LLM: Anthropic Claude (Standard) oder OpenAI GPT-4o — nutzt konfigurierten `AI_PROVIDER`
+- Bewertet 5 Kriterien: Value Proposition · CTA · Trust-Signale · Visuelle Hierarchie · Above-the-Fold
+- Output: Score 0–100 + Level + 5 Findings (rating: green/amber/red + Befund + Empfehlung) + Sub-Scores
+
+### Schritt 4.3 — UX-View in Dashboard ✅
+- `#view-ux`: Score-Hero (Chips ✓/◑/✗) + Screenshot-Panel + Findings-Karten + Gesamtbewertung
+- Sidebar-Nav: „UX / CRO" mit Score-Badge
+- Modul-Kachel `#mc-ux` in Übersicht
+- Analyse läuft **async** parallel zu SQEG-Calls — Loading-State im View
+- Demo-Daten für alle 5 Kriterien (kein echter Screenshot im Demo-Modus)
 
 ---
 
@@ -169,7 +175,7 @@ app/
 |---|---|---|
 | ~~OE-1~~ | ~~GEO-Panel: Entity-Name als Eingabefeld im Header oder automatisch aus Domain ableiten?~~ | ✅ Automatisch aus Domain — entschieden 08.06.2026 |
 | ~~OE-2~~ | ~~Railway Preview-Deploy einrichten~~ | ✅ Erledigt |
-| OE-3 | Screenshot-API für UX-Modul auswählen | Phase 4, Schritt 4.1 |
+| ~~OE-3~~ | ~~Screenshot-API für UX-Modul auswählen~~ | ✅ Headless Chromium im Railway-Container — entschieden 09.06.2026 |
 
 ---
 
@@ -177,6 +183,13 @@ app/
 
 | Datum | Version | Änderung |
 |---|---|---|
+| 09.06.2026 | v3.3 | Phase 4: M5 UX/CRO-Modul — Headless Chromium, Vision-LLM, `#view-ux`, Modul-Kachel, Nav-Item, `app/proxies/ux.php` — (aktueller Commit) |
+| 09.06.2026 | v3.2 | UX-Überarbeitung SQEG: Detailanalyse eingeklappt by default (Toggle-Button), Exec Summary 2+1 Layout (Gesamtbewertung+Probleme oben, Schritte volle Breite) — `f210d5d` |
+| 09.06.2026 | v3.2 | Cluster-Übersicht: 1 Spalte, Kriterien aufklappbar pro Cluster, Bewertungstext score-abhängig — `cc9154e` |
+| 09.06.2026 | v3.2 | Prioritäten-Matrix entfernt (redundant zu Exec Summary + Cluster) — `00ebbbb` |
+| 09.06.2026 | v3.2 | Score-Hero: Kriterien-Zähler als farbige Chips (✓ / ◑ / ✗), Stat-Grid entfernt — `6214659` |
+| 09.06.2026 | v3.2 | M6 Keyword-Fit-Modul: `app/proxies/keywords.php`, Intent-Analyse, neuer View + Sidebar, Demo-Daten — `3182ef5` |
+| 09.06.2026 | v3.2 | Demo-Modus erweitert: GSC, Sistrix, GEO, Keyword-Fit Demo-Daten — `bebcac4` |
 | 08.06.2026 | v3.1 | Score-Radar-Chart (SVG, 3 Achsen: SQEG/Performance/GEO) in Übersicht — `e33efee` |
 | 08.06.2026 | v3.1 | Settings: ENV-Quellen-Transparenz — Felder gesperrt wenn Railway ENV aktiv, Status-Leiste — `e310563` |
 | 08.06.2026 | v3.1 | Settings vollständig: DataforSEO, Sistrix, PageSpeed, OpenAI, GSC + Domain-Verwaltung; Tooltips für SERP-Badges/Score-Chips/GSC-Header — `5502147` |
