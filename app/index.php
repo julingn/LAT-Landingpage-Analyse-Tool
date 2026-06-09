@@ -758,10 +758,6 @@ button{font-family:inherit}
       <div class="priority-col"><div class="priority-col-header blue">🔵 Mittelfristig</div><div id="pri-mid"></div></div>
     </div>
     <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">Detailanalyse</span><div class="section-divider-line"></div></div>
-    <div class="export-bar">
-      <button class="btn-secondary" onclick="exportHtml()">↓ HTML-Bericht</button>
-      <button class="btn-secondary" onclick="window.print()">⎙ PDF</button>
-    </div>
     <div class="filter-bar">
       <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">Alle</button>
       <button class="filter-btn" data-filter="green" onclick="setFilter('green',this)">✓ Bestanden</button>
