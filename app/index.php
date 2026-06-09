@@ -549,6 +549,11 @@ button{font-family:inherit}
       GEO / AEO
       <span class="nav-score" id="nav-score-geo" style="display:none"></span>
     </button>
+    <button class="nav-item" data-view="keywords" onclick="showView('keywords')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+      Keyword Fit
+      <span class="nav-score" id="nav-score-kw" style="display:none"></span>
+    </button>
     <div class="nav-section-label">System</div>
     <button class="nav-item" data-view="settings" onclick="showView('settings')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M21 12h-2M19.07 19.07l-1.41-1.41M12 21v-2M4.93 19.07l1.41-1.41M3 12h2M4.93 4.93l1.41 1.41"/></svg>
@@ -679,6 +684,15 @@ button{font-family:inherit}
         <div class="module-card-score neutral" id="mc-geo-score">–</div>
         <div class="module-card-bar-bg"><div class="module-card-bar neutral" id="mc-geo-bar" style="width:0%"></div></div>
         <div class="module-card-label" id="mc-geo-label">Noch nicht analysiert</div>
+      </div>
+      <div class="module-card" onclick="showView('keywords')">
+        <div class="module-card-header">
+          <div class="module-card-icon" style="background:var(--bg4);color:var(--accent)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg></div>
+          <div><div class="module-card-name">Keyword Fit</div><div class="module-card-sub">Intent &amp; Targeting</div></div>
+        </div>
+        <div class="module-card-score neutral" id="mc-kw-score">–</div>
+        <div class="module-card-bar-bg"><div class="module-card-bar neutral" id="mc-kw-bar" style="width:0%"></div></div>
+        <div class="module-card-label" id="mc-kw-label">Noch nicht analysiert</div>
       </div>
     </div>
 
@@ -813,6 +827,24 @@ button{font-family:inherit}
     <div style="font-size:12px">URL eingeben und Analyse starten</div>
   </div>
 </div><!-- /view-geo -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     VIEW: KEYWORD FIT
+════════════════════════════════════════════════════════════ -->
+<div class="view-panel" id="view-keywords">
+  <div id="kw-results" style="display:none;margin-top:24px">
+    <div class="needs-met-block" id="kw-intent-panel">
+      <div class="needs-met-label">Keyword Fit · Intent-Analyse</div>
+      <div id="kw-intent-content"></div>
+    </div>
+  </div>
+  <div id="kw-empty" style="padding:48px 0;text-align:center;color:var(--text3)">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 12px;display:block;opacity:.4"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+    <div style="font-size:14px;font-weight:600;margin-bottom:4px">Noch keine Analyse</div>
+    <div style="font-size:12px">URL eingeben und Analyse starten</div>
+  </div>
+</div><!-- /view-keywords -->
+
 <div class="view-panel" id="view-settings">
   <div class="input-card">
     <div class="card-header">
@@ -1081,6 +1113,7 @@ const VIEW_META={
   sqeg:{title:'SQEG',sub:'Google Search Quality Evaluator Guidelines'},
   performance:{title:'Performance',sub:'Rankings · Sichtbarkeit · Quick Wins'},
   geo:{title:'GEO / AEO',sub:'KI-Sichtbarkeit in AI-Suchmaschinen'},
+  keywords:{title:'Keyword Fit',sub:'Intent-Analyse · Targeting · Potenzial'},
   settings:{title:'Einstellungen',sub:'API-Keys · Modell · Passwort'},
 };
 
@@ -1206,7 +1239,7 @@ const MINI_CALLS=[
 // === STATE ===
 let analysisResults=[],pqResults=[],e8Result=null,ymylResult=null,currentUrl='',currentHtml='';
 let isDemoMode=false;
-let gscData=null,serpData=null,backlinkData=null,psiData=null,sistrixData=null,geoData=null;
+let gscData=null,serpData=null,backlinkData=null,psiData=null,sistrixData=null,geoData=null,kwData=null;
 let analysisStartTime=0,timerInterval=null,lastPct=0;
 
 // === LOG / PROGRESS ===
@@ -1372,9 +1405,19 @@ async function startDemo(){
     {url:'https://www.beispiel-energie.de/strom/oekostrom'},
     {url:'https://www.beispiel-energie.de/ratgeber/strom-wechseln'},
   ]};
+  // Demo Keyword-Fit-Daten (Sistrix search intent)
+  kwData={success:true,results:{
+    'strom tarife vergleich':{keyword:'strom tarife vergleich',commercial:0.71,transactional:0.18,informational:0.08,navigational:0.03},
+    'günstiger stromtarif':{keyword:'günstiger stromtarif',commercial:0.65,transactional:0.24,informational:0.09,navigational:0.02},
+    'strom wechseln online':{keyword:'strom wechseln online',commercial:0.12,transactional:0.74,informational:0.11,navigational:0.03},
+    'beispiel energie strom':{keyword:'beispiel energie strom',commercial:0.08,transactional:0.07,informational:0.11,navigational:0.74},
+    'stromtarif haushalt':{keyword:'stromtarif haushalt',commercial:0.59,transactional:0.21,informational:0.17,navigational:0.03},
+    'stromanbieter wechsel':{keyword:'stromanbieter wechsel',commercial:0.14,transactional:0.68,informational:0.15,navigational:0.03},
+  }};
   log('GSC: 8 Keywords geladen (Demo)','ok');
   log('Sistrix: Sichtbarkeit 0.847 · 3241 Keywords (Demo)','ok');
   log('GEO: 5 AI-Prompts · 3 Quellen (Demo)','ok');
+  log('Keyword-Fit: Intent für 6 Keywords analysiert (Demo)','ok');
 
   setProgress(92,'Ergebnisse rendern…','Fast fertig…');
   renderResults('Strom Tarife Vergleich');
@@ -1486,6 +1529,15 @@ async function startAnalysis(){
     else if(geoData?.error)log(`GEO: ${geoData.error}`,'err');
     else if(currentMode==='url')log('GEO: keine KI-Sichtbarkeitsdaten (Entity nicht in Sistrix AI-Index?)');
     else log('GEO: übersprungen (HTML-Modus)');
+    // Keyword-Intent sequenziell (braucht gscData)
+    if(currentMode==='url'&&gscData?.keywords?.length){
+      try{
+        const topKws=gscData.keywords.slice(0,6).map(k=>k.query);
+        kwData=await fetchKeywordData(topKws);
+        if(kwData?.results){const cnt=Object.values(kwData.results).filter(Boolean).length;log(`Keyword-Fit: Intent für ${cnt} Keywords analysiert`,'ok');}
+        else log('Keyword-Fit: keine Intent-Daten (Sistrix nicht konfiguriert?)');
+      }catch(e){kwData=null;log('Keyword-Fit: Fehler — '+e.message,'err');}
+    }else{kwData=null;}
     if(serpData?.tasks?.[0]?.result?.[0]?.items)log(`SERP: Top-10 für "${effectiveKeyword}" geladen`,'ok');
     else if(effectiveKeyword)log(`SERP: keine Daten für "${effectiveKeyword}"`);
     if(backlinkData?.tasks?.[0]?.result?.[0])log('Backlinks: Profil geladen','ok');
@@ -1579,6 +1631,15 @@ async function fetchSistrixData(url){
 async function fetchGeoData(url){
   try{
     const res=await fetch('sistrix.php?action=geo_data',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify({url,csrf_token:CSRF_TOKEN})});
+    if(!res.ok)return null;
+    const d=await res.json();
+    return d.success?d:null;
+  }catch(e){return null;}
+}
+async function fetchKeywordData(keywords){
+  if(!keywords||!keywords.length)return null;
+  try{
+    const res=await fetch('keywords.php?action=search_intent',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify({keywords,csrf_token:CSRF_TOKEN})});
     if(!res.ok)return null;
     const d=await res.json();
     return d.success?d:null;
@@ -1821,6 +1882,33 @@ function updateModuleCards(){
   if(mcGeoEl)mcGeoEl.textContent=geoScore?geoScore+'%':'–';
   if(navGeoEl)navGeoEl.textContent=geoScore?geoScore+'%':'–';
   if(mcGeoCard){mcGeoCard.classList.remove('mc-green','mc-amber','mc-red');if(geoScore)mcGeoCard.classList.add(geoScore>=70?'mc-green':geoScore>=45?'mc-amber':'mc-red');}
+
+  // Keyword-Fit Score
+  let kwScore=0;
+  if(kwData?.results){
+    const entries=Object.values(kwData.results).filter(Boolean);
+    if(entries.length){
+      // Dominanten Intent der Page aus Top-Keyword ermitteln
+      const intentKeys=['informational','navigational','transactional','commercial'];
+      const totals={informational:0,navigational:0,transactional:0,commercial:0};
+      entries.forEach(e=>intentKeys.forEach(k=>{totals[k]+=(e[k]||0);}));
+      const pageIntent=intentKeys.reduce((a,b)=>totals[a]>totals[b]?a:b);
+      // Score = Ø Anteil des dominanten Intents an allen Keywords
+      const avgFit=entries.reduce((s,e)=>s+(e[pageIntent]||0),0)/entries.length;
+      kwScore=Math.round(avgFit*100);
+      // Konsistenz-Bonus: wenn alle Keywords selben Intent teilen
+      const allMatch=entries.every(e=>intentKeys.reduce((a,b)=>e[a]>e[b]?a:b)===pageIntent);
+      if(allMatch)kwScore=Math.min(kwScore+10,100);
+    }
+  }
+  const mcKwEl=document.getElementById('mc-kw-score');
+  const navKwEl=document.getElementById('nav-score-kw');
+  const mcKwBar=document.getElementById('mc-kw-bar');
+  const mcKwLabel=document.getElementById('mc-kw-label');
+  if(mcKwEl){mcKwEl.textContent=kwScore?kwScore+'%':'–';mcKwEl.className='module-card-score '+(kwScore>=70?'green':kwScore>=45?'amber':kwScore>0?'red':'neutral');}
+  if(navKwEl){navKwEl.textContent=kwScore?kwScore+'%':'–';navKwEl.style.display=kwScore?'':'none';}
+  if(mcKwBar){mcKwBar.style.width=kwScore+'%';mcKwBar.className='module-card-bar '+(kwScore>=70?'green':kwScore>=45?'amber':kwScore>0?'red':'neutral');}
+  if(mcKwLabel)mcKwLabel.textContent=kwScore>=70?'Gutes Targeting':kwScore>=45?'Targeting verbesserbar':kwScore>0?'Targeting-Mismatch':'Noch nicht analysiert';
   renderRadarChart(sqegScore,perfScore,geoScore);
 }
 
@@ -2127,6 +2215,11 @@ function renderResults(keyword){
     document.getElementById('geo-results').style.display='block';
     document.getElementById('geo-empty').style.display='none';
   }
+  if(kwData?.results){
+    renderKeywordFit();
+    document.getElementById('kw-results').style.display='block';
+    document.getElementById('kw-empty').style.display='none';
+  }
   // Modul-Kacheln updaten
   updateModuleCards();
   // Top-Prioritäten in Übersicht
@@ -2134,6 +2227,72 @@ function renderResults(keyword){
   // Nach Analyse direkt zum SQEG-View
   showView('sqeg');
   generateExecSummary();
+}
+
+function renderKeywordFit(){
+  const el=document.getElementById('kw-intent-content');
+  if(!el||!kwData?.results)return;
+  const entries=Object.values(kwData.results).filter(Boolean);
+  if(!entries.length){el.innerHTML='<p style="font-size:12px;color:var(--text3);margin:0">Keine Intent-Daten verfügbar.</p>';return;}
+
+  const intentKeys=['commercial','transactional','informational','navigational'];
+  const intentLabels={commercial:'Commercial',transactional:'Transactional',informational:'Informational',navigational:'Navigational'};
+  const intentColors={commercial:'var(--accent)',transactional:'var(--green)',informational:'var(--amber)',navigational:'var(--text3)'};
+
+  // Dominanten Page-Intent bestimmen
+  const totals={informational:0,navigational:0,transactional:0,commercial:0};
+  entries.forEach(e=>intentKeys.forEach(k=>{totals[k]+=(e[k]||0);}));
+  const pageIntent=intentKeys.reduce((a,b)=>totals[a]>totals[b]?a:b);
+  const intentScore=Math.round((totals[pageIntent]/entries.length)*100);
+
+  let html=`<div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">`;
+  html+=`<div style="background:var(--bg3);border-radius:var(--radius-sm);padding:8px 14px;text-align:center"><div style="font-size:11px;color:var(--text3);margin-bottom:2px">Dominanter Intent</div><div style="font-size:16px;font-weight:700;color:${intentColors[pageIntent]}">${intentLabels[pageIntent]}</div></div>`;
+  html+=`<div style="background:var(--bg3);border-radius:var(--radius-sm);padding:8px 14px;text-align:center"><div style="font-size:11px;color:var(--text3);margin-bottom:2px">Konsistenz</div><div style="font-size:16px;font-weight:700;color:var(--text)">${intentScore}%</div></div>`;
+  html+=`<div style="background:var(--bg3);border-radius:var(--radius-sm);padding:8px 14px;text-align:center"><div style="font-size:11px;color:var(--text3);margin-bottom:2px">Keywords analysiert</div><div style="font-size:16px;font-weight:700;color:var(--text)">${entries.length}</div></div>`;
+  html+=`</div>`;
+
+  // Tabelle pro Keyword
+  html+=`<table style="width:100%;font-size:12px;border-collapse:collapse">`;
+  html+=`<thead><tr style="color:var(--text3);font-size:11px">`;
+  html+=`<th style="text-align:left;padding:3px 8px 6px 0">Keyword</th>`;
+  intentKeys.forEach(k=>html+=`<th style="text-align:right;padding:3px 6px" data-tip="${intentLabels[k]}: Anteil dieses Intents für das Keyword (0–100%)">${intentLabels[k]}</th>`);
+  html+=`<th style="text-align:center;padding:3px 4px">Fit</th></tr></thead><tbody>`;
+
+  entries.forEach(e=>{
+    const dominant=intentKeys.reduce((a,b)=>e[a]>e[b]?a:b);
+    const fit=dominant===pageIntent;
+    const fitIcon=fit?`<span style="color:var(--green);font-weight:700">✓</span>`:`<span style="color:var(--amber);font-weight:600">~</span>`;
+    html+=`<tr>`;
+    html+=`<td style="padding:4px 8px 4px 0;font-weight:500">${escHtml(e.keyword)}</td>`;
+    intentKeys.forEach(k=>{
+      const pct=Math.round((e[k]||0)*100);
+      const isMax=k===dominant;
+      html+=`<td style="text-align:right;padding:4px 6px;color:${isMax?intentColors[k]:'var(--text3)'};font-weight:${isMax?'700':'400'}">${pct}%</td>`;
+    });
+    html+=`<td style="text-align:center;padding:4px">${fitIcon}</td>`;
+    html+=`</tr>`;
+  });
+  html+=`</tbody></table>`;
+
+  // Empfehlungen
+  const mismatches=entries.filter(e=>intentKeys.reduce((a,b)=>e[a]>e[b]?a:b)!==pageIntent);
+  if(mismatches.length){
+    html+=`<div style="margin-top:16px;padding:12px;background:var(--bg3);border-radius:var(--radius-sm);border-left:3px solid var(--amber)">`;
+    html+=`<div style="font-size:11px;font-weight:600;color:var(--amber);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Intent-Mismatch erkannt</div>`;
+    html+=`<div style="font-size:12px;color:var(--text2)">${mismatches.length} von ${entries.length} Keywords haben einen abweichenden dominanten Intent. Überprüfe ob der Seiten-Content alle Intent-Typen adressiert oder das Targeting schärfer fokussiert werden sollte.</div>`;
+    html+=`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">`;
+    mismatches.forEach(e=>{
+      const d=intentKeys.reduce((a,b)=>e[a]>e[b]?a:b);
+      html+=`<span style="font-size:11px;background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:3px 8px">${escHtml(e.keyword)} <span style="color:${intentColors[d]}">(${intentLabels[d]})</span></span>`;
+    });
+    html+=`</div></div>`;
+  }else if(entries.length>1){
+    html+=`<div style="margin-top:16px;padding:12px;background:var(--bg3);border-radius:var(--radius-sm);border-left:3px solid var(--green)">`;
+    html+=`<div style="font-size:12px;color:var(--text2)">✓ Alle Keywords haben konsistenten Intent. Das Seiten-Targeting ist klar ausgerichtet.</div>`;
+    html+=`</div>`;
+  }
+
+  el.innerHTML=html;
 }
 
 function renderClusterOverview(){
