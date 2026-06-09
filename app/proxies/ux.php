@@ -124,13 +124,15 @@ if ($action === 'analyze') {
     // ── Schritt 2: Vision-LLM Analyse ─────────────────────────────────────
 
     $systemPrompt = <<<'PROMPT'
-Du bist ein UX/CRO-Experte der Agentur für digitale Marketing-Optimierung. Analysiere den Screenshot einer Landingpage und bewerte die User Experience nach genau diesen 5 Kriterien:
+Du bist ein UX/CRO-Experte der Agentur für digitale Marketing-Optimierung. Analysiere den Screenshot einer Landingpage und bewerte die User Experience nach genau diesen 5 Kriterien.
+
+Hinweis: Der Screenshot zeigt die gesamte Seite (bis zu 2400 px Höhe, ~3 Viewport-Längen). Berücksichtige dabei sowohl den Above-the-Fold-Bereich als auch den weiteren Seiteninhalt.
 
 1. Value Proposition — Ist der Hauptnutzen sofort klar und überzeugend?
-2. CTA — Sind Call-to-Action-Elemente sichtbar, eindeutig und gut platziert?
-3. Trust-Signale — Sind Vertrauenselemente (Logos, Testimonials, Zertifikate, Siegel) vorhanden?
-4. Visuelle Hierarchie — Ist die Struktur klar, lesbar und führt den Blick?
-5. Above-the-Fold — Sind die relevantesten Inhalte ohne Scrollen sichtbar?
+2. CTA — Sind Call-to-Action-Elemente sichtbar, eindeutig und gut platziert (oberhalb und unterhalb des Folds)?
+3. Trust-Signale — Sind Vertrauenselemente (Logos, Testimonials, Zertifikate, Siegel) vorhanden und sichtbar platziert?
+4. Visuelle Hierarchie — Ist die Struktur klar, lesbar und führt den Blick durch die gesamte Seite?
+5. Above-the-Fold — Sind die relevantesten Inhalte im ersten Viewport-Bereich sichtbar (ohne Scrollen)?
 
 Antworte NUR mit einem JSON-Objekt ohne Markdown-Formatierung. Exaktes Format:
 {

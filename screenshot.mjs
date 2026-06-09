@@ -166,8 +166,16 @@ async function dismissCookieBanner(page) {
       await new Promise(r => setTimeout(r, 800));
     }
 
-    // Screenshot
-    await page.screenshot({ path: outFile, type: 'png', clip: { x: 0, y: 0, width: 1280, height: 900 } });
+    // Screenshot — bis zu 2400px Seitenhöhe erfassen (~3 Viewport-Längen)
+    // Viewport bleibt bei 900px für korrekte Desktop-Layout-Darstellung.
+    // Der LLM bekommt so die gesamte Seitenstruktur zu sehen, nicht nur Above-the-Fold.
+    const pageHeight = await page.evaluate(() => document.documentElement.scrollHeight);
+    const captureHeight = Math.min(Math.max(pageHeight, 900), 2400);
+    await page.screenshot({
+      path: outFile,
+      type: 'png',
+      clip: { x: 0, y: 0, width: 1280, height: captureHeight },
+    });
 
     await browser.close();
     process.exit(0);

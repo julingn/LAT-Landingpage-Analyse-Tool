@@ -909,9 +909,9 @@ button{font-family:inherit}
      VIEW: UX / CRO
 ════════════════════════════════════════════════════════════ -->
 <div class="view-panel" id="view-ux">
-  <div id="ux-results" style="display:none;margin-top:24px">
+  <div id="ux-results" style="display:none;margin-top:28px">
     <!-- Score Hero (UX) -->
-    <div class="score-hero" id="ux-score-hero" style="margin-bottom:20px">
+    <div class="score-hero" id="ux-score-hero">
       <div class="score-hero-num green" id="ux-score-num">–</div>
       <div class="score-hero-divider"></div>
       <div class="score-hero-meta">
@@ -927,22 +927,29 @@ button{font-family:inherit}
         </div>
       </div>
     </div>
+
+    <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">Seitenansicht</span><div class="section-divider-line"></div></div>
+
     <!-- Screenshot -->
-    <div class="needs-met-block" id="ux-screenshot-panel" style="display:none;margin-bottom:16px">
-      <div class="needs-met-label">Screenshot (1280 × 900 px)</div>
-      <div id="ux-screenshot-wrap" style="margin-top:10px;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border)">
+    <div class="needs-met-block" id="ux-screenshot-panel" style="display:none">
+      <div class="needs-met-label">Screenshot — Gesamtseite (bis 2400 px)</div>
+      <div id="ux-screenshot-wrap" style="margin-top:10px;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border);max-height:480px;overflow-y:auto">
         <img id="ux-screenshot-img" src="" alt="Seiten-Screenshot" style="width:100%;display:block">
       </div>
     </div>
+
+    <div class="section-divider" style="margin-top:8px"><div class="section-divider-line"></div><span class="section-divider-label">UX-Analyse — 5 Kriterien</span><div class="section-divider-line"></div></div>
+
     <!-- Findings -->
     <div class="needs-met-block" id="ux-findings-panel" style="display:none">
-      <div class="needs-met-label">UX-Analyse — 5 Kriterien</div>
-      <div id="ux-findings-content" style="margin-top:12px"></div>
+      <div id="ux-findings-content"></div>
     </div>
+
+    <div class="section-divider" style="margin-top:8px"><div class="section-divider-line"></div><span class="section-divider-label">Gesamtbewertung</span><div class="section-divider-line"></div></div>
+
     <!-- Summary -->
-    <div class="needs-met-block" id="ux-summary-panel" style="display:none;margin-top:16px">
-      <div class="needs-met-label">Gesamtbewertung</div>
-      <div id="ux-summary-content" style="font-size:13px;line-height:1.6;color:var(--text2);margin-top:8px"></div>
+    <div class="needs-met-block" id="ux-summary-panel" style="display:none">
+      <div id="ux-summary-content" style="font-size:13px;line-height:1.6;color:var(--text2)"></div>
     </div>
   </div>
   <div id="ux-loading" style="display:none;padding:48px 0;text-align:center;color:var(--text3)">
