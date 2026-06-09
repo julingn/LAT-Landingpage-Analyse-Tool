@@ -391,6 +391,22 @@ button{font-family:inherit}
 .sqeg-level.active{background:var(--accent);color:#fff}
 .needs-met-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:20px;display:none;box-shadow:var(--shadow-sm)}
 .needs-met-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:10px}
+/* Outer card wrapper für Performance / GEO / Keywords ─────────────────── */
+#perf-results,#geo-results,#kw-results{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-xl);
+  padding:24px 28px;box-shadow:var(--shadow);
+}
+#perf-results .needs-met-block,#geo-results .needs-met-block,#kw-results .needs-met-block{
+  background:var(--bg3);box-shadow:none;
+}
+/* UX body card (unterhalb score-hero) */
+#ux-body-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-xl);
+  padding:24px 28px;box-shadow:var(--shadow);margin-top:20px;
+}
+#ux-body-card .needs-met-block{background:var(--bg3);box-shadow:none;}
+#ux-body-card .section-divider{margin:20px 0 16px;}
+/* ─────────────────────────────────────────────────────────────────────── */
 .needs-met-scale{display:flex;gap:6px;flex-wrap:wrap}
 .nm-btn{padding:5px 12px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid var(--border2);background:var(--bg3);color:var(--text3)}
 .nm-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
@@ -928,6 +944,7 @@ button{font-family:inherit}
       </div>
     </div>
 
+    <div id="ux-body-card" style="display:none">
     <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">Seitenansicht</span><div class="section-divider-line"></div></div>
 
     <!-- Screenshot -->
@@ -938,19 +955,20 @@ button{font-family:inherit}
       </div>
     </div>
 
-    <div class="section-divider" style="margin-top:8px"><div class="section-divider-line"></div><span class="section-divider-label">UX-Analyse — 5 Kriterien</span><div class="section-divider-line"></div></div>
+    <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">UX-Analyse — 5 Kriterien</span><div class="section-divider-line"></div></div>
 
     <!-- Findings -->
     <div class="needs-met-block" id="ux-findings-panel" style="display:none">
       <div id="ux-findings-content"></div>
     </div>
 
-    <div class="section-divider" style="margin-top:8px"><div class="section-divider-line"></div><span class="section-divider-label">Gesamtbewertung</span><div class="section-divider-line"></div></div>
+    <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">Gesamtbewertung</span><div class="section-divider-line"></div></div>
 
     <!-- Summary -->
     <div class="needs-met-block" id="ux-summary-panel" style="display:none">
       <div id="ux-summary-content" style="font-size:13px;line-height:1.6;color:var(--text2)"></div>
     </div>
+    </div><!-- /ux-body-card -->
   </div>
   <div id="ux-loading" style="display:none;padding:48px 0;text-align:center;color:var(--text3)">
     <div class="loader-dots" style="justify-content:center;margin-bottom:12px"><div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div></div>
@@ -1462,6 +1480,7 @@ async function startDemo(){
   document.getElementById('progress-timer').textContent='';
   ['sqeg-results','perf-results','geo-results','kw-results','ux-results'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
   ['sqeg-empty','perf-empty','geo-empty','kw-empty','ux-empty'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='block';});
+  const uxBC=document.getElementById('ux-body-card');if(uxBC)uxBC.style.display='none';
   showView('overview');
 
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -1609,6 +1628,7 @@ async function startAnalysis(){
   document.getElementById('progress-timer').textContent='';
   ['sqeg-results','perf-results','geo-results','kw-results','ux-results'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
   ['sqeg-empty','perf-empty','geo-empty','kw-empty','ux-empty'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='block';});
+  const uxBC2=document.getElementById('ux-body-card');if(uxBC2)uxBC2.style.display='none';
   setProgress(0,'Analyse startet…','Vorbereitung…');
   showView('overview');
 
@@ -1875,6 +1895,9 @@ function renderUXAnalysis(){
     sumPanel.style.display='block';
     sumContent.textContent=ucrData.summary;
   }else if(sumPanel){sumPanel.style.display='none';}
+  // ux-body-card einblenden
+  const bodyCard=document.getElementById('ux-body-card');
+  if(bodyCard)bodyCard.style.display='block';
   renderPagePreview();
 }
 function renderPagePreview(){
