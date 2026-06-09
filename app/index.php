@@ -391,21 +391,40 @@ button{font-family:inherit}
 .sqeg-level.active{background:var(--accent);color:#fff}
 .needs-met-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:20px;display:none;box-shadow:var(--shadow-sm)}
 .needs-met-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:10px}
-/* Outer card wrapper für Performance / GEO / Keywords ─────────────────── */
+/* Outer card wrapper für Performance / GEO / Keywords / UX ─────────────── */
 #perf-results,#geo-results,#kw-results{
   background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-xl);
-  padding:24px 28px;box-shadow:var(--shadow);
+  padding:28px 32px;box-shadow:var(--shadow);
 }
-#perf-results .needs-met-block,#geo-results .needs-met-block,#kw-results .needs-met-block{
-  background:var(--bg3);box-shadow:none;
+/* Innere Panels flach rendern — keine eigene Karte mehr */
+#perf-results .needs-met-block,
+#geo-results .needs-met-block,
+#kw-results .needs-met-block{
+  background:transparent;border:none;border-radius:0;
+  box-shadow:none;padding:0;margin-bottom:0;
+}
+/* Trennlinie zwischen Panels */
+#perf-results .needs-met-block+.needs-met-block,
+#geo-results .needs-met-block+.needs-met-block,
+#kw-results .needs-met-block+.needs-met-block{
+  border-top:1px solid var(--border);padding-top:24px;margin-top:24px;
+}
+/* Label-Stil innerhalb der flachen View-Cards */
+#perf-results .needs-met-label,
+#geo-results .needs-met-label,
+#kw-results .needs-met-label{
+  font-size:11px;font-weight:700;color:var(--text2);margin-bottom:14px;
+  letter-spacing:0;text-transform:none;
 }
 /* UX body card (unterhalb score-hero) */
 #ux-body-card{
   background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-xl);
-  padding:24px 28px;box-shadow:var(--shadow);margin-top:20px;
+  padding:28px 32px;box-shadow:var(--shadow);margin-top:20px;
 }
-#ux-body-card .needs-met-block{background:var(--bg3);box-shadow:none;}
-#ux-body-card .section-divider{margin:20px 0 16px;}
+#ux-body-card .needs-met-block{background:transparent;border:none;box-shadow:none;padding:0;margin-bottom:0;}
+#ux-body-card .needs-met-block+.needs-met-block{border-top:1px solid var(--border);padding-top:20px;margin-top:20px;}
+#ux-body-card .needs-met-label{font-size:11px;font-weight:700;color:var(--text2);margin-bottom:14px;letter-spacing:0;text-transform:none;}
+#ux-body-card .section-divider{margin:24px 0 20px;}
 /* ─────────────────────────────────────────────────────────────────────── */
 .needs-met-scale{display:flex;gap:6px;flex-wrap:wrap}
 .nm-btn{padding:5px 12px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid var(--border2);background:var(--bg3);color:var(--text3)}
@@ -945,7 +964,7 @@ button{font-family:inherit}
     </div>
 
     <div id="ux-body-card" style="display:none">
-    <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">Seitenansicht</span><div class="section-divider-line"></div></div>
+    <div class="section-divider" id="ux-screenshot-divider" style="display:none"><div class="section-divider-line"></div><span class="section-divider-label">Seitenansicht</span><div class="section-divider-line"></div></div>
 
     <!-- Screenshot -->
     <div class="needs-met-block" id="ux-screenshot-panel" style="display:none">
@@ -1855,11 +1874,16 @@ function renderUXAnalysis(){
   if(cntGEl)cntGEl.textContent=cntG;if(cntAEl)cntAEl.textContent=cntA;if(cntREl)cntREl.textContent=cntR;
   // Screenshot
   const shotPanel=document.getElementById('ux-screenshot-panel');
+  const shotDivider=document.getElementById('ux-screenshot-divider');
   const shotImg=document.getElementById('ux-screenshot-img');
   if(ucrData.screenshot_base64&&shotPanel&&shotImg){
     shotImg.src='data:image/png;base64,'+ucrData.screenshot_base64;
     shotPanel.style.display='block';
-  }else if(shotPanel){shotPanel.style.display='none';}
+    if(shotDivider)shotDivider.style.display='flex';
+  }else{
+    if(shotPanel)shotPanel.style.display='none';
+    if(shotDivider)shotDivider.style.display='none';
+  }
   // Findings
   const findPanel=document.getElementById('ux-findings-panel');
   const findContent=document.getElementById('ux-findings-content');
