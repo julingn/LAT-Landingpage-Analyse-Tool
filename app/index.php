@@ -355,7 +355,7 @@ button{font-family:inherit}
 .stat-box.blue .stat-num{color:var(--blue)}
 .stat-lbl{font-size:11px;font-weight:500;color:var(--text3)}
 /* === CLUSTER OVERVIEW === */
-.cluster-overview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:20px}
+.cluster-overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:20px}
 .cluster-card{
   display:flex;align-items:center;gap:16px;min-width:0;
   background:var(--bg2);border:1px solid var(--border);
