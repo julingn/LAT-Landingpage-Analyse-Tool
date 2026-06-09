@@ -833,7 +833,7 @@ button{font-family:inherit}
 ════════════════════════════════════════════════════════════ -->
 <div class="view-panel" id="view-keywords">
   <div id="kw-results" style="display:none;margin-top:24px">
-    <div class="needs-met-block" id="kw-intent-panel">
+    <div class="needs-met-block" id="kw-intent-panel" style="display:block">
       <div class="needs-met-label">Keyword Fit · Intent-Analyse</div>
       <div id="kw-intent-content"></div>
     </div>
@@ -2231,6 +2231,7 @@ function renderResults(keyword){
 function renderKeywordFit(){
   const el=document.getElementById('kw-intent-content');
   if(!el||!kwData?.results)return;
+  document.getElementById('kw-intent-panel').style.display='block';
   const entries=Object.values(kwData.results).filter(Boolean);
   if(!entries.length){el.innerHTML='<p style="font-size:12px;color:var(--text3);margin:0">Keine Intent-Daten verfügbar.</p>';return;}
 
