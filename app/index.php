@@ -538,6 +538,15 @@ button{font-family:inherit}
 .radar-card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
 .radar-wrap{display:flex;justify-content:center;align-items:center}
 .radar-wrap svg{max-width:320px;width:100%;height:auto;overflow:visible}
+/* Page Preview */
+.page-preview-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:24px;box-shadow:var(--shadow-sm)}
+.page-preview-bar{background:var(--bg3);border-bottom:1px solid var(--border);padding:7px 12px;display:flex;align-items:center;gap:8px}
+.page-preview-dots{display:flex;gap:4px}
+.page-preview-dot{width:8px;height:8px;border-radius:50%;background:var(--border2)}
+.page-preview-url-wrap{flex:1;background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:3px 10px;font-size:11px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'Geist Mono',monospace}
+.page-preview-img-wrap{height:220px;overflow:hidden}
+.page-preview-img-wrap img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;transition:opacity .3s}
+.page-preview-footer{font-size:11px;color:var(--text3);padding:6px 12px;background:var(--bg3);border-top:1px solid var(--border);display:flex;align-items:center;gap:6px}
 @media(max-width:900px){.module-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
@@ -730,9 +739,27 @@ button{font-family:inherit}
       </div>
     </div>
 
+    <!-- Page Preview (Above the Fold) -->
+    <div class="page-preview-card" id="page-preview-card" style="display:none">
+      <div class="page-preview-bar">
+        <div class="page-preview-dots">
+          <div class="page-preview-dot"></div>
+          <div class="page-preview-dot"></div>
+          <div class="page-preview-dot"></div>
+        </div>
+        <div class="page-preview-url-wrap" id="page-preview-url"></div>
+      </div>
+      <div class="page-preview-img-wrap">
+        <img id="page-preview-img" src="" alt="Seiten-Vorschau (Above the Fold)">
+      </div>
+      <div class="page-preview-footer">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Above the Fold — Screenshot 1280 × 900 px
+      </div>
+    </div>
+
     <!-- Radar Chart -->
-    <div class="radar-card" id="radar-card" style="display:none">
-      <div class="radar-card-title">
+    <div class="radar-card" id="radar-card" style="display:none">      <div class="radar-card-title">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/></svg>
         Score-Überblick
       </div>
@@ -776,6 +803,9 @@ button{font-family:inherit}
       <div class="score-hero-actions">
         <button class="btn-secondary" onclick="startAnalysis()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg> Re-Analyse</button>
         <button class="btn-secondary" onclick="exportHtml()">↓ Bericht</button>
+      </div>
+      <div id="sqeg-page-thumb" style="display:none;width:110px;height:74px;border-radius:var(--radius-sm);overflow:hidden;flex-shrink:0;border:1px solid var(--border);cursor:pointer" onclick="showView('ux')" data-tip="Seiten-Screenshot — klicken für UX/CRO-Analyse">
+        <img id="sqeg-page-thumb-img" src="" alt="Vorschau" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block">
       </div>
     </div>
     <div id="score-badge" style="display:none"></div>
@@ -1838,6 +1868,20 @@ function renderUXAnalysis(){
     sumPanel.style.display='block';
     sumContent.textContent=ucrData.summary;
   }else if(sumPanel){sumPanel.style.display='none';}
+  renderPagePreview();
+}
+function renderPagePreview(){
+  if(!ucrData?.screenshot_base64)return;
+  const src='data:image/png;base64,'+ucrData.screenshot_base64;
+  // Übersicht-Card
+  const card=document.getElementById('page-preview-card');
+  const img=document.getElementById('page-preview-img');
+  const urlEl=document.getElementById('page-preview-url');
+  if(card&&img){img.src=src;if(urlEl)urlEl.textContent=currentUrl||'–';card.style.display='block';}
+  // SQEG Score-Hero Thumbnail
+  const thumb=document.getElementById('sqeg-page-thumb');
+  const thumbImg=document.getElementById('sqeg-page-thumb-img');
+  if(thumb&&thumbImg){thumbImg.src=src;thumb.style.display='block';}
 }
 async function enrichGscWithSerpFeatures(keywords){
   if(!keywords||!keywords.length)return;
