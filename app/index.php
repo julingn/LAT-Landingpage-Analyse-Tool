@@ -445,7 +445,8 @@ button{font-family:inherit}
 .exec-summary-header{display:flex;align-items:center;gap:8px;margin-bottom:16px}
 .exec-summary-header svg{color:var(--accent);flex-shrink:0}
 .exec-summary-title{font-size:14px;font-weight:700;color:var(--text)}
-.exec-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.exec-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.exec-summary-steps{margin-top:12px;background:var(--bg3);border-radius:var(--radius);padding:14px 16px;border-left:3px solid var(--accent)}
 .exec-summary-section{background:var(--bg3);border-radius:var(--radius);padding:14px 16px}
 .exec-summary-section-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:10px}
 .exec-summary-score{font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;line-height:1.4}
@@ -780,7 +781,14 @@ button{font-family:inherit}
 
     <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">Cluster-Übersicht</span><div class="section-divider-line"></div></div>
     <div class="cluster-overview" id="cluster-overview"></div>
-    <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">Detailanalyse</span><div class="section-divider-line"></div></div>
+    <div class="section-divider" style="cursor:pointer" onclick="toggleDetailTable()">
+      <div class="section-divider-line"></div>
+      <span class="section-divider-label" style="display:flex;align-items:center;gap:6px">Detailanalyse
+        <svg id="detail-toggle-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
+      </span>
+      <div class="section-divider-line"></div>
+    </div>
+    <div id="detail-table-wrap" style="display:none">
     <div class="filter-bar">
       <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">Alle</button>
       <button class="filter-btn" data-filter="green" onclick="setFilter('green',this)">✓ Bestanden</button>
@@ -791,6 +799,8 @@ button{font-family:inherit}
       <thead><tr><th style="width:44px">Status</th><th>Kriterium</th><th>Befund &amp; Bewertung</th><th style="width:28px"></th></tr></thead>
       <tbody id="criteria-tbody"></tbody>
     </table>
+    </div><!-- /detail-table-wrap -->
+    </div><!-- /detail-table-wrap -->
   </div>
   <div id="sqeg-empty" style="padding:48px 0;text-align:center;color:var(--text3)">
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 12px;display:block;opacity:.4"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -1154,6 +1164,13 @@ function setMode(mode){
   document.getElementById('mode-url').classList.toggle('active',mode==='url');
   document.getElementById('mode-html').classList.toggle('active',mode==='html');
   document.getElementById('html-textarea-wrap').style.display=mode==='html'?'block':'none';
+}
+function toggleDetailTable(){
+  const wrap=document.getElementById('detail-table-wrap');
+  const icon=document.getElementById('detail-toggle-icon');
+  const open=wrap.style.display==='none';
+  wrap.style.display=open?'block':'none';
+  if(icon)icon.style.transform=open?'rotate(180deg)':'';
 }
 function toggleLog(){document.getElementById('log-wrap').classList.toggle('collapsed');}
 function toggleContext(){document.getElementById('context-fields').classList.toggle('visible')}
