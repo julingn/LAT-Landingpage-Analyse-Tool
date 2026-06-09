@@ -105,8 +105,8 @@ button{font-family:inherit}
 .theme-btn .icon-moon{display:block}
 [data-theme="dark"] .theme-btn .icon-sun{display:block}
 [data-theme="dark"] .theme-btn .icon-moon{display:none}
-.main-content{margin-left:220px;flex:1;min-width:0;background:var(--bg2)}
-.workspace-header{border-bottom:1px solid var(--border);background:var(--bg2);display:flex;flex-direction:column;align-items:stretch;position:sticky;top:0;z-index:50;padding-bottom:14px}
+.main-content{margin-left:220px;flex:1;min-width:0;background:var(--bg)}
+.workspace-header{border-bottom:1px solid var(--border);background:var(--bg);display:flex;flex-direction:column;align-items:stretch;position:sticky;top:0;z-index:50;padding-bottom:14px}
 .workspace-header-inner{max-width:960px;margin:0 auto;padding:0 32px;display:flex;align-items:center;width:100%;gap:12px;height:52px;flex-shrink:0}
 .workspace-header-form{max-width:960px;margin:0 auto;padding:0 32px;width:100%}
 .header-input-row{display:flex;gap:10px;align-items:center;margin-bottom:8px}
