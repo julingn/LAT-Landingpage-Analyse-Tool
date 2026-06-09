@@ -781,13 +781,10 @@ button{font-family:inherit}
 
     <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">Cluster-Übersicht</span><div class="section-divider-line"></div></div>
     <div class="cluster-overview" id="cluster-overview"></div>
-    <div class="section-divider" style="cursor:pointer" onclick="toggleDetailTable()">
-      <div class="section-divider-line"></div>
-      <span class="section-divider-label" style="display:flex;align-items:center;gap:6px">Detailanalyse
-        <svg id="detail-toggle-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
-      </span>
-      <div class="section-divider-line"></div>
-    </div>
+    <button onclick="toggleDetailTable()" style="display:flex;align-items:center;justify-content:space-between;width:100%;margin:24px 0 0;padding:10px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);transition:background .15s,border-color .15s" onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">
+      <span style="display:flex;align-items:center;gap:7px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Detailanalyse — alle 42 Kriterien</span>
+      <svg id="detail-toggle-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform .2s;color:var(--text3)"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
     <div id="detail-table-wrap" style="display:none">
     <div class="filter-bar">
       <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">Alle</button>
@@ -1840,9 +1837,11 @@ function renderExecSummary({bewertung,interpretation,probleme,schritte}){
         return`<div class="exec-summary-problem"><div class="exec-summary-problem-label">✖ ${escHtml(label)}</div>${expl?`<div class="exec-summary-problem-arrow">→ ${escHtml(expl)}</div>`:''}</div>`;
       }).join('')}
     </div>
-    <div class="exec-summary-section">
-      <div class="exec-summary-section-title">Empfohlene nächste Schritte</div>
-      ${schritte.map((s,i)=>`<div class="exec-summary-item"><span class="exec-summary-num">${i+1}</span><span>${escHtml(s)}</span></div>`).join('')}
+  </div>
+  <div class="exec-summary-steps">
+    <div class="exec-summary-section-title" style="margin-bottom:10px">Empfohlene nächste Schritte</div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px">
+      ${schritte.map((s,i)=>`<div style="display:flex;align-items:flex-start;gap:10px;background:var(--bg2);border-radius:var(--radius-sm);padding:10px 12px;border:1px solid var(--border)"><span class="exec-summary-num">${i+1}</span><span style="flex:1;font-size:12px;color:var(--text2);line-height:1.5">${escHtml(s)}</span></div>`).join('')}
     </div>
   </div>`;
   c.style.display='block';
