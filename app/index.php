@@ -358,17 +358,33 @@ button{font-family:inherit}
 .stat-box.blue .stat-num{color:var(--blue)}
 .stat-lbl{font-size:11px;font-weight:500;color:var(--text3)}
 /* === CLUSTER OVERVIEW === */
-.cluster-overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:20px}
+.cluster-overview{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
 .cluster-card{
-  display:flex;align-items:center;gap:16px;min-width:0;
+  display:flex;flex-direction:column;min-width:0;
   background:var(--bg2);border:1px solid var(--border);
-  border-radius:var(--radius-lg);padding:20px 22px;
+  border-radius:var(--radius-lg);
   box-shadow:var(--shadow-sm);transition:box-shadow .15s,border-color .15s;
+  overflow:hidden;
 }
 .cluster-card:hover{box-shadow:var(--shadow);border-color:var(--border2)}
+.cluster-card-header{display:flex;align-items:center;gap:16px;padding:16px 20px;cursor:pointer;user-select:none}
+.cluster-card-header:hover .cluster-card-name{color:var(--accent)}
 .cluster-card-donut{flex-shrink:0}
-.cluster-card-info{min-width:0;overflow:hidden}
-.cluster-card-name{font-size:14px;font-weight:600;color:var(--text);line-height:1.35}
+.cluster-card-info{flex:1;min-width:0}
+.cluster-card-name{font-size:14px;font-weight:600;color:var(--text);line-height:1.35;transition:color .12s}
+.cluster-card-toggle{margin-left:auto;flex-shrink:0;color:var(--text3);transition:transform .2s}
+.cluster-card.open .cluster-card-toggle{transform:rotate(180deg)}
+.cluster-card-body{display:none;border-top:1px solid var(--border)}
+.cluster-card.open .cluster-card-body{display:block}
+.cluster-crit-row{display:flex;align-items:flex-start;gap:10px;padding:9px 20px;border-bottom:1px solid var(--border);font-size:12px}
+.cluster-crit-row:last-child{border-bottom:none}
+.cluster-crit-row:hover{background:var(--bg3)}
+.cluster-crit-meta{display:flex;gap:6px;align-items:center;flex-shrink:0;width:68px}
+.cluster-crit-id{font-family:'Geist Mono','Courier New',monospace;font-size:10px;color:var(--text3)}
+.cluster-crit-main{flex:1;min-width:0}
+.cluster-crit-name{font-weight:500;color:var(--text2);margin-bottom:2px;line-height:1.3}
+.cluster-crit-finding{color:var(--text3);font-size:11px;line-height:1.4}
+.cluster-crit-improve{margin-top:4px;font-size:11px;color:var(--accent);line-height:1.4}
 .sqeg-scale{display:flex;align-items:center;margin-bottom:20px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--bg2)}
 .sqeg-level{flex:1;padding:9px 4px;text-align:center;font-size:11px;font-weight:600;color:var(--text3);cursor:default;border-right:1px solid var(--border);transition:background .2s,color .2s}
 .sqeg-level:last-child{border-right:none}
@@ -458,7 +474,7 @@ button{font-family:inherit}
   .stat-grid{grid-template-columns:repeat(2,1fr)}
   .skeleton-stats{grid-template-columns:repeat(2,1fr)}
   .skeleton-clusters{grid-template-columns:repeat(2,1fr)}
-  .cluster-overview{grid-template-columns:repeat(2,1fr)}
+  .cluster-overview{gap:8px}
   .priority-matrix{grid-template-columns:1fr}
   .score-hero{flex-direction:column;gap:16px}
   .score-hero-divider{display:none}
@@ -2293,26 +2309,30 @@ function renderKeywordFit(){
   el.innerHTML=html;
 }
 
+function toggleCluster(id){
+  const card=document.getElementById(id);
+  if(card)card.classList.toggle('open');
+}
 function renderClusterOverview(){
   const el=document.getElementById('cluster-overview');
   if(!el)return;
   const clusters=[
-    {num:'1',name:'Seitenzweck & Typ',
-      hints:{green:'Seitenzweck klar kommuniziert und legitim.',amber:'Seitenzweck erkennbar, aber nicht durchgängig klar.',red:'Seitenzweck unklar oder schwer erkennbar.'}},
-    {num:'2',name:'Inhalt & Tiefe',
-      hints:{green:'Inhalt tiefgründig, original und vollständig.',amber:'Inhaltstiefe vorhanden, aber ausbaufähig.',red:'Inhalt oberflächlich, unvollständig oder ohne erkennbaren Mehrwert.'}},
+    {num:'1',name:'Seitenzweck \u0026 Typ',
+      hints:{green:'Seitenzweck klar kommuniziert und legitim.',amber:'Seitenzweck erkennbar, aber nicht durchg\u00e4ngig klar.',red:'Seitenzweck unklar oder schwer erkennbar.'}},
+    {num:'2',name:'Inhalt \u0026 Tiefe',
+      hints:{green:'Inhalt tiefgr\u00fcndig, original und vollst\u00e4ndig.',amber:'Inhaltstiefe vorhanden, aber ausbauf\u00e4hig.',red:'Inhalt oberfl\u00e4chlich, unvollst\u00e4ndig oder ohne erkennbaren Mehrwert.'}},
     {num:'3',name:'E-E-A-T',
-      hints:{green:'Expertise und Vertrauenssignale gut belegt.',amber:'E-E-A-T-Signale erkennbar, aber nicht ausreichend nachgewiesen.',red:'Autorität und Vertrauen nicht oder kaum nachweisbar.'}},
+      hints:{green:'Expertise und Vertrauenssignale gut belegt.',amber:'E-E-A-T-Signale erkennbar, aber nicht ausreichend nachgewiesen.',red:'Autorit\u00e4t und Vertrauen nicht oder kaum nachweisbar.'}},
     {num:'4',name:'Reputation',
-      hints:{green:'Transparenz und Reputation gegeben.',amber:'Teilweise Transparenz- oder Reputationslücken.',red:'Fehlende Transparenz oder schwache externe Reputation.'}},
-    {num:'5',name:'Schaden & Täuschung',
-      hints:{green:'Keine Täuschungs- oder Schadsignale erkennbar.',amber:'Leichte Auffälligkeiten — weiter beobachten.',red:'Kritische Täuschungs- oder Schadenssignale vorhanden!'}},
-    {num:'6',name:'Technik & UX',
-      hints:{green:'Technische Qualität und UX auf gutem Niveau.',amber:'Technische Mängel vorhanden, die Nutzer beeinträchtigen.',red:'Schwerwiegende technische Probleme — dringend beheben.'}},
-    {num:'7',name:'Werbung & SC',
-      hints:{green:'Werbung klar gekennzeichnet und nicht aufdringlich.',amber:'Werbeintegration oder Supplementary Content ausbaufähig.',red:'Werbung dominiert oder irreführend platziert.'}},
+      hints:{green:'Transparenz und Reputation gegeben.',amber:'Teilweise Transparenz- oder Reputationsl\u00fccken.',red:'Fehlende Transparenz oder schwache externe Reputation.'}},
+    {num:'5',name:'Schaden \u0026 T\u00e4uschung',
+      hints:{green:'Keine T\u00e4uschungs- oder Schadsignale erkennbar.',amber:'Leichte Auff\u00e4lligkeiten \u2014 weiter beobachten.',red:'Kritische T\u00e4uschungs- oder Schadenssignale vorhanden!'}},
+    {num:'6',name:'Technik \u0026 UX',
+      hints:{green:'Technische Qualit\u00e4t und UX auf gutem Niveau.',amber:'Technische M\u00e4ngel vorhanden, die Nutzer beeintr\u00e4chtigen.',red:'Schwerwiegende technische Probleme \u2014 dringend beheben.'}},
+    {num:'7',name:'Werbung \u0026 SC',
+      hints:{green:'Werbung klar gekennzeichnet und nicht aufdringlich.',amber:'Werbeintegration oder Supplementary Content ausbauf\u00e4hig.',red:'Werbung dominiert oder irref\u00fchrend platziert.'}},
     {num:'8',name:'Needs Met',
-      hints:{green:'Suchabsicht vollständig und befriedigend getroffen.',amber:'Suchabsicht teilweise getroffen — Lücken schließen.',red:'Suchabsicht nicht erfüllt — zentrales Rankingproblem.'}},
+      hints:{green:'Suchabsicht vollst\u00e4ndig und befriedigend getroffen.',amber:'Suchabsicht teilweise getroffen \u2014 L\u00fccken schlie\u00dfen.',red:'Suchabsicht nicht erf\u00fcllt \u2014 zentrales Rankingproblem.'}},
   ];
   const R=36,SW=10,CX=48,CY=48;
   const circ=2*Math.PI*R;
@@ -2329,24 +2349,41 @@ function renderClusterOverview(){
     const a=res.filter(r=>r.status==='amber').length;
     const rd=res.filter(r=>r.status==='red').length;
     const hint=cl.hints[cls]||'';
-    return`<div class="cluster-card">
-      <div class="cluster-card-donut">
-        <svg width="96" height="96" viewBox="0 0 96 96">
-          <circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="var(--bg4)" stroke-width="${SW}"/>
-          <circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="${color}" stroke-width="${SW}" stroke-dasharray="${dash} ${circ.toFixed(1)}" stroke-linecap="round" transform="rotate(-90 ${CX} ${CY})"/>
-          <text x="${CX}" y="${CY}" text-anchor="middle" dominant-baseline="central" font-size="18" font-weight="700" fill="${color}" font-family="Inter,sans-serif">${score}%</text>
-        </svg>
-      </div>
-      <div class="cluster-card-info">
-        <div class="cluster-card-name">${escHtml(cl.name)}</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:4px;margin-bottom:6px;line-height:1.4;font-style:italic">${escHtml(hint)}</div>
-        <div style="display:flex;flex-direction:column;gap:3px;font-size:12px">
-          <span style="color:var(--green)">${g} ✓ Bestanden</span>
-          <span style="color:var(--amber)">${a} ◑ Verbesserbar</span>
-          <span style="color:var(--red)">${rd} ✗ Fehlerhaft</span>
-        </div>
-      </div>
-    </div>`;
+    const cardId='cluster-card-'+cl.num;
+    // Kriterien-Rows
+    const rows=res.map(r=>{
+      const crit=CRITERIA.find(c=>c.id===r.id)||{name:r.criterion||r.id};
+      const sym=r.status==='green'?'\u2713':r.status==='amber'?'\u25d1':'\u2717';
+      const parts=(r.finding||'').split('|');
+      const verdict=(parts[2]||parts[0]||'').replace(/^Bewertung:\s*/,'').trim();
+      const improve=r.improvement||'';
+      return`<div class="cluster-crit-row">`
+        +`<div class="cluster-crit-meta"><div class="status-dot ${r.status}">${sym}</div><div class="cluster-crit-id">${escHtml(r.id)}</div></div>`
+        +`<div class="cluster-crit-main">`
+        +`<div class="cluster-crit-name">${escHtml(crit.name)}</div>`
+        +(verdict?`<div class="cluster-crit-finding">${escHtml(verdict.substring(0,160)+(verdict.length>160?'\u2026':''))}</div>`:'')
+        +(improve&&r.status!=='green'?`<div class="cluster-crit-improve">\u2192 ${escHtml(improve.substring(0,160)+(improve.length>160?'\u2026':''))}</div>`:'')
+        +`</div></div>`;
+    }).join('');
+    return`<div class="cluster-card" id="${cardId}">`
+      +`<div class="cluster-card-header" onclick="toggleCluster('${cardId}')">`
+      +`<div class="cluster-card-donut"><svg width="96" height="96" viewBox="0 0 96 96">`
+      +`<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="var(--bg4)" stroke-width="${SW}"/>`
+      +`<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="${color}" stroke-width="${SW}" stroke-dasharray="${dash} ${circ.toFixed(1)}" stroke-linecap="round" transform="rotate(-90 ${CX} ${CY})"/>`
+      +`<text x="${CX}" y="${CY}" text-anchor="middle" dominant-baseline="central" font-size="18" font-weight="700" fill="${color}" font-family="Inter,sans-serif">${score}%</text>`
+      +`</svg></div>`
+      +`<div class="cluster-card-info">`
+      +`<div class="cluster-card-name">${escHtml(cl.name)}</div>`
+      +`<div style="font-size:11px;color:var(--text3);margin-top:3px;margin-bottom:6px;font-style:italic;line-height:1.4">${escHtml(hint)}</div>`
+      +`<div style="display:flex;gap:10px;font-size:12px">`
+      +`<span style="color:var(--green)">${g} \u2713</span>`
+      +`<span style="color:var(--amber)">${a} \u25d1</span>`
+      +`<span style="color:var(--red)">${rd} \u2717</span>`
+      +`</div></div>`
+      +`<svg class="cluster-card-toggle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>`
+      +`</div>`
+      +`<div class="cluster-card-body">${rows}</div>`
+      +`</div>`;
   }).join('');
 }
 
