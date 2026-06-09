@@ -651,44 +651,8 @@ button{font-family:inherit}
   </div>
 
   <div id="results-section" style="display:none">
-    <!-- Score Hero -->
-    <div class="score-hero" id="score-hero" style="margin-top:28px">
-      <div class="score-hero-num green" id="score-hero-num">–</div>
-      <div class="score-hero-divider"></div>
-      <div class="score-hero-meta">
-        <div id="score-hero-level" class="score-hero-level green">High</div>
-        <div class="score-hero-interp" id="score-hero-interp"></div>
-        <div class="score-hero-bar-wrap">
-          <div class="score-hero-bar-bg"><div class="score-hero-bar green" id="score-hero-bar" style="width:0%"></div></div>
-        </div>
-        <div class="score-hero-chips">
-          <span class="score-chip" id="ymyl-badge" data-tip="YMYL (Your Money or Your Life): Kennzeichnet Seiten, bei denen Google besonders hohe Qualitätsanforderungen stellt — z.B. Finanzen, Gesundheit, Recht"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> –</span>
-          <span class="score-chip" data-tip="Anzahl der bewerteten SQEG-Kriterien aus den Google Search Quality Evaluator Guidelines"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> <span id="hero-criteria-count">42 Kriterien</span></span>
-          <span class="score-chip" id="hero-timer-chip" data-tip="Dauer der Analyse (Zeit vom Start bis zum letzten API-Call)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> –</span>
-        </div>
-      </div>
-      <div class="score-hero-actions">
-        <button class="btn-secondary" onclick="startAnalysis()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg> Re-Analyse</button>
-        <button class="btn-secondary" onclick="exportHtml()">↓ Bericht</button>
-      </div>
-    </div>
-    <div id="score-badge" style="display:none"></div>
-
-    <!-- Executive Summary -->
-    <div class="exec-summary-card" id="exec-summary" style="display:none">
-      <div class="exec-summary-header">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        <span class="exec-summary-title">Executive Summary</span>
-      </div>
-      <div class="exec-summary-loading" id="exec-summary-loading">
-        <div class="loader-dots"><div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div></div>
-        <span>Zusammenfassung wird erstellt…</span>
-      </div>
-      <div id="exec-summary-content" style="display:none"></div>
-    </div>
-
     <!-- Modul-Kacheln -->
-    <div class="module-grid" id="module-grid">
+    <div class="module-grid" id="module-grid" style="margin-top:28px">
       <div class="module-card" onclick="showView('sqeg')">
         <div class="module-card-header">
           <div class="module-card-icon sqeg"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
@@ -743,6 +707,42 @@ button{font-family:inherit}
 ════════════════════════════════════════════════════════════ -->
 <div class="view-panel" id="view-sqeg">
   <div id="sqeg-results" style="display:none">
+    <!-- Score Hero -->
+    <div class="score-hero" id="score-hero" style="margin-top:28px">
+      <div class="score-hero-num green" id="score-hero-num">–</div>
+      <div class="score-hero-divider"></div>
+      <div class="score-hero-meta">
+        <div id="score-hero-level" class="score-hero-level green">High</div>
+        <div class="score-hero-interp" id="score-hero-interp"></div>
+        <div class="score-hero-bar-wrap">
+          <div class="score-hero-bar-bg"><div class="score-hero-bar green" id="score-hero-bar" style="width:0%"></div></div>
+        </div>
+        <div class="score-hero-chips">
+          <span class="score-chip" id="ymyl-badge" data-tip="YMYL (Your Money or Your Life): Kennzeichnet Seiten, bei denen Google besonders hohe Qualitätsanforderungen stellt — z.B. Finanzen, Gesundheit, Recht"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> –</span>
+          <span class="score-chip" data-tip="Anzahl der bewerteten SQEG-Kriterien aus den Google Search Quality Evaluator Guidelines"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> <span id="hero-criteria-count">42 Kriterien</span></span>
+          <span class="score-chip" id="hero-timer-chip" data-tip="Dauer der Analyse (Zeit vom Start bis zum letzten API-Call)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> –</span>
+        </div>
+      </div>
+      <div class="score-hero-actions">
+        <button class="btn-secondary" onclick="startAnalysis()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg> Re-Analyse</button>
+        <button class="btn-secondary" onclick="exportHtml()">↓ Bericht</button>
+      </div>
+    </div>
+    <div id="score-badge" style="display:none"></div>
+
+    <!-- Executive Summary -->
+    <div class="exec-summary-card" id="exec-summary" style="display:none">
+      <div class="exec-summary-header">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span class="exec-summary-title">Executive Summary</span>
+      </div>
+      <div class="exec-summary-loading" id="exec-summary-loading">
+        <div class="loader-dots"><div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div></div>
+        <span>Zusammenfassung wird erstellt…</span>
+      </div>
+      <div id="exec-summary-content" style="display:none"></div>
+    </div>
+
     <div class="stat-grid" style="margin-top:24px">
       <div class="stat-box green"><div class="stat-num" id="cnt-g">0</div><div class="stat-lbl">✓ Bestanden</div></div>
       <div class="stat-box amber"><div class="stat-num" id="cnt-a">0</div><div class="stat-lbl">◑ Verbesserungswürdig</div></div>
@@ -1109,10 +1109,10 @@ function showView(name){
   const meta=VIEW_META[name]||{title:name,sub:''};
   document.getElementById('view-title').textContent=meta.title;
   document.getElementById('view-subtitle').textContent=meta.sub;
-  // Progress + results live in overview — move them there when switching
   if(name==='overview'){
-    document.getElementById('progress-section').style.display=
-      document.getElementById('progress-section').dataset.active==='1'?'block':'none';
+    // Progress-Section nur zeigen wenn Analyse läuft
+    const ps=document.getElementById('progress-section');
+    if(ps)ps.style.display=ps.dataset.active==='1'?'block':'none';
   }
   if(name==='settings'){loadCredentialStatus();loadGscDomains();}
 }
@@ -1852,10 +1852,12 @@ function renderRadarChart(sqeg, perf, geo){
 // === TOP PRIORITIES ===
 function renderTopPriorities(){
   const list=document.getElementById('top-priorities-list');
+  const container=document.getElementById('top-priorities');
   if(!list)return;
   const issues=analysisResults.filter(r=>r.rating==='red'||r.rating==='amber').sort((a,b)=>{
     const w={red:0,amber:1};return (w[a.rating]??2)-(w[b.rating]??2);
   }).slice(0,5);
+  if(container)container.style.display='block';
   if(!issues.length){list.innerHTML='<li style="color:var(--text-secondary)">Keine kritischen Befunde.</li>';return;}
   list.innerHTML=issues.map(r=>`<li class="top-prio-item top-prio-${r.rating}">
     <span class="top-prio-dot" style="background:${r.rating==='red'?'var(--red)':'var(--amber)'}"></span>
@@ -2096,6 +2098,7 @@ function renderResults(keyword){
   renderCriteriaTable(analysisResults,'all');
   // Activate sub-views
   document.getElementById('progress-section').dataset.active='0';
+  document.getElementById('results-section').style.display='block';
   document.getElementById('sqeg-results').style.display='block';
   document.getElementById('sqeg-empty').style.display='none';
   if(gscData?.keywords?.length||sistrixData?.success){
@@ -2110,6 +2113,8 @@ function renderResults(keyword){
   updateModuleCards();
   // Top-Prioritäten in Übersicht
   renderTopPriorities();
+  // Nach Analyse direkt zum SQEG-View
+  showView('sqeg');
   generateExecSummary();
 }
 
