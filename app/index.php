@@ -335,6 +335,9 @@ button{font-family:inherit}
   font-size:11px;font-weight:500;color:var(--text2);
 }
 .score-chip svg{color:var(--text3);flex-shrink:0}
+.score-chip.green{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
+.score-chip.amber{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)}
+.score-chip.red{background:var(--red-bg);color:var(--red);border-color:var(--red-border)}
 .score-hero-actions{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
 /* legacy badge kept for compat */
 .score-badge{display:none}
@@ -733,7 +736,9 @@ button{font-family:inherit}
         </div>
         <div class="score-hero-chips">
           <span class="score-chip" id="ymyl-badge" data-tip="YMYL (Your Money or Your Life): Kennzeichnet Seiten, bei denen Google besonders hohe Qualitätsanforderungen stellt — z.B. Finanzen, Gesundheit, Recht"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> –</span>
-          <span class="score-chip" data-tip="Anzahl der bewerteten SQEG-Kriterien aus den Google Search Quality Evaluator Guidelines"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> <span id="hero-criteria-count">42 Kriterien</span></span>
+          <span class="score-chip green" id="chip-cnt-g" data-tip="Kriterien bestanden">✓ <span id="cnt-g">0</span></span>
+          <span class="score-chip amber" id="chip-cnt-a" data-tip="Kriterien verbesserungswürdig">◑ <span id="cnt-a">0</span></span>
+          <span class="score-chip red" id="chip-cnt-r" data-tip="Kriterien fehlerhaft">✗ <span id="cnt-r">0</span></span>
           <span class="score-chip" id="hero-timer-chip" data-tip="Dauer der Analyse (Zeit vom Start bis zum letzten API-Call)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> –</span>
         </div>
       </div>
@@ -743,12 +748,6 @@ button{font-family:inherit}
       </div>
     </div>
     <div id="score-badge" style="display:none"></div>
-
-    <div class="stat-grid" style="margin-top:24px">
-      <div class="stat-box green"><div class="stat-num" id="cnt-g">0</div><div class="stat-lbl">✓ Bestanden</div></div>
-      <div class="stat-box amber"><div class="stat-num" id="cnt-a">0</div><div class="stat-lbl">◑ Verbesserungswürdig</div></div>
-      <div class="stat-box red"><div class="stat-num" id="cnt-r">0</div><div class="stat-lbl">✗ Fehlerhaft</div></div>
-    </div>
 
     <!-- Executive Summary -->
     <div class="exec-summary-card" id="exec-summary" style="display:none">
@@ -2105,7 +2104,6 @@ function renderResults(keyword){
   if(ymylResult==='clear_ymyl'){ymylEl.innerHTML=`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> YMYL: Erhöht`;ymylEl.style.color='var(--red)'}
   else if(ymylResult==='mixed_ymyl'){ymylEl.innerHTML=`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> YMYL: Teilweise`;ymylEl.style.color='var(--amber)'}
   else{ymylEl.innerHTML=`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Kein YMYL`;ymylEl.style.color='var(--green)'}
-  document.getElementById('hero-criteria-count').textContent=analysisResults.length+' Kriterien';
   const timerChip=document.getElementById('hero-timer-chip');
   const totalSec=Math.round((Date.now()-analysisStartTime)/1000);
   if(totalSec>0)timerChip.innerHTML=`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${formatTime(totalSec)}`;
