@@ -730,6 +730,12 @@ button{font-family:inherit}
     </div>
     <div id="score-badge" style="display:none"></div>
 
+    <div class="stat-grid" style="margin-top:24px">
+      <div class="stat-box green"><div class="stat-num" id="cnt-g">0</div><div class="stat-lbl">✓ Bestanden</div></div>
+      <div class="stat-box amber"><div class="stat-num" id="cnt-a">0</div><div class="stat-lbl">◑ Verbesserungswürdig</div></div>
+      <div class="stat-box red"><div class="stat-num" id="cnt-r">0</div><div class="stat-lbl">✗ Fehlerhaft</div></div>
+    </div>
+
     <!-- Executive Summary -->
     <div class="exec-summary-card" id="exec-summary" style="display:none">
       <div class="exec-summary-header">
@@ -743,24 +749,8 @@ button{font-family:inherit}
       <div id="exec-summary-content" style="display:none"></div>
     </div>
 
-    <div class="stat-grid" style="margin-top:24px">
-      <div class="stat-box green"><div class="stat-num" id="cnt-g">0</div><div class="stat-lbl">✓ Bestanden</div></div>
-      <div class="stat-box amber"><div class="stat-num" id="cnt-a">0</div><div class="stat-lbl">◑ Verbesserungswürdig</div></div>
-      <div class="stat-box red"><div class="stat-num" id="cnt-r">0</div><div class="stat-lbl">✗ Fehlerhaft</div></div>
-    </div>
     <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">Cluster-Übersicht</span><div class="section-divider-line"></div></div>
     <div class="cluster-overview" id="cluster-overview"></div>
-    <div class="sqeg-scale" id="sqeg-scale">
-      <div class="sqeg-level" data-level="Lowest">Lowest</div>
-      <div class="sqeg-level" data-level="Low">Low</div>
-      <div class="sqeg-level" data-level="Medium">Medium</div>
-      <div class="sqeg-level" data-level="High">High</div>
-      <div class="sqeg-level" data-level="Highest">Highest</div>
-    </div>
-    <div class="needs-met-block" id="needs-met-block">
-      <div class="needs-met-label">Cluster 8 · Needs Met (Suchabsicht)</div>
-      <div id="needs-met-scale"></div>
-    </div>
     <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">Prioritäten-Matrix</span><div class="section-divider-line"></div></div>
     <div class="priority-matrix">
       <div class="priority-col"><div class="priority-col-header red">🔴 Sofort angehen</div><div id="pri-sofort"></div></div>
@@ -1998,17 +1988,6 @@ function renderResults(keyword){
   document.getElementById('cnt-a').textContent=a;
   document.getElementById('cnt-r').textContent=r;
 
-  document.querySelectorAll('.sqeg-level').forEach(el=>el.classList.toggle('active',el.dataset.level===level));
-
-  const nmResults=analysisResults.filter(r=>r.id.startsWith('8.'));
-  if(nmResults.length){
-    document.getElementById('needs-met-block').style.display='block';
-    document.getElementById('needs-met-scale').innerHTML=nmResults.map(r=>{
-      const cr=CRITERIA.find(x=>x.id===r.id)||{name:r.id};
-      const sym=r.status==='green'?'✓':r.status==='amber'?'◑':'✗';
-      return`<div class="priority-item" style="margin:0;padding:4px 0"><div class="pri-dot ${r.status}">${sym}</div><span style="font-size:12px">${escHtml(cr.name)}</span></div>`;
-    }).join('');
-  }
   const gscPanel=document.getElementById('gsc-panel');
   if(gscData?.keywords?.length){
     gscPanel.style.display='block';
