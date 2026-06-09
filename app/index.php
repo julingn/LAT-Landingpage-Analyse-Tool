@@ -780,12 +780,6 @@ button{font-family:inherit}
 
     <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">Cluster-Übersicht</span><div class="section-divider-line"></div></div>
     <div class="cluster-overview" id="cluster-overview"></div>
-    <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">Prioritäten-Matrix</span><div class="section-divider-line"></div></div>
-    <div class="priority-matrix">
-      <div class="priority-col"><div class="priority-col-header red">🔴 Sofort angehen</div><div id="pri-sofort"></div></div>
-      <div class="priority-col"><div class="priority-col-header amber">🟡 Quick Wins</div><div id="pri-quick"></div></div>
-      <div class="priority-col"><div class="priority-col-header blue">🔵 Mittelfristig</div><div id="pri-mid"></div></div>
-    </div>
     <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">Detailanalyse</span><div class="section-divider-line"></div></div>
     <div class="filter-bar">
       <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">Alle</button>
@@ -2212,7 +2206,6 @@ function renderResults(keyword){
     if(!prompts.length&&!sources.length)ghtml='<p style="font-size:12px;color:var(--text3);margin:0">Keine KI-Sichtbarkeitsdaten gefunden (Entity nicht im Sistrix AI-Index).</p>';
     document.getElementById('geo-panel-content').innerHTML=ghtml;
   }else{geoPanel.style.display='none';}
-  renderPriorityMatrix();
   renderClusterOverview();
   renderCriteriaTable(analysisResults,'all');
   // Activate sub-views
