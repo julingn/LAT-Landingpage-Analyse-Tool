@@ -48,42 +48,71 @@ if ($action === 'analyze') {
         exit;
     }
 
-    // ── Schritt 1: Screenshot ──────────────────────────────────────────────
+    // ── Schritt 1: Screenshot via Puppeteer (Cookie-Banner-aware) ─────────
 
     $tmpFile = '/tmp/ux_shot_' . bin2hex(random_bytes(8)) . '.png';
 
-    // Chromium-Binary ermitteln
-    $candidates = [
-        getenv('CHROMIUM_PATH') ?: '',
-        '/usr/bin/chromium',
-        '/usr/bin/chromium-browser',
-        '/usr/bin/google-chrome',
-        '/usr/bin/google-chrome-stable',
-    ];
-    $chromium = '';
-    foreach ($candidates as $c) {
-        if ($c && file_exists($c) && is_executable($c)) { $chromium = $c; break; }
-    }
+    // screenshot.mjs im Projekt-Root
+    $scriptPath = dirname(__DIR__, 2) . '/screenshot.mjs';
+    $nodeCmd = trim((string)shell_exec('which node 2>/dev/null')) ?: '/usr/bin/node';
 
     $screenshotBase64 = null;
-    if ($chromium) {
-        $cmd = $chromium
-            . ' --headless=new'
-            . ' --no-sandbox'
-            . ' --disable-dev-shm-usage'
-            . ' --disable-gpu'
-            . ' --disable-extensions'
-            . ' --disable-software-rasterizer'
-            . ' --run-all-compositor-stages-before-draw'
-            . ' --virtual-time-budget=5000'
-            . ' --window-size=1280,900'
-            . ' --screenshot=' . escapeshellarg($tmpFile)
+    if (file_exists($scriptPath) && file_exists($nodeCmd)) {
+        $cmd = escapeshellarg($nodeCmd)
+            . ' ' . escapeshellarg($scriptPath)
             . ' ' . escapeshellarg($url)
-            . ' 2>/dev/null';
-        exec($cmd, $out, $exitCode);
-        if ($exitCode === 0 && file_exists($tmpFile)) {
-            $screenshotBase64 = base64_encode(file_get_contents($tmpFile));
-            unlink($tmpFile);
+            . ' ' . escapeshellarg($tmpFile);
+
+        $descriptors = [
+            0 => ['pipe', 'r'],
+            1 => ['pipe', 'w'],
+            2 => ['pipe', 'w'],
+        ];
+        $proc = proc_open($cmd, $descriptors, $pipes, null, [
+            'PUPPETEER_SKIP_CHROMIUM_DOWNLOAD' => 'true',
+            'PUPPETEER_EXECUTABLE_PATH'        => getenv('CHROMIUM_PATH') ?: '/usr/bin/chromium',
+            'CHROMIUM_PATH'                    => getenv('CHROMIUM_PATH') ?: '/usr/bin/chromium',
+        ]);
+        if (is_resource($proc)) {
+            fclose($pipes[0]);
+            fclose($pipes[1]);
+            $errOut = stream_get_contents($pipes[2]);
+            fclose($pipes[2]);
+            $exitCode = proc_close($proc);
+            if ($exitCode === 0 && file_exists($tmpFile)) {
+                $screenshotBase64 = base64_encode(file_get_contents($tmpFile));
+                unlink($tmpFile);
+            }
+        }
+    }
+
+    // Fallback: direkter Chromium-exec (ohne Cookie-Banner-Dismissal)
+    if (!$screenshotBase64) {
+        $candidates = [
+            getenv('CHROMIUM_PATH') ?: '',
+            '/usr/bin/chromium',
+            '/usr/bin/chromium-browser',
+            '/usr/bin/google-chrome',
+            '/usr/bin/google-chrome-stable',
+        ];
+        $chromium = '';
+        foreach ($candidates as $c) {
+            if ($c && file_exists($c) && is_executable($c)) { $chromium = $c; break; }
+        }
+        if ($chromium) {
+            $tmpFile2 = '/tmp/ux_fallback_' . bin2hex(random_bytes(8)) . '.png';
+            $cmd2 = $chromium
+                . ' --headless=new --no-sandbox --disable-dev-shm-usage --disable-gpu'
+                . ' --disable-extensions --disable-software-rasterizer'
+                . ' --virtual-time-budget=6000 --window-size=1280,900'
+                . ' --screenshot=' . escapeshellarg($tmpFile2)
+                . ' ' . escapeshellarg($url)
+                . ' 2>/dev/null';
+            exec($cmd2, $out, $exitCode2);
+            if ($exitCode2 === 0 && file_exists($tmpFile2)) {
+                $screenshotBase64 = base64_encode(file_get_contents($tmpFile2));
+                unlink($tmpFile2);
+            }
         }
     }
 

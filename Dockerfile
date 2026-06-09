@@ -4,7 +4,7 @@ RUN apk add --no-cache curl-dev libcurl openssl-dev \
     && docker-php-ext-install curl \
     && docker-php-ext-enable openssl || true
 
-# Chromium for UX/CRO screenshots
+# Chromium + Node.js for UX/CRO screenshots (Puppeteer)
 RUN apk add --no-cache \
     chromium \
     nss \
@@ -12,11 +12,17 @@ RUN apk add --no-cache \
     harfbuzz \
     ca-certificates \
     ttf-freefont \
+    nodejs \
+    npm \
     && ln -sf /usr/bin/chromium-browser /usr/bin/chromium 2>/dev/null || true
 
 ENV CHROMIUM_PATH=/usr/bin/chromium
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 WORKDIR /app
+COPY package*.json ./
+RUN npm install --omit=dev 2>/dev/null || true
 COPY . .
 
 EXPOSE 8080
