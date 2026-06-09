@@ -260,7 +260,7 @@ button{font-family:inherit}
 .api-test-dot.testing{background:var(--amber);border-color:var(--amber)}
 /* === TOOLTIPS === */
 [data-tip]{position:relative;cursor:default}
-[data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);font-size:11px;font-family:'Inter',sans-serif;font-weight:400;line-height:1.4;white-space:nowrap;max-width:260px;white-space:normal;text-align:center;padding:5px 9px;border-radius:6px;pointer-events:none;opacity:0;transition:opacity .15s;z-index:100}
+[data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);font-size:11px;font-family:'Inter',sans-serif;font-weight:400;line-height:1.6;white-space:pre-line;max-width:280px;text-align:left;padding:7px 11px;border-radius:6px;pointer-events:none;opacity:0;transition:opacity .15s;z-index:100}
 [data-tip]:hover::after{opacity:1}
 /* === CREDENTIAL SOURCE BADGES === */
 .src-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;letter-spacing:.03em}
@@ -712,7 +712,7 @@ button{font-family:inherit}
       <div class="score-hero-num green" id="score-hero-num">–</div>
       <div class="score-hero-divider"></div>
       <div class="score-hero-meta">
-        <div id="score-hero-level" class="score-hero-level green">High</div>
+        <div id="score-hero-level" class="score-hero-level green" data-tip="Lowest (0–39%): Sehr niedrige Qualität — schwerwiegende Mängel&#10;Low (40–59%): Unterdurchschnittlich — deutlicher Verbesserungsbedarf&#10;Medium (60–74%): Ausreichend — kleinere bis mittlere Mängel&#10;High (75–89%): Gute Qualität — kleinere Optimierungsmöglichkeiten&#10;Highest (90–100%): Exzellente Qualität — Referenzstandard erfüllt">High</div>
         <div class="score-hero-interp" id="score-hero-interp"></div>
         <div class="score-hero-bar-wrap">
           <div class="score-hero-bar-bg"><div class="score-hero-bar green" id="score-hero-bar" style="width:0%"></div></div>
