@@ -2297,14 +2297,22 @@ function renderClusterOverview(){
   const el=document.getElementById('cluster-overview');
   if(!el)return;
   const clusters=[
-    {num:'1',name:'Seitenzweck & Typ'},
-    {num:'2',name:'Inhalt & Tiefe'},
-    {num:'3',name:'E-E-A-T'},
-    {num:'4',name:'Reputation'},
-    {num:'5',name:'Schaden & Täuschung'},
-    {num:'6',name:'Technik & UX'},
-    {num:'7',name:'Werbung & SC'},
-    {num:'8',name:'Needs Met'},
+    {num:'1',name:'Seitenzweck & Typ',
+      hints:{green:'Seitenzweck klar kommuniziert und legitim.',amber:'Seitenzweck erkennbar, aber nicht durchgängig klar.',red:'Seitenzweck unklar oder schwer erkennbar.'}},
+    {num:'2',name:'Inhalt & Tiefe',
+      hints:{green:'Inhalt tiefgründig, original und vollständig.',amber:'Inhaltstiefe vorhanden, aber ausbaufähig.',red:'Inhalt oberflächlich, unvollständig oder ohne erkennbaren Mehrwert.'}},
+    {num:'3',name:'E-E-A-T',
+      hints:{green:'Expertise und Vertrauenssignale gut belegt.',amber:'E-E-A-T-Signale erkennbar, aber nicht ausreichend nachgewiesen.',red:'Autorität und Vertrauen nicht oder kaum nachweisbar.'}},
+    {num:'4',name:'Reputation',
+      hints:{green:'Transparenz und Reputation gegeben.',amber:'Teilweise Transparenz- oder Reputationslücken.',red:'Fehlende Transparenz oder schwache externe Reputation.'}},
+    {num:'5',name:'Schaden & Täuschung',
+      hints:{green:'Keine Täuschungs- oder Schadsignale erkennbar.',amber:'Leichte Auffälligkeiten — weiter beobachten.',red:'Kritische Täuschungs- oder Schadenssignale vorhanden!'}},
+    {num:'6',name:'Technik & UX',
+      hints:{green:'Technische Qualität und UX auf gutem Niveau.',amber:'Technische Mängel vorhanden, die Nutzer beeinträchtigen.',red:'Schwerwiegende technische Probleme — dringend beheben.'}},
+    {num:'7',name:'Werbung & SC',
+      hints:{green:'Werbung klar gekennzeichnet und nicht aufdringlich.',amber:'Werbeintegration oder Supplementary Content ausbaufähig.',red:'Werbung dominiert oder irreführend platziert.'}},
+    {num:'8',name:'Needs Met',
+      hints:{green:'Suchabsicht vollständig und befriedigend getroffen.',amber:'Suchabsicht teilweise getroffen — Lücken schließen.',red:'Suchabsicht nicht erfüllt — zentrales Rankingproblem.'}},
   ];
   const R=36,SW=10,CX=48,CY=48;
   const circ=2*Math.PI*R;
@@ -2320,6 +2328,7 @@ function renderClusterOverview(){
     const g=res.filter(r=>r.status==='green').length;
     const a=res.filter(r=>r.status==='amber').length;
     const rd=res.filter(r=>r.status==='red').length;
+    const hint=cl.hints[cls]||'';
     return`<div class="cluster-card">
       <div class="cluster-card-donut">
         <svg width="96" height="96" viewBox="0 0 96 96">
@@ -2330,7 +2339,8 @@ function renderClusterOverview(){
       </div>
       <div class="cluster-card-info">
         <div class="cluster-card-name">${escHtml(cl.name)}</div>
-        <div style="display:flex;flex-direction:column;gap:3px;margin-top:8px;font-size:12px">
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;margin-bottom:6px;line-height:1.4;font-style:italic">${escHtml(hint)}</div>
+        <div style="display:flex;flex-direction:column;gap:3px;font-size:12px">
           <span style="color:var(--green)">${g} ✓ Bestanden</span>
           <span style="color:var(--amber)">${a} ◑ Verbesserbar</span>
           <span style="color:var(--red)">${rd} ✗ Fehlerhaft</span>
