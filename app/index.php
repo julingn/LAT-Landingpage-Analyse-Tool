@@ -557,7 +557,8 @@ button{font-family:inherit}
 .module-card-label{font-size:11px;color:var(--text3);margin-top:2px}
 /* View panels */
 .view-panel{display:none}
-.view-panel.active{display:block;max-width:960px;margin:0 auto;padding:24px 32px 48px}
+.view-panel.active{display:block}
+.content-wrap{max-width:960px;margin:0 auto;padding:24px 32px 48px}
 /* Overview top priorities */
 .top-priorities{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px;margin-bottom:28px;box-shadow:var(--shadow-sm)}
 .top-priorities-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px}
@@ -687,6 +688,7 @@ button{font-family:inherit}
     </div>
   </div>
 </header>
+<div class="content-wrap">
 
 <!-- ═══════════════════════════════════════════════════════════
      VIEW: ÜBERSICHT
@@ -3023,5 +3025,6 @@ if(_dmCb)_dmCb.checked=document.documentElement.getAttribute('data-theme')==='da
 // Initial view
 showView('overview');
 </script>
+</div><!-- /content-wrap -->
 </body>
 </html>
