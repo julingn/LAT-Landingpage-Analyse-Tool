@@ -1333,6 +1333,49 @@ async function startDemo(){
     return{...r,category:c.cat||'',criterion:c.name||r.id,sqeg_ref:c.ref||''};
   });
 
+  // Demo-Daten für Performance + GEO
+  gscData={keywords:[
+    {query:'strom tarife vergleich',clicks:1240,impressions:18600,ctr:6.7,position:4.2},
+    {query:'günstiger stromtarif',clicks:870,impressions:12400,ctr:7.0,position:5.1},
+    {query:'strom wechseln online',clicks:640,impressions:9800,ctr:6.5,position:6.3},
+    {query:'beispiel energie strom',clicks:530,impressions:4200,ctr:12.6,position:2.1},
+    {query:'stromtarif haushalt',clicks:410,impressions:7600,ctr:5.4,position:8.7},
+    {query:'stromanbieter wechsel',clicks:290,impressions:5100,ctr:5.7,position:11.2},
+    {query:'energie sparen tarif',clicks:210,impressions:4400,ctr:4.8,position:14.3},
+    {query:'ökostrom tarife',clicks:180,impressions:3900,ctr:4.6,position:12.8},
+  ]};
+  sistrixData={success:true,visibility:0.847,kw_count:3241,keywords:[
+    {keyword:'strom tarife vergleich',position:4,volume:22000},
+    {keyword:'günstiger stromtarif',position:5,volume:18000},
+    {keyword:'strom wechseln online',position:6,volume:14500},
+    {keyword:'stromtarif haushalt',position:9,volume:9800},
+    {keyword:'stromanbieter wechsel',position:11,volume:7200},
+  ],opportunities:[
+    {keyword:'strom tarif rechner',position:8,gain:82,competition:0.41},
+    {keyword:'strompreise aktuell 2025',position:12,gain:74,competition:0.38},
+    {keyword:'günstig strom bestellen',position:15,gain:68,competition:0.29},
+    {keyword:'ökostrom wechseln',position:17,gain:61,competition:0.35},
+  ],competitors:[
+    {domain:'verivox.de',competition:0.78},
+    {domain:'check24.de',competition:0.71},
+    {domain:'e-on.de',competition:0.54},
+    {domain:'vattenfall.de',competition:0.48},
+  ]};
+  geoData={success:true,prompts:[
+    {prompt:'Welcher Stromanbieter ist aktuell der günstigste?',model:'ChatGPT'},
+    {prompt:'Wie kann ich meinen Stromanbieter wechseln?',model:'Perplexity'},
+    {prompt:'Was kostet Strom pro kWh im Vergleich?',model:'ChatGPT'},
+    {prompt:'Empfehlt ihr einen günstigen Ökostrom-Tarif?',model:'Gemini'},
+    {prompt:'Stromtarif für 3-Personen-Haushalt empfehlen',model:'Perplexity'},
+  ],sources:[
+    {url:'https://www.beispiel-energie.de/strom/tarife'},
+    {url:'https://www.beispiel-energie.de/strom/oekostrom'},
+    {url:'https://www.beispiel-energie.de/ratgeber/strom-wechseln'},
+  ]};
+  log('GSC: 8 Keywords geladen (Demo)','ok');
+  log('Sistrix: Sichtbarkeit 0.847 · 3241 Keywords (Demo)','ok');
+  log('GEO: 5 AI-Prompts · 3 Quellen (Demo)','ok');
+
   setProgress(92,'Ergebnisse rendern…','Fast fertig…');
   renderResults('Strom Tarife Vergleich');
   setProgress(100,'Fertig!','Demo-Analyse abgeschlossen.');
