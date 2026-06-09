@@ -785,7 +785,7 @@ button{font-family:inherit}
       <span style="display:flex;align-items:center;gap:7px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Detailanalyse — alle 42 Kriterien</span>
       <svg id="detail-toggle-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform .2s;color:var(--text3)"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
-    <div id="detail-table-wrap" style="display:none">
+    <div id="detail-table-wrap" style="display:none;margin-top:12px">
     <div class="filter-bar">
       <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">Alle</button>
       <button class="filter-btn" data-filter="green" onclick="setFilter('green',this)">✓ Bestanden</button>
