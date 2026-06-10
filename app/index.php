@@ -1765,25 +1765,25 @@ async function startAnalysis(){
       document.getElementById('ux-loading-mobile').style.display='block';
       document.getElementById('ux-loading-desktop').style.display='block';
       showUxDevice('mobile');
-      // Mobile Call
+      // Mobile zuerst — dann Desktop sequenziell (PHP CLI = single-threaded)
       fetchUxData(currentUrl,'mobile',psiData).then(d=>{
         if(d?.success){
           ucrData.mobile=d;
-          log('UX/CRO Mobile: Analyse abgeschlossen','ok');
+          log('UX/CRO Mobile: Analyse abgeschlossen · Score '+d.score+'%','ok');
           renderUXAnalysis();
         }else{
           log('UX/CRO Mobile: '+(d?.error||'Fehler'),'err');
           const loadEl=document.getElementById('ux-loading-mobile');
           if(loadEl)loadEl.style.display='none';
         }
-      }).catch(e=>{log('UX/CRO Mobile: Fehler — '+e.message,'err');const loadEl=document.getElementById('ux-loading-mobile');if(loadEl)loadEl.style.display='none';});
-      // Desktop Call — holt zuerst PSI-Desktop, dann parallel mit Mobile
-      const psiDesktopPromise=currentMode==='url'?fetchPageSpeedData(currentUrl,'desktop').catch(()=>null):Promise.resolve(null);
-      Promise.all([psiDesktopPromise]).then(([psiDesktop])=>{
-        fetchUxData(currentUrl,'desktop',psiDesktop).then(d=>{
+      }).catch(e=>{log('UX/CRO Mobile: '+e.message,'err');}).finally(()=>{
+        // Desktop NACH Mobile (PHP CLI single-threaded — sequenziell ist stabiler)
+        fetchPageSpeedData(currentUrl,'desktop').catch(()=>null).then(psiDesktop=>{
+          return fetchUxData(currentUrl,'desktop',psiDesktop);
+        }).then(d=>{
           if(d?.success){
             ucrData.desktop=d;
-            log('UX/CRO Desktop: Analyse abgeschlossen','ok');
+            log('UX/CRO Desktop: Analyse abgeschlossen · Score '+d.score+'%','ok');
             renderUXAnalysis();
             updateModuleCards();
             renderPagePreview();
@@ -1792,8 +1792,8 @@ async function startAnalysis(){
             const loadEl=document.getElementById('ux-loading-desktop');
             if(loadEl)loadEl.style.display='none';
           }
-        }).catch(e=>{log('UX/CRO Desktop: Fehler — '+e.message,'err');const loadEl=document.getElementById('ux-loading-desktop');if(loadEl)loadEl.style.display='none';});
-      }).catch(()=>{});
+        }).catch(e=>{log('UX/CRO Desktop: '+e.message,'err');const loadEl=document.getElementById('ux-loading-desktop');if(loadEl)loadEl.style.display='none';});
+      });
     }else{ucrData=null;}
     if(serpData?.tasks?.[0]?.result?.[0]?.items)log(`SERP: Top-10 für "${effectiveKeyword}" geladen`,'ok');
     else if(effectiveKeyword)log(`SERP: keine Daten für "${effectiveKeyword}"`);
@@ -1904,11 +1904,16 @@ async function fetchKeywordData(keywords){
 }
 async function fetchUxData(url, device, psiPayload){
   try{
-    const body={url, device, html:currentHtml||'', psi_data:psiPayload||null, csrf_token:CSRF_TOKEN};
+    // HTML auf 150KB begrenzen — DOMDocument braucht nicht mehr
+    const htmlSnippet=(currentHtml||'').substring(0,150000);
+    const body={url, device, html:htmlSnippet, psi_data:psiPayload||null, csrf_token:CSRF_TOKEN};
     const res=await fetch('ux.php?action=analyze',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify(body)});
-    if(!res.ok)return null;
+    if(!res.ok){
+      const txt=await res.text().catch(()=>'');
+      return {success:false,error:'HTTP '+res.status+(txt?' — '+txt.substring(0,120):'') };
+    }
     return await res.json();
-  }catch(e){return null;}
+  }catch(e){return {success:false,error:e.message||'fetch-Fehler'};}
 }
 function showUxDevice(device){
   document.getElementById('ux-device-mobile').style.display=device==='mobile'?'block':'none';

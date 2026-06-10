@@ -237,7 +237,7 @@ if($action==='analyze'){
     $scheme=strtolower(parse_url($url,PHP_URL_SCHEME)??'');
     if(!in_array($scheme,['http','https'],true)){echo json_encode(['success'=>false,'error'=>'Nur HTTP/HTTPS erlaubt']);exit;}
     $width=$device==='mobile'?375:1280;$height=$device==='mobile'?812:900;
-    $screenshotBase64=takeScreenshot($url,$width,$height);
+    $screenshotBase64 = null; // Screenshot deaktiviert (zu langsam auf Railway PHP CLI)
     // Screenshot optional — Analyse läuft auch ohne
     $checks=runUxChecks($html,$url,$device,$psi);
     $scoreMap=['green'=>100,'amber'=>50,'red'=>0];
