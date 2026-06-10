@@ -235,10 +235,10 @@ Screenshot: [Desktop 1280px Vorschau]
 
 ### Offene Implementierungsfragen
 
-| # | Frage |
-|---|---|
-| OE-4 | `ux.php`: Ein Proxy-Call der beide Screenshots + beide PSI-Calls zurückgibt, oder zwei separate Calls? |
-| OE-5 | Demo-Modus: Synthetische deterministische Befunde für beide Devices — ähnlich wie in M2 |
+| # | Frage | Entscheidung |
+|---|---|---|
+| ~~OE-4~~ | `ux.php`: Ein kombinierter oder zwei separate Proxy-Calls? | ✅ **Option B — zwei separate Calls** — Mobile zuerst, Desktop lädt progressiv nach. Desktop-PSI via `pagespeed.php?strategy=desktop`. |
+| ~~OE-5~~ | Demo-Modus: Beide Devices oder nur Mobile? | ✅ **Beide Devices** — synthetische Daten für Desktop + Mobile vollständig simuliert (UI-Review im Demo-Modus ist primärer Zweck). |
 
 ---
 
