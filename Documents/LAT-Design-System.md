@@ -1,6 +1,6 @@
 # LAT Design System
 **LAT · SQEG Analyzer · MVV Energie AG**
-**Stand:** 22. Mai 2026 · Version 2.2
+**Stand:** 10. Juni 2026 · Version 2.3
 **Dieses Dokument wird bei jeder Design-Änderung aktualisiert.**
 
 ---
@@ -310,6 +310,159 @@ Direkt unter dem Level-Badge im Score-Hero, vor dem Progress-Bar.
 
 ---
 
+### 7.11 Multi-View Dashboard (ab v3.0)
+
+Das UI ist ein **Single-Page Multi-View Dashboard** mit Sidebar-Navigation. Alle Views liegen im DOM, nur der aktive ist sichtbar.
+
+#### Layout-Struktur
+
+```
+<body>
+  <header>             ← sticky, Eingabemaske
+  <div class="app-shell">
+    <nav class="sidebar">      ← 220px fix, scrollbar
+    <main class="main-content">
+      <div class="content-wrap">   ← max-width:960px; margin:0 auto; padding:24px 32px 48px
+        <div class="view-panel" id="view-overview">
+        <div class="view-panel" id="view-sqeg">
+        <div class="view-panel" id="view-technical">
+        <div class="view-panel" id="view-performance">
+        ...
+      </div>
+    </main>
+  </div>
+```
+
+**KRITISCH:** Alle `view-panel`-Divs müssen **innerhalb** von `<div class="content-wrap">` liegen. Fehlt ein View außerhalb, rendert er full-width ohne max-width/centering. Ursache war historisch ein überschüssiges `</div>` das `content-wrap` zu früh schloss.
+
+```css
+.content-wrap { max-width:960px; margin:0 auto; padding:24px 32px 48px; }
+.view-panel   { display:none; }
+.view-panel.active { display:block; }
+```
+
+#### Sidebar-Navigation
+
+```css
+.sidebar { width:220px; ... }
+.nav-item { display:flex; align-items:center; justify-content:space-between; ... }
+.nav-item.active { background:var(--accent-bg); color:var(--accent); }
+.nav-score { font-size:11px; font-family:'Geist Mono'; color:var(--text3); margin-left:auto; }
+```
+
+Jeder Nav-Eintrag hat rechtsbündig einen Score-Chip (`nav-score`), der nach der Analyse gesetzt wird:
+```html
+<button class="nav-item" data-view="technical" onclick="showView('technical')">
+  [SVG-Icon] Technical SEO
+  <span class="nav-score" id="nav-score-technical" style="display:none"></span>
+</button>
+```
+
+#### Modul-Kacheln (`#view-overview`)
+
+Grid aus Karten, eine pro Modul. Jede Kachel zeigt: Name · Sub-Label · Score · Balken · Status-Label.
+
+```css
+.module-card        { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-lg);
+                      padding:20px; cursor:pointer; transition:all .15s; }
+.module-card:hover  { box-shadow:var(--shadow-md); border-color:var(--border2); }
+.module-card.mc-green  { border-left:3px solid var(--green); }
+.module-card.mc-amber  { border-left:3px solid var(--amber); }
+.module-card.mc-red    { border-left:3px solid var(--red); }
+.module-card-score      { font-size:24px; font-weight:700; }
+.module-card-score.green { color:var(--green); }
+.module-card-score.neutral { color:var(--text3); }
+.module-card-bar-bg   { height:4px; background:var(--bg4); border-radius:2px; margin:8px 0 4px; }
+.module-card-bar      { height:4px; border-radius:2px; transition:width .4s; }
+.module-card-bar.green { background:var(--green); }
+.module-card-label    { font-size:11px; color:var(--text3); }
+```
+
+---
+
+### 7.12 Card-System der Views (`.needs-met-block`)
+
+Jede thematische Sektion in einem View ist eine **eigenständige Card** — kein übergreifender Outer-Wrapper.
+
+```css
+.needs-met-block {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  display: none;           /* initial hidden — per JS auf block gesetzt */
+  box-shadow: var(--shadow);
+}
+.needs-met-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 14px;
+}
+```
+
+**Antipattern — nicht so:**
+```html
+<!-- FALSCH: ein großer Outer-Wrapper mit flachen Panels drin -->
+<div id="perf-results" class="needs-met-block" style="display:none">
+  <div id="gsc-panel">...</div>
+  <div id="sistrix-panel">...</div>
+</div>
+```
+
+**Korrekt:**
+```html
+<!-- RICHTIG: jede Section eigene Card -->
+<div id="perf-results" style="display:none; margin-top:28px">
+  <div class="needs-met-block" id="gsc-panel" style="display:none">...</div>
+  <div class="needs-met-block" id="sistrix-panel" style="display:none">...</div>
+</div>
+```
+
+`margin-top:28px` auf dem results-Container (`#perf-results`, `#geo-results` etc.) gibt Abstand zum Header.
+
+---
+
+### 7.13 Technical SEO Check-Liste (deterministisches Modul)
+
+Layout für Prüfpunkte ohne KI-Call. Jeder Check zeigt: Status-Icon · ID-Badge · Name · Befund · Detail · Fix-Box.
+
+```html
+<!-- Check-Row -->
+<div style="display:flex; align-items:flex-start; gap:14px; padding:14px 0; border-bottom:1px solid var(--border)">
+  <!-- Status-Circle -->
+  <div style="width:28px; height:28px; border-radius:50%; background:var(--green-bg);
+              border:1px solid var(--green-border); color:var(--green); font-size:12px; font-weight:700;
+              display:flex; align-items:center; justify-content:center; flex-shrink:0">✓</div>
+  <div style="flex:1; min-width:0">
+    <!-- ID + Name -->
+    <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px">
+      <span style="font-size:10px; font-weight:600; color:var(--text3); font-family:'Geist Mono'">T3</span>
+      <span style="font-size:13px; font-weight:600; color:var(--text)">Title-Tag</span>
+    </div>
+    <!-- Befund -->
+    <div style="font-size:12px; color:var(--text2); line-height:1.5">...</div>
+    <!-- Detail (optional) -->
+    <div style="font-size:11px; color:var(--text3); margin-top:4px; line-height:1.4">...</div>
+    <!-- Fix-Box (nur wenn nötig) -->
+    <div style="font-size:11px; color:var(--accent); margin-top:5px; padding:4px 8px;
+                background:var(--accent-bg); border-radius:var(--radius-sm);
+                border:1px solid var(--accent-border); line-height:1.4">
+      <strong>Fix:</strong> ...
+    </div>
+  </div>
+</div>
+```
+
+**Score-Header der Checklist:**
+- Große Score-Zahl (36px, farbkodiert) + Status-Label + Quelle
+- Chip-Row: `✓ N` (green), `◑ N` (amber), `✗ N` (red) als Pills mit `border-radius:999px`
+
+---
+
 ## 8 · Icons
 
 **Bibliothek:** Lucide Icons (Inline SVG, `stroke-width: 1.75`, konsistente `16×16px` Größe)
@@ -321,6 +474,7 @@ CDN: `https://unpkg.com/lucide@latest`
 
 | Version | Datum | Änderungen |
 |---------|-------|------------|
+| 2.3 | 10.06.2026 | Multi-View Dashboard Layout (7.11): content-wrap KRITISCH, Sidebar-Nav, Modul-Kacheln. Card-System `.needs-met-block` als eigenständige Cards — kein Outer-Wrapper (7.12). Technical SEO Check-Liste Layout (7.13). |
 | 2.2 | 22.05.2026 | Executive Summary Card (7.9), Score-Interpretation 5-Stufen (7.10), Eingabe-Card aktualisiert (7.6): Demo-Button in Header, `url-input bg→--bg`, `card-sub` kein Mono, `.input-dimmed`, Context-Separator, Label-Updates |
 | 2.1 | 22.05.2026 | Eingabe-Card (7.6), Log-Collapse (7.7), Cluster-Donuts (7.8), Skeleton Slow-Pulse (7.4), Container-Padding 96→32px, Rebranding MVV/LAT |
 | 2.0 | 21.05.2026 | Initialer Entwurf: Slate-Palette, Inter/Geist Mono, Score-Hero, Expand-Rows, Skeleton |
