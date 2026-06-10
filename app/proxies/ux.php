@@ -32,31 +32,25 @@ function takeScreenshot(string $url, int $width, int $height): ?string {
     $scriptPath = dirname(__DIR__, 2) . '/screenshot.mjs';
     $nodeCmd    = trim((string)shell_exec('which node 2>/dev/null')) ?: '/usr/bin/node';
     if (file_exists($scriptPath) && file_exists($nodeCmd)) {
-        $cmd = escapeshellarg($nodeCmd)
+        $cmd = 'timeout 20 ' . escapeshellarg($nodeCmd)
             . ' ' . escapeshellarg($scriptPath)
             . ' ' . escapeshellarg($url)
             . ' ' . escapeshellarg($tmpFile)
-            . ' ' . (int)$width . ' ' . (int)$height;
-        $proc = proc_open($cmd, [0=>['pipe','r'],1=>['pipe','w'],2=>['pipe','w']], $pipes, null, [
-            'PUPPETEER_SKIP_CHROMIUM_DOWNLOAD' => 'true',
-            'PUPPETEER_EXECUTABLE_PATH'        => getenv('CHROMIUM_PATH') ?: '/usr/bin/chromium',
-            'CHROMIUM_PATH'                    => getenv('CHROMIUM_PATH') ?: '/usr/bin/chromium',
-        ]);
-        if (is_resource($proc)) {
-            fclose($pipes[0]); fclose($pipes[1]); fclose($pipes[2]);
-            $exitCode = proc_close($proc);
-            if ($exitCode === 0 && file_exists($tmpFile)) {
-                $b64 = base64_encode(file_get_contents($tmpFile));
-                unlink($tmpFile);
-                return $b64;
-            }
+            . ' ' . (int)$width . ' ' . (int)$height
+            . ' 2>/dev/null';
+        exec($cmd, $out, $exitCode);
+        if ($exitCode === 0 && file_exists($tmpFile)) {
+            $b64 = base64_encode(file_get_contents($tmpFile));
+            unlink($tmpFile);
+            return $b64;
         }
+        if (file_exists($tmpFile)) @unlink($tmpFile);
     }
     $candidates = [getenv('CHROMIUM_PATH')?:'','/usr/bin/chromium','/usr/bin/chromium-browser','/usr/bin/google-chrome','/usr/bin/google-chrome-stable'];
     $chromium = '';
     foreach ($candidates as $c) { if ($c && file_exists($c) && is_executable($c)) { $chromium = $c; break; } }
     if ($chromium) {
-        $cmd2 = $chromium
+        $cmd2 = 'timeout 20 ' . $chromium
             . ' --headless=new --no-sandbox --disable-dev-shm-usage --disable-gpu'
             . ' --disable-extensions --disable-software-rasterizer'
             . ' --virtual-time-budget=6000'
@@ -69,6 +63,7 @@ function takeScreenshot(string $url, int $width, int $height): ?string {
             unlink($tmpFile);
             return $b64;
         }
+        if (file_exists($tmpFile)) @unlink($tmpFile);
     }
     return null;
 }
