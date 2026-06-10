@@ -1,113 +1,203 @@
-# ROADMAP — LAT Landingpage-Analyse-Tool
+# LAT v3 — Roadmap: Modulare Analyse-Plattform
 
-**Stand:** 22. Mai 2026 (aktualisiert nach Session 3)  
-Dieses Dokument wird nach jeder Arbeitseinheit aktualisiert.
-
----
-
-## ✅ Erledigt — 22. Mai 2026 (Session 3)
-
-| # | Was | Details |
-|---|-----|---------|
-| ES-01 | **Executive Summary — KI-Karte nach Analyse** | 3-Spalten-Grid: Gesamtbewertung · Hauptprobleme · Nächste Schritte. Demo-Modus statisch, echter Modus per `callApi()` (~700 Token). CSS-Block `.exec-summary-*`, HTML in `results-section`, JS: `generateExecSummary()`, `parseExecSummary()`, `renderExecSummary()`. Commit `7595e10` |
-| ES-02 | **Zwei-Zeilen-Format ✖/→ für Probleme** | Jedes Problem: ✖ Titel (Zeile 1) + → Erklärung (Zeile 2). Parser erkennt ✖/✗/x + → Zeilenpaare. Demo-Daten und System-Prompt auf neues Format. Commit `9b3d947` |
-| ES-03 | **Prompt-Regeln verfeinert** | Max. 10–12 Wörter pro Zeile, kein „–" im Satz, konsistenter Schreibstil, explizit keine KPI-Wiederholung. Commit `b7fee8a` |
-| ES-04 | **Trust-Fix: Score nicht mehr hardcoded** | Demo-`bewertung` nutzt `calcScore()` statt fester `62` → Zahl immer identisch mit Score-Hero. Commit `0da3405` |
-| SI-01 | **Score-Interpretation deterministisch (5 Stufen)** | `getScoreInterpretation(score)` mit exakten Grenzen 0–39/40–59/60–74/75–89/90–100, deutschen Labels + festem Interpretationssatz. Anzeige als Subtitle im Score-Hero unter Level-Badge (`.score-hero-interp`). Label überschreibt KI-generiertes `bewertung`-Feld. Commit `ed2a134` |
-| UX-01 | **Eingabemaske Feinschliff (7 Punkte)** | Demo-Button → Card-Header; `card-sub` Geist Mono → Inter; Context-Toggle-Label „Analyse verfeinern"; URL-Placeholder „URL der Landingpage eingeben"; `url-input bg: --bg3→--bg`; Context-Fields mit `border-top`; `.input-card.input-dimmed` während Analyse. Commit `24b1047` |
+**Erstellt:** 05. Juni 2026  
+**Basis:** Konzept-Session vom 05.06.2026 (PAGE360-Diskussion)  
+**Ziel:** LAT entwickelt sich vom Single-File-SQEG-Analyzer zur vollständigen 6-Modul-Analyseplattform für einzelne URLs/Landingpages.
 
 ---
 
-## ✅ Erledigt — 22. Mai 2026 (Session 2)
+## Überblick: Die 6 Analyse-Module
 
-| # | Was | Details |
-|---|-----|---------|
-| R-01 | **Rebranding: MVV-Logo + LAT** | `logo_colored.png` in `app/assets/`, Sidebar-Text `L·A·T`, Titel `LAT · SQEG Analyzer` — Commit `ad01cef` |
-| B-03 | **Bugfix: Tabellen-Header Spaltenanzahl** | `<thead>` hatte 3 `<th>`, Rows 4 `<td>` → 4. leere `<th>` für Chevron-Spalte ergänzt |
-| B-04 | **Bugfix: Skeleton initial sichtbar** | `skeleton-wrap` fehlte `style="display:none"` → ergänzt |
-| B-05 | **Bugfix: Skeleton bleibt bei Fehler** | `catch`-Block versteckt `skeleton-wrap` jetzt ebenfalls |
-| B-06 | **Bugfix: DM Sans im Modell-Dropdown** | Schrift auf `Inter` korrigiert |
-| U-05 | **Skeleton-Animation: Shimmer → Slow Pulse** | `skel-wave` (1.4s Shimmer) → `skel-pulse` (3s Fade, 45–80% Opacity) — weniger ablenkend bei langen Analysen |
-| U-06 | **Timer: ETA entfernt** | ETA-Formel war bei Batch-Sprüngen unzuverlässig (Sprünge 1–5 Min.) → nur noch Elapsed-Zeit |
-| U-07 | **Progressbar-Verteilung korrigiert** | Prep/Fetch: 0–13%, Mini-Calls: 13–90% (77%), Rendering: 90–100% — gleichmäßige Bewegung über gesamte Laufzeit |
+| Modul | Frage | Datenquellen | Status |
+|---|---|---|---|
+| **M1 — SQEG** | Ist der Content qualitativ & vertrauenswürdig? | LLM (Anthropic/OpenAI) | ✅ Vorhanden (LAT v2) |
+| **M2 — Technical SEO** | Ist die Seite technisch korrekt & indexierbar? | PageSpeed, HTML-Parsing | ⚠️ Teile vorhanden |
+| **M3 — Performance** | Wie sichtbar ist die Seite aktuell? | GSC, Sistrix, DataforSEO | ✅ Vorhanden (LAT v2) |
+| **M4 — GEO / AEO** | Wie präsent ist die Seite in KI-Antworten? | Sistrix `ai.*`-Endpunkte | ✅ Vorhanden (Phase 1.3) |
+| **M5 — UX / CRO** | Wie erlebt ein Nutzer diese Seite? | LLM + Vision, Screenshot | ✅ Implementiert (09.06.2026) |
+| **M6 — Keyword Fit** | Targetet die Seite die richtigen Keywords? | Sistrix, DataforSEO, GSC | ✅ Implementiert (09.06.2026) |
 
----
-
-## ✅ Erledigt — 21. Mai 2026
-
-| # | Was | Details |
-|---|-----|---------|
-| F-01 | **Hotfix: `extractPageText` nicht definiert** | Funktion nach dem Refactoring wiederhergestellt (nach `buildPsiBlock`) |
-| F-02 | **Hotfix: `TypeError: Failed to fetch`** | 21 parallele Mini-Calls überlasteten den Server → Batches à 5 Requests |
-| I-1 | **Schema.org-Parsing** | `buildSchemaBlock(html)`: JSON-LD + Microdata aus `rawHtml` extrahiert → Kontext für Kriterium 6.4 |
-| I-3 | **Wortanzahl-Benchmark** | `wordCount` aus `pageText` in `buildCtxBlock` eingebaut → Kontext für 2.5 / 8.2 |
-| I-6 | **GSC Branded-Queries** | Branded-Query-Anteil aus `gscData` als Autoritäts-Signal (3.3) in `buildCtxBlock` |
-| I-7 | **YMYL als Score-Multiplikator** | `getEffectiveWeight(id)` + `YMYL_ESCALATION`-Tabelle: bei `clear_ymyl` heben sich Gewichte von 2.4, 3.2, 3.5, 4.3, 4.4 auf nächste Stufe |
-| U-01 | **Log: Kriterien-Namen statt "Call 1, 2…"** | Log-Zeilen zeigen jetzt `✓ Erkennbarer Seitenzweck · Seitentyp-Klassifikation` |
-| U-02 | **GSC-Panel in Ergebnisse** | Top-15-Keywords-Tabelle mit Klicks, Impressionen, CTR, Position (farbkodiert) + Balken-Visualisierung |
-| U-03 | **Timer mit Elapsed + ETA** | `formatTime()`, `updateTimer()`, `#progress-timer` neben Progressbar; ETA-Berechnung über `lastPct` |
-| U-04 | **UI v2.0 vollständig implementiert & deployed** | Commit `f61c90e` — Details siehe unten |
-| D-01 | **LAT-Design-System.md erstellt** | Living document für alle Design-Entscheidungen |
-
-### UI v2.0 — Änderungen im Detail
-
-**Typografie & Farben**
-- Font: `Inter` (Body/UI) + `Geist Mono` (Code, URLs, IDs)
-- Palette: Slate-basiert — `--bg: #F8FAFC`, `--text: #0F172A`, Indigo-Akzent `#4F46E5`
-- Shadow-System (`--shadow-sm` bis `--shadow-lg`), Radius-System (`--radius-sm: 6px` bis `--radius-xl: 16px`)
-
-**Score Hero-Card** (ersetzt altes `score-badge`)
-- 64px-Zahl, farbkodiert (grün/amber/rot)
-- Eingebettete Progress-Bar + Level-Pill
-- Chips: YMYL-Status · Kriterien-Anzahl · Analyse-Dauer
-
-**Kriterien-Tabelle mit Expand-Rows**
-- Kompakte Zeile: Status-Dot, ID, Name, Fazit (120 Zeichen)
-- Klick öffnet Detail-Block: Beleg · Regel · Bewertung · Verbesserungsvorschlag + Gewicht
-- Chevron-Animation
-
-**Skeleton Screens**
-- Während der Analyse: animierte Platzhalter für Score-Hero und Stat-Grid
-
-**Sonstiges**
-- Top-Bar: Glassmorphismus (`backdrop-filter: blur(12px)`)
-- Log-Box: höher (200px), dunklerer Hintergrund
-- Progressbar: 6px Höhe, smoothere Transition
+**KI-Synthese (übergreifend):** Ein LLM-Call mit allen Modul-Outputs → priorisierte Handlungsempfehlung über alle Dimensionen hinweg.
 
 ---
 
-## 🔜 Nächste Schritte
+## Phase 1 — Sistrix-Erweiterungen im bestehenden LAT
 
-### Nächste Session — Priorität Hoch
+> **Ziel:** Bestehende Codebase erweitern. Kein Umbau, kein Risiko. Validiert den GEO-Ansatz.  
+> **Aufwand:** Mittel (3–4 Coding-Sessions)  
+> **Von mir benötigt:** Nichts — reine Implementierung
 
-| # | Was | Beschreibung |
-|---|-----|--------------|
-| N-01 | ~~**UX/UI Checkup**~~ | ✅ Erledigt heute |
-| N-02 | **Tooltips für alle Werte** | Alle Messwerte, Score-Chips, Kriterien-IDs und Level-Bezeichnungen sollen einen Hover-Tooltip mit Kurzerklärung bekommen (z.B. „LCP: Largest Contentful Paint — misst die Ladezeit des größten sichtbaren Elements") |
+### Schritt 1.1 — `domain.opportunities` im Sistrix-Panel ✅
+- **Was:** Zweite Tabelle im `#sistrix-panel` mit Keywords auf Position 4–20 inkl. `gain`-Score (0–100)
+- **Datei:** `app/sistrix.php` (in `url_data` integriert) + `app/index.php` (UI + JS)
+- **Sistrix-Endpunkt:** `domain.opportunities?domain=X&limit=20&country=de`
+- **Output:** Tabelle "Quick Wins" mit Keyword / Position / Gain-Score / Wettbewerb
+- **Kosten:** 1 Credit pro Eintrag
 
-### Demnächst — Priorität Mittel
+### Schritt 1.2 — `domain.competitors.seo` im Sistrix-Panel ✅
+- **Was:** Zeigt die 5 stärksten organischen Wettbewerber der analysierten Domain
+- **Datei:** `app/sistrix.php` (in `url_data` integriert) + `app/index.php`
+- **Sistrix-Endpunkt:** `domain.competitors.seo?domain=X&limit=5&country=de`
+- **Output:** Pill-Liste im Sistrix-Panel unter Visibility-Wert
+- **Kosten:** 1 Credit pro Eintrag
 
-| # | Was | Beschreibung |
-|---|-----|--------------|
-| N-03 | **Settings-UI** | Formular zum Ändern von API-Keys (DataForSEO, OpenAI/Anthropic, PageSpeed, GSC Service Account) — aktuell nur via `settings.json` per Datei |
-| N-04 | **Passwort ändern** | UI-Seite zum Setzen eines neuen Login-Passworts ohne direkten Serverzugriff |
-| N-05 | **GSC Domain-Verwaltung** | Domains zu `gsc_domains.json` direkt aus der App hinzufügen / entfernen |
-| N-06 | **I-2: HTTPS-Check** | URL-Prüfung sauber als eigenen Kriterien-Befund `6.5` ausgeben (aktuell implizit vorhanden, aber nicht explizit geloggt) |
+### Schritt 1.3 — GEO-Panel (`#geo-panel`) ✅
+- **Was:** Neues Panel nach dem Sistrix-Panel mit KI-Sichtbarkeitsdaten
+- **Datei:** `app/sistrix.php` (neuer `action=geo_data` Handler) + `app/index.php` (neues Panel, JS)
+- **Sistrix-Endpunkte:**
+  - `ai.entity.prompts?entity=DOMAIN&country=de&limit=20` → Welche ChatGPT/Perplexity-Prompts führen zur Marke?
+  - `ai.entity.sources?entity=DOMAIN&country=de&limit=10` → Welche Domain-URLs werden als KI-Quellen zitiert?
+- **Entity-Ableitung:** Automatisch aus Domain — `preg_replace('/^www\./i', '', parse_url($url)['host'])` ✅
+- **Output:** Panel mit Prompt-Liste + Quellen-Liste
 
-### Backlog — Priorität Niedrig / Nice-to-have
+### Schritt 1.4 — `keyword.seo.serpfeatures` als Badge in GSC-Tabelle ✅
+- **Was:** Pro Top-5 GSC-Keyword prüfen ob AI Overview / Featured Snippet / Knowledge Graph vorhanden
+- **Datei:** `app/sistrix.php` (neuer `action=serp_features` Handler) + `app/index.php`
+- **Sistrix-Endpunkt:** `keyword.seo.serpfeatures?kw=X&country=de` (5× parallel via cURL Multi)
+- **Output:** Icon-Badges in der GSC-Keyword-Tabelle (`AI`, `FS`, `KG`) — async nach Erstrender
+- **Kosten:** 1 Credit pro Keyword
 
-| # | Was | Beschreibung |
-|---|-----|--------------|
-| B-01 | **PDF-Export** | Analyse-Ergebnis als PDF speichern (aktuell nur HTML-Export) |
-| B-02 | **Vergleichs-Ansicht** | Zwei URLs gegeneinander analysieren (Side-by-Side) |
-| B-03 | **Analyse-Historie** | Vergangene Ergebnisse speichern und zeitlich vergleichen |
+---
+
+## Phase 2 — Architektur-Umbau: Modulare Struktur
+
+> **Ziel:** Saubere Trennung der Module. Vorbereitung für Phase 3+.  
+> **Aufwand:** Groß (1–2 intensive Sessions, kein neues Feature)  
+> **Von mir benötigt:** Git-Branch anlegen + Railway Preview-Deploy aktivieren (einmalig)
+
+### Schritt 2.1 — Feature-Branch anlegen ✅
+```bash
+git checkout -b feature/v3-modular-structure
+```
+- Railway: Preview-Deploy eingerichtet ✅ (08.06.2026)
+
+### Schritt 2.2 — Neue Dateistruktur anlegen ✅
+```
+app/
+├── modules/
+│   ├── sqeg.php        ← aus index.php extrahiert
+│   ├── technical.php   ← aus index.php extrahiert
+│   ├── performance.php ← aus index.php extrahiert
+│   ├── geo.php         ← aus Phase 1 übernommen
+│   └── keywords.php    ← neu (Phase 3)
+├── proxies/
+│   ├── api.php         ← verschoben
+│   ├── dataforseo.php  ← verschoben
+│   ├── sistrix.php     ← verschoben
+│   ├── gsc.php         ← verschoben
+│   └── pagespeed.php   ← verschoben
+├── synthesis.php       ← NEU: LLM-Synthese über alle Module
+├── storage.php         ← NEU: Analyse-Ergebnisse speichern/laden
+├── index.php           ← UI-Shell (stark reduziert, ~500 Zeilen)
+└── config.php          ← unverändert
+```
+
+### Schritt 2.3 — `router.php` anpassen ✅
+- Alle Proxy-Pfade bleiben kompatibel via Shim-Dateien in `app/`
+- Direkte Browser-Aufrufe auf `/app/proxies/` werden blockiert (HTTP 403)
+
+### Schritt 2.4 — Tests auf Preview-Deploy ✅
+- Getestet, grünes Licht → Merge auf main → Deploy `24243fc`
+
+---
+
+## Phase 3 — Neue Module implementieren
+
+> **Ziel:** M6 (Keyword Fit) + übergreifende KI-Synthese  
+> **Aufwand:** Groß  
+> **Von mir benötigt:** Nichts — reine Implementierung nach Architektur aus Phase 2
+
+### Schritt 3A — Übergreifende KI-Synthese ✅
+- **Was:** Executive Summary erweitert mit Cross-Modul-Kontext (GSC, Sistrix, GEO/AEO)
+- **Umsetzung:** Kein zweiter LLM-Call — `generateExecSummary()` bekommt alle externen Datenpunkte als Kontext-Block; System-Prompt instruiert ganzheitliche Priorisierung
+- **Eingabe:** SQEG-Findings + GSC Top-Keywords + Sistrix Sichtbarkeit + Quick-Win-Keywords + Wettbewerber + GEO-Prompts
+- **Output:** Executive Summary priorisiert jetzt cross-modul (z.B. Quick-Wins vor SQEG-Detailpunkten wenn relevanter)
+
+## Phase 3B+4 — nach UI/UX-Überarbeitung
+
+> UI/UX-Überarbeitung abgeschlossen am 08.06.2026. ✅
+
+### Schritt 3B — M6: Keyword-Fit-Modul ✅
+- **Was:** Bewertet ob die analysierte Seite die richtigen Keywords targetet
+- **Datenquellen:**
+  - GSC-Daten (bereits vorhanden): aktuelle Rankings
+  - Sistrix `keyword.seo.searchintent`: Intent-Analyse pro Keyword
+- **Output:** Score 0–100 + Intent-Tabelle (Commercial/Transactional/Informational/Navigational) + Mismatch-Warnung
+- **Implementiert:** `3182ef5` (09.06.2026) — `app/proxies/keywords.php`, `#view-keywords`, Sidebar-Nav, Demo-Daten
+
+### Schritt 3.2 — Übergreifende KI-Synthese
+- **Was:** Ein LLM-Call NACH allen Modulen mit strukturiertem Gesamt-Input
+- **Datei:** `app/synthesis.php`
+- **Input-Schema:**
+  ```json
+  {
+    "url": "...",
+    "scores": { "sqeg": 78, "technical": 45, "performance": 62, "geo": 12, "keywords": 55 },
+    "top_findings": { "sqeg": [...], "technical": [...], ... }
+  }
+  ```
+- **Output:** 3 Prioritäten + Kausalanalyse ("Technical blockiert trotz gutem Content die Rankings")
+- **Status:** ❌ Noch nicht implementiert (3A bereits fertig als Interim-Lösung)
+
+### Schritt 3.3 — Score-Hero erweitern ✅
+- ~~Modul-Scores als Radar-Chart oder Balken-Übersicht~~ → **Radar-Chart implementiert** (`e33efee`)
+- Übergreifender Gesamtscore aus gewichteten Modul-Scores → noch offen
+
+---
+
+## Phase 4 — M5: UX/CRO-Modul ✅
+
+> **Implementiert:** 09.06.2026  
+> **Entscheidung:** Headless Chromium direkt im Railway-Container (kein externer Dienst)
+
+### Schritt 4.1 — Screenshot-Integration ✅
+- Chromium in Alpine Dockerfile installiert (`apk add chromium nss freetype harfbuzz ttf-freefont`)
+- `app/proxies/ux.php`: Screenshot via `chromium --headless=new --screenshot` → Base64 PNG
+- Fallback auf verschiedene Chromium-Pfade (`/usr/bin/chromium`, `/usr/bin/chromium-browser`, etc.)
+
+### Schritt 4.2 — UX-Analyse-Prompt ✅
+- Vision-LLM: Anthropic Claude (Standard) oder OpenAI GPT-4o — nutzt konfigurierten `AI_PROVIDER`
+- Bewertet 5 Kriterien: Value Proposition · CTA · Trust-Signale · Visuelle Hierarchie · Above-the-Fold
+- Output: Score 0–100 + Level + 5 Findings (rating: green/amber/red + Befund + Empfehlung) + Sub-Scores
+
+### Schritt 4.3 — UX-View in Dashboard ✅
+- `#view-ux`: Score-Hero (Chips ✓/◑/✗) + Screenshot-Panel + Findings-Karten + Gesamtbewertung
+- Sidebar-Nav: „UX / CRO" mit Score-Badge
+- Modul-Kachel `#mc-ux` in Übersicht
+- Analyse läuft **async** parallel zu SQEG-Calls — Loading-State im View
+- Demo-Daten für alle 5 Kriterien (kein echter Screenshot im Demo-Modus)
+
+---
+
+## Offene Entscheidungen (blockieren jeweils den nächsten Schritt)
+
+| # | Frage | Betrifft |
+|---|---|---|
+| ~~OE-1~~ | ~~GEO-Panel: Entity-Name als Eingabefeld im Header oder automatisch aus Domain ableiten?~~ | ✅ Automatisch aus Domain — entschieden 08.06.2026 |
+| ~~OE-2~~ | ~~Railway Preview-Deploy einrichten~~ | ✅ Erledigt |
+| ~~OE-3~~ | ~~Screenshot-API für UX-Modul auswählen~~ | ✅ Headless Chromium im Railway-Container — entschieden 09.06.2026 |
 
 ---
 
 ## Changelog
 
 | Datum | Version | Änderung |
-|-------|---------|----------|
-| 21.05.2026 | v2.0 | UI-Redesign: Inter/Geist, Slate-Palette, Score-Hero, Expand-Rows, Skeleton — Commit `f61c90e` |
+|---|---|---|
+| 09.06.2026 | v3.3 | Phase 4: M5 UX/CRO-Modul — Headless Chromium, Vision-LLM, `#view-ux`, Modul-Kachel, Nav-Item, `app/proxies/ux.php` — (aktueller Commit) |
+| 09.06.2026 | v3.2 | UX-Überarbeitung SQEG: Detailanalyse eingeklappt by default (Toggle-Button), Exec Summary 2+1 Layout (Gesamtbewertung+Probleme oben, Schritte volle Breite) — `f210d5d` |
+| 09.06.2026 | v3.2 | Cluster-Übersicht: 1 Spalte, Kriterien aufklappbar pro Cluster, Bewertungstext score-abhängig — `cc9154e` |
+| 09.06.2026 | v3.2 | Prioritäten-Matrix entfernt (redundant zu Exec Summary + Cluster) — `00ebbbb` |
+| 09.06.2026 | v3.2 | Score-Hero: Kriterien-Zähler als farbige Chips (✓ / ◑ / ✗), Stat-Grid entfernt — `6214659` |
+| 09.06.2026 | v3.2 | M6 Keyword-Fit-Modul: `app/proxies/keywords.php`, Intent-Analyse, neuer View + Sidebar, Demo-Daten — `3182ef5` |
+| 09.06.2026 | v3.2 | Demo-Modus erweitert: GSC, Sistrix, GEO, Keyword-Fit Demo-Daten — `bebcac4` |
+| 08.06.2026 | v3.1 | Score-Radar-Chart (SVG, 3 Achsen: SQEG/Performance/GEO) in Übersicht — `e33efee` |
+| 08.06.2026 | v3.1 | Settings: ENV-Quellen-Transparenz — Felder gesperrt wenn Railway ENV aktiv, Status-Leiste — `e310563` |
+| 08.06.2026 | v3.1 | Settings vollständig: DataforSEO, Sistrix, PageSpeed, OpenAI, GSC + Domain-Verwaltung; Tooltips für SERP-Badges/Score-Chips/GSC-Header — `5502147` |
+| 08.06.2026 | v3.0 | Multi-View Dashboard: Übersicht/SQEG/Performance/GEO/Einstellungen mit Sidebar-Navigation, Modul-Kacheln, Top-Prioritäten — `7050e28` |
+| 08.06.2026 | v2.x | Phase 3A: Cross-Modul KI-Synthese im Executive Summary — `f7556ff` |
+| 08.06.2026 | v2.x | Phase 2: Modulare Architektur, Proxies, router.php Blockierung — `24243fc` |
+| 08.06.2026 | v2.x | Sistrix-Erweiterungen Phase 1 komplett: domain.opportunities, domain.competitors.seo, GEO-Panel (ai.entity.prompts + sources), SERP-Feature-Badges in GSC-Tabelle (AI/FS/KG) |
+| 22.05.2026 | v2.x | Sistrix API Parsing finalisiert — `d1c20c0` |
+| 22.05.2026 | v2.0 | Header-Eingabebereich, Progressbar-Redesign, API-Verbindungstest — `ff3b675` |
+| 21.05.2026 | v2.0 | UI-Redesign: Inter/Geist, Slate-Palette, Score-Hero, Expand-Rows, Skeleton — `f61c90e` |
 | 21.05.2026 | v1.x | YMYL-Multiplikator, Schema.org, Wortanzahl, GSC Branded-Queries, Batch-Calls, Timer |
-| 21.05.2026 | v1.x | Hotfix extractPageText, Hotfix Failed-to-fetch |
