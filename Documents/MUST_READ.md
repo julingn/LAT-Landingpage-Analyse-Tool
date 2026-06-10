@@ -13,7 +13,7 @@
 | **Branch** | `main` → auto-deploy Railway |
 | **Stack** | PHP 8.3 CLI Alpine, kein Framework |
 | **Kern** | `app/index.php` (~2600 Zeilen — PHP + HTML + CSS + JS) |
-| **Letzter Deploy** | `f210d5d` — SQEG UX-Überarbeitung (09.06.2026) |
+| **Letzter Deploy** | `107f4d8` — fix: sleep() fehlte (10.06.2026) |
 
 ---
 
@@ -114,35 +114,49 @@ renderResults() → rendert alle Panels
 
 ---
 
-## Ergebnisstruktur (Results-Section)
+## View-Struktur (Multi-View Dashboard)
 
-| Reihenfolge | Element | ID/Klasse |
+| View | ID | Inhalt |
 |---|---|---|
-| 1 | Gesamtscore | `.score-hero` |
-| 2 | KI-Executive Summary | `.exec-summary-card` |
-| 3 | Stat-Grid (Grün/Amber/Rot) | `.stat-grid` — 3 Spalten, kein PQ-Erweitert |
-| 4 | Cluster-Übersicht | `#cluster-overview` |
-| 5 | SQEG-Scale | `.sqeg-scale` |
-| 6 | Needs-Met-Block | `.needs-met-block` |
-| 7 | GSC-Keywords | `#gsc-panel` |
-| 8 | Sistrix URL-Sichtbarkeit | `#sistrix-panel` |
-| 9 | Priority-Matrix | `#priority-matrix` |
-| 10 | Kriterien-Tabelle | `#criteria-table` |
+| Übersicht | `#view-overview` | Modul-Kacheln, Radar-Chart, Top-Prioritäten |
+| SQEG | `#view-sqeg` | Score-Hero + Exec Summary + Cluster (aufklappbar) + Detailanalyse (eingeklappt) |
+| Technical SEO | `#view-technical` | 11 deterministische Checks (HTML-Parsing, kein KI-Call) |
+| Performance | `#view-performance` | GSC-Panel + Sistrix-Panel |
+| GEO / AEO | `#view-geo` | Sistrix AI (entity.prompts + entity.sources) |
+| Keyword Fit | `#view-keywords` | Intent-Analyse (Sistrix searchintent) |
+| UX / CRO | `#view-ux` | Vision-LLM + Screenshot (Headless Chromium) |
+| Einstellungen | `#view-settings` | API-Keys, Modell, Passwort |
+
+**Alle Views müssen innerhalb von `<div class="content-wrap">` liegen** — max-width:960px;margin:0 auto
 
 ---
 
-## Roadmap / Offene Punkte
+## Modul-Kacheln & Scores
 
-- [x] Visuelle Hierarchie Runde 2 — `aa34eba`
-- [x] Dark Mode (Navy-Tokens) — `d08c4bb`
-- [x] Input Hero (sticky, kondensiert) — `cb41b2b`
-- [x] PQ-Erweitert entfernt (Duplikat) — `b2414b3`
-- [x] Sistrix Integration — `e6890ff` → KEY `SISTRIX_API_KEY` in Railway setzen
-- [x] Session-Lock-Fix (`session_write_close`) in allen Proxys — `76f498d` / `9f0cbdf`
-- [x] Progressbar-Redesign (Zeit+% prominent) + API-Verbindungstest in Einstellungen — `ff3b675`
-- [x] Eingabebereich vollständig in Header integriert — `0d1b9bb`
-- [x] Sistrix API korrekt eingebunden (domain.visibilityindex + keyword.domain.seo) — `d1c20c0`
-- [ ] ...
+Jedes Modul hat:
+- **Sidebar-Nav**: `<button class="nav-item" data-view="X">` + `<span id="nav-score-X">`
+- **Modul-Kachel**: `<div class="module-card" id="mc-X">` mit `mc-X-score`, `mc-X-bar`, `mc-X-label`
+- **results/empty State**: `#X-results` (display:none) + `#X-empty` (display:block)
+
+Beim Hinzufügen eines neuen Moduls müssen **immer** alle 4 Reset-Stellen aktualisiert werden:
+1. Reset-Array in `startAnalysis()` (`['sqeg-results','perf-results',...]`)
+2. Reset-Array in `startDemo()` (identisch)
+3. `renderResults()` — Aktivierungs-Block für das neue Modul
+4. `VIEW_META` Objekt (Zeile ~1271)
+
+---
+
+## Roadmap
+
+Siehe `Documents/ROADMAP.md` für aktuelle Roadmap.
+
+**Stand 10.06.2026 — implementierte Module:**
+- ✅ M1 SQEG (LLM, 42 Kriterien, 8 Cluster)
+- ✅ M2 Technical SEO (deterministisch, 11 Checks, `107f4d8`)
+- ✅ M3 Performance (GSC + Sistrix)
+- ✅ M4 GEO/AEO (Sistrix AI)
+- ✅ M5 UX/CRO (Vision-LLM + Screenshot)
+- ✅ M6 Keyword Fit (Sistrix searchintent)
 
 ---
 
@@ -218,12 +232,17 @@ JS-Funktionen: `testApiConn(name)` + `testAllApis()`
 
 ---
 
-## Bekannte Fallstricke
+## Bekannte Fallstricke & Bugs
 
-| Problem | Lösung |
-|---|---|
-| Dark Mode FOUC | Inline-`<script>` im `<head>` — **vor** CSS-Load |
-| Settings-UI für Datenquellen | **Nicht machen** — nur Railway ENV |
-| Hardcoded Farben | **Nicht machen** — immer `var(--)` |
-| PQ-Erweitert war Duplikat | Entfernt — war nur Re-Render von Cluster 5 |
-| **PHP Session + concurrent API calls** | `session_write_close()` SOFORT nach Auth-Check in JEDEM Proxy — sonst hält PHP die Session-Datei-Lock für die gesamte API-Call-Dauer → 401 für alle gleichzeitigen Batches |
+| Problem | Ursache | Lösung |
+|---|---|---|
+| Dark Mode FOUC | CSS wird nach JS geladen | Inline-`<script>` im `<head>` liest `lat_theme` aus localStorage **vor** CSS-Load |
+| Settings-UI für Datenquellen | API-Keys im Browser sichtbar | **Nicht machen** — nur Railway ENV |
+| Hardcoded Farben | — | **Nicht machen** — immer `var(--)` |
+| **PHP Session + concurrent API calls** | PHP hält Session-File-Lock | `session_write_close()` SOFORT nach Auth-Check in JEDEM Proxy — sonst 401 für alle gleichzeitigen Batches |
+| **JSON-Truncation** (`runMiniCall`) | max_tokens zu niedrig | max_tokens=2500 + Fallback-Regex für abgeschnittene Arrays. Nicht auf 2000 senken. |
+| **Doppelte schließende `</div>`** im HTML | Manuelle Edits im monolithischen index.php | Beim Einfügen von HTML-Blöcken immer mit 3-4 Zeilen Kontext davor/danach arbeiten. Nach jedem größeren HTML-Edit Browser-DOM prüfen. |
+| **Stray `}` nach Funktion** | Falscher Insert-Punkt beim Einfügen von JS-Code | Ein überschüssiges `}` nach einer Funktion bricht den gesamten `<script>`-Block. Symptom: **alle** JS-Funktionen sind undefined. Fix: stray `}` entfernen. Commits: `6eafea2` (HTML), `4da0d25` (JS). |
+| **`sleep` nicht definiert** | Funktion bei Refactoring verloren | `sleep` muss als `const sleep=ms=>new Promise(r=>setTimeout(r,ms));` direkt nach dem `<script>`-Tag stehen. Symptom: Demo startet (Button disabled), aber friert sofort ein. Commit: `107f4d8`. |
+| **`startDemo()` hat kein try/catch** | Async-Fehler ohne Handler | Fehler in `startDemo()` brechen silent ab — keine Fehlermeldung im UI. Bei mysteriösem Einfrieren: Browser-Konsole öffnen (`F12 → Console`). |
+| **Neues Modul: Reset-Arrays vergessen** | 4 Stellen müssen synchron sein | Beim Hinzufügen eines Moduls: Reset in `startAnalysis()`, Reset in `startDemo()`, Aktivierung in `renderResults()`, Eintrag in `VIEW_META`. Alle 4 oder keiner. |
