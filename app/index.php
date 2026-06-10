@@ -1266,6 +1266,7 @@ button{font-family:inherit}
 </div>
 <script>
 const CSRF_TOKEN = '<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>';
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
 // === VIEW TITLES ===
 const VIEW_META={
