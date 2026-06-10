@@ -12,8 +12,8 @@
 | **Repo** | https://github.com/julingn/LAT-Landingpage-Analyse-Tool |
 | **Branch** | `main` → auto-deploy Railway |
 | **Stack** | PHP 8.3 CLI Alpine, kein Framework |
-| **Kern** | `app/index.php` (~1750 Zeilen — PHP + HTML + CSS + JS) |
-| **Letzter Deploy** | `d1c20c0` — Sistrix API Parsing finalisiert |
+| **Kern** | `app/index.php` (~2600 Zeilen — PHP + HTML + CSS + JS) |
+| **Letzter Deploy** | `f210d5d` — SQEG UX-Überarbeitung (09.06.2026) |
 
 ---
 
@@ -61,6 +61,7 @@ Alle API-Calls laufen serverseitig — der Browser sieht nie einen API-Key.
 | `app/gsc.php` | Google Search Console |
 | `app/pagespeed.php` | PageSpeed Insights |
 | `app/sistrix.php` | URL-Sichtbarkeit + Keywords (DE) |
+| `app/keywords.php` | Keyword-Fit: Sistrix `keyword.seo.searchintent` (parallel cURL) |
 
 **Referenz-Template:** `app/dataforseo.php`
 
@@ -69,14 +70,14 @@ Alle API-Calls laufen serverseitig — der Browser sieht nie einen API-Key.
 ## Daten-Flow in `app/index.php`
 
 ```js
-// 1. Globale Variablen (Zeile ~894)
-let gscData=null, serpData=null, backlinkData=null, psiData=null, sistrixData=null;
+// 1. Globale Variablen (Zeile ~1209)
+let gscData=null, serpData=null, backlinkData=null, psiData=null, sistrixData=null, geoData=null, kwData=null;
 
 // 2. Reset bei jedem Start (startAnalysis + startDemo)
-gscData=null; serpData=null; backlinkData=null; psiData=null; sistrixData=null;
+gscData=null; serpData=null; backlinkData=null; psiData=null; sistrixData=null; geoData=null; kwData=null;
 
 // 3. Parallel fetchen
-const [gscRes, serpRes, blRes, psiRes, sistrixRes] = await Promise.allSettled([
+const [gscRes, serpRes, blRes, psiRes, sistrixRes, geoRes] = await Promise.allSettled([
   fetchGscData(url),
   fetchSerpData(keyword),
   fetchBacklinkData(url),

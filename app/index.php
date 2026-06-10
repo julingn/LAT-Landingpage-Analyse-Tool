@@ -388,33 +388,8 @@ button{font-family:inherit}
 .sqeg-level{flex:1;padding:9px 4px;text-align:center;font-size:11px;font-weight:600;color:var(--text3);cursor:default;border-right:1px solid var(--border);transition:background .2s,color .2s}
 .sqeg-level:last-child{border-right:none}
 .sqeg-level.active{background:var(--accent);color:#fff}
-.needs-met-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:20px;display:none;box-shadow:var(--shadow-sm)}
-.needs-met-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:10px}
-/* Outer card wrapper für Performance / GEO / Keywords / UX ─────────────── */
-#perf-results,#geo-results,#kw-results{
-  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-xl);
-  padding:28px 32px;box-shadow:var(--shadow);
-}
-/* Innere Panels flach rendern — keine eigene Karte mehr */
-#perf-results .needs-met-block,
-#geo-results .needs-met-block,
-#kw-results .needs-met-block{
-  background:transparent;border:none;border-radius:0;
-  box-shadow:none;padding:0;margin-bottom:0;
-}
-/* Trennlinie zwischen Panels */
-#perf-results .needs-met-block+.needs-met-block,
-#geo-results .needs-met-block+.needs-met-block,
-#kw-results .needs-met-block+.needs-met-block{
-  border-top:1px solid var(--border);padding-top:24px;margin-top:24px;
-}
-/* Label-Stil innerhalb der flachen View-Cards */
-#perf-results .needs-met-label,
-#geo-results .needs-met-label,
-#kw-results .needs-met-label{
-  font-size:11px;font-weight:700;color:var(--text2);margin-bottom:14px;
-  letter-spacing:0;text-transform:none;
-}
+.needs-met-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:20px;display:none;box-shadow:var(--shadow)}
+.needs-met-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:12px}
 /* UX body card (unterhalb score-hero) */
 #ux-body-card{
   background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-xl);
@@ -889,7 +864,7 @@ button{font-family:inherit}
      VIEW: PERFORMANCE
 ════════════════════════════════════════════════════════════ -->
 <div class="view-panel" id="view-performance">
-  <div id="perf-results" style="display:none;margin-top:24px">
+  <div id="perf-results" style="display:none;margin-top:28px">
     <div class="needs-met-block" id="gsc-panel" style="display:none">
       <div class="needs-met-label">GSC · Top-Keywords (90 Tage)</div>
       <div id="gsc-panel-content"></div>
@@ -910,7 +885,7 @@ button{font-family:inherit}
      VIEW: GEO / AEO
 ════════════════════════════════════════════════════════════ -->
 <div class="view-panel" id="view-geo">
-  <div id="geo-results" style="display:none;margin-top:24px">
+  <div id="geo-results" style="display:none;margin-top:28px">
     <div class="needs-met-block" id="geo-panel" style="display:none">
       <div class="needs-met-label">GEO · KI-Sichtbarkeit (AI Search)</div>
       <div id="geo-panel-content"></div>
@@ -927,7 +902,7 @@ button{font-family:inherit}
      VIEW: KEYWORD FIT
 ════════════════════════════════════════════════════════════ -->
 <div class="view-panel" id="view-keywords">
-  <div id="kw-results" style="display:none;margin-top:24px">
+  <div id="kw-results" style="display:none;margin-top:28px">
     <div class="needs-met-block" id="kw-intent-panel" style="display:block">
       <div class="needs-met-label">Keyword Fit · Intent-Analyse</div>
       <div id="kw-intent-content"></div>
