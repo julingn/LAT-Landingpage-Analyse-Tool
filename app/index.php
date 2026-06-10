@@ -955,44 +955,73 @@ button{font-family:inherit}
       <div class="score-hero-divider"></div>
       <div class="score-hero-meta">
         <div class="score-hero-level green" id="ux-score-level">–</div>
-        <div class="score-hero-interp" id="ux-score-interp"></div>
+        <div class="score-hero-interp" id="ux-score-interp" style="font-size:11px;color:var(--text3)">Ø Desktop + Mobile</div>
         <div class="score-hero-bar-wrap">
           <div class="score-hero-bar-bg"><div class="score-hero-bar green" id="ux-score-bar" style="width:0%"></div></div>
         </div>
         <div class="score-hero-chips">
-          <span class="score-chip green" id="ux-chip-g" data-tip="UX-Kriterien bestanden">✓ <span id="ux-cnt-g">0</span></span>
-          <span class="score-chip amber" id="ux-chip-a" data-tip="UX-Kriterien verbesserungswürdig">◑ <span id="ux-cnt-a">0</span></span>
-          <span class="score-chip red" id="ux-chip-r" data-tip="UX-Kriterien kritisch">✗ <span id="ux-cnt-r">0</span></span>
+          <span class="score-chip green" id="ux-chip-g">✓ <span id="ux-cnt-g">0</span></span>
+          <span class="score-chip amber" id="ux-chip-a">◑ <span id="ux-cnt-a">0</span></span>
+          <span class="score-chip red" id="ux-chip-r">✗ <span id="ux-cnt-r">0</span></span>
         </div>
       </div>
     </div>
 
-    <div id="ux-body-card" style="display:none">
-    <div class="section-divider" id="ux-screenshot-divider" style="display:none"><div class="section-divider-line"></div><span class="section-divider-label">Seitenansicht</span><div class="section-divider-line"></div></div>
+    <!-- Device Tabs -->
+    <div style="display:flex;gap:0;margin-bottom:0;border-bottom:2px solid var(--border)">
+      <button id="ux-tab-mobile" onclick="showUxDevice('mobile')" style="padding:10px 20px;font-size:13px;font-weight:600;border:none;background:none;cursor:pointer;border-bottom:2px solid var(--accent);margin-bottom:-2px;color:var(--accent)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:5px"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>Mobile
+        <span id="ux-tab-score-mobile" style="font-size:11px;font-family:'Geist Mono';margin-left:6px;color:var(--text3)"></span>
+      </button>
+      <button id="ux-tab-desktop" onclick="showUxDevice('desktop')" style="padding:10px 20px;font-size:13px;font-weight:600;border:none;background:none;cursor:pointer;color:var(--text3)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:5px"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Desktop
+        <span id="ux-tab-score-desktop" style="font-size:11px;font-family:'Geist Mono';margin-left:6px;color:var(--text3)"></span>
+      </button>
+    </div>
 
-    <!-- Screenshot -->
-    <div class="needs-met-block" id="ux-screenshot-panel" style="display:none">
-      <div class="needs-met-label">Screenshot — Gesamtseite (bis 2400 px)</div>
-      <div id="ux-screenshot-wrap" style="margin-top:10px;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border);max-height:480px;overflow-y:auto">
-        <img id="ux-screenshot-img" src="" alt="Seiten-Screenshot" style="width:100%;display:block">
+    <!-- Mobile Panel -->
+    <div id="ux-device-mobile">
+      <div id="ux-loading-mobile" style="display:none;padding:32px 0;text-align:center;color:var(--text3)">
+        <div class="loader-dots" style="justify-content:center;margin-bottom:10px"><div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div></div>
+        <div style="font-size:12px">Mobile-Screenshot + Analyse läuft…</div>
+      </div>
+      <div class="needs-met-block" id="ux-checks-mobile" style="display:none;margin-top:20px">
+        <div id="ux-checks-content-mobile"></div>
+      </div>
+      <div class="needs-met-block" id="ux-screenshot-mobile" style="display:none;margin-top:0">
+        <div class="needs-met-label">Screenshot Mobile (375px)</div>
+        <div style="margin-top:10px;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border);max-height:480px;overflow-y:auto">
+          <img id="ux-shot-img-mobile" src="" alt="Mobile Screenshot" style="width:100%;display:block">
+        </div>
+      </div>
+      <div class="needs-met-block" id="ux-comment-mobile" style="display:none;margin-top:0">
+        <div class="needs-met-label">KI-Kommentar Mobile</div>
+        <div id="ux-comment-content-mobile" style="font-size:13px;line-height:1.6;color:var(--text2)"></div>
       </div>
     </div>
 
-    <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">UX-Analyse — 5 Kriterien</span><div class="section-divider-line"></div></div>
-
-    <!-- Findings -->
-    <div class="needs-met-block" id="ux-findings-panel" style="display:none">
-      <div id="ux-findings-content"></div>
+    <!-- Desktop Panel -->
+    <div id="ux-device-desktop" style="display:none">
+      <div id="ux-loading-desktop" style="display:none;padding:32px 0;text-align:center;color:var(--text3)">
+        <div class="loader-dots" style="justify-content:center;margin-bottom:10px"><div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div></div>
+        <div style="font-size:12px">Desktop-Screenshot + Analyse läuft…</div>
+      </div>
+      <div class="needs-met-block" id="ux-checks-desktop" style="display:none;margin-top:20px">
+        <div id="ux-checks-content-desktop"></div>
+      </div>
+      <div class="needs-met-block" id="ux-screenshot-desktop" style="display:none;margin-top:0">
+        <div class="needs-met-label">Screenshot Desktop (1280px)</div>
+        <div style="margin-top:10px;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border);max-height:480px;overflow-y:auto">
+          <img id="ux-shot-img-desktop" src="" alt="Desktop Screenshot" style="width:100%;display:block">
+        </div>
+      </div>
+      <div class="needs-met-block" id="ux-comment-desktop" style="display:none;margin-top:0">
+        <div class="needs-met-label">KI-Kommentar Desktop</div>
+        <div id="ux-comment-content-desktop" style="font-size:13px;line-height:1.6;color:var(--text2)"></div>
+      </div>
     </div>
-
-    <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">Gesamtbewertung</span><div class="section-divider-line"></div></div>
-
-    <!-- Summary -->
-    <div class="needs-met-block" id="ux-summary-panel" style="display:none">
-      <div id="ux-summary-content" style="font-size:13px;line-height:1.6;color:var(--text2)"></div>
-    </div>
-    </div><!-- /ux-body-card -->
   </div>
+
   <div id="ux-loading" style="display:none;padding:48px 0;text-align:center;color:var(--text3)">
     <div class="loader-dots" style="justify-content:center;margin-bottom:12px"><div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div></div>
     <div style="font-size:13px;font-weight:600;margin-bottom:4px">UX-Analyse läuft…</div>
@@ -1585,19 +1614,28 @@ async function startDemo(){
   log('Sistrix: Sichtbarkeit 0.847 · 3241 Keywords (Demo)','ok');
   log('GEO: 5 AI-Prompts · 3 Quellen (Demo)','ok');
   log('Keyword-Fit: Intent für 6 Keywords analysiert (Demo)','ok');
-  // Demo UX/CRO-Daten (kein echter Screenshot)
-  ucrData={success:true,score:68,level:'Medium',
-    summary:'Die Seite hat einen klar strukturierten Aufbau mit erkennbarem Value Proposition. Der Haupt-CTA ist sichtbar, könnte aber visuell prominenter sein. Trust-Signale sind vorhanden, wirken aber noch ausbaufähig.',
-    findings:[
-      {area:'Value Proposition',rating:'green',issue:'Hauptnutzen (günstiger Strom, Tarifvergleich) ist im Header klar kommuniziert.',recommendation:'Stärker emotional formulieren — z.B. "Wechsel in 5 Minuten, spare bis zu 400 €/Jahr".'},
-      {area:'CTA',rating:'amber',issue:'Haupt-CTA "Tarif wählen" ist sichtbar, aber visuell nicht dominant genug.',recommendation:'Button-Farbe stärker vom Hintergrund abheben (Kontrastverhältnis ≥ 4.5:1) und Größe erhöhen.'},
-      {area:'Trust-Signale',rating:'amber',issue:'Kundenbewertungen (4.7/5) vorhanden, aber zu klein und weit unten.',recommendation:'Bewertungs-Widget und TÜV-Siegel in den oberen Viewport-Bereich verschieben.'},
-      {area:'Visuelle Hierarchie',rating:'green',issue:'Klare Struktur: Header → Vergleichstabelle → Vorteile → CTA. Schriftgrößen-Hierarchie eingehalten.',recommendation:'Abstände zwischen Sektionen leicht vergrößern, um Scan-Pfad zu verbessern.'},
-      {area:'Above-the-Fold',rating:'red',issue:'Vergleichstabelle beginnt erst nach dem Scroll. Hero-Bereich zu groß — wichtigster Content ist nicht sofort sichtbar.',recommendation:'Hero-Bereich verkleinern oder Teaser-Zeile der Vergleichstabelle already above the fold platzieren.'},
-    ],
-    sub_scores:{value_prop:78,cta:62,trust:60,hierarchy:80,above_fold:48},
-    screenshot_base64:null};
-  log('UX/CRO: Analyse mit 5 Kriterien abgeschlossen (Demo)','ok');
+  // Demo UX/CRO-Daten (kein echter Screenshot) — v2: Device-Split Mobile + Desktop
+  ucrData={
+    mobile:{success:true,device:'mobile',score:60,
+      comment:'Die mobile Ansicht der Seite ist grundsätzlich strukturiert, aber der wichtigste Content liegt deutlich unterhalb des initialen Viewports. Der CTA ist vorhanden, wirkt auf kleinen Screens jedoch unterdimensioniert. Trust-Signale sind kaum erkennbar.',
+      checks:[
+        {id:'U1',name:'Above-the-Fold & Nutzenversprechen',status:'amber',finding:'H1 "Strom Tarife Vergleich" vorhanden · Content unterhalb des Folds (5 Wörter above fold)',detail:'Auf 375px sind nur wenige Inhalte ohne Scrollen sichtbar.',fix:'Hero-Bereich komprimieren, Kernnutzen (z.B. "Spare bis 400 €") direkt above fold.'},
+        {id:'U2',name:'Ablenkungsfreiheit & Benutzerführung',status:'amber',finding:'Hauptnavigation mit 6 Links — auf Mobile ablenkend.',detail:'Jeder Nav-Link ist eine potenzielle Ausstiegsoption.',fix:'Navigation auf Mobile ausblenden oder auf Logo + CTA reduzieren.'},
+        {id:'U3',name:'Call-to-Action',status:'green',finding:'2 CTAs gefunden: "Tarif wählen", "Jetzt vergleichen".',detail:'',fix:''},
+        {id:'U4',name:'Trust & Social Proof',status:'amber',finding:'1 Trust-Signal: Trust-Keywords (bewertung, geprüft).',detail:'Kein Schema.org AggregateRating-Markup, kein Trust-Bild erkannt.',fix:'Kundenbewertungen + TÜV-Siegel im oberen Viewport platzieren.'},
+        {id:'U5',name:'Performance Mobile',status:'amber',finding:'PageSpeed Mobile: 71/100 · LCP: 2.8s · CLS: 0.08 · TBT: 180ms',detail:'LCP 2.8s liegt über dem Zielwert von 2.5s.',fix:'Bilder in WebP konvertieren, kritischen CSS inline laden.'},
+      ],screenshot_base64:null},
+    desktop:{success:true,device:'desktop',score:78,
+      comment:'Die Desktop-Ansicht zeigt eine klare Struktur mit gut erkennbarem Value Proposition. Die CTA-Buttons sind visuell prominent und gut positioniert. Trust-Elemente könnten noch weiter nach oben verschoben werden, um sofort Vertrauen aufzubauen.',
+      checks:[
+        {id:'U1',name:'Above-the-Fold & Nutzenversprechen',status:'green',finding:'H1 vorhanden · Kernbotschaft und Einstieg above fold erkennbar.',detail:'',fix:''},
+        {id:'U2',name:'Ablenkungsfreiheit & Benutzerführung',status:'green',finding:'Navigation mit 4 Links — überschaubar, kein Overload.',detail:'',fix:''},
+        {id:'U3',name:'Call-to-Action',status:'green',finding:'3 CTAs gefunden: "Tarif wählen", "Jetzt vergleichen", "Mehr erfahren".',detail:'',fix:''},
+        {id:'U4',name:'Trust & Social Proof',status:'amber',finding:'2 Trust-Signale: Trust-Keywords (bewertung, geprüft, zertifiziert).',detail:'Bewertungs-Widget vorhanden, aber zu weit unten.',fix:'AggregateRating-Schema.org einbinden und Siegel in die Hero-Section verschieben.'},
+        {id:'U5',name:'Performance Desktop',status:'green',finding:'PageSpeed Desktop: 89/100 · LCP: 1.8s · CLS: 0.02 · TBT: 60ms',detail:'',fix:''},
+      ],screenshot_base64:null}
+  };
+  log('UX/CRO: Mobile 60% + Desktop 78% → Ø 69% (Demo)','ok');
 
   setProgress(92,'Ergebnisse rendern…','Fast fertig…');
   renderResults('Strom Tarife Vergleich');
@@ -1718,27 +1756,44 @@ async function startAnalysis(){
         else log('Keyword-Fit: keine Intent-Daten (Sistrix nicht konfiguriert?)');
       }catch(e){kwData=null;log('Keyword-Fit: Fehler — '+e.message,'err');}
     }else{kwData=null;}
-    // UX/CRO Analyse async (Screenshot + Vision-LLM) — läuft parallel zu SQEG-Calls
+    // UX/CRO Analyse async — Mobile zuerst, Desktop parallel — beide laden progressiv
     if(currentMode==='url'&&currentUrl){
-      fetchUxData(currentUrl).then(d=>{
-        ucrData=d;
-        if(d?.success){
-          log('UX/CRO: Screenshot + Analyse abgeschlossen','ok');
-          renderUXAnalysis();
-          document.getElementById('ux-results').style.display='block';
-          document.getElementById('ux-empty').style.display='none';
-          document.getElementById('ux-loading').style.display='none';
-          updateModuleCards();
-        }else{
-          log('UX/CRO: '+(d?.error||'Fehler'),'err');
-          document.getElementById('ux-loading').style.display='none';
-          document.getElementById('ux-empty').style.display='block';
-        }
-      }).catch(e=>{log('UX/CRO: Fehler — '+e.message,'err');document.getElementById('ux-loading').style.display='none';document.getElementById('ux-empty').style.display='block';});
-      // Loading-State sofort anzeigen
+      ucrData={};
       document.getElementById('ux-empty').style.display='none';
-      document.getElementById('ux-loading').style.display='block';
-      document.getElementById('ux-loading-msg').textContent='Screenshot wird erstellt…';
+      document.getElementById('ux-loading').style.display='none';
+      document.getElementById('ux-results').style.display='block';
+      document.getElementById('ux-loading-mobile').style.display='block';
+      document.getElementById('ux-loading-desktop').style.display='block';
+      showUxDevice('mobile');
+      // Mobile Call
+      fetchUxData(currentUrl,'mobile',psiData).then(d=>{
+        if(d?.success){
+          ucrData.mobile=d;
+          log('UX/CRO Mobile: Analyse abgeschlossen','ok');
+          renderUXAnalysis();
+        }else{
+          log('UX/CRO Mobile: '+(d?.error||'Fehler'),'err');
+          const loadEl=document.getElementById('ux-loading-mobile');
+          if(loadEl)loadEl.style.display='none';
+        }
+      }).catch(e=>{log('UX/CRO Mobile: Fehler — '+e.message,'err');const loadEl=document.getElementById('ux-loading-mobile');if(loadEl)loadEl.style.display='none';});
+      // Desktop Call — holt zuerst PSI-Desktop, dann parallel mit Mobile
+      const psiDesktopPromise=currentMode==='url'?fetchPageSpeedData(currentUrl,'desktop').catch(()=>null):Promise.resolve(null);
+      Promise.all([psiDesktopPromise]).then(([psiDesktop])=>{
+        fetchUxData(currentUrl,'desktop',psiDesktop).then(d=>{
+          if(d?.success){
+            ucrData.desktop=d;
+            log('UX/CRO Desktop: Analyse abgeschlossen','ok');
+            renderUXAnalysis();
+            updateModuleCards();
+            renderPagePreview();
+          }else{
+            log('UX/CRO Desktop: '+(d?.error||'Fehler'),'err');
+            const loadEl=document.getElementById('ux-loading-desktop');
+            if(loadEl)loadEl.style.display='none';
+          }
+        }).catch(e=>{log('UX/CRO Desktop: Fehler — '+e.message,'err');const loadEl=document.getElementById('ux-loading-desktop');if(loadEl)loadEl.style.display='none';});
+      }).catch(()=>{});
     }else{ucrData=null;}
     if(serpData?.tasks?.[0]?.result?.[0]?.items)log(`SERP: Top-10 für "${effectiveKeyword}" geladen`,'ok');
     else if(effectiveKeyword)log(`SERP: keine Daten für "${effectiveKeyword}"`);
@@ -1847,95 +1902,144 @@ async function fetchKeywordData(keywords){
     return d.success?d:null;
   }catch(e){return null;}
 }
-async function fetchUxData(url){
+async function fetchUxData(url, device, psiPayload){
   try{
-    const res=await fetch('ux.php?action=analyze',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify({url,csrf_token:CSRF_TOKEN})});
+    const body={url, device, html:currentHtml||'', psi_data:psiPayload||null, csrf_token:CSRF_TOKEN};
+    const res=await fetch('ux.php?action=analyze',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify(body)});
     if(!res.ok)return null;
-    const d=await res.json();
-    return d;
+    return await res.json();
   }catch(e){return null;}
 }
+function showUxDevice(device){
+  document.getElementById('ux-device-mobile').style.display=device==='mobile'?'block':'none';
+  document.getElementById('ux-device-desktop').style.display=device==='desktop'?'block':'none';
+  const tabM=document.getElementById('ux-tab-mobile');
+  const tabD=document.getElementById('ux-tab-desktop');
+  if(tabM){tabM.style.borderBottomColor=device==='mobile'?'var(--accent)':'transparent';tabM.style.color=device==='mobile'?'var(--accent)':'var(--text3)';}
+  if(tabD){tabD.style.borderBottomColor=device==='desktop'?'var(--accent)':'transparent';tabD.style.color=device==='desktop'?'var(--accent)':'var(--text3)';}
+}
+function renderUxDevice(data){
+  if(!data?.success)return;
+  const device=data.device||'mobile';
+  const checks=data.checks||[];
+  const colorMap={green:'var(--green)',amber:'var(--amber)',red:'var(--red)'};
+  const bgMap={green:'var(--green-bg)',amber:'var(--amber-bg)',red:'var(--red-bg)'};
+  const borderMap={green:'var(--green-border)',amber:'var(--amber-border)',red:'var(--red-border)'};
+  const iconMap={green:'✓',amber:'◑',red:'✗'};
+
+  // Check-Liste
+  const checksEl=document.getElementById('ux-checks-'+device);
+  const checksContent=document.getElementById('ux-checks-content-'+device);
+  if(checksEl&&checksContent&&checks.length){
+    const g=checks.filter(c=>c.status==='green').length;
+    const a=checks.filter(c=>c.status==='amber').length;
+    const r=checks.filter(c=>c.status==='red').length;
+    let html=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+      <div style="font-size:12px;font-weight:600;color:var(--text)">5 UX-Kriterien · ${device==='mobile'?'Mobile (375px)':'Desktop (1280px)'}</div>
+      <div style="display:flex;gap:6px">
+        <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;border:1px solid var(--green-border);background:var(--green-bg);font-size:11px;font-weight:600;color:var(--green)">✓ ${g}</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;border:1px solid var(--amber-border);background:var(--amber-bg);font-size:11px;font-weight:600;color:var(--amber)">◑ ${a}</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;border:1px solid var(--red-border);background:var(--red-bg);font-size:11px;font-weight:600;color:var(--red)">✗ ${r}</span>
+      </div>
+    </div><div style="display:flex;flex-direction:column;gap:0">`;
+    checks.forEach((c,i)=>{
+      const isLast=i===checks.length-1;
+      html+=`<div style="display:flex;align-items:flex-start;gap:14px;padding:14px 0;${isLast?'':'border-bottom:1px solid var(--border)'}">
+        <div style="width:28px;height:28px;border-radius:50%;background:${bgMap[c.status]};border:1px solid ${borderMap[c.status]};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:${colorMap[c.status]};flex-shrink:0;margin-top:1px">${iconMap[c.status]}</div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+            <span style="font-size:10px;font-weight:600;color:var(--text3);font-family:'Geist Mono','Courier New',monospace">${c.id}</span>
+            <span style="font-size:13px;font-weight:600;color:var(--text)">${escHtml(c.name)}</span>
+          </div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.5">${escHtml(c.finding)}</div>
+          ${c.detail?`<div style="font-size:11px;color:var(--text3);margin-top:4px;line-height:1.4">${escHtml(c.detail)}</div>`:''}
+          ${c.fix?`<div style="font-size:11px;color:var(--accent);margin-top:5px;padding:4px 8px;background:var(--accent-bg);border-radius:var(--radius-sm);border:1px solid var(--accent-border);line-height:1.4"><strong>Fix:</strong> ${escHtml(c.fix)}</div>`:''}
+        </div>
+      </div>`;
+    });
+    html+='</div>';
+    checksContent.innerHTML=html;
+    checksEl.style.display='block';
+  }
+
+  // Screenshot
+  const shotEl=document.getElementById('ux-screenshot-'+device);
+  const shotImg=document.getElementById('ux-shot-img-'+device);
+  if(shotEl&&shotImg&&data.screenshot_base64){
+    shotImg.src='data:image/png;base64,'+data.screenshot_base64;
+    shotEl.style.display='block';
+  }
+
+  // LLM-Kommentar
+  const commentEl=document.getElementById('ux-comment-'+device);
+  const commentContent=document.getElementById('ux-comment-content-'+device);
+  if(commentEl&&commentContent&&data.comment){
+    commentContent.textContent=data.comment;
+    commentEl.style.display='block';
+  }
+
+  // Tab-Score updaten
+  const score=data.score||0;
+  const tabScore=document.getElementById('ux-tab-score-'+device);
+  if(tabScore)tabScore.textContent=score+'%';
+
+  // Loading verstecken
+  const loadEl=document.getElementById('ux-loading-'+device);
+  if(loadEl)loadEl.style.display='none';
+}
 function renderUXAnalysis(){
-  if(!ucrData?.success)return;
-  const score=ucrData.score||0;
-  const cls=score>=70?'green':score>=50?'amber':'red';
-  // Score Hero
+  // ucrData enthält {mobile:..., desktop:...}
+  const mobileData=ucrData?.mobile;
+  const desktopData=ucrData?.desktop;
+  if(!mobileData&&!desktopData)return;
+
+  // Gesamtscore: Durchschnitt beider Devices (oder nur was vorhanden)
+  const scores=[];
+  if(mobileData?.score!=null)scores.push(mobileData.score);
+  if(desktopData?.score!=null)scores.push(desktopData.score);
+  const avgScore=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):0;
+  const cls=avgScore>=70?'green':avgScore>=50?'amber':'red';
+
   const numEl=document.getElementById('ux-score-num');
   const lvlEl=document.getElementById('ux-score-level');
   const barEl=document.getElementById('ux-score-bar');
-  const interpEl=document.getElementById('ux-score-interp');
-  if(numEl){numEl.textContent=score+'%';numEl.className='score-hero-num '+cls;}
-  if(lvlEl){lvlEl.textContent=ucrData.level||'–';lvlEl.className='score-hero-level '+cls;}
-  if(barEl){barEl.className='score-hero-bar '+cls;barEl.style.width=score+'%';}
-  if(interpEl)interpEl.textContent=ucrData.summary||'';
-  // Chips
-  const findings=ucrData.findings||[];
-  const cntG=findings.filter(f=>f.rating==='green').length;
-  const cntA=findings.filter(f=>f.rating==='amber').length;
-  const cntR=findings.filter(f=>f.rating==='red').length;
+  if(numEl){numEl.textContent=avgScore+'%';numEl.className='score-hero-num '+cls;}
+  if(lvlEl){lvlEl.textContent=avgScore>=70?'High':avgScore>=50?'Medium':'Low';lvlEl.className='score-hero-level '+cls;}
+  if(barEl){barEl.className='score-hero-bar '+cls;barEl.style.width=avgScore+'%';}
+
+  // Chips aus allen Checks kombiniert
+  const allChecks=[...(mobileData?.checks||[]),...(desktopData?.checks||[])];
+  const g=allChecks.filter(c=>c.status==='green').length;
+  const a=allChecks.filter(c=>c.status==='amber').length;
+  const r=allChecks.filter(c=>c.status==='red').length;
   const cntGEl=document.getElementById('ux-cnt-g');const cntAEl=document.getElementById('ux-cnt-a');const cntREl=document.getElementById('ux-cnt-r');
-  if(cntGEl)cntGEl.textContent=cntG;if(cntAEl)cntAEl.textContent=cntA;if(cntREl)cntREl.textContent=cntR;
-  // Screenshot
-  const shotPanel=document.getElementById('ux-screenshot-panel');
-  const shotDivider=document.getElementById('ux-screenshot-divider');
-  const shotImg=document.getElementById('ux-screenshot-img');
-  if(ucrData.screenshot_base64&&shotPanel&&shotImg){
-    shotImg.src='data:image/png;base64,'+ucrData.screenshot_base64;
-    shotPanel.style.display='block';
-    if(shotDivider)shotDivider.style.display='flex';
-  }else{
-    if(shotPanel)shotPanel.style.display='none';
-    if(shotDivider)shotDivider.style.display='none';
-  }
-  // Findings
-  const findPanel=document.getElementById('ux-findings-panel');
-  const findContent=document.getElementById('ux-findings-content');
-  if(findPanel&&findContent&&findings.length){
-    findPanel.style.display='block';
-    const ratingIcon={green:'✓',amber:'◑',red:'✗'};
-    const ratingColor={green:'var(--green)',amber:'var(--amber)',red:'var(--red)'};
-    const subScoreKey={
-      'Value Proposition':'value_prop','CTA':'cta',
-      'Trust-Signale':'trust','Visuelle Hierarchie':'hierarchy','Above-the-Fold':'above_fold'
-    };
-    let html='<div style="display:flex;flex-direction:column;gap:10px">';
-    findings.forEach(f=>{
-      const ic=ratingIcon[f.rating]||'◑';const col=ratingColor[f.rating]||'var(--text3)';
-      const subKey=subScoreKey[f.area];const subScore=subKey&&ucrData.sub_scores?ucrData.sub_scores[subKey]:null;
-      const scoreTag=subScore!=null?`<span style="font-size:10px;font-weight:700;color:${col};background:${col}18;border:1px solid ${col}44;border-radius:4px;padding:1px 6px;margin-left:6px">${subScore}%</span>`:'';
-      html+=`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px">`;
-      html+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">`;
-      html+=`<span style="font-size:13px;color:${col};font-weight:700">${ic}</span>`;
-      html+=`<span style="font-size:13px;font-weight:600;color:var(--text)">${escHtml(f.area)}</span>${scoreTag}`;
-      html+=`</div>`;
-      html+=`<div style="font-size:12px;color:var(--text2);margin-bottom:4px"><strong>Befund:</strong> ${escHtml(f.issue)}</div>`;
-      html+=`<div style="font-size:12px;color:var(--text3)"><strong>Empfehlung:</strong> ${escHtml(f.recommendation)}</div>`;
-      html+=`</div>`;
-    });
-    html+='</div>';
-    findContent.innerHTML=html;
-  }else if(findPanel){findPanel.style.display='none';}
-  // Summary
-  const sumPanel=document.getElementById('ux-summary-panel');
-  const sumContent=document.getElementById('ux-summary-content');
-  if(sumPanel&&sumContent&&ucrData.summary){
-    sumPanel.style.display='block';
-    sumContent.textContent=ucrData.summary;
-  }else if(sumPanel){sumPanel.style.display='none';}
-  // ux-body-card einblenden
-  const bodyCard=document.getElementById('ux-body-card');
-  if(bodyCard)bodyCard.style.display='block';
-  renderPagePreview();
+  if(cntGEl)cntGEl.textContent=g;if(cntAEl)cntAEl.textContent=a;if(cntREl)cntREl.textContent=r;
+
+  // Devices rendern
+  if(mobileData)renderUxDevice(mobileData);
+  if(desktopData)renderUxDevice(desktopData);
+
+  // Module Card + Nav Score
+  const mcScore=document.getElementById('mc-ux-score');
+  const navScore=document.getElementById('nav-score-ux');
+  const mcBar=document.getElementById('mc-ux-bar');
+  const mcLabel=document.getElementById('mc-ux-label');
+  const mcCard=document.getElementById('mc-ux');
+  if(mcScore){mcScore.textContent=avgScore+'%';mcScore.className='module-card-score '+(avgScore>=70?'green':avgScore>=50?'amber':'red');}
+  if(navScore){navScore.textContent=avgScore+'%';navScore.style.display='';}
+  if(mcBar){mcBar.style.width=avgScore+'%';mcBar.className='module-card-bar '+(avgScore>=70?'green':avgScore>=50?'amber':'red');}
+  if(mcLabel)mcLabel.textContent=avgScore>=70?'Gute UX':avgScore>=50?'Optimierungsbedarf':'Kritische Probleme';
+  if(mcCard){mcCard.classList.remove('mc-green','mc-amber','mc-red');mcCard.classList.add(avgScore>=70?'mc-green':avgScore>=50?'mc-amber':'mc-red');}
 }
 function renderPagePreview(){
-  if(!ucrData?.screenshot_base64)return;
-  const src='data:image/png;base64,'+ucrData.screenshot_base64;
-  // Übersicht-Card
+  // PagePreview nutzt jetzt UX-Screenshot (mobile device) falls vorhanden
+  const b64=ucrData?.mobile?.screenshot_base64||ucrData?.desktop?.screenshot_base64||ucrData?.screenshot_base64||null;
+  if(!b64)return;
+  const src='data:image/png;base64,'+b64;
   const card=document.getElementById('page-preview-card');
   const img=document.getElementById('page-preview-img');
   const urlEl=document.getElementById('page-preview-url');
   if(card&&img){img.src=src;if(urlEl)urlEl.textContent=currentUrl||'–';card.style.display='block';}
-  // SQEG Score-Hero Thumbnail
   const thumb=document.getElementById('sqeg-page-thumb');
   const thumbImg=document.getElementById('sqeg-page-thumb-img');
   if(thumb&&thumbImg){thumbImg.src=src;thumb.style.display='block';}
@@ -1965,8 +2069,8 @@ async function fetchSerpData(keyword){
 async function fetchBacklinkData(url){
   try{const res=await fetch('dataforseo.php?action=backlinks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({target:url})});return await res.json();}catch(e){return null;}
 }
-async function fetchPageSpeedData(url){
-  try{const res=await fetch('pagespeed.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url,strategy:'mobile'})});return await res.json();}catch(e){return null;}
+async function fetchPageSpeedData(url,strategy='mobile'){
+  try{const res=await fetch('pagespeed.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url,strategy})});return await res.json();}catch(e){return null;}
 }
 
 // === KONTEXT-BLÖCKE ===
@@ -2207,8 +2311,11 @@ function updateModuleCards(){
   if(mcKwBar){mcKwBar.style.width=kwScore+'%';mcKwBar.className='module-card-bar '+(kwScore>=70?'green':kwScore>=45?'amber':kwScore>0?'red':'neutral');}
   if(mcKwLabel)mcKwLabel.textContent=kwScore>=70?'Gutes Targeting':kwScore>=45?'Targeting verbesserbar':kwScore>0?'Targeting-Mismatch':'Noch nicht analysiert';
 
-  // UX / CRO Score
-  const uxScore=ucrData?.success?(ucrData.score||0):0;
+  // UX / CRO Score — Durchschnitt mobile + desktop
+  const uxScores=[];
+  if(ucrData?.mobile?.score!=null)uxScores.push(ucrData.mobile.score);
+  if(ucrData?.desktop?.score!=null)uxScores.push(ucrData.desktop.score);
+  const uxScore=uxScores.length?Math.round(uxScores.reduce((a,b)=>a+b,0)/uxScores.length):0;
   const mcUxEl=document.getElementById('mc-ux-score');
   const navUxEl=document.getElementById('nav-score-ux');
   const mcUxBar=document.getElementById('mc-ux-bar');
@@ -2535,11 +2642,13 @@ function renderResults(keyword){
     document.getElementById('kw-results').style.display='block';
     document.getElementById('kw-empty').style.display='none';
   }
-  // UX/CRO — wenn ucrData bereits vorhanden (Demo-Modus)
-  if(ucrData?.success){
-    renderUXAnalysis();
+  // UX/CRO — wenn ucrData bereits vorhanden (Demo-Modus: mobile+desktop direkt verfügbar)
+  if(ucrData?.mobile||ucrData?.desktop){
     document.getElementById('ux-results').style.display='block';
     document.getElementById('ux-empty').style.display='none';
+    document.getElementById('ux-loading').style.display='none';
+    showUxDevice('mobile');
+    renderUXAnalysis();
   }
   // Modul-Kacheln updaten
   updateModuleCards();
