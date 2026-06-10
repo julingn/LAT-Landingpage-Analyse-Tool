@@ -2549,8 +2549,6 @@ function renderResults(keyword){
   generateExecSummary();
 }
 
-}
-
 // ═══════════════════════════════════════════════════════════
 // M2 — TECHNICAL SEO (deterministisch, kein KI-Call)
 // ═══════════════════════════════════════════════════════════
