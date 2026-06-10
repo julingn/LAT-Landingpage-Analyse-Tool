@@ -851,8 +851,7 @@ button{font-family:inherit}
       <tbody id="criteria-tbody"></tbody>
     </table>
     </div><!-- /detail-table-wrap -->
-    </div><!-- /detail-table-wrap -->
-  </div>
+    </div><!-- /sqeg-results -->
   <div id="sqeg-empty" style="padding:48px 0;text-align:center;color:var(--text3)">
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 12px;display:block;opacity:.4"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
     <div style="font-size:14px;font-weight:600;margin-bottom:4px">Noch keine Analyse</div>
