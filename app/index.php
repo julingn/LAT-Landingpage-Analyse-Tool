@@ -578,6 +578,11 @@ button{font-family:inherit}
       SQEG
       <span class="nav-score" id="nav-score-sqeg" style="display:none"></span>
     </button>
+    <button class="nav-item" data-view="technical" onclick="showView('technical')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      Technical SEO
+      <span class="nav-score" id="nav-score-technical" style="display:none"></span>
+    </button>
     <button class="nav-item" data-view="performance" onclick="showView('performance')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       Performance
@@ -710,6 +715,15 @@ button{font-family:inherit}
         <div class="module-card-score neutral" id="mc-sqeg-score">–</div>
         <div class="module-card-bar-bg"><div class="module-card-bar neutral" id="mc-sqeg-bar" style="width:0%"></div></div>
         <div class="module-card-label" id="mc-sqeg-label">Noch nicht analysiert</div>
+      </div>
+      <div class="module-card" id="mc-technical" onclick="showView('technical')">
+        <div class="module-card-header">
+          <div class="module-card-icon" style="background:var(--bg4);color:var(--text2)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+          <div><div class="module-card-name">Technical SEO</div><div class="module-card-sub">Source Code &amp; On-Page</div></div>
+        </div>
+        <div class="module-card-score neutral" id="mc-technical-score">–</div>
+        <div class="module-card-bar-bg"><div class="module-card-bar neutral" id="mc-technical-bar" style="width:0%"></div></div>
+        <div class="module-card-label" id="mc-technical-label">Noch nicht analysiert</div>
       </div>
       <div class="module-card" onclick="showView('performance')">
         <div class="module-card-header">
@@ -858,6 +872,22 @@ button{font-family:inherit}
     <div style="font-size:12px">URL eingeben und Analyse starten</div>
   </div>
 </div><!-- /view-sqeg -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     VIEW: TECHNICAL SEO
+════════════════════════════════════════════════════════════ -->
+<div class="view-panel" id="view-technical">
+  <div id="technical-results" style="display:none;margin-top:28px">
+    <div class="needs-met-block" id="technical-panel" style="display:block">
+      <div id="technical-panel-content"></div>
+    </div>
+  </div>
+  <div id="technical-empty" style="padding:48px 0;text-align:center;color:var(--text3)">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 12px;display:block;opacity:.4"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+    <div style="font-size:14px;font-weight:600;margin-bottom:4px">Noch keine Analyse</div>
+    <div style="font-size:12px">URL eingeben und Analyse starten</div>
+  </div>
+</div><!-- /view-technical -->
 
 <!-- ═══════════════════════════════════════════════════════════
      VIEW: PERFORMANCE
@@ -1241,6 +1271,7 @@ const CSRF_TOKEN = '<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>';
 const VIEW_META={
   overview:{title:'Übersicht',sub:'Landingpage Analyse Tool'},
   sqeg:{title:'SQEG',sub:'Google Search Quality Evaluator Guidelines'},
+  technical:{title:'Technical SEO',sub:'Source Code Analyse · Indexierbarkeit · On-Page'},
   performance:{title:'Performance',sub:'Rankings · Sichtbarkeit · Quick Wins'},
   geo:{title:'GEO / AEO',sub:'KI-Sichtbarkeit in AI-Suchmaschinen'},
   keywords:{title:'Keyword Fit',sub:'Intent-Analyse · Targeting · Potenzial'},
@@ -1471,16 +1502,13 @@ async function startDemo(){
   if(timerInterval)clearInterval(timerInterval);
   timerInterval=setInterval(updateTimer,1000);
   document.getElementById('progress-timer').textContent='';
-  ['sqeg-results','perf-results','geo-results','kw-results','ux-results'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
-  ['sqeg-empty','perf-empty','geo-empty','kw-empty','ux-empty'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='block';});
+  ['sqeg-results','perf-results','geo-results','kw-results','ux-results','technical-results'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  ['sqeg-empty','perf-empty','geo-empty','kw-empty','ux-empty','technical-empty'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='block';});
   const uxBC=document.getElementById('ux-body-card');if(uxBC)uxBC.style.display='none';
-  showView('overview');
-
-  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-  currentUrl='https://www.beispiel-energie.de/strom/tarife';
   ymylResult='none';
-
-  setProgress(2,'Demo-Daten laden…','Simulierte Analyse…');
+  currentUrl='https://www.beispiel-energie.de/strom/tarife';
+  // Demo-HTML für Technical SEO Analyse
+  currentHtml=`<!DOCTYPE html><html lang="de"><head><title>Stromtarife vergleichen &amp; wechseln – Beispiel Energie</title><meta name="description" content="Jetzt Stromtarife vergleichen und einfach online wechseln. Günstige Tarife für Privat- und Geschäftskunden. Bis zu 400 € sparen – schnell und unkompliziert."><link rel="canonical" href="https://www.beispiel-energie.de/strom/tarife"><meta property="og:title" content="Stromtarife vergleichen – Beispiel Energie"><meta property="og:description" content="Günstige Stromtarife jetzt vergleichen und wechseln."><meta charset="UTF-8"></head><body><h1>Stromtarife vergleichen</h1><img src="/img/hero.jpg" alt="Strom sparen mit Beispiel Energie"><img src="/img/siegel.png" alt="TÜV-geprüft"><p>Finden Sie den günstigsten Stromtarif für Ihren Haushalt.</p></body></html>`;
   log('⚡ Demo-Modus — keine echten API-Aufrufe');
   await sleep(350);
   log('HTML abgerufen (48.3 KB)','ok');
@@ -1619,8 +1647,8 @@ async function startAnalysis(){
   if(timerInterval)clearInterval(timerInterval);
   timerInterval=setInterval(updateTimer,1000);
   document.getElementById('progress-timer').textContent='';
-  ['sqeg-results','perf-results','geo-results','kw-results','ux-results'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
-  ['sqeg-empty','perf-empty','geo-empty','kw-empty','ux-empty'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='block';});
+  ['sqeg-results','perf-results','geo-results','kw-results','ux-results','technical-results'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  ['sqeg-empty','perf-empty','geo-empty','kw-empty','ux-empty','technical-empty'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='block';});
   const uxBC2=document.getElementById('ux-body-card');if(uxBC2)uxBC2.style.display='none';
   setProgress(0,'Analyse startet…','Vorbereitung…');
   showView('overview');
@@ -2482,6 +2510,12 @@ function renderResults(keyword){
   }else{geoPanel.style.display='none';}
   renderClusterOverview();
   renderCriteriaTable(analysisResults,'all');
+  // Technical SEO — deterministisch, immer ausführbar wenn HTML vorhanden
+  if(currentHtml){
+    renderTechnicalSeo();
+    document.getElementById('technical-results').style.display='block';
+    document.getElementById('technical-empty').style.display='none';
+  }
   // Activate sub-views
   document.getElementById('progress-section').dataset.active='0';
   document.getElementById('results-section').style.display='block';
@@ -2513,6 +2547,212 @@ function renderResults(keyword){
   // Nach Analyse direkt zum SQEG-View
   showView('sqeg');
   generateExecSummary();
+}
+
+}
+
+// ═══════════════════════════════════════════════════════════
+// M2 — TECHNICAL SEO (deterministisch, kein KI-Call)
+// ═══════════════════════════════════════════════════════════
+function runTechnicalSeo(html, url, psi){
+  const doc = (() => {
+    try { return new DOMParser().parseFromString(html,'text/html'); } catch(e){ return null; }
+  })();
+
+  const checks = [];
+
+  // ── T1: Indexierbarkeit ────────────────────────────────
+  let noindex = false;
+  if(doc){
+    const robots = doc.querySelector('meta[name="robots"],meta[name="ROBOTS"]');
+    if(robots){ const c=(robots.getAttribute('content')||'').toLowerCase(); if(c.includes('noindex'))noindex=true; }
+    const xRobots = (html.match(/X-Robots-Tag[^:\n]*:[^\n]*/i)||[])[0]||'';
+    if(xRobots.toLowerCase().includes('noindex'))noindex=true;
+  }
+  checks.push({id:'T1',name:'Indexierbarkeit',status:noindex?'red':'green',
+    finding:noindex?'Seite ist durch noindex-Direktive von Google ausgeschlossen.':'Kein noindex gefunden — Seite ist indexierbar.',
+    detail:noindex?'robots-Meta oder X-Robots-Tag enthält "noindex". Google wird diese Seite nicht in die Suchergebnisse aufnehmen.':'',
+    fix:noindex?'<meta name="robots"> auf "index,follow" setzen oder das noindex-Attribut entfernen.':''});
+
+  // ── T2: Canonical URL ─────────────────────────────────
+  let canonical='', canonicalOk=false;
+  if(doc){ const c=doc.querySelector('link[rel="canonical"]'); if(c){ canonical=c.getAttribute('href')||''; canonicalOk=!!canonical; }}
+  checks.push({id:'T2',name:'Canonical URL',status:canonicalOk?'green':'amber',
+    finding:canonicalOk?`Canonical vorhanden: ${canonical.length>60?canonical.substring(0,60)+'…':canonical}`:'Kein <link rel="canonical"> gefunden.',
+    detail:canonicalOk?'Hilft Google bei Duplicate-Content-Fragen und konsolidiert Link-Equity.':'Ohne Canonical kann Google eine andere URL als bevorzugte Version wählen — besonders relevant bei URL-Parametern.',
+    fix:canonicalOk?'':` <link rel="canonical" href="${url||'[URL der Seite]'}"> im <head> ergänzen.`});
+
+  // ── T3: Title-Tag ─────────────────────────────────────
+  let title='', titleLen=0;
+  if(doc){ title=(doc.querySelector('title')?.textContent||'').trim(); titleLen=title.length; }
+  const titleStatus = !title?'red':titleLen<30||titleLen>60?'amber':'green';
+  checks.push({id:'T3',name:'Title-Tag',status:titleStatus,
+    finding:!title?'Kein <title>-Tag gefunden.':titleLen<30?`Title zu kurz (${titleLen} Zeichen): "${title}"`:titleLen>60?`Title zu lang (${titleLen} Zeichen, Empfehlung max. 60): "${title.substring(0,60)}…"`:`Title ok (${titleLen} Zeichen): "${title}"`,
+    detail:titleLen>60?'Google schneidet Titles über ~60 Zeichen in der SERP ab.':titleLen<30?'Sehr kurzer Title ist wenig informativ und für Nutzer kaum scanbar.':'',
+    fix:!title?'<title>Keyword · Marke</title> im <head> ergänzen.':titleLen>60?'Title auf max. 60 Zeichen kürzen — Keyword möglichst vorn platzieren.':titleLen<30?'Title ausführlicher gestalten (30–60 Zeichen, Keyword + Marke).':''});
+
+  // ── T4: Meta-Description ─────────────────────────────
+  let desc='', descLen=0;
+  if(doc){ desc=(doc.querySelector('meta[name="description"],meta[name="Description"]')?.getAttribute('content')||'').trim(); descLen=desc.length; }
+  const descStatus = !desc?'red':descLen<80||descLen>155?'amber':'green';
+  checks.push({id:'T4',name:'Meta-Description',status:descStatus,
+    finding:!desc?'Keine <meta name="description"> gefunden.':descLen<80?`Description zu kurz (${descLen} Zeichen).`:descLen>155?`Description zu lang (${descLen} Zeichen, wird bei ~155 abgeschnitten).`:`Description ok (${descLen} Zeichen).`,
+    detail:!desc?'Google generiert dann automatisch ein Snippet — meistens unoptimiert.':descLen>155?'Alles über ~155 Zeichen wird in der SERP abgeschnitten und nie angezeigt.':'',
+    fix:!desc?'<meta name="description" content="…"> mit 120–155 Zeichen ergänzen.':descLen>155?`Auf max. 155 Zeichen kürzen. Aktuell: "${desc.substring(0,60)}…"`:''});
+
+  // ── T5: H1-Tag ───────────────────────────────────────
+  let h1s=[];
+  if(doc){ h1s=Array.from(doc.querySelectorAll('h1')).map(h=>h.textContent.trim()).filter(Boolean); }
+  const h1Status = h1s.length===0?'red':h1s.length>1?'amber':'green';
+  checks.push({id:'T5',name:'H1-Überschrift',status:h1Status,
+    finding:h1s.length===0?'Kein <h1>-Tag auf der Seite.':h1s.length===1?`H1 vorhanden: "${h1s[0].length>80?h1s[0].substring(0,80)+'…':h1s[0]}"`:h1s.length+` H1-Tags gefunden (sollte genau 1 sein): "${h1s[0].length>50?h1s[0].substring(0,50)+'…':h1s[0]}"…`,
+    detail:h1s.length===0?'Die H1 ist das wichtigste On-Page-Keyword-Signal nach dem Title-Tag.':h1s.length>1?'Mehrere H1-Tags verwässern das Keyword-Signal. Google kann selbst entscheiden, welches die "echte" H1 ist.':'',
+    fix:h1s.length===0?'<h1>Keyword-relevante Hauptüberschrift</h1> ergänzen.':h1s.length>1?`Nur eine H1 behalten, restliche zu H2/H3 herabstufen.`:''});
+
+  // ── T6: Bilder ohne Alt-Text ─────────────────────────
+  let imgTotal=0, imgMissingAlt=0, imgExamples=[];
+  if(doc){
+    const imgs=Array.from(doc.querySelectorAll('img'));
+    imgTotal=imgs.length;
+    imgs.forEach(img=>{
+      const alt=img.getAttribute('alt');
+      const src=(img.getAttribute('src')||'');
+      if(alt===null||alt.trim()===''){
+        imgMissingAlt++;
+        if(imgExamples.length<3&&src){ const short=src.split('/').pop().split('?')[0]; if(short.length>2)imgExamples.push(short); }
+      }
+    });
+  }
+  const altStatus = imgTotal===0?'green':imgMissingAlt===0?'green':imgMissingAlt<=2?'amber':'red';
+  checks.push({id:'T6',name:'Bild Alt-Texte',status:altStatus,
+    finding:imgTotal===0?'Keine Bilder auf der Seite.':imgMissingAlt===0?`Alle ${imgTotal} Bilder haben Alt-Text.`:imgMissingAlt===1?`1 von ${imgTotal} Bildern ohne Alt-Text.`:`${imgMissingAlt} von ${imgTotal} Bildern ohne Alt-Text.`,
+    detail:imgMissingAlt>0?`Alt-Texte fehlen bei: ${imgExamples.length?imgExamples.join(', '):'(keine src ermittelbar)'}. Relevant für Bild-SEO und Barrierefreiheit.`:'',
+    fix:imgMissingAlt>0?'alt="Beschreibung des Bildinhalts" bei jedem inhaltlichen Bild ergänzen. Dekorative Bilder: alt=""':''});
+
+  // ── T7: Open Graph Tags ──────────────────────────────
+  let ogTitle='', ogDesc='', ogImage='';
+  if(doc){
+    ogTitle=(doc.querySelector('meta[property="og:title"]')?.getAttribute('content')||'').trim();
+    ogDesc=(doc.querySelector('meta[property="og:description"]')?.getAttribute('content')||'').trim();
+    ogImage=(doc.querySelector('meta[property="og:image"]')?.getAttribute('content')||'').trim();
+  }
+  const ogCount=[ogTitle,ogDesc,ogImage].filter(Boolean).length;
+  const ogStatus = ogCount===3?'green':ogCount>=1?'amber':'amber';
+  checks.push({id:'T7',name:'Open Graph Tags',status:ogStatus,
+    finding:ogCount===3?'og:title, og:description und og:image vorhanden.':ogCount===0?'Keine Open Graph Tags gefunden (og:title, og:description, og:image).':`Nur ${ogCount}/3 OG-Tags vorhanden (${[ogTitle?'og:title':'',ogDesc?'og:description':'',ogImage?'og:image':''].filter(Boolean).join(', ')}).`,
+    detail:ogCount<3?'Open Graph Tags steuern die Vorschau beim Teilen in sozialen Medien und Messaging-Apps. Kein Einfluss auf Google-Ranking.':'',
+    fix:ogCount<3?`Fehlende Tags ergänzen:${!ogTitle?' <meta property="og:title" content="…">':''}${!ogDesc?' <meta property="og:description" content="…">':''}${!ogImage?' <meta property="og:image" content="[absoluter URL]">':''}`:''});
+
+  // ── T8: URL-Struktur ──────────────────────────────────
+  let urlOk=true, urlIssue='';
+  try{
+    const u=new URL(url||'https://example.com/');
+    const path=u.pathname;
+    const params=[...u.searchParams.keys()];
+    const hasId=/\/[a-f0-9]{20,}|\/\d{6,}/.test(path);
+    const hasCryptic=/[?&](sid|session|tok|hash|id)=/i.test(u.search);
+    if(hasId||hasCryptic){urlOk=false;urlIssue='URL enthält kryptische IDs oder Session-Parameter.';}
+    else if(params.length>3){urlOk=false;urlIssue=`URL hat ${params.length} Query-Parameter — könnte Duplicate Content erzeugen.`;}
+    else if(path.split('/').some(s=>s.length>60)){urlOk=false;urlIssue='Ein URL-Segment ist sehr lang (>60 Zeichen).';}
+  }catch(e){urlOk=false;urlIssue='URL konnte nicht geparst werden.';}
+  checks.push({id:'T8',name:'URL-Struktur',status:urlOk?'green':'amber',
+    finding:urlOk?`URL ist sauber und beschreibend: ${(url||'').length>70?(url||'').substring(0,70)+'…':url||''}`:urlIssue,
+    detail:urlOk?'':'Nutzer können anhand der URL nicht den Seiteninhalt ableiten.',
+    fix:urlOk?'':'Sprechende URL-Segmente verwenden, Session-Parameter serverseitig verarbeiten.'});
+
+  // ── T9: HTTPS ─────────────────────────────────────────
+  const isHttps=(url||'').startsWith('https://');
+  checks.push({id:'T9',name:'HTTPS',status:isHttps?'green':'red',
+    finding:isHttps?'Seite wird über HTTPS ausgeliefert.':'Seite läuft über HTTP — keine verschlüsselte Verbindung.',
+    detail:isHttps?'':'Google nutzt HTTPS als leichtes Ranking-Signal. Browser kennzeichnen HTTP-Seiten als "nicht sicher".',
+    fix:isHttps?'':'SSL-Zertifikat einrichten und HTTP→HTTPS-Weiterleitung aktivieren.'});
+
+  // ── T10: Core Web Vitals (aus PageSpeed) ─────────────
+  if(psi?.success){
+    const lcp=parseFloat(psi.lcp)||0;
+    const cls=parseFloat(psi.cls)||0;
+    const tbt=parseFloat(psi.tbt)||0;
+    const lcpStatus=lcp<=2.5?'green':lcp<=4?'amber':'red';
+    const clsStatus=cls<=0.1?'green':cls<=0.25?'amber':'red';
+    const tbtStatus=tbt<=200?'green':tbt<=600?'amber':'red';
+    const overallCwv=[lcpStatus,clsStatus,tbtStatus];
+    const cwvStatus=overallCwv.includes('red')?'red':overallCwv.includes('amber')?'amber':'green';
+    checks.push({id:'T10',name:'Core Web Vitals (Mobile)',status:cwvStatus,
+      finding:`LCP: ${psi.lcp} · CLS: ${psi.cls} · TBT: ${psi.tbt} · PageSpeed-Score: ${psi.perf_score}/100`,
+      detail:cwvStatus!=='green'?`${lcp>2.5?'LCP über 2,5s (langsamer Largest Contentful Paint). ':''}`+`${cls>0.1?'CLS über 0,1 (Layout-Verschiebungen sichtbar). ':''}`+`${tbt>200?'TBT über 200ms (Hauptthread blockiert). ':''}`.trim():'',
+      fix:cwvStatus!=='green'?'PageSpeed Insights für konkrete Optimierungshinweise nutzen (https://pagespeed.web.dev/).':''});
+    const mobileScore=psi.perf_score||0;
+    checks.push({id:'T11',name:'Mobile PageSpeed-Score',status:mobileScore>=90?'green':mobileScore>=50?'amber':'red',
+      finding:`Mobile Score: ${mobileScore}/100 — ${mobileScore>=90?'Sehr gut':mobileScore>=50?'Verbesserungsbedarf':'Kritisch'}`,
+      detail:'',fix:mobileScore<90?'Bilder komprimieren (WebP), Render-blocking JS/CSS vermeiden, Server-Response-Time reduzieren.':''});
+  }
+
+  return checks;
+}
+
+function renderTechnicalSeo(){
+  const checks = runTechnicalSeo(currentHtml, currentUrl, psiData);
+  const el = document.getElementById('technical-panel-content');
+  if(!el) return;
+
+  const g=checks.filter(c=>c.status==='green').length;
+  const a=checks.filter(c=>c.status==='amber').length;
+  const r=checks.filter(c=>c.status==='red').length;
+  const total=checks.length;
+  const score=Math.round((g*100+a*50)/total);
+
+  const colorMap={green:'var(--green)',amber:'var(--amber)',red:'var(--red)'};
+  const iconMap={green:'✓',amber:'◑',red:'✗'};
+  const bgMap={green:'var(--green-bg)',amber:'var(--amber-bg)',red:'var(--red-bg)'};
+  const borderMap={green:'var(--green-border)',amber:'var(--amber-border)',red:'var(--red-border)'};
+
+  let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+    <div style="display:flex;align-items:center;gap:16px">
+      <div style="font-size:36px;font-weight:700;line-height:1;color:${score>=70?'var(--green)':score>=45?'var(--amber)':'var(--red)'}">${score}%</div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${score>=70?'Technisch solide':score>=45?'Verbesserungsbedarf':'Kritische Probleme'}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">${total} Prüfpunkte · Quelle: Google SEO Starter Guide</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;border:1px solid var(--green-border);background:var(--green-bg);font-size:11px;font-weight:600;color:var(--green)">✓ ${g}</span>
+      <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;border:1px solid var(--amber-border);background:var(--amber-bg);font-size:11px;font-weight:600;color:var(--amber)">◑ ${a}</span>
+      <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;border:1px solid var(--red-border);background:var(--red-bg);font-size:11px;font-weight:600;color:var(--red)">✗ ${r}</span>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:0">`;
+
+  checks.forEach((c,i)=>{
+    const isLast = i===checks.length-1;
+    html += `<div style="display:flex;align-items:flex-start;gap:14px;padding:14px 0;${isLast?'':'border-bottom:1px solid var(--border)'}">
+      <div style="width:28px;height:28px;border-radius:50%;background:${bgMap[c.status]};border:1px solid ${borderMap[c.status]};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:${colorMap[c.status]};flex-shrink:0;margin-top:1px">${iconMap[c.status]}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+          <span style="font-size:10px;font-weight:600;color:var(--text3);font-family:'Geist Mono','Courier New',monospace">${c.id}</span>
+          <span style="font-size:13px;font-weight:600;color:var(--text)">${c.name}</span>
+        </div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.5">${escHtml(c.finding)}</div>
+        ${c.detail?`<div style="font-size:11px;color:var(--text3);margin-top:4px;line-height:1.4">${escHtml(c.detail)}</div>`:''}
+        ${c.fix?`<div style="font-size:11px;color:var(--accent);margin-top:5px;padding:4px 8px;background:var(--accent-bg);border-radius:var(--radius-sm);border:1px solid var(--accent-border);line-height:1.4"><strong>Fix:</strong> ${escHtml(c.fix)}</div>`:''}
+      </div>
+    </div>`;
+  });
+
+  html += '</div>';
+  el.innerHTML = html;
+
+  // Update module card + nav score
+  const techScore = score;
+  const mcEl=document.getElementById('mc-technical-score');
+  const navEl=document.getElementById('nav-score-technical');
+  const mcBar=document.getElementById('mc-technical-bar');
+  const mcLabel=document.getElementById('mc-technical-label');
+  const mcCard=document.getElementById('mc-technical');
+  if(mcEl){mcEl.textContent=techScore+'%';mcEl.className='module-card-score '+(techScore>=70?'green':techScore>=45?'amber':'red');}
+  if(navEl){navEl.textContent=techScore+'%';navEl.style.display='';}
+  if(mcBar){mcBar.style.width=techScore+'%';mcBar.className='module-card-bar '+(techScore>=70?'green':techScore>=45?'amber':'red');}
+  if(mcLabel)mcLabel.textContent=techScore>=70?'Technisch solide':techScore>=45?'Optimierungsbedarf':'Kritische Probleme';
+  if(mcCard){mcCard.classList.remove('mc-green','mc-amber','mc-red');mcCard.classList.add(techScore>=70?'mc-green':techScore>=45?'mc-amber':'mc-red');}
 }
 
 function renderKeywordFit(){
