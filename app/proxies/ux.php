@@ -96,7 +96,7 @@ function runUxChecks(string $html, string $url, string $device, array $psi): arr
     $u1Status  = $h1Count === 1 && $wordCount >= 20 ? 'green' : ($h1Count > 0 ? 'amber' : 'red');
     $checks[]  = [
         'id'=>'U1','name'=>'Above-the-Fold & Nutzenversprechen','status'=>$u1Status,
-        'finding'=>$h1Count===0?'Kein H1-Tag — Nutzenversprechen nicht erkennbar.':($h1Count>1?$h1Count.' H1-Tags — Hauptversprechen unklar.':'H1 vorhanden'.($h1Text?': "'.mb_substr($h1Text,0,60).(mb_strlen($h1Text)>60?'…':'').'"':'').($wordCount>=20?' · Inhalt above the fold erkannt.'>' · Wenig sichtbarer Text.')),
+        'finding'=>$h1Count===0?'Kein H1-Tag — Nutzenversprechen nicht erkennbar.':($h1Count>1?$h1Count.' H1-Tags — Hauptversprechen unklar.':'H1 vorhanden'.($h1Text?': "'.mb_substr($h1Text,0,60).(mb_strlen($h1Text)>60?'…':'').'"':'').($wordCount>=20?' · Inhalt above the fold erkannt.':' · Wenig sichtbarer Text.')),
         'detail'=>$u1Status!=='green'?'Besucher entscheiden in 3 Sek. ob sie bleiben. Headline + Subline + visuelles Element müssen sofort sichtbar sein.':'',
         'fix'=>$h1Count===0?'H1-Headline mit klarem Nutzenversprechen ergänzen.':($wordCount<20?'Mehr Inhalt above the fold bringen — Hero-Text und Subline ergänzen.':''),
     ];
