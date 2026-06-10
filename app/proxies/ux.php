@@ -243,13 +243,13 @@ if($action==='analyze'){
     if(!in_array($scheme,['http','https'],true)){echo json_encode(['success'=>false,'error'=>'Nur HTTP/HTTPS erlaubt']);exit;}
     $width=$device==='mobile'?375:1280;$height=$device==='mobile'?812:900;
     $screenshotBase64=takeScreenshot($url,$width,$height);
-    if(!$screenshotBase64){echo json_encode(['success'=>false,'error'=>'Screenshot fehlgeschlagen']);exit;}
+    // Screenshot optional — Analyse läuft auch ohne
     $checks=runUxChecks($html,$url,$device,$psi);
     $scoreMap=['green'=>100,'amber'=>50,'red'=>0];
     $total=count($checks);$sum=array_sum(array_map(fn($c)=>$scoreMap[$c['status']]??0,$checks));
     $score=$total>0?(int)round($sum/$total):0;
-    $comment=getLlmComment($screenshotBase64,$url,$device,$checks);
-    echo json_encode(['success'=>true,'device'=>$device,'score'=>$score,'comment'=>$comment,'checks'=>$checks,'screenshot_base64'=>$screenshotBase64]);
+    $comment=$screenshotBase64?getLlmComment($screenshotBase64,$url,$device,$checks):'';
+    echo json_encode(['success'=>true,'device'=>$device,'score'=>$score,'comment'=>$comment,'checks'=>$checks,'screenshot_base64'=>$screenshotBase64??null]);
     exit;
 }
 
