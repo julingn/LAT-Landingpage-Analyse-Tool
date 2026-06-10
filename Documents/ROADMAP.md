@@ -145,20 +145,22 @@ app/
 
 ---
 
-## Phase 4 — M5: UX/CRO-Modul ✅
+## Phase 4 — M5: UX/CRO-Modul ✅ (v1, wird ersetzt durch v2)
 
 > **Implementiert:** 09.06.2026  
 > **Entscheidung:** Headless Chromium direkt im Railway-Container (kein externer Dienst)
+> **Status:** Vollständig implementiert — aber Konzept überarbeitet (siehe Phase 5)
 
 ### Schritt 4.1 — Screenshot-Integration ✅
 - Chromium in Alpine Dockerfile installiert (`apk add chromium nss freetype harfbuzz ttf-freefont`)
 - `app/proxies/ux.php`: Screenshot via `chromium --headless=new --screenshot` → Base64 PNG
 - Fallback auf verschiedene Chromium-Pfade (`/usr/bin/chromium`, `/usr/bin/chromium-browser`, etc.)
 
-### Schritt 4.2 — UX-Analyse-Prompt ✅
+### Schritt 4.2 — UX-Analyse-Prompt ✅ (v1 — wird durch deterministischen Ansatz ersetzt)
 - Vision-LLM: Anthropic Claude (Standard) oder OpenAI GPT-4o — nutzt konfigurierten `AI_PROVIDER`
 - Bewertet 5 Kriterien: Value Proposition · CTA · Trust-Signale · Visuelle Hierarchie · Above-the-Fold
 - Output: Score 0–100 + Level + 5 Findings (rating: green/amber/red + Befund + Empfehlung) + Sub-Scores
+- **Problem:** Reiner LLM-Score ist nicht reproduzierbar — gleiche Seite ergibt unterschiedliche Scores
 
 ### Schritt 4.3 — UX-View in Dashboard ✅
 - `#view-ux`: Score-Hero (Chips ✓/◑/✗) + Screenshot-Panel + Findings-Karten + Gesamtbewertung
@@ -166,6 +168,77 @@ app/
 - Modul-Kachel `#mc-ux` in Übersicht
 - Analyse läuft **async** parallel zu SQEG-Calls — Loading-State im View
 - Demo-Daten für alle 5 Kriterien (kein echter Screenshot im Demo-Modus)
+
+---
+
+## Phase 5 — M5 UX/CRO v2: Deterministisch + Device-Split
+
+> **Konzept:** 10.06.2026  
+> **Ziel:** Reproduzierbare Scores durch HTML-Parsing. LLM nur für Kommentartext, nicht für Score.  
+> **Grundlage:** UX-Leitfaden für Landingpages (5 Kernbereiche: Above-the-Fold, Benutzerführung, CTA, Trust, Performance)
+
+### Architektur-Entscheidungen
+
+| Entscheidung | Wert |
+|---|---|
+| Score-Quelle | **Deterministisch** — HTML-Parsing + PSI-Daten |
+| LLM-Rolle | **Nur Kommentartext** — beeinflusst Score nicht |
+| Screenshot-Rolle | Visuelle Vorschau + Input für Vision-LLM-Kommentar |
+| Device-Split | **Desktop + Mobile** — separate Scores + separate LLM-Kommentare |
+| Vision-Calls | 2× (1× Desktop-Screenshot, 1× Mobile-Screenshot) |
+
+### 5 Kriterien (U1–U5)
+
+| ID | Kriterium | Deterministische Signale | LLM-Kommentar |
+|---|---|---|---|
+| U1 | Above-the-Fold & Nutzenversprechen | H1 vorhanden · Hero-Image vorhanden · Wörter im `<body>`-Anfang (Heuristik) | Ja — Vision |
+| U2 | Ablenkungsfreiheit & Benutzerführung | Anzahl `<nav>`-Links · externe Header-Links · Hauptnavigation vorhanden? | Ja — Vision |
+| U3 | Call-to-Action | `<button>`/`<a>`-Count mit CTA-Keywords (jetzt, sichern, kaufen, wechseln, starten…) · Touch-Target-Heuristik | Ja — Vision |
+| U4 | Trust & Social Proof | Schema.org `AggregateRating` · Trust-Keywords (Bewertung, Zertifikat, TÜV, Siegel, Testimonial…) · Partner-Logos (`<img alt>`) | Ja — Vision |
+| U5 | Mobile & Performance | PSI Mobile Score · PSI Desktop Score · LCP · CLS · TBT (aus `psiData` + neuem Desktop-PSI-Call) | Nein — rein deterministisch |
+
+### Score-Berechnung
+
+```
+Score pro Device = Durchschnitt(U1–U5) wobei: grün=100, amber=50, rot=0
+Gesamtscore = (Desktop-Score + Mobile-Score) / 2
+```
+
+### Datenquellen-Stack
+
+| Quelle | Zweck | Neu? |
+|---|---|---|
+| HTML-Parsing (bestehend) | U1–U4 deterministische Checks | Nein |
+| PSI Mobile (bestehend) | U5 Mobile Performance | Nein |
+| PSI Desktop | U5 Desktop Performance | **Ja** — zweiter PSI-Call mit `strategy=desktop` |
+| Screenshot 1280px | Desktop-Vorschau + Vision-Input | Viewport-Änderung nötig |
+| Screenshot 375px | Mobile-Vorschau + Vision-Input | Neu |
+| Vision-LLM ×2 | Kommentartext Desktop + Mobile | Ja (2 statt 1 Call) |
+
+### UI-Konzept
+
+```
+[Desktop] [Mobile]   ← Tabs im #view-ux
+────────────────────────────────────
+Score: 74%   Gut
+[U1 ✓] [U2 ◑] [U3 ✓] [U4 ◑] [U5 ✗]
+
+U1 — Above-the-Fold           ✓ grün
+  Befund: H1 vorhanden, Hero-Image erkannt...
+  LLM: "Der Nutzen ist klar kommuniziert, jedoch..."
+
+U2 — Ablenkungsfreiheit        ◑ amber
+  ...
+
+Screenshot: [Desktop 1280px Vorschau]
+```
+
+### Offene Implementierungsfragen
+
+| # | Frage |
+|---|---|
+| OE-4 | `ux.php`: Ein Proxy-Call der beide Screenshots + beide PSI-Calls zurückgibt, oder zwei separate Calls? |
+| OE-5 | Demo-Modus: Synthetische deterministische Befunde für beide Devices — ähnlich wie in M2 |
 
 ---
 
@@ -183,6 +256,8 @@ app/
 
 | Datum | Version | Änderung |
 |---|---|---|
+| 10.06.2026 | v3.4 | M2 Technical SEO Modul (deterministisch, 11 Checks, HTML-Parsing) — `107f4d8` |
+| 10.06.2026 | v3.4 | Phase 5 Konzept: M5 UX/CRO v2 — deterministisch + Device-Split (Desktop/Mobile) — Konzept dokumentiert, noch nicht implementiert |
 | 09.06.2026 | v3.3 | Phase 4: M5 UX/CRO-Modul — Headless Chromium, Vision-LLM, `#view-ux`, Modul-Kachel, Nav-Item, `app/proxies/ux.php` — (aktueller Commit) |
 | 09.06.2026 | v3.2 | UX-Überarbeitung SQEG: Detailanalyse eingeklappt by default (Toggle-Button), Exec Summary 2+1 Layout (Gesamtbewertung+Probleme oben, Schritte volle Breite) — `f210d5d` |
 | 09.06.2026 | v3.2 | Cluster-Übersicht: 1 Spalte, Kriterien aufklappbar pro Cluster, Bewertungstext score-abhängig — `cc9154e` |
