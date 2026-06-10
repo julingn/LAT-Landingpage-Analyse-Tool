@@ -1,16 +1,10 @@
 ﻿<?php
 /**
  * ux.php — UX/CRO Analyse Proxy (M5 v2)
- *
- * Deterministisch: Score aus HTML-Parsing + PSI-Daten
- * LLM: nur Kommentartext (beeinflusst Score nicht)
- * Device-Split: Desktop (1280px) + Mobile (375px)
- *
- * Actions:
- *   analyze  POST -> { url, html, device:'mobile'|'desktop', psi_data:{...}, csrf_token }
- *                 -> { success, device, score, checks:[{id,name,status,finding,detail,fix,comment}],
- *                     screenshot_base64 }
  */
+ini_set('display_errors', '0');
+error_reporting(0);
+ob_start(); // Stray output abfangen — kein HTML vor dem JSON
 
 session_start();
 if (empty($_SESSION['logged_in'])) {
@@ -227,26 +221,27 @@ if($action==='analyze'){
     session_start();
     $body=json_decode(file_get_contents('php://input'),true)??[];
     if(empty($body['csrf_token'])||$body['csrf_token']!==($_SESSION['csrf_token']??'')){
-        session_write_close();http_response_code(403);echo json_encode(['success'=>false,'error'=>'CSRF-Fehler']);exit;
+        session_write_close();http_response_code(403);ob_clean();echo json_encode(['success'=>false,'error'=>'CSRF-Fehler']);exit;
     }
     session_write_close();
     $url=trim($body['url']??'');$html=$body['html']??'';
     $device=in_array($body['device']??'',['mobile','desktop'])?$body['device']:'mobile';
     $psi=is_array($body['psi_data']??null)?$body['psi_data']:[];
-    if(!$url||!filter_var($url,FILTER_VALIDATE_URL)){echo json_encode(['success'=>false,'error'=>'Ungültige URL']);exit;}
+    if(!$url||!filter_var($url,FILTER_VALIDATE_URL)){ob_clean();echo json_encode(['success'=>false,'error'=>'Ungültige URL']);exit;}
     $scheme=strtolower(parse_url($url,PHP_URL_SCHEME)??'');
-    if(!in_array($scheme,['http','https'],true)){echo json_encode(['success'=>false,'error'=>'Nur HTTP/HTTPS erlaubt']);exit;}
+    if(!in_array($scheme,['http','https'],true)){ob_clean();echo json_encode(['success'=>false,'error'=>'Nur HTTP/HTTPS erlaubt']);exit;}
     $width=$device==='mobile'?375:1280;$height=$device==='mobile'?812:900;
-    $screenshotBase64 = null; // Screenshot deaktiviert (zu langsam auf Railway PHP CLI)
-    // Screenshot optional — Analyse läuft auch ohne
+    $screenshotBase64 = null; // Screenshot deaktiviert
     $checks=runUxChecks($html,$url,$device,$psi);
     $scoreMap=['green'=>100,'amber'=>50,'red'=>0];
     $total=count($checks);$sum=array_sum(array_map(fn($c)=>$scoreMap[$c['status']]??0,$checks));
     $score=$total>0?(int)round($sum/$total):0;
-    $comment=$screenshotBase64?getLlmComment($screenshotBase64,$url,$device,$checks):'';
-    echo json_encode(['success'=>true,'device'=>$device,'score'=>$score,'comment'=>$comment,'checks'=>$checks,'screenshot_base64'=>$screenshotBase64??null]);
+    $comment='';
+    ob_clean();
+    echo json_encode(['success'=>true,'device'=>$device,'score'=>$score,'comment'=>$comment,'checks'=>$checks,'screenshot_base64'=>null]);
     exit;
 }
 
 http_response_code(400);
+ob_clean();
 echo json_encode(['error'=>'Unbekannte Aktion: '.htmlspecialchars($action)]);
