@@ -5,6 +5,7 @@ if (empty($_SESSION['logged_in'])) {
     echo json_encode(['error' => 'Nicht authentifiziert']);
     exit;
 }
+session_write_close(); // Lock sofort freigeben
 
 header('Content-Type: application/json; charset=utf-8');
 
