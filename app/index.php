@@ -4,6 +4,8 @@ if (empty($_SESSION['logged_in'])) { header('Location: ../login.php'); exit; }
 if (empty($_SESSION['csrf_token'])) { $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); }
 $csrfToken = $_SESSION['csrf_token'];
 session_write_close(); // Session-Lock sofort freigeben (Proxies brauchen Zugriff)
+// UX-Auth-Token-File schreiben (umgeht PHP-Session-Probleme mit CLI-Multi-Worker)
+@file_put_contents(sys_get_temp_dir().'/lat_ux_'.hash('sha256',$csrfToken).'.tok','1');
 ?><!DOCTYPE html>
 <html lang="de">
 <head>

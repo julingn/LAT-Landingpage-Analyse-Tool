@@ -6,23 +6,32 @@ ini_set('display_errors', '0');
 error_reporting(0);
 set_time_limit(0); // screenshot + LLM-Kommentar können bis zu 60 s dauern
 
-session_start();
-if (empty($_SESSION['logged_in'])) {
-    http_response_code(401);
-    header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(['error' => 'Nicht authentifiziert']);
-    exit;
-}
-// CSRF-Token sofort sichern, dann Session schliessen (Lock freigeben)
-$_csrfToken = $_SESSION['csrf_token'] ?? '';
-session_write_close();
-
 header('Content-Type: application/json; charset=utf-8');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit; }
 
 require_once __DIR__ . '/../config.php';
 
 $action = $_GET['action'] ?? '';
+
+// ── Auth: Token-File-basiert (umgeht PHP-Session-Locking in CLI-Multi-Worker) ──
+// index.php schreibt beim Laden '/tmp/lat_ux_{sha256(csrfToken)}.tok'.
+// Wir lesen den Body schon hier, weil php://input nur einmal lesbar ist.
+$_rawInput  = file_get_contents('php://input');
+$_bodyAuth  = json_decode($_rawInput, true) ?? [];
+$_csrfToken = $_bodyAuth['csrf_token'] ?? '';
+$_authed    = false;
+if ($_csrfToken && strlen($_csrfToken) === 64) {
+    $_tokFile = sys_get_temp_dir() . '/lat_ux_' . hash('sha256', $_csrfToken) . '.tok';
+    if (file_exists($_tokFile)) {
+        $_authed = true;
+    }
+}
+if (!$_authed) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'error' => 'Nicht authentifiziert']);
+    exit;
+}
+
 
 function takeScreenshot(string $url, int $width, int $height): ?string {
     $tmpFile = '/tmp/ux_shot_' . bin2hex(random_bytes(8)) . '.png';
@@ -221,13 +230,11 @@ function getLlmComment(string $b64, string $url, string $device, array $checks):
 }
 
 if($action==='analyze'){
-    $body=json_decode(file_get_contents('php://input'),true)??[];
-    if(empty($body['csrf_token'])||$body['csrf_token']!==$_csrfToken){
-        http_response_code(403);echo json_encode(['success'=>false,'error'=>'CSRF-Fehler']);exit;
-    }
-    $url=trim($body['url']??'');
-    $device=in_array($body['device']??'',['mobile','desktop'])?$body['device']:'mobile';
-    $psi=is_array($body['psi_data']??null)?$body['psi_data']:[];
+    // Body bereits oben gelesen ($_rawInput / $_bodyAuth)
+    $body   = $_bodyAuth;
+    $url    = trim($body['url']??'');
+    $device = in_array($body['device']??'',['mobile','desktop'])?$body['device']:'mobile';
+    $psi    = is_array($body['psi_data']??null)?$body['psi_data']:[];
     if(!$url||!filter_var($url,FILTER_VALIDATE_URL)){echo json_encode(['success'=>false,'error'=>'Ungültige URL']);exit;}
     $scheme=strtolower(parse_url($url,PHP_URL_SCHEME)??'');
     if(!in_array($scheme,['http','https'],true)){echo json_encode(['success'=>false,'error'=>'Nur HTTP/HTTPS erlaubt']);exit;}
