@@ -103,16 +103,29 @@ function runUxChecks(string $html, string $url, string $device, array $psi): arr
     ];
 
     // U2: Ablenkungsfreiheit & Benutzerführung
+    // Nur Top-Level-Nav-Items zählen (nav > ul > li), nicht rekursiv alle Links
+    // — verhindert Fehlzählung bei Mega-Menus mit Hunderten von Sub-Links
     $navLinkCount = 0; $hasMainNav = false;
     if ($doc) {
-        foreach ($doc->getElementsByTagName('nav') as $nav) {
-            $l = $nav->getElementsByTagName('a')->length;
-            $navLinkCount += $l;
-            if ($l >= 3) $hasMainNav = true;
-        }
-        foreach ($doc->getElementsByTagName('header') as $h) {
-            $l = $h->getElementsByTagName('a')->length;
-            if ($l >= 4) { $hasMainNav = true; $navLinkCount = max($navLinkCount, $l); }
+        $xpath = new DOMXPath($doc);
+        // Primär: direkte li-Kinder von ul/ol die direkt in nav hängen
+        $topItems = $xpath->query('//nav/ul/li | //nav/ol/li');
+        if ($topItems && $topItems->length >= 2) {
+            $navLinkCount = $topItems->length;
+            $hasMainNav   = true;
+        } else {
+            // Fallback: direkte <a>-Kinder von nav
+            $directAs = $xpath->query('//nav/a');
+            if ($directAs && $directAs->length >= 2) {
+                $navLinkCount = $directAs->length;
+                $hasMainNav   = true;
+            } else {
+                // Letzter Fallback: Header-Links (Logo + Util-Nav)
+                foreach ($doc->getElementsByTagName('header') as $h) {
+                    $l = $h->getElementsByTagName('a')->length;
+                    if ($l >= 4) { $hasMainNav = true; $navLinkCount = max($navLinkCount, $l); }
+                }
+            }
         }
     }
     $u2Status = !$hasMainNav?'green':($navLinkCount<=5?'amber':'red');
