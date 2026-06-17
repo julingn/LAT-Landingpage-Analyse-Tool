@@ -1321,9 +1321,12 @@ function showView(name){
   document.getElementById('view-title').textContent=meta.title;
   document.getElementById('view-subtitle').textContent=meta.sub;
   if(name==='overview'){
-    // Progress-Section nur zeigen wenn Analyse läuft
+    // Progress-Section zeigen wenn Analyse läuft ODER Log-Inhalt vorhanden
     const ps=document.getElementById('progress-section');
-    if(ps)ps.style.display=ps.dataset.active==='1'?'block':'none';
+    if(ps){
+      const hasLog=document.getElementById('log-box')?.innerHTML?.trim();
+      ps.style.display=(ps.dataset.active==='1'||hasLog)?'block':'none';
+    }
   }
   if(name==='settings'){loadCredentialStatus();loadGscDomains();}
 }
@@ -1652,6 +1655,7 @@ async function startDemo(){
   document.getElementById('progress-label').textContent='Demo abgeschlossen';
   document.getElementById('results-section').style.display='block';
   document.getElementById('log-wrap').classList.add('collapsed');
+  document.getElementById('progress-section').style.display='block';
   document.getElementById('btn-start').disabled=false;
   document.getElementById('btn-demo').disabled=false;
 }
@@ -1850,6 +1854,7 @@ async function startAnalysis(){
       document.getElementById('progress-label').textContent='Analyse abgeschlossen';
       document.getElementById('results-section').style.display='block';
       document.getElementById('log-wrap').classList.add('collapsed');
+      document.getElementById('progress-section').style.display='block';
     },600);
   }catch(err){
     if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
