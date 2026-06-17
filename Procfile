@@ -1,1 +1,1 @@
-web: php -S 0.0.0.0:$PORT -t .
+web: PHP_CLI_SERVER_WORKERS=4 php -S 0.0.0.0:$PORT -t . router.php
