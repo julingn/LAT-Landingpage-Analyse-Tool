@@ -1911,9 +1911,7 @@ async function fetchKeywordData(keywords){
 }
 async function fetchUxData(url, device, psiPayload){
   try{
-    // HTML auf 150KB begrenzen — DOMDocument braucht nicht mehr
-    const htmlSnippet=(currentHtml||'').substring(0,150000);
-    const body={url, device, html:htmlSnippet, psi_data:psiPayload||null, csrf_token:CSRF_TOKEN};
+    const body={url, device, psi_data:psiPayload||null, csrf_token:CSRF_TOKEN};
     const res=await fetch('ux.php?action=analyze',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify(body)});
     if(!res.ok){
       const txt=await res.text().catch(()=>'');

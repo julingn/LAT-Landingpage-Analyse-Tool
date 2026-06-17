@@ -225,12 +225,27 @@ if($action==='analyze'){
     if(empty($body['csrf_token'])||$body['csrf_token']!==$_csrfToken){
         http_response_code(403);echo json_encode(['success'=>false,'error'=>'CSRF-Fehler']);exit;
     }
-    $url=trim($body['url']??'');$html=$body['html']??'';
+    $url=trim($body['url']??'');
     $device=in_array($body['device']??'',['mobile','desktop'])?$body['device']:'mobile';
     $psi=is_array($body['psi_data']??null)?$body['psi_data']:[];
     if(!$url||!filter_var($url,FILTER_VALIDATE_URL)){echo json_encode(['success'=>false,'error'=>'Ungültige URL']);exit;}
     $scheme=strtolower(parse_url($url,PHP_URL_SCHEME)??'');
     if(!in_array($scheme,['http','https'],true)){echo json_encode(['success'=>false,'error'=>'Nur HTTP/HTTPS erlaubt']);exit;}
+    // HTML serverseitig abrufen (kein 150 KB Body vom Browser)
+    $html = '';
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_MAXREDIRS      => 5,
+        CURLOPT_TIMEOUT        => 20,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_USERAGENT      => 'Mozilla/5.0 (compatible; LAT/1.0)',
+        CURLOPT_HTTPHEADER     => ['Accept-Language: de-DE,de;q=0.9'],
+    ]);
+    $fetched = curl_exec($ch);
+    curl_close($ch);
+    if ($fetched !== false) $html = $fetched;
     $width  = $device === 'mobile' ? 375 : 1280;
     $height = $device === 'mobile' ? 812 : 900;
     $screenshotBase64 = takeScreenshot($url, $width, $height);
