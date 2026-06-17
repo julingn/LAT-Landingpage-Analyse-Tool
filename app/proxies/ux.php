@@ -4,6 +4,7 @@
  */
 ini_set('display_errors', '0');
 error_reporting(0);
+set_time_limit(0); // screenshot + LLM-Kommentar können bis zu 60 s dauern
 
 session_start();
 if (empty($_SESSION['logged_in'])) {
@@ -230,12 +231,15 @@ if($action==='analyze'){
     if(!$url||!filter_var($url,FILTER_VALIDATE_URL)){echo json_encode(['success'=>false,'error'=>'Ungültige URL']);exit;}
     $scheme=strtolower(parse_url($url,PHP_URL_SCHEME)??'');
     if(!in_array($scheme,['http','https'],true)){echo json_encode(['success'=>false,'error'=>'Nur HTTP/HTTPS erlaubt']);exit;}
-    $screenshotBase64 = null; // Screenshot deaktiviert
+    $width  = $device === 'mobile' ? 375 : 1280;
+    $height = $device === 'mobile' ? 812 : 900;
+    $screenshotBase64 = takeScreenshot($url, $width, $height);
     $checks=runUxChecks($html,$url,$device,$psi);
     $scoreMap=['green'=>100,'amber'=>50,'red'=>0];
     $total=count($checks);$sum=array_sum(array_map(fn($c)=>$scoreMap[$c['status']]??0,$checks));
     $score=$total>0?(int)round($sum/$total):0;
-    echo json_encode(['success'=>true,'device'=>$device,'score'=>$score,'comment'=>'','checks'=>$checks,'screenshot_base64'=>null]);
+    $comment = $screenshotBase64 ? getLlmComment($screenshotBase64, $url, $device, $checks) : '';
+    echo json_encode(['success'=>true,'device'=>$device,'score'=>$score,'comment'=>$comment,'checks'=>$checks,'screenshot_base64'=>$screenshotBase64]);
     exit;
 }
 

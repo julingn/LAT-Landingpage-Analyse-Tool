@@ -15,7 +15,9 @@ import puppeteer from 'puppeteer-core';
 import { existsSync } from 'fs';
 import { writeFileSync } from 'fs';
 
-const [,, url, outFile] = process.argv;
+const [,, url, outFile, widthArg, heightArg] = process.argv;
+const vpWidth  = parseInt(widthArg,  10) || 1280;
+const vpHeight = parseInt(heightArg, 10) || 900;
 
 if (!url || !outFile) {
   process.stderr.write('Usage: node screenshot.mjs <url> <output.png>\n');
@@ -141,14 +143,14 @@ async function dismissCookieBanner(page) {
         '--disable-gpu',
         '--disable-extensions',
         '--disable-software-rasterizer',
-        '--window-size=1280,900',
+        `--window-size=${vpWidth},${vpHeight}`,
         '--lang=de-DE,de',
         '--disable-features=TranslateUI',
       ],
     });
 
     const page = await browser.newPage();
-    await page.setViewport({ width: 1280, height: 900 });
+    await page.setViewport({ width: vpWidth, height: vpHeight });
     // Deutsche Sprache simulieren — hilft bei Cookie-Bannern die Sprache erkennen
     await page.setExtraHTTPHeaders({ 'Accept-Language': 'de-DE,de;q=0.9' });
 

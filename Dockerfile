@@ -19,6 +19,7 @@ RUN apk add --no-cache \
 ENV CHROMIUM_PATH=/usr/bin/chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+ENV PHP_CLI_SERVER_WORKERS=4
 
 WORKDIR /app
 COPY package*.json ./

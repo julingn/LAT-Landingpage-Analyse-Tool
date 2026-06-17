@@ -1863,6 +1863,7 @@ async function startAnalysis(){
 // === API HELPER ===
 async function callApi(messages,systemPrompt,maxTokens=2000){
   const res=await fetch('api.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages,system:systemPrompt,max_tokens:maxTokens})});
+  if(!res.ok){const txt=await res.text().catch(()=>'');throw new Error('HTTP '+res.status+(txt?' — '+txt.substring(0,120):''));}
   const data=await res.json();
   if(data.error)throw new Error(typeof data.error==='object'?data.error.message:data.error);
   return data.content?.[0]?.text??'';
