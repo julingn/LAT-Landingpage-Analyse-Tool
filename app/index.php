@@ -3223,9 +3223,9 @@ function renderTechnicalSeo(){
         +`<div class="cluster-card-name">${escHtml(cl.name)}</div>`
         +`<div style="font-size:11px;color:var(--text3);margin-top:3px;margin-bottom:6px;font-style:italic;line-height:1.4">${escHtml(hint)}</div>`
         +`<div style="display:flex;gap:10px;font-size:12px">`
-        +`<span style="color:var(--green)">${cg} ✓</span>`
-        +`<span style="color:var(--amber)">${ca} ◑</span>`
-        +`<span style="color:var(--red)">${cr} ✗</span>`
+        +`<span style="color:var(--green)">✓ ${cg>0?Math.round(cg/clChecks.length*100)+'%':'0%'}</span>`
+        +`<span style="color:var(--amber)">◑ ${ca>0?Math.round(ca/clChecks.length*100)+'%':'0%'}</span>`
+        +`<span style="color:var(--red)">✗ ${cr>0?Math.round(cr/clChecks.length*100)+'%':'0%'}</span>`
         +`</div></div>`
         +`<svg class="cluster-card-toggle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>`
         +`</div>`
@@ -3381,9 +3381,9 @@ function renderClusterOverview(){
       +`<div class="cluster-card-name">${escHtml(cl.name)}</div>`
       +`<div style="font-size:11px;color:var(--text3);margin-top:3px;margin-bottom:6px;font-style:italic;line-height:1.4">${escHtml(hint)}</div>`
       +`<div style="display:flex;gap:10px;font-size:12px">`
-      +`<span style="color:var(--green)">${g} \u2713</span>`
-      +`<span style="color:var(--amber)">${a} \u25d1</span>`
-      +`<span style="color:var(--red)">${rd} \u2717</span>`
+      +`<span style="color:var(--green)">\u2713 ${g>0?Math.round(g/res.length*100)+'%':'0%'}</span>`
+      +`<span style="color:var(--amber)">\u25d1 ${a>0?Math.round(a/res.length*100)+'%':'0%'}</span>`
+      +`<span style="color:var(--red)">\u2717 ${rd>0?Math.round(rd/res.length*100)+'%':'0%'}</span>`
       +`</div></div>`
       +`<svg class="cluster-card-toggle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>`
       +`</div>`

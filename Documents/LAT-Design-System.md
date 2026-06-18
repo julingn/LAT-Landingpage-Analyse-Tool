@@ -1,6 +1,6 @@
 # LAT Design System
 **LAT · SQEG Analyzer · MVV Energie AG**
-**Stand:** 10. Juni 2026 · Version 2.3
+**Stand:** 18. Juni 2026 · Version 2.4
 **Dieses Dokument wird bei jeder Design-Änderung aktualisiert.**
 
 ---
@@ -470,10 +470,89 @@ CDN: `https://unpkg.com/lucide@latest`
 
 ---
 
+### 7.14 Standard-Layout einer Modulseite (ab v3.6)
+
+**ALLE Analyse-Module** folgen exakt dieser vierstufigen Struktur — keine Abweichungen:
+
+```
+┌──────────────────────────────────────────────────────────┐
+│ 1. SCORE HERO (.score-hero)                              │
+│    Große Score-Zahl · Level-Badge · Interpretation       │
+│    Progress-Bar · Chips (✓ N  ◑ N  ✗ N  + Prüfpunkte)   │
+└──────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│ 2. EXECUTIVE SUMMARY (.exec-summary-card)                │
+│    2-spaltig: [Bewertung] [Top-Probleme]                 │
+│    Volle Breite: [Empfohlene nächste Schritte]           │
+│    → max. 3 Schritte als horizontale Cards (3-col-Grid)  │
+└──────────────────────────────────────────────────────────┘
+  ——— CLUSTER-ÜBERSICHT ———
+┌──────────────────────────────────────────────────────────┐
+│ 3. CLUSTER-CARDS (.cluster-overview)                     │
+│    Aufklappbare Karten mit Donut-Chart                   │
+│    Cluster mit roten Checks öffnen sich automatisch      │
+│    Jede Row: Status-Dot · ID-Badge · Name · Befund · Fix │
+└──────────────────────────────────────────────────────────┘
+```
+
+**Score Hero — IDs der DOM-Elemente (Namensschema: `{modul}-score-*`):**
+
+| Modul | Prefix | Beispiel-IDs |
+|---|---|---|
+| SQEG | `score-hero-*` | `score-hero-num`, `score-hero-level`, `score-hero-bar` |
+| Technical SEO | `tech-score-*` | `tech-score-num`, `tech-score-level`, `tech-score-bar` |
+| UX/CRO | `ux-score-*` | `ux-score-num` |
+| (neue Module) | `{kürzel}-score-*` | analog |
+
+**Executive Summary — deterministisch vs. KI:**
+
+| Modul | Quelle |
+|---|---|
+| SQEG | KI-generiert (Anthropic/OpenAI LLM-Call) |
+| Technical SEO | Deterministisch — aus Check-Ergebnissen berechnet |
+| UX/CRO | Deterministisch + optionaler LLM-Kommentar |
+| (neue Module) | Deterministisch bevorzugen; KI nur wenn nötig |
+
+**Section-Divider zwischen Executive Summary und Clusters:**
+```html
+<div class="section-divider">
+  <div class="section-divider-line"></div>
+  <span class="section-divider-label">Cluster-Übersicht</span>
+  <div class="section-divider-line"></div>
+</div>
+```
+
+---
+
+### 7.15 Prüfpunkt-ID-Konvention
+
+Jeder Prüfpunkt hat eine **eindeutige, modulgebundene ID** die im `.cluster-crit-id`-Badge angezeigt wird.
+
+**Format:** `{MODUL-KÜRZEL}{NUMMER}` — kein Leerzeichen, kein Unterstrich.
+
+| Modul | Kürzel | Format | Beispiele |
+|---|---|---|---|
+| SQEG | `SQ` | `SQ{Cluster}.{Nr}` | `SQ1.1`, `SQ3.2`, `SQ8.4` |
+| Technical SEO | `T` | `T{Nr}` | `T1`, `T13`, `T25` |
+| UX / CRO | `U` | `U{Nr}` | `U1`, `U5` |
+| Performance | `P` | `P{Nr}` | `P1`, `P4` |
+| GEO / AEO | `G` | `G{Nr}` | `G1`, `G3` |
+| Keyword Fit | `K` | `K{Nr}` | `K1`, `K6` |
+
+**SQEG-Sonderregel:** Die IDs kommen vom LLM zurück (`"1.1"`, `"3.2"`) — im UI wird `SQ` vorangestellt:
+```js
+`SQ${escHtml(r.id)}`  // "1.1" → "SQ1.1"
+```
+
+**Neue Module:** Kürzel vorab festlegen und hier eintragen, bevor Prüfpunkte implementiert werden.
+
+---
+
 ## 9 · Changelog
 
 | Version | Datum | Änderungen |
 |---------|-------|------------|
+| 2.4 | 18.06.2026 | Standard-Layout Modulseiten (7.14): Score Hero → Executive Summary → Cluster-Übersicht. Prüfpunkt-ID-Konvention (7.15): SQ1.1, T13, U1 etc. Technical SEO 7.13 überholt durch neues Layout. |
 | 2.3 | 10.06.2026 | Multi-View Dashboard Layout (7.11): content-wrap KRITISCH, Sidebar-Nav, Modul-Kacheln. Card-System `.needs-met-block` als eigenständige Cards — kein Outer-Wrapper (7.12). Technical SEO Check-Liste Layout (7.13). |
 | 2.2 | 22.05.2026 | Executive Summary Card (7.9), Score-Interpretation 5-Stufen (7.10), Eingabe-Card aktualisiert (7.6): Demo-Button in Header, `url-input bg→--bg`, `card-sub` kein Mono, `.input-dimmed`, Context-Separator, Label-Updates |
 | 2.1 | 22.05.2026 | Eingabe-Card (7.6), Log-Collapse (7.7), Cluster-Donuts (7.8), Skeleton Slow-Pulse (7.4), Container-Padding 96→32px, Rebranding MVV/LAT |
