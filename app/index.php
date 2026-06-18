@@ -824,7 +824,7 @@ button{font-family:inherit}
           <span class="score-chip green" id="chip-cnt-g" data-tip="Kriterien bestanden">✓ <span id="cnt-g">0</span></span>
           <span class="score-chip amber" id="chip-cnt-a" data-tip="Kriterien verbesserungswürdig">◑ <span id="cnt-a">0</span></span>
           <span class="score-chip red" id="chip-cnt-r" data-tip="Kriterien fehlerhaft">✗ <span id="cnt-r">0</span></span>
-          <span class="score-chip" id="hero-timer-chip" data-tip="Dauer der Analyse (Zeit vom Start bis zum letzten API-Call)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> –</span>
+          <span class="score-chip" id="hero-total-chip" data-tip="Gesamtzahl der bewerteten SQEG-Kriterien"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> <span id="cnt-total-sqeg">0</span> Prüfpunkte</span>
         </div>
       </div>
       <div class="score-hero-actions">
@@ -2600,14 +2600,12 @@ function renderResults(keyword){
   if(ymylResult==='clear_ymyl'){ymylEl.innerHTML=`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> YMYL: Erhöht`;ymylEl.style.color='var(--red)'}
   else if(ymylResult==='mixed_ymyl'){ymylEl.innerHTML=`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> YMYL: Teilweise`;ymylEl.style.color='var(--amber)'}
   else{ymylEl.innerHTML=`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Kein YMYL`;ymylEl.style.color='var(--green)'}
-  const timerChip=document.getElementById('hero-timer-chip');
-  const totalSec=Math.round((Date.now()-analysisStartTime)/1000);
-  if(totalSec>0)timerChip.innerHTML=`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${formatTime(totalSec)}`;
-
   const _cht=g+a+r;
   document.getElementById('cnt-g').textContent=_cht>0?Math.round(g/_cht*100)+'%':'0%';
   document.getElementById('cnt-a').textContent=_cht>0?Math.round(a/_cht*100)+'%':'0%';
   document.getElementById('cnt-r').textContent=_cht>0?Math.round(r/_cht*100)+'%':'0%';
+  const totalChipSqeg=document.getElementById('cnt-total-sqeg');
+  if(totalChipSqeg)totalChipSqeg.textContent=_cht;
 
   const gscPanel=document.getElementById('gsc-panel');
   if(gscData?.keywords?.length){
