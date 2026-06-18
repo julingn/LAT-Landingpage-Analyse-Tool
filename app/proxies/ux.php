@@ -212,34 +212,65 @@ function runUxChecks(string $html, string $url, string $device, array $psi): arr
     return $checks;
 }
 
-function getLlmComment(string $b64, string $url, string $device, array $checks): string {
+/**
+ * Primäre visuelle Analyse: Screenshot → KI → strukturierte Checks U1–U4 + Kommentar.
+ * Gibt ['checks' => [...], 'comment' => '...'] zurück oder null bei Fehler.
+ */
+function getVisualChecks(string $b64, string $url, string $device, array $psi): ?array {
     $anthropicKey=CFG_ANTHROPIC_KEY; $openaiKey=CFG_OPENAI_KEY; $provider=CFG_AI_PROVIDER;
-    if(!$anthropicKey&&!$openaiKey)return '';
-    $ctx="Gerät: ".strtoupper($device)."\nDeterministische Checks:\n";
-    foreach($checks as $c)$ctx.="- [{$c['id']} {$c['status']}] {$c['name']}: {$c['finding']}\n";
-    $sys='Du bist ein UX/CRO-Experte. Analysiere den '.strtoupper($device).'-Screenshot einer Landingpage als Ergänzung zu den bereitgestellten deterministischen Checks. Schreibe 3–4 Sätze auf Deutsch: Was fällt visuell besonders auf? Was nimmt ein Nutzer als erstes wahr? Beziehe dich auf die Checks ohne sie wörtlich zu wiederholen. Kein JSON, kein Markdown — nur Fließtext.';
-    $userMsg=$ctx."\nBitte qualitative Einschätzung.";
-    $text='';
+    if(!$anthropicKey&&!$openaiKey)return null;
+
+    $psiHint='';
+    if(!empty($psi['perf_score']))$psiHint='PageSpeed-Score ('.strtoupper($device).'): '.(int)$psi['perf_score'].'/100';
+
+    $sys='Du bist ein UX/CRO-Experte. Analysiere den '.strtoupper($device).'-Screenshot einer Landingpage visuell. Antworte AUSSCHLIESSLICH mit gültigem JSON — kein anderer Text, kein Markdown.';
+    $userMsg='Gerät: '.strtoupper($device)."\n".($psiHint?$psiHint."\n":'')
+        ."Bewerte diese 4 Kriterien anhand des Screenshots:\n"
+        ."- U1: Above-the-Fold & Nutzenversprechen — Ist ein klares Nutzenversprechen / eine starke Headline sofort sichtbar?\n"
+        ."- U2: Ablenkungsfreiheit & Benutzerführung — Ist die Seite auf Conversion fokussiert oder gibt es ablenkende Elemente (Navigation, viele Links)?\n"
+        ."- U3: Call-to-Action — Sind CTAs visuell prominent, gut platziert und handlungsorientiert formuliert?\n"
+        ."- U4: Trust & Social Proof — Sind Vertrauenssignale wie Siegel, Bewertungen, Logos oder Testimonials sichtbar?\n\n"
+        .'Antworte NUR mit diesem JSON (keine weiteren Felder, kein Markdown):
+{"checks":[{"id":"U1","name":"Above-the-Fold & Nutzenversprechen","status":"green|amber|red","finding":"Max. 120 Zeichen Beobachtung","fix":"Konkrete Empfehlung oder leer wenn green"},{"id":"U2","name":"Ablenkungsfreiheit & Benutzerführung","status":"...","finding":"...","fix":"..."},{"id":"U3","name":"Call-to-Action","status":"...","finding":"...","fix":"..."},{"id":"U4","name":"Trust & Social Proof","status":"...","finding":"...","fix":"..."}],"comment":"3–4 Sätze visuelle Gesamteinschätzung auf Deutsch."}';
+
+    $rawText='';
     if($provider==='anthropic'&&$anthropicKey){
-        $payload=['model'=>CFG_AI_MODEL?:'claude-sonnet-4-5','max_tokens'=>600,'system'=>$sys,'messages'=>[['role'=>'user','content'=>[
+        $payload=['model'=>CFG_AI_MODEL?:'claude-sonnet-4-5','max_tokens'=>900,'system'=>$sys,'messages'=>[['role'=>'user','content'=>[
             ['type'=>'image','source'=>['type'=>'base64','media_type'=>'image/png','data'=>$b64]],
             ['type'=>'text','text'=>$userMsg],
         ]]]];
         $ch=curl_init('https://api.anthropic.com/v1/messages');
         curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>true,CURLOPT_POST=>true,CURLOPT_POSTFIELDS=>json_encode($payload),CURLOPT_TIMEOUT=>60,CURLOPT_SSL_VERIFYPEER=>true,CURLOPT_HTTPHEADER=>['x-api-key: '.$anthropicKey,'anthropic-version: 2023-06-01','content-type: application/json']]);
         $resp=curl_exec($ch);$code=curl_getinfo($ch,CURLINFO_HTTP_CODE);curl_close($ch);
-        if($code===200){$d=json_decode($resp,true);$text=trim($d['content'][0]['text']??'');}
+        if($code===200){$d=json_decode($resp,true);$rawText=trim($d['content'][0]['text']??'');}
     }elseif($openaiKey){
-        $payload=['model'=>CFG_OPENAI_MODEL?:'gpt-4o','max_tokens'=>600,'messages'=>[
+        $payload=['model'=>CFG_OPENAI_MODEL?:'gpt-4o','max_tokens'=>900,'messages'=>[
             ['role'=>'system','content'=>$sys],
             ['role'=>'user','content'=>[['type'=>'image_url','image_url'=>['url'=>'data:image/png;base64,'.$b64,'detail'=>'high']],['type'=>'text','text'=>$userMsg]]],
         ]];
         $ch=curl_init('https://api.openai.com/v1/chat/completions');
         curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>true,CURLOPT_POST=>true,CURLOPT_POSTFIELDS=>json_encode($payload),CURLOPT_TIMEOUT=>60,CURLOPT_SSL_VERIFYPEER=>true,CURLOPT_HTTPHEADER=>['Authorization: Bearer '.$openaiKey,'Content-Type: application/json']]);
         $resp=curl_exec($ch);$code=curl_getinfo($ch,CURLINFO_HTTP_CODE);curl_close($ch);
-        if($code===200){$d=json_decode($resp,true);$text=trim($d['choices'][0]['message']['content']??'');}
+        if($code===200){$d=json_decode($resp,true);$rawText=trim($d['choices'][0]['message']['content']??'');}
     }
-    return $text;
+
+    if(!$rawText)return null;
+    // JSON aus Antwort extrahieren (Absicherung falls KI trotzdem Markdown-Fences liefert)
+    if(preg_match('/\{[\s\S]*\}/u',$rawText,$m))$rawText=$m[0];
+    $parsed=json_decode($rawText,true);
+    if(!is_array($parsed)||empty($parsed['checks']))return null;
+
+    // Statuswerte validieren
+    $allowed=['green','amber','red'];
+    foreach($parsed['checks'] as &$c){
+        if(!in_array($c['status']??'',$allowed,true))$c['status']='amber';
+        $c['id']=$c['id']??'';
+        $c['name']=$c['name']??'';
+        $c['finding']=mb_substr($c['finding']??'',0,200);
+        $c['fix']=$c['fix']??'';
+    }
+    unset($c);
+    return ['checks'=>$parsed['checks'],'comment'=>trim($parsed['comment']??'')];
 }
 
 if($action==='analyze'){
@@ -269,11 +300,49 @@ if($action==='analyze'){
     $width  = $device === 'mobile' ? 375 : 1280;
     $height = $device === 'mobile' ? 812 : 900;
     $screenshotBase64 = takeScreenshot($url, $width, $height);
-    $checks=runUxChecks($html,$url,$device,$psi);
+
+    $comment = '';
+    $checks  = [];
+
+    if ($screenshotBase64) {
+        // ── Primär: Screenshot → KI → strukturierte Checks U1–U4 ──
+        $visual = getVisualChecks($screenshotBase64, $url, $device, $psi);
+        if ($visual && !empty($visual['checks'])) {
+            $checks  = $visual['checks'];
+            $comment = $visual['comment'] ?? '';
+        }
+    }
+
+    // ── U5 Performance immer aus PSI (additiv, unabhängig von Screenshot) ──
+    $u5 = null;
+    if (!empty($psi['perf_score'])) {
+        $s=(int)($psi['perf_score']??0);$lcp=(float)filter_var($psi['lcp']??0,FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
+        $cls=(float)filter_var($psi['cls']??0,FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
+        $tbt=(float)filter_var($psi['tbt']??0,FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
+        $issues=[];
+        if($lcp>2.5)$issues[]='LCP '.$psi['lcp'].' (Ziel: <2,5 s)';
+        if($cls>0.1)$issues[]='CLS '.$psi['cls'].' (Ziel: <0,1)';
+        if($tbt>200)$issues[]='TBT '.$psi['tbt'].' (Ziel: <200 ms)';
+        $u5Status=$s>=90?'green':($s>=50?'amber':'red');
+        $u5=['id'=>'U5','name'=>'Performance '.strtoupper($device),'status'=>$u5Status,
+            'finding'=>'PageSpeed-Score: '.$s.'/100 · LCP: '.($psi['lcp']??'–').' · CLS: '.($psi['cls']??'–').' · TBT: '.($psi['tbt']??'–'),
+            'detail'=>count($issues)?implode(' · ',$issues):'',
+            'fix'=>$s<90?'Bilder in WebP konvertieren, Render-blocking Ressourcen entfernen.':'',
+        ];
+    }
+
+    // ── Fallback: kein Screenshot oder KI-Fehler → HTML-basierte Checks ──
+    if (empty($checks)) {
+        $checks = runUxChecks($html, $url, $device, $psi);
+    } else {
+        // U5 aus KI-Checks entfernen (falls vorhanden) und durch PSI ersetzen
+        $checks = array_values(array_filter($checks, fn($c) => ($c['id']??'') !== 'U5'));
+        if ($u5) $checks[] = $u5;
+    }
+
     $scoreMap=['green'=>100,'amber'=>50,'red'=>0];
     $total=count($checks);$sum=array_sum(array_map(fn($c)=>$scoreMap[$c['status']]??0,$checks));
     $score=$total>0?(int)round($sum/$total):0;
-    $comment = $screenshotBase64 ? getLlmComment($screenshotBase64, $url, $device, $checks) : '';
     echo json_encode(['success'=>true,'device'=>$device,'score'=>$score,'comment'=>$comment,'checks'=>$checks,'screenshot_base64'=>$screenshotBase64]);
     exit;
 }
