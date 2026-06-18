@@ -3363,7 +3363,7 @@ function renderClusterOverview(){
       const verdict=(parts[2]||parts[0]||'').replace(/^Bewertung:\s*/,'').trim();
       const improve=r.improvement||'';
       return`<div class="cluster-crit-row">`
-        +`<div class="cluster-crit-meta"><div class="status-dot ${r.status}">${sym}</div><div class="cluster-crit-id">${escHtml(r.id)}</div></div>`
+        +`<div class="cluster-crit-meta"><div class="status-dot ${r.status}">${sym}</div><div class="cluster-crit-id">SQ${escHtml(r.id)}</div></div>`
         +`<div class="cluster-crit-main">`
         +`<div class="cluster-crit-name">${escHtml(crit.name)}</div>`
         +(verdict?`<div class="cluster-crit-finding">${escHtml(verdict.substring(0,160)+(verdict.length>160?'\u2026':''))}</div>`:'')
