@@ -1443,7 +1443,7 @@ const MINI_CALLS=[
 // === STATE ===
 let analysisResults=[],pqResults=[],e8Result=null,ymylResult=null,currentUrl='',currentHtml='';
 let isDemoMode=false;
-let gscData=null,serpData=null,backlinkData=null,psiData=null,sistrixData=null,geoData=null,kwData=null,ucrData=null;
+let gscData=null,serpData=null,backlinkData=null,psiData=null,sistrixData=null,geoData=null,kwData=null,ucrData=null,sitemapData=null;
 let analysisStartTime=0,timerInterval=null,lastPct=0;
 
 // === LOG / PROGRESS ===
@@ -1533,7 +1533,7 @@ async function startDemo(){
   document.getElementById('log-wrap').classList.remove('collapsed');
   document.getElementById('log-box').innerHTML='';
   analysisResults=[];pqResults=[];e8Result=null;ymylResult=null;
-  gscData=null;serpData=null;backlinkData=null;psiData=null;sistrixData=null;geoData=null;kwData=null;ucrData=null;
+  gscData=null;serpData=null;backlinkData=null;psiData=null;sistrixData=null;geoData=null;kwData=null;ucrData=null;sitemapData=null;
   analysisStartTime=Date.now();lastPct=0;
   if(timerInterval)clearInterval(timerInterval);
   timerInterval=setInterval(updateTimer,1000);
@@ -1641,6 +1641,7 @@ async function startDemo(){
         {id:'U5',name:'Performance Desktop',status:'green',finding:'PageSpeed Desktop: 89/100 · LCP: 1.8s · CLS: 0.02 · TBT: 60ms',detail:'',fix:''},
       ],screenshot_base64:null}
   };
+  sitemapData={found:true,loc_count:312,sitemap_url:'https://www.beispiel-energie.de/sitemap.xml'};
   log('UX/CRO: Mobile 60% + Desktop 78% → Ø 69% (Demo)','ok');
 
   setProgress(92,'Ergebnisse rendern…','Fast fertig…');
@@ -1688,7 +1689,7 @@ async function startAnalysis(){
   document.getElementById('log-wrap').classList.remove('collapsed');
   document.getElementById('log-box').innerHTML='';
   analysisResults=[];pqResults=[];e8Result=null;ymylResult=null;
-  gscData=null;serpData=null;backlinkData=null;psiData=null;sistrixData=null;geoData=null;kwData=null;ucrData=null;
+  gscData=null;serpData=null;backlinkData=null;psiData=null;sistrixData=null;geoData=null;kwData=null;ucrData=null;sitemapData=null;
   analysisStartTime=Date.now();lastPct=0;
   if(timerInterval)clearInterval(timerInterval);
   timerInterval=setInterval(updateTimer,1000);
@@ -1725,13 +1726,14 @@ async function startAnalysis(){
 
     // Externe Daten parallel abrufen (Fehler blockieren nicht)
     setProgress(5,'Daten abrufen…','GSC · SERP · Backlinks · PageSpeed · Sistrix · GEO…');
-    const [gscRes,serpRes,blRes,psiRes,sistrixRes,geoRes]=await Promise.allSettled([
+    const [gscRes,serpRes,blRes,psiRes,sistrixRes,geoRes,sitemapRes]=await Promise.allSettled([
       currentMode==='url'&&currentUrl?fetchGscData(currentUrl):Promise.resolve(null),
       effectiveKeyword?fetchSerpData(effectiveKeyword):Promise.resolve(null),
       currentMode==='url'&&currentUrl?fetchBacklinkData(currentUrl):Promise.resolve(null),
       currentMode==='url'&&currentUrl?fetchPageSpeedData(currentUrl):Promise.resolve(null),
       currentMode==='url'&&currentUrl?fetchSistrixData(currentUrl):Promise.resolve(null),
       currentMode==='url'&&currentUrl?fetchGeoData(currentUrl):Promise.resolve(null),
+      currentMode==='url'&&currentUrl?fetchSitemapData(currentUrl):Promise.resolve(null),
     ]);
     gscData      = gscRes.status==='fulfilled'?gscRes.value:null;
     serpData     = serpRes.status==='fulfilled'?serpRes.value:null;
@@ -1739,6 +1741,11 @@ async function startAnalysis(){
     psiData      = psiRes.status==='fulfilled'?psiRes.value:null;
     sistrixData  = sistrixRes.status==='fulfilled'?sistrixRes.value:null;
     geoData      = geoRes.status==='fulfilled'?geoRes.value:null;
+    sitemapData  = sitemapRes.status==='fulfilled'?sitemapRes.value:null;
+    if(sitemapData?.found!==undefined)log(`Sitemap: LP-URL ${sitemapData.found?'✓ enthalten':'✗ nicht gefunden'} (${sitemapData.loc_count} URLs geprüft)`,'ok');
+    else if(sitemapData?.is_index)log(`Sitemap: Sitemap-Index gefunden (${sitemapData.sub_count} Sub-Sitemaps)`, 'ok');
+    else if(currentMode==='url')log('Sitemap: konnte nicht abgerufen werden (kein /sitemap.xml?)');
+    else log('Sitemap: übersprungen (HTML-Modus)');
 
     if(gscData?.keywords?.length)log(`GSC: ${gscData.keywords.length} Keywords geladen`,'ok');
     else if(gscData?._empty)log('GSC: verbunden, aber keine Daten für diese URL (keine Impressionen in 90 Tagen?)');
@@ -1877,6 +1884,28 @@ async function callApi(messages,systemPrompt,maxTokens=2000){
 }
 
 // === DATEN-FETCH ===
+async function fetchSitemapData(url){
+  try{
+    const origin=new URL(url).origin;
+    const sitemapUrl=origin+'/sitemap.xml';
+    const res=await fetch('fetch.php?url='+encodeURIComponent(sitemapUrl));
+    if(!res.ok)return null;
+    const data=await res.json();
+    if(data.error||!data.html)return null;
+    const xml=data.html;
+    // Sitemap-Index erkennen
+    if(xml.includes('<sitemapindex')){
+      const subs=(xml.match(/<loc[^>]*>(.*?)<\/loc>/gi)||[]).map(m=>m.replace(/<\/?loc[^>]*>/gi,'').trim());
+      return{is_index:true,sub_count:subs.length,sitemap_url:sitemapUrl};
+    }
+    // Reguläre Sitemap — URL-Normalisierung
+    const locs=(xml.match(/<loc[^>]*>(.*?)<\/loc>/gi)||[]).map(m=>m.replace(/<\/?loc[^>]*>/gi,'').trim());
+    const normalize=s=>s.replace(/\/$/,'').toLowerCase();
+    const urlNorm=normalize(url);
+    const found=locs.some(loc=>normalize(loc)===urlNorm);
+    return{found,loc_count:locs.length,sitemap_url:sitemapUrl};
+  }catch(e){return null;}
+}
 async function fetchGscData(url){
   try{
     const res=await fetch('gsc.php?action=data',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url})});
@@ -2674,7 +2703,7 @@ function renderResults(keyword){
 // ═══════════════════════════════════════════════════════════
 // M2 — TECHNICAL SEO (deterministisch, kein KI-Call)
 // ═══════════════════════════════════════════════════════════
-function runTechnicalSeo(html, url, psi){
+function runTechnicalSeo(html, url, psi, sitemap){
   const doc = (() => {
     try { return new DOMParser().parseFromString(html,'text/html'); } catch(e){ return null; }
   })();
@@ -2807,11 +2836,34 @@ function runTechnicalSeo(html, url, psi){
       detail:'',fix:mobileScore<90?'Bilder komprimieren (WebP), Render-blocking JS/CSS vermeiden, Server-Response-Time reduzieren.':''});
   }
 
+  // ── T12: In Sitemap enthalten ─────────────────────────
+  const isUrlMode = url && !url.startsWith('(');
+  if(sitemap && isUrlMode){
+    if(sitemap.is_index){
+      checks.push({id:'T12',name:'In Sitemap enthalten',status:'amber',
+        finding:`Sitemap-Index gefunden (${sitemap.sub_count} Sub-Sitemaps). LP-URL in Sub-Sitemaps nicht automatisch prüfbar.`,
+        detail:'Der Server liefert eine Sitemap-Index-Datei, die auf weitere Sitemaps verweist. Ein tiefes Crawling würde zu viele Requests erfordern.',
+        fix:'Manuell prüfen: Ist die LP-URL in einer der verlinkten Sub-Sitemaps enthalten?'});
+    } else {
+      checks.push({id:'T12',name:'In Sitemap enthalten',status:sitemap.found?'green':'red',
+        finding:sitemap.found
+          ?`LP-URL ist in der Sitemap (${sitemap.loc_count} URLs geprüft) enthalten.`
+          :`LP-URL nicht in sitemap.xml gefunden (${sitemap.loc_count} URLs geprüft).`,
+        detail:sitemap.found?'':"Seiten ohne Sitemap-Eintrag werden von Google möglicherweise seltener gecrawlt.",
+        fix:sitemap.found?'':'URL zur Sitemap hinzufügen und Sitemap in der Google Search Console einreichen.'});
+    }
+  } else if(isUrlMode){
+    checks.push({id:'T12',name:'In Sitemap enthalten',status:'amber',
+      finding:'sitemap.xml konnte nicht abgerufen werden.',
+      detail:'Mögliche Ursache: keine /sitemap.xml vorhanden, Server-Fehler oder Zugriffsblockierung.',
+      fix:'Prüfen ob eine sitemap.xml unter der Root-Domain existiert und die LP-URL enthält.'});
+  }
+
   return checks;
 }
 
 function renderTechnicalSeo(){
-  const checks = runTechnicalSeo(currentHtml, currentUrl, psiData);
+  const checks = runTechnicalSeo(currentHtml, currentUrl, psiData, sitemapData);
   const el = document.getElementById('technical-panel-content');
   if(!el) return;
 
