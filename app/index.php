@@ -80,7 +80,7 @@ button{font-family:inherit}
   border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
 }
 .brand-icon-sm svg{color:#fff}
-.sidebar-nav{flex:1;padding:8px}
+.sidebar-nav{flex:1;padding:8px;display:flex;flex-direction:column}
 .nav-section-label{
   font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;
   color:var(--text3);padding:12px 10px 4px;
@@ -584,34 +584,34 @@ button{font-family:inherit}
     <button class="nav-item" data-view="sqeg" onclick="showView('sqeg')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       SQEG
-      <span class="nav-score" id="nav-score-sqeg" style="display:none"></span>
+      <span class="nav-score" id="nav-score-sqeg">–</span>
     </button>
     <button class="nav-item" data-view="technical" onclick="showView('technical')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
       Technical SEO
-      <span class="nav-score" id="nav-score-technical" style="display:none"></span>
+      <span class="nav-score" id="nav-score-technical">–</span>
     </button>
     <button class="nav-item" data-view="performance" onclick="showView('performance')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       Performance
-      <span class="nav-score" id="nav-score-perf" style="display:none"></span>
+      <span class="nav-score" id="nav-score-perf">–</span>
     </button>
     <button class="nav-item" data-view="geo" onclick="showView('geo')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8l4 4-4 4-4-4 4-4z"/></svg>
       GEO / AEO
-      <span class="nav-score" id="nav-score-geo" style="display:none"></span>
+      <span class="nav-score" id="nav-score-geo">–</span>
     </button>
     <button class="nav-item" data-view="keywords" onclick="showView('keywords')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
       Keyword Fit
-      <span class="nav-score" id="nav-score-kw" style="display:none"></span>
+      <span class="nav-score" id="nav-score-kw">–</span>
     </button>
     <button class="nav-item" data-view="ux" onclick="showView('ux')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
       UX / CRO
-      <span class="nav-score" id="nav-score-ux" style="display:none"></span>
+      <span class="nav-score" id="nav-score-ux">–</span>
     </button>
-    <div class="nav-section-label">System</div>
+    <div class="nav-section-label" style="margin-top:auto">System</div>
     <button class="nav-item" data-view="settings" onclick="showView('settings')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M21 12h-2M19.07 19.07l-1.41-1.41M12 21v-2M4.93 19.07l1.41-1.41M3 12h2M4.93 4.93l1.41 1.41"/></svg>
       Einstellungen
@@ -2109,7 +2109,7 @@ function renderUXAnalysis(){
   const mcLabel=document.getElementById('mc-ux-label');
   const mcCard=document.getElementById('mc-ux');
   if(mcScore){mcScore.textContent=avgScore+'%';mcScore.className='module-card-score '+(avgScore>=70?'green':avgScore>=50?'amber':'red');}
-  if(navScore){navScore.textContent=avgScore+'%';navScore.style.display='';}
+  if(navScore){navScore.textContent=avgScore+'%';navScore.className='nav-score'+(avgScore>=70?' green':avgScore>=50?' amber':' red');}
   if(mcBar){mcBar.style.width=avgScore+'%';mcBar.className='module-card-bar '+(avgScore>=70?'green':avgScore>=50?'amber':'red');}
   if(mcLabel)mcLabel.textContent=avgScore>=70?'Gute UX':avgScore>=50?'Optimierungsbedarf':'Kritische Probleme';
   if(mcCard){mcCard.classList.remove('mc-green','mc-amber','mc-red');mcCard.classList.add(avgScore>=70?'mc-green':avgScore>=50?'mc-amber':'mc-red');}
@@ -2390,7 +2390,7 @@ function updateModuleCards(){
   const mcKwBar=document.getElementById('mc-kw-bar');
   const mcKwLabel=document.getElementById('mc-kw-label');
   if(mcKwEl){mcKwEl.textContent=kwScore?kwScore+'%':'–';mcKwEl.className='module-card-score '+(kwScore>=70?'green':kwScore>=45?'amber':kwScore>0?'red':'neutral');}
-  if(navKwEl){navKwEl.textContent=kwScore?kwScore+'%':'–';navKwEl.style.display=kwScore?'':'none';}
+  if(navKwEl){navKwEl.textContent=kwScore?kwScore+'%':'–';navKwEl.className='nav-score'+(kwScore>=70?' green':kwScore>=45?' amber':kwScore>0?' red':'');}
   if(mcKwBar){mcKwBar.style.width=kwScore+'%';mcKwBar.className='module-card-bar '+(kwScore>=70?'green':kwScore>=45?'amber':kwScore>0?'red':'neutral');}
   if(mcKwLabel)mcKwLabel.textContent=kwScore>=70?'Gutes Targeting':kwScore>=45?'Targeting verbesserbar':kwScore>0?'Targeting-Mismatch':'Noch nicht analysiert';
 
@@ -2405,7 +2405,7 @@ function updateModuleCards(){
   const mcUxLabel=document.getElementById('mc-ux-label');
   const mcUxCard=document.getElementById('mc-ux');
   if(mcUxEl){mcUxEl.textContent=uxScore?uxScore+'%':'–';mcUxEl.className='module-card-score '+(uxScore>=70?'green':uxScore>=50?'amber':uxScore>0?'red':'neutral');}
-  if(navUxEl){navUxEl.textContent=uxScore?uxScore+'%':'–';navUxEl.style.display=uxScore?'':'none';}
+  if(navUxEl){navUxEl.textContent=uxScore?uxScore+'%':'–';navUxEl.className='nav-score'+(uxScore>=70?' green':uxScore>=50?' amber':uxScore>0?' red':'');}
   if(mcUxBar){mcUxBar.style.width=uxScore+'%';mcUxBar.className='module-card-bar '+(uxScore>=70?'green':uxScore>=50?'amber':uxScore>0?'red':'neutral');}
   if(mcUxLabel)mcUxLabel.textContent=uxScore>=70?'Gute UX':uxScore>=50?'UX verbesserbar':uxScore>0?'UX kritisch':'Noch nicht analysiert';
   if(mcUxCard){mcUxCard.classList.remove('mc-green','mc-amber','mc-red');if(uxScore)mcUxCard.classList.add(uxScore>=70?'mc-green':uxScore>=50?'mc-amber':'mc-red');}
@@ -3247,7 +3247,7 @@ function renderTechnicalSeo(){
   const mcLabel=document.getElementById('mc-technical-label');
   const mcCard=document.getElementById('mc-technical');
   if(mcEl){mcEl.textContent=score+'%';mcEl.className='module-card-score '+cls;}
-  if(navEl){navEl.textContent=score+'%';navEl.style.display='';}
+  if(navEl){navEl.textContent=score+'%';}
   if(mcBar){mcBar.style.width=score+'%';mcBar.className='module-card-bar '+cls;}
   if(mcLabel)mcLabel.textContent=levelLabel;
   if(mcCard){mcCard.classList.remove('mc-green','mc-amber','mc-red');mcCard.classList.add('mc-'+cls);}
