@@ -385,8 +385,8 @@ button{font-family:inherit}
 .cluster-crit-id{font-family:'Geist Mono','Courier New',monospace;font-size:10px;color:var(--text3)}
 .cluster-crit-main{flex:1;min-width:0}
 .cluster-crit-name{font-weight:500;color:var(--text2);margin-bottom:2px;line-height:1.3}
-.cluster-crit-finding{color:var(--text3);font-size:11px;line-height:1.4}
-.cluster-crit-improve{margin-top:4px;font-size:11px;color:var(--accent);line-height:1.4}
+.cluster-crit-finding{color:var(--text3);font-size:12px;line-height:1.4}
+.cluster-crit-improve{margin-top:4px;font-size:12px;color:var(--accent);line-height:1.4}
 .sqeg-scale{display:flex;align-items:center;margin-bottom:20px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--bg2)}
 .sqeg-level{flex:1;padding:9px 4px;text-align:center;font-size:11px;font-weight:600;color:var(--text3);cursor:default;border-right:1px solid var(--border);transition:background .2s,color .2s}
 .sqeg-level:last-child{border-right:none}
@@ -426,6 +426,7 @@ button{font-family:inherit}
 .filter-btn:hover{border-color:var(--accent);color:var(--accent)}
 .filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 /* Criteria table with expand rows */
+.criteria-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .criteria-table{width:100%;border-collapse:collapse;margin-bottom:24px}
 .criteria-table th{text-align:left;padding:9px 14px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);background:var(--bg3);border-bottom:1px solid var(--border)}
 .criteria-table td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:top}
@@ -473,6 +474,10 @@ button{font-family:inherit}
 .exec-summary-problem-arrow{font-size:12px;color:var(--text2);line-height:1.5;padding-left:14px}
 .exec-summary-loading{display:flex;align-items:center;gap:10px;color:var(--text3);font-size:13px;padding:4px 0}
 .export-bar{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}
+/* === REDUCED MOTION === */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
+}
 /* === SKELETON SCREENS === */
 .skeleton{border-radius:var(--radius);background:var(--bg4);animation:skel-pulse 3s ease-in-out infinite}
 @keyframes skel-pulse{0%,100%{opacity:.45}50%{opacity:.8}}
@@ -852,7 +857,7 @@ button{font-family:inherit}
 
     <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">Cluster-Übersicht</span><div class="section-divider-line"></div></div>
     <div class="cluster-overview" id="cluster-overview"></div>
-    <button onclick="toggleDetailTable()" style="display:flex;align-items:center;justify-content:space-between;width:100%;margin:24px 0 0;padding:10px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);transition:background .15s,border-color .15s" onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">
+    <button id="detail-toggle-btn" onclick="toggleDetailTable()" aria-expanded="false" aria-controls="detail-table-wrap" style="display:flex;align-items:center;justify-content:space-between;width:100%;margin:24px 0 0;padding:10px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);transition:background .15s,border-color .15s">
       <span style="display:flex;align-items:center;gap:7px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Detailanalyse — alle 42 Kriterien</span>
       <svg id="detail-toggle-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform .2s;color:var(--text3)"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
@@ -863,10 +868,10 @@ button{font-family:inherit}
       <button class="filter-btn" data-filter="amber" onclick="setFilter('amber',this)">◑ Verbesserbar</button>
       <button class="filter-btn" data-filter="red" onclick="setFilter('red',this)">✗ Fehlerhaft</button>
     </div>
-    <table class="criteria-table" id="criteria-table">
+    <div class="criteria-table-wrap"><table class="criteria-table" id="criteria-table">
       <thead><tr><th style="width:44px">Status</th><th>Kriterium</th><th>Befund &amp; Bewertung</th><th style="width:28px"></th></tr></thead>
       <tbody id="criteria-tbody"></tbody>
-    </table>
+    </table></div>
     </div><!-- /detail-table-wrap -->
     </div><!-- /sqeg-results -->
   <div id="sqeg-empty" style="padding:48px 0;text-align:center;color:var(--text3)">
@@ -1375,9 +1380,11 @@ function setMode(mode){
 function toggleDetailTable(){
   const wrap=document.getElementById('detail-table-wrap');
   const icon=document.getElementById('detail-toggle-icon');
+  const btn=document.getElementById('detail-toggle-btn');
   const open=wrap.style.display==='none';
   wrap.style.display=open?'block':'none';
   if(icon)icon.style.transform=open?'rotate(180deg)':'';
+  if(btn)btn.setAttribute('aria-expanded',open?'true':'false');
 }
 function toggleLog(){document.getElementById('log-wrap').classList.toggle('collapsed');}
 function toggleContext(){document.getElementById('context-fields').classList.toggle('visible')}
@@ -3212,7 +3219,7 @@ function renderTechnicalSeo(){
           +`</div></div>`;
       }).join('');
       return`<div class="cluster-card${cr>0?' open':''}" id="${cardId}">`
-        +`<div class="cluster-card-header" onclick="toggleCluster('${cardId}')">`
+        +`<div class="cluster-card-header" role="button" aria-expanded="${cr>0?'true':'false'}" onclick="toggleCluster('${cardId}')">`
         +`<div class="cluster-card-donut"><svg width="96" height="96" viewBox="0 0 96 96">`
         +`<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="var(--bg4)" stroke-width="${SW}"/>`
         +`<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="${color}" stroke-width="${SW}" stroke-dasharray="${dash} ${circ.toFixed(1)}" stroke-linecap="round" transform="rotate(-90 ${CX} ${CY})"/>`
@@ -3315,7 +3322,10 @@ function renderKeywordFit(){
 
 function toggleCluster(id){
   const card=document.getElementById(id);
-  if(card)card.classList.toggle('open');
+  if(!card)return;
+  const isOpen=card.classList.toggle('open');
+  const btn=card.querySelector('.cluster-card-header');
+  if(btn)btn.setAttribute('aria-expanded',isOpen?'true':'false');
 }
 function renderClusterOverview(){
   const el=document.getElementById('cluster-overview');
@@ -3370,7 +3380,7 @@ function renderClusterOverview(){
         +`</div></div>`;
     }).join('');
     return`<div class="cluster-card" id="${cardId}">`
-      +`<div class="cluster-card-header" onclick="toggleCluster('${cardId}')">`
+      +`<div class="cluster-card-header" role="button" aria-expanded="false" onclick="toggleCluster('${cardId}')">`
       +`<div class="cluster-card-donut"><svg width="96" height="96" viewBox="0 0 96 96">`
       +`<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="var(--bg4)" stroke-width="${SW}"/>`
       +`<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="${color}" stroke-width="${SW}" stroke-dasharray="${dash} ${circ.toFixed(1)}" stroke-linecap="round" transform="rotate(-90 ${CX} ${CY})"/>`
