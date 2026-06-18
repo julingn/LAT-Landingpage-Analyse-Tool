@@ -910,7 +910,7 @@ button{font-family:inherit}
       <div id="tech-exec-summary-content"></div>
     </div>
 
-    <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">Bereiche im Detail</span><div class="section-divider-line"></div></div>
+    <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">Cluster-Übersicht</span><div class="section-divider-line"></div></div>
     <div class="cluster-overview" id="tech-cluster-overview"></div>
 
   </div>
@@ -3157,7 +3157,7 @@ function renderTechnicalSeo(){
     // Nächste Schritte (volle Breite)
     if(topFixes.length){
       html+=`<div class="exec-summary-steps" style="grid-column:1/-1">
-        <div class="exec-summary-section-title" style="margin-bottom:10px">Nächste Schritte</div>`;
+        <div class="exec-summary-section-title" style="margin-bottom:10px">Empfohlene nächste Schritte</div>`;
       topFixes.forEach((c,i)=>{
         html+=`<div class="exec-summary-item">
           <span class="exec-summary-num">${i+1}</span>
