@@ -11,7 +11,7 @@
 | Modul | Frage | Datenquellen | Status |
 |---|---|---|---|
 | **M1 — SQEG** | Ist der Content qualitativ & vertrauenswürdig? | LLM (Anthropic/OpenAI) | ✅ Vorhanden (LAT v2) |
-| **M2 — Technical SEO** | Ist die Seite technisch korrekt & indexierbar? | PageSpeed, HTML-Parsing | ⚠️ Teile vorhanden |
+| **M2 — Technical SEO** | Ist die Seite technisch korrekt & indexierbar? | PageSpeed (Mobile + Desktop), HTML-Parsing, Sitemap | ✅ Vollständig implementiert (18.06.2026) |
 | **M3 — Performance** | Wie sichtbar ist die Seite aktuell? | GSC, Sistrix, DataforSEO | ✅ Vorhanden (LAT v2) |
 | **M4 — GEO / AEO** | Wie präsent ist die Seite in KI-Antworten? | Sistrix `ai.*`-Endpunkte | ✅ Vorhanden (Phase 1.3) |
 | **M5 — UX / CRO** | Wie erlebt ein Nutzer diese Seite? | LLM + Vision, Screenshot | ✅ Implementiert (09.06.2026) |
@@ -242,6 +242,34 @@ Screenshot: [Desktop 1280px Vorschau]
 
 ---
 
+## Phase 6 — M2 Technical SEO: Vollausbau ✅ (18.06.2026)
+
+> **Basis:** Guide-basierte Analyse (Shortlist Technical SEO Checklist)  
+> **Ziel:** 25 deterministische Checks, gegliedert in 5 inhaltliche Cluster — analog zu SQEG.  
+> **Commits:** `8e0cd1f` (T12 Sitemap) · `c45d8f5` (T13–T25 + Cluster-Layout)
+
+### Check-Übersicht (25 Prüfpunkte)
+
+| Cluster | IDs | Prüfpunkte |
+|---|---|---|
+| **A — Indexierbarkeit & Crawling** | T1, T2, T8, T9, T12, T19 | noindex, Canonical, URL-Struktur, HTTPS, Sitemap-Check, Cross-Domain-Canonical |
+| **B — On-Page Meta & Markup** | T3, T4, T5, T7, T13, T14, T15, T16 | Title, Meta-Desc, H1, OG-Tags, Viewport, Schema.org, Heading-Hierarchie, Twitter Card |
+| **C — Bilder & Ressourcen** | T6, T20, T21, T22, T23 | Alt-Texte, Render-blocking Scripts, Lazy Loading, WebP/AVIF, Mixed Content |
+| **D — Performance & Core Web Vitals** | T10, T11, T17, T18 | CWV Mobile (LCP/CLS/TBT), Mobile PSI-Score, Desktop PSI-Score, INP |
+| **E — Links & Seitenstruktur** | T24, T25 | Anchor-Texte (Qualität), Link-Anzahl |
+
+### Architektur-Details
+
+| Aspekt | Umsetzung |
+|---|---|
+| Score-Quelle | **Deterministisch** — HTML-Parsing + PSI Mobile + PSI Desktop |
+| Neue Datenquellen | `fetchSitemapData()` (via fetch.php) · `psiDesktopData` (PSI strategy=desktop) |
+| pagespeed.php | INP-Feld (`interaction-to-next-paint`) ergänzt |
+| Cluster-Layout | Wie SQEG — aufklappbare Donut-Cards, Cluster mit roten Checks öffnen sich automatisch |
+| Demo-Daten | `sitemapData` + `psiDesktopData` vollständig simuliert |
+
+---
+
 ## Offene Entscheidungen (blockieren jeweils den nächsten Schritt)
 
 | # | Frage | Betrifft |
@@ -256,6 +284,8 @@ Screenshot: [Desktop 1280px Vorschau]
 
 | Datum | Version | Änderung |
 |---|---|---|
+| 18.06.2026 | v3.6 | M2 Technical SEO v2: 14 neue Checks (T12–T25), 5 Cluster-Layout (wie SQEG), Desktop PSI + INP, Sitemap-Check — `c45d8f5` |
+| 18.06.2026 | v3.5 | M2 Technical SEO: T12 Sitemap-Check (LP-URL in sitemap.xml via fetch.php) — `8e0cd1f` |
 | 10.06.2026 | v3.4 | M2 Technical SEO Modul (deterministisch, 11 Checks, HTML-Parsing) — `107f4d8` |
 | 10.06.2026 | v3.4 | Phase 5 Konzept: M5 UX/CRO v2 — deterministisch + Device-Split (Desktop/Mobile) — Konzept dokumentiert, noch nicht implementiert |
 | 09.06.2026 | v3.3 | Phase 4: M5 UX/CRO-Modul — Headless Chromium, Vision-LLM, `#view-ux`, Modul-Kachel, Nav-Item, `app/proxies/ux.php` — (aktueller Commit) |

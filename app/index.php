@@ -881,9 +881,38 @@ button{font-family:inherit}
 ════════════════════════════════════════════════════════════ -->
 <div class="view-panel" id="view-technical">
   <div id="technical-results" style="display:none;margin-top:28px">
-    <div class="needs-met-block" id="technical-panel" style="display:block">
-      <div id="technical-panel-content"></div>
+
+    <!-- Score Hero -->
+    <div class="score-hero" id="tech-score-hero">
+      <div class="score-hero-num green" id="tech-score-num">–</div>
+      <div class="score-hero-divider"></div>
+      <div class="score-hero-meta">
+        <div id="tech-score-level" class="score-hero-level green">–</div>
+        <div class="score-hero-interp" id="tech-score-interp"></div>
+        <div class="score-hero-bar-wrap">
+          <div class="score-hero-bar-bg"><div class="score-hero-bar green" id="tech-score-bar" style="width:0%"></div></div>
+        </div>
+        <div class="score-hero-chips">
+          <span class="score-chip green" id="tech-chip-g" data-tip="Prüfpunkte bestanden">✓ <span id="tech-cnt-g">0</span></span>
+          <span class="score-chip amber" id="tech-chip-a" data-tip="Prüfpunkte verbesserungswürdig">◑ <span id="tech-cnt-a">0</span></span>
+          <span class="score-chip red" id="tech-chip-r" data-tip="Prüfpunkte fehlerhaft">✗ <span id="tech-cnt-r">0</span></span>
+          <span class="score-chip" id="tech-chip-total" data-tip="Gesamtzahl der Prüfpunkte in 5 Bereichen"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> <span id="tech-cnt-total">0</span> Prüfpunkte</span>
+        </div>
+      </div>
     </div>
+
+    <!-- Executive Summary -->
+    <div class="exec-summary-card" id="tech-exec-summary" style="display:none">
+      <div class="exec-summary-header">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span class="exec-summary-title">Executive Summary</span>
+      </div>
+      <div id="tech-exec-summary-content"></div>
+    </div>
+
+    <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-label">Bereiche im Detail</span><div class="section-divider-line"></div></div>
+    <div class="cluster-overview" id="tech-cluster-overview"></div>
+
   </div>
   <div id="technical-empty" style="padding:48px 0;text-align:center;color:var(--text3)">
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 12px;display:block;opacity:.4"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
@@ -3049,110 +3078,174 @@ function runTechnicalSeo(html, url, psi, sitemap, psiDesktop){
 
 function renderTechnicalSeo(){
   const checks = runTechnicalSeo(currentHtml, currentUrl, psiData, sitemapData, psiDesktopData);
-  const el = document.getElementById('technical-panel-content');
-  if(!el) return;
 
   const g=checks.filter(c=>c.status==='green').length;
   const a=checks.filter(c=>c.status==='amber').length;
   const r=checks.filter(c=>c.status==='red').length;
   const total=checks.length;
   const score=Math.round((g*100+a*50)/total);
-  const scoreColor=score>=70?'var(--green)':score>=45?'var(--amber)':'var(--red)';
+  const cls=score>=70?'green':score>=45?'amber':'red';
+  const levelLabel=score>=90?'Technisch exzellent':score>=75?'Technisch solide':score>=60?'Ausreichend':score>=45?'Verbesserungsbedarf':'Kritische Probleme';
+  const interpMap={
+    green:'Die Seite erfüllt die technischen SEO-Grundanforderungen. Kleinere Optimierungen möglich.',
+    amber:'Es bestehen technische Schwächen, die sich auf Crawlbarkeit, Ladezeit oder Darstellung auswirken können.',
+    red:'Kritische technische Probleme gefunden — diese können Rankings und Indexierung direkt beeinträchtigen.',
+  };
 
-  // ── Cluster-Definitionen ──────────────────────────────
-  const clusters=[
-    {id:'A',name:'Indexierbarkeit & Crawling',
-      hint:{green:'Seite ist korrekt indexierbar und für Google erreichbar.',amber:'Kleinere Crawling-Probleme — sollten zeitnah behoben werden.',red:'Kritische Indexierungsprobleme — Google kann die Seite nicht korrekt erfassen.'},
-      ids:['T1','T2','T8','T9','T12','T19']},
-    {id:'B',name:'On-Page Meta & Markup',
-      hint:{green:'Meta-Daten, Überschriften und Markup vollständig und korrekt.',amber:'Einzelne Meta-Elemente fehlen oder sind nicht optimal.',red:'Wichtige On-Page-Elemente fehlen — starker SEO-Impact.'},
-      ids:['T3','T4','T5','T15','T13','T14','T7','T16']},
-    {id:'C',name:'Bilder & Ressourcen',
-      hint:{green:'Bilder optimiert und Ressourcen korrekt eingebunden.',amber:'Optimierungspotenzial bei Bilder-SEO oder Ressourcen-Laden.',red:'Kritische Probleme mit Bild-Optimierung oder Mixed Content.'},
-      ids:['T6','T20','T21','T22','T23']},
-    {id:'D',name:'Performance & Core Web Vitals',
-      hint:{green:'Sehr gute Ladeperformance auf Mobile und Desktop.',amber:'Performance-Probleme — LCP, INP oder Score unter Zielwert.',red:'Kritische Performance-Probleme — starker Einfluss auf Rankings und Conversions.'},
-      ids:['T10','T11','T17','T18']},
-    {id:'E',name:'Links & Seitenstruktur',
-      hint:{green:'Interne Verlinkung und Seitenstruktur unauffällig.',amber:'Einzelne Auffälligkeiten bei Anchor-Texten oder Link-Menge.',red:'Strukturelle Link-Probleme — verbesserungswürdig.'},
-      ids:['T24','T25']},
-  ];
+  // ── Score Hero ────────────────────────────────────────
+  const numEl=document.getElementById('tech-score-num');
+  const levelEl=document.getElementById('tech-score-level');
+  const interpEl=document.getElementById('tech-score-interp');
+  const barEl=document.getElementById('tech-score-bar');
+  const cntG=document.getElementById('tech-cnt-g');
+  const cntA=document.getElementById('tech-cnt-a');
+  const cntR=document.getElementById('tech-cnt-r');
+  const cntT=document.getElementById('tech-cnt-total');
+  const chipG=document.getElementById('tech-chip-g');
+  const chipA=document.getElementById('tech-chip-a');
+  const chipR=document.getElementById('tech-chip-r');
+  if(numEl){numEl.textContent=score+'%';numEl.className='score-hero-num '+cls;}
+  if(levelEl){levelEl.textContent=levelLabel;levelEl.className='score-hero-level '+cls;}
+  if(interpEl)interpEl.textContent=interpMap[cls]||'';
+  if(barEl){barEl.style.width=score+'%';barEl.className='score-hero-bar '+cls;}
+  if(cntG)cntG.textContent=g;
+  if(cntA)cntA.textContent=a;
+  if(cntR)cntR.textContent=r;
+  if(cntT)cntT.textContent=total;
+  if(chipG)chipG.className='score-chip '+(g>0?'green':'');
+  if(chipA)chipA.className='score-chip '+(a>0?'amber':'');
+  if(chipR)chipR.className='score-chip '+(r>0?'red':'');
 
-  const R=36,SW=10,CX=48,CY=48,circ=2*Math.PI*R;
+  // ── Executive Summary (deterministisch) ───────────────
+  const esCard=document.getElementById('tech-exec-summary');
+  const esContent=document.getElementById('tech-exec-summary-content');
+  if(esCard&&esContent){
+    const redChecks=checks.filter(c=>c.status==='red');
+    const amberChecks=checks.filter(c=>c.status==='amber');
+    const topIssues=[...redChecks,...amberChecks].slice(0,4);
+    const topFixes=[...redChecks,...amberChecks].filter(c=>c.fix).slice(0,4);
+    let html=`<div class="exec-summary-grid">`;
+    // Linke Spalte — Bewertung
+    html+=`<div class="exec-summary-section">
+      <div class="exec-summary-section-title">Bewertung</div>
+      <div class="exec-summary-score">${score}% — ${levelLabel}</div>
+      <div class="exec-summary-interpretation">${escHtml(interpMap[cls]||'')}`;
+    if(redChecks.length>0){
+      html+=` ${redChecks.length} kritische${redChecks.length>1?'':''} Problem${redChecks.length>1?'e':''} gefunden.`;
+    } else if(amberChecks.length>0){
+      html+=` ${amberChecks.length} Prüfpunkt${amberChecks.length>1?'e':''} mit Optimierungsbedarf.`;
+    } else {
+      html+=` Alle Prüfpunkte bestanden — keine Aktion erforderlich.`;
+    }
+    html+=`</div></div>`;
+    // Rechte Spalte — Top-Probleme
+    html+=`<div class="exec-summary-section">
+      <div class="exec-summary-section-title">Top-Probleme</div>`;
+    if(topIssues.length){
+      topIssues.forEach(c=>{
+        const sym=c.status==='red'?'✗':'◑';
+        const symColor=c.status==='red'?'var(--red)':'var(--amber)';
+        html+=`<div class="exec-summary-problem">
+          <div class="exec-summary-problem-label"><span style="color:${symColor};margin-right:5px">${sym}</span>${escHtml(c.id)} — ${escHtml(c.name)}</div>
+          <div class="exec-summary-problem-arrow">${escHtml((c.finding||'').substring(0,120)+((c.finding||'').length>120?'…':''))}</div>
+        </div>`;
+      });
+    } else {
+      html+=`<div style="font-size:12px;color:var(--text3);padding:4px 0">Keine Probleme — alle Prüfpunkte grün.</div>`;
+    }
+    html+=`</div></div>`;
+    // Nächste Schritte (volle Breite)
+    if(topFixes.length){
+      html+=`<div class="exec-summary-steps" style="grid-column:1/-1">
+        <div class="exec-summary-section-title" style="margin-bottom:10px">Nächste Schritte</div>`;
+      topFixes.forEach((c,i)=>{
+        html+=`<div class="exec-summary-item">
+          <span class="exec-summary-num">${i+1}</span>
+          <span><strong>${escHtml(c.id)} — ${escHtml(c.name)}:</strong> ${escHtml(c.fix||'')}</span>
+        </div>`;
+      });
+      html+=`</div>`;
+    }
+    esContent.innerHTML=html;
+    esCard.style.display='block';
+  }
 
-  let html=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
-    <div style="display:flex;align-items:center;gap:16px">
-      <div style="font-size:36px;font-weight:700;line-height:1;color:${scoreColor}">${score}%</div>
-      <div>
-        <div style="font-size:13px;font-weight:600;color:var(--text)">${score>=70?'Technisch solide':score>=45?'Verbesserungsbedarf':'Kritische Probleme'}</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px">${total} Prüfpunkte in 5 Bereichen</div>
-      </div>
-    </div>
-    <div style="display:flex;gap:8px">
-      <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;border:1px solid var(--green-border);background:var(--green-bg);font-size:11px;font-weight:600;color:var(--green)">✓ ${g}</span>
-      <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;border:1px solid var(--amber-border);background:var(--amber-bg);font-size:11px;font-weight:600;color:var(--amber)">◑ ${a}</span>
-      <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;border:1px solid var(--red-border);background:var(--red-bg);font-size:11px;font-weight:600;color:var(--red)">✗ ${r}</span>
-    </div>
-  </div>
-  <div class="cluster-overview">`;
-
-  clusters.forEach(cl=>{
-    const clChecks=checks.filter(c=>cl.ids.includes(c.id));
-    if(!clChecks.length)return;
-    const cg=clChecks.filter(c=>c.status==='green').length;
-    const ca=clChecks.filter(c=>c.status==='amber').length;
-    const cr=clChecks.filter(c=>c.status==='red').length;
-    const cscore=Math.round((cg*100+ca*50)/clChecks.length);
-    const cls=cscore>=70?'green':cscore>=45?'amber':'red';
-    const color=cls==='green'?'var(--green)':cls==='amber'?'var(--amber)':'var(--red)';
-    const dash=(cscore/100*circ).toFixed(1);
-    const hint=cl.hint[cls]||'';
-    const cardId='tech-cluster-'+cl.id;
-    const rows=clChecks.map(c=>{
-      const sym=c.status==='green'?'✓':c.status==='amber'?'◑':'✗';
-      return`<div class="cluster-crit-row">`
-        +`<div class="cluster-crit-meta"><div class="status-dot ${c.status}">${sym}</div><div class="cluster-crit-id">${escHtml(c.id)}</div></div>`
-        +`<div class="cluster-crit-main">`
-        +`<div class="cluster-crit-name">${escHtml(c.name)}</div>`
-        +(c.finding?`<div class="cluster-crit-finding">${escHtml(c.finding.substring(0,180)+(c.finding.length>180?'…':''))}</div>`:'')
-        +(c.fix&&c.status!=='green'?`<div class="cluster-crit-improve">→ ${escHtml(c.fix.substring(0,180)+(c.fix.length>180?'…':''))}</div>`:'')
-        +`</div></div>`;
+  // ── Cluster-Cards ──────────────────────────────────────
+  const clusterEl=document.getElementById('tech-cluster-overview');
+  if(clusterEl){
+    const clusters=[
+      {id:'A',name:'Indexierbarkeit & Crawling',
+        hint:{green:'Seite ist korrekt indexierbar und für Google erreichbar.',amber:'Kleinere Crawling-Probleme — sollten zeitnah behoben werden.',red:'Kritische Indexierungsprobleme — Google kann die Seite nicht korrekt erfassen.'},
+        ids:['T1','T2','T8','T9','T12','T19']},
+      {id:'B',name:'On-Page Meta & Markup',
+        hint:{green:'Meta-Daten, Überschriften und Markup vollständig und korrekt.',amber:'Einzelne Meta-Elemente fehlen oder sind nicht optimal.',red:'Wichtige On-Page-Elemente fehlen — starker SEO-Impact.'},
+        ids:['T3','T4','T5','T13','T14','T15','T7','T16']},
+      {id:'C',name:'Bilder & Ressourcen',
+        hint:{green:'Bilder optimiert und Ressourcen korrekt eingebunden.',amber:'Optimierungspotenzial bei Bild-SEO oder Ressourcen-Laden.',red:'Kritische Probleme mit Bild-Optimierung oder Mixed Content.'},
+        ids:['T6','T20','T21','T22','T23']},
+      {id:'D',name:'Performance & Core Web Vitals',
+        hint:{green:'Sehr gute Ladeperformance auf Mobile und Desktop.',amber:'Performance-Probleme — LCP, INP oder Score unter Zielwert.',red:'Kritische Performance-Probleme — starker Einfluss auf Rankings und Conversions.'},
+        ids:['T10','T11','T17','T18']},
+      {id:'E',name:'Links & Seitenstruktur',
+        hint:{green:'Interne Verlinkung und Seitenstruktur unauffällig.',amber:'Einzelne Auffälligkeiten bei Anchor-Texten oder Link-Menge.',red:'Strukturelle Link-Probleme — verbesserungswürdig.'},
+        ids:['T24','T25']},
+    ];
+    const R=36,SW=10,CX=48,CY=48,circ=2*Math.PI*R;
+    clusterEl.innerHTML=clusters.map(cl=>{
+      const clChecks=checks.filter(c=>cl.ids.includes(c.id));
+      if(!clChecks.length)return'';
+      const cg=clChecks.filter(c=>c.status==='green').length;
+      const ca=clChecks.filter(c=>c.status==='amber').length;
+      const cr=clChecks.filter(c=>c.status==='red').length;
+      const cscore=Math.round((cg*100+ca*50)/clChecks.length);
+      const ccls=cscore>=70?'green':cscore>=45?'amber':'red';
+      const color=ccls==='green'?'var(--green)':ccls==='amber'?'var(--amber)':'var(--red)';
+      const dash=(cscore/100*circ).toFixed(1);
+      const hint=cl.hint[ccls]||'';
+      const cardId='tech-cluster-'+cl.id;
+      const rows=clChecks.map(c=>{
+        const sym=c.status==='green'?'✓':c.status==='amber'?'◑':'✗';
+        return`<div class="cluster-crit-row">`
+          +`<div class="cluster-crit-meta"><div class="status-dot ${c.status}">${sym}</div><div class="cluster-crit-id">${escHtml(c.id)}</div></div>`
+          +`<div class="cluster-crit-main">`
+          +`<div class="cluster-crit-name">${escHtml(c.name)}</div>`
+          +(c.finding?`<div class="cluster-crit-finding">${escHtml(c.finding.substring(0,180)+(c.finding.length>180?'…':''))}</div>`:'')
+          +(c.fix&&c.status!=='green'?`<div class="cluster-crit-improve">→ ${escHtml(c.fix.substring(0,180)+(c.fix.length>180?'…':''))}</div>`:'')
+          +`</div></div>`;
+      }).join('');
+      return`<div class="cluster-card${cr>0?' open':''}" id="${cardId}">`
+        +`<div class="cluster-card-header" onclick="toggleCluster('${cardId}')">`
+        +`<div class="cluster-card-donut"><svg width="96" height="96" viewBox="0 0 96 96">`
+        +`<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="var(--bg4)" stroke-width="${SW}"/>`
+        +`<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="${color}" stroke-width="${SW}" stroke-dasharray="${dash} ${circ.toFixed(1)}" stroke-linecap="round" transform="rotate(-90 ${CX} ${CY})"/>`
+        +`<text x="${CX}" y="${CY}" text-anchor="middle" dominant-baseline="central" font-size="18" font-weight="700" fill="${color}" font-family="Inter,sans-serif">${cscore}%</text>`
+        +`</svg></div>`
+        +`<div class="cluster-card-info">`
+        +`<div class="cluster-card-name">${escHtml(cl.name)}</div>`
+        +`<div style="font-size:11px;color:var(--text3);margin-top:3px;margin-bottom:6px;font-style:italic;line-height:1.4">${escHtml(hint)}</div>`
+        +`<div style="display:flex;gap:10px;font-size:12px">`
+        +`<span style="color:var(--green)">${cg} ✓</span>`
+        +`<span style="color:var(--amber)">${ca} ◑</span>`
+        +`<span style="color:var(--red)">${cr} ✗</span>`
+        +`</div></div>`
+        +`<svg class="cluster-card-toggle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>`
+        +`</div>`
+        +`<div class="cluster-card-body">${rows}</div>`
+        +`</div>`;
     }).join('');
-    html+=`<div class="cluster-card${cr>0?' open':''}" id="${cardId}">`
-      +`<div class="cluster-card-header" onclick="toggleCluster('${cardId}')">`
-      +`<div class="cluster-card-donut"><svg width="96" height="96" viewBox="0 0 96 96">`
-      +`<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="var(--bg4)" stroke-width="${SW}"/>`
-      +`<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="${color}" stroke-width="${SW}" stroke-dasharray="${dash} ${circ.toFixed(1)}" stroke-linecap="round" transform="rotate(-90 ${CX} ${CY})"/>`
-      +`<text x="${CX}" y="${CY}" text-anchor="middle" dominant-baseline="central" font-size="18" font-weight="700" fill="${color}" font-family="Inter,sans-serif">${cscore}%</text>`
-      +`</svg></div>`
-      +`<div class="cluster-card-info">`
-      +`<div class="cluster-card-name">${escHtml(cl.name)}</div>`
-      +`<div style="font-size:11px;color:var(--text3);margin-top:3px;margin-bottom:6px;font-style:italic;line-height:1.4">${escHtml(hint)}</div>`
-      +`<div style="display:flex;gap:10px;font-size:12px">`
-      +`<span style="color:var(--green)">${cg} ✓</span>`
-      +`<span style="color:var(--amber)">${ca} ◑</span>`
-      +`<span style="color:var(--red)">${cr} ✗</span>`
-      +`</div></div>`
-      +`<svg class="cluster-card-toggle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>`
-      +`</div>`
-      +`<div class="cluster-card-body">${rows}</div>`
-      +`</div>`;
-  });
+  }
 
-  html+='</div>';
-  el.innerHTML=html;
-
-  // Modul-Kachel + Sidebar-Score aktualisieren
+  // ── Modul-Kachel + Sidebar-Score ──────────────────────
   const mcEl=document.getElementById('mc-technical-score');
   const navEl=document.getElementById('nav-score-technical');
   const mcBar=document.getElementById('mc-technical-bar');
   const mcLabel=document.getElementById('mc-technical-label');
   const mcCard=document.getElementById('mc-technical');
-  if(mcEl){mcEl.textContent=score+'%';mcEl.className='module-card-score '+(score>=70?'green':score>=45?'amber':'red');}
+  if(mcEl){mcEl.textContent=score+'%';mcEl.className='module-card-score '+cls;}
   if(navEl){navEl.textContent=score+'%';navEl.style.display='';}
-  if(mcBar){mcBar.style.width=score+'%';mcBar.className='module-card-bar '+(score>=70?'green':score>=45?'amber':'red');}
-  if(mcLabel)mcLabel.textContent=score>=70?'Technisch solide':score>=45?'Optimierungsbedarf':'Kritische Probleme';
-  if(mcCard){mcCard.classList.remove('mc-green','mc-amber','mc-red');mcCard.classList.add(score>=70?'mc-green':score>=45?'mc-amber':'mc-red');}
+  if(mcBar){mcBar.style.width=score+'%';mcBar.className='module-card-bar '+cls;}
+  if(mcLabel)mcLabel.textContent=levelLabel;
+  if(mcCard){mcCard.classList.remove('mc-green','mc-amber','mc-red');mcCard.classList.add('mc-'+cls);}
 }
 
 function renderKeywordFit(){
