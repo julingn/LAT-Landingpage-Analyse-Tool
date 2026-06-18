@@ -1443,7 +1443,7 @@ const MINI_CALLS=[
 // === STATE ===
 let analysisResults=[],pqResults=[],e8Result=null,ymylResult=null,currentUrl='',currentHtml='';
 let isDemoMode=false;
-let gscData=null,serpData=null,backlinkData=null,psiData=null,sistrixData=null,geoData=null,kwData=null,ucrData=null,sitemapData=null;
+let gscData=null,serpData=null,backlinkData=null,psiData=null,psiDesktopData=null,sistrixData=null,geoData=null,kwData=null,ucrData=null,sitemapData=null;
 let analysisStartTime=0,timerInterval=null,lastPct=0;
 
 // === LOG / PROGRESS ===
@@ -1533,7 +1533,7 @@ async function startDemo(){
   document.getElementById('log-wrap').classList.remove('collapsed');
   document.getElementById('log-box').innerHTML='';
   analysisResults=[];pqResults=[];e8Result=null;ymylResult=null;
-  gscData=null;serpData=null;backlinkData=null;psiData=null;sistrixData=null;geoData=null;kwData=null;ucrData=null;sitemapData=null;
+  gscData=null;serpData=null;backlinkData=null;psiData=null;psiDesktopData=null;sistrixData=null;geoData=null;kwData=null;ucrData=null;sitemapData=null;
   analysisStartTime=Date.now();lastPct=0;
   if(timerInterval)clearInterval(timerInterval);
   timerInterval=setInterval(updateTimer,1000);
@@ -1642,6 +1642,7 @@ async function startDemo(){
       ],screenshot_base64:null}
   };
   sitemapData={found:true,loc_count:312,sitemap_url:'https://www.beispiel-energie.de/sitemap.xml'};
+  psiDesktopData={success:true,strategy:'desktop',perf_score:89,lcp:'1.8 s',cls:'0.02',tbt:'60 ms',fcp:'0.9 s',inp:'120 ms'};
   log('UX/CRO: Mobile 60% + Desktop 78% → Ø 69% (Demo)','ok');
 
   setProgress(92,'Ergebnisse rendern…','Fast fertig…');
@@ -1689,7 +1690,7 @@ async function startAnalysis(){
   document.getElementById('log-wrap').classList.remove('collapsed');
   document.getElementById('log-box').innerHTML='';
   analysisResults=[];pqResults=[];e8Result=null;ymylResult=null;
-  gscData=null;serpData=null;backlinkData=null;psiData=null;sistrixData=null;geoData=null;kwData=null;ucrData=null;sitemapData=null;
+  gscData=null;serpData=null;backlinkData=null;psiData=null;psiDesktopData=null;sistrixData=null;geoData=null;kwData=null;ucrData=null;sitemapData=null;
   analysisStartTime=Date.now();lastPct=0;
   if(timerInterval)clearInterval(timerInterval);
   timerInterval=setInterval(updateTimer,1000);
@@ -1726,7 +1727,7 @@ async function startAnalysis(){
 
     // Externe Daten parallel abrufen (Fehler blockieren nicht)
     setProgress(5,'Daten abrufen…','GSC · SERP · Backlinks · PageSpeed · Sistrix · GEO…');
-    const [gscRes,serpRes,blRes,psiRes,sistrixRes,geoRes,sitemapRes]=await Promise.allSettled([
+    const [gscRes,serpRes,blRes,psiRes,sistrixRes,geoRes,sitemapRes,psiDeskRes]=await Promise.allSettled([
       currentMode==='url'&&currentUrl?fetchGscData(currentUrl):Promise.resolve(null),
       effectiveKeyword?fetchSerpData(effectiveKeyword):Promise.resolve(null),
       currentMode==='url'&&currentUrl?fetchBacklinkData(currentUrl):Promise.resolve(null),
@@ -1734,18 +1735,23 @@ async function startAnalysis(){
       currentMode==='url'&&currentUrl?fetchSistrixData(currentUrl):Promise.resolve(null),
       currentMode==='url'&&currentUrl?fetchGeoData(currentUrl):Promise.resolve(null),
       currentMode==='url'&&currentUrl?fetchSitemapData(currentUrl):Promise.resolve(null),
+      currentMode==='url'&&currentUrl?fetchPageSpeedData(currentUrl,'desktop'):Promise.resolve(null),
     ]);
-    gscData      = gscRes.status==='fulfilled'?gscRes.value:null;
-    serpData     = serpRes.status==='fulfilled'?serpRes.value:null;
-    backlinkData = blRes.status==='fulfilled'?blRes.value:null;
-    psiData      = psiRes.status==='fulfilled'?psiRes.value:null;
-    sistrixData  = sistrixRes.status==='fulfilled'?sistrixRes.value:null;
-    geoData      = geoRes.status==='fulfilled'?geoRes.value:null;
-    sitemapData  = sitemapRes.status==='fulfilled'?sitemapRes.value:null;
+    gscData        = gscRes.status==='fulfilled'?gscRes.value:null;
+    serpData       = serpRes.status==='fulfilled'?serpRes.value:null;
+    backlinkData   = blRes.status==='fulfilled'?blRes.value:null;
+    psiData        = psiRes.status==='fulfilled'?psiRes.value:null;
+    sistrixData    = sistrixRes.status==='fulfilled'?sistrixRes.value:null;
+    geoData        = geoRes.status==='fulfilled'?geoRes.value:null;
+    sitemapData    = sitemapRes.status==='fulfilled'?sitemapRes.value:null;
+    psiDesktopData = psiDeskRes.status==='fulfilled'?psiDeskRes.value:null;
     if(sitemapData?.found!==undefined)log(`Sitemap: LP-URL ${sitemapData.found?'✓ enthalten':'✗ nicht gefunden'} (${sitemapData.loc_count} URLs geprüft)`,'ok');
-    else if(sitemapData?.is_index)log(`Sitemap: Sitemap-Index gefunden (${sitemapData.sub_count} Sub-Sitemaps)`, 'ok');
+    else if(sitemapData?.is_index)log(`Sitemap: Sitemap-Index gefunden (${sitemapData.sub_count} Sub-Sitemaps)`,'ok');
     else if(currentMode==='url')log('Sitemap: konnte nicht abgerufen werden (kein /sitemap.xml?)');
     else log('Sitemap: übersprungen (HTML-Modus)');
+    if(psiDesktopData?.success)log(`PageSpeed Desktop: ${psiDesktopData.perf_score}/100 · LCP: ${psiDesktopData.lcp||'–'} · INP: ${psiDesktopData.inp||'–'}`,'ok');
+    else if(currentMode==='url')log('PageSpeed Desktop: nicht verfügbar');
+    else log('PageSpeed Desktop: übersprungen (HTML-Modus)');
 
     if(gscData?.keywords?.length)log(`GSC: ${gscData.keywords.length} Keywords geladen`,'ok');
     else if(gscData?._empty)log('GSC: verbunden, aber keine Daten für diese URL (keine Impressionen in 90 Tagen?)');
@@ -2703,7 +2709,7 @@ function renderResults(keyword){
 // ═══════════════════════════════════════════════════════════
 // M2 — TECHNICAL SEO (deterministisch, kein KI-Call)
 // ═══════════════════════════════════════════════════════════
-function runTechnicalSeo(html, url, psi, sitemap){
+function runTechnicalSeo(html, url, psi, sitemap, psiDesktop){
   const doc = (() => {
     try { return new DOMParser().parseFromString(html,'text/html'); } catch(e){ return null; }
   })();
@@ -2859,11 +2865,190 @@ function runTechnicalSeo(html, url, psi, sitemap){
       fix:'Prüfen ob eine sitemap.xml unter der Root-Domain existiert und die LP-URL enthält.'});
   }
 
+  // ── T13: Viewport Meta Tag ────────────────────────────
+  let hasViewport=false;
+  if(doc){ hasViewport=!!doc.querySelector('meta[name="viewport"],meta[name="VIEWPORT"]'); }
+  checks.push({id:'T13',name:'Viewport Meta Tag',status:hasViewport?'green':'red',
+    finding:hasViewport?'Viewport Meta Tag vorhanden.':'Kein <meta name="viewport"> gefunden.',
+    detail:hasViewport?'':'Ohne Viewport-Meta skaliert der Browser die Desktop-Ansicht auf Mobile — Google bewertet dies als mobilunfreundlich.',
+    fix:hasViewport?'':'<meta name="viewport" content="width=device-width, initial-scale=1"> im <head> ergänzen.'});
+
+  // ── T14: Structured Data / Schema.org ────────────────
+  let schemaTypes=[];
+  if(doc){
+    Array.from(doc.querySelectorAll('script[type="application/ld+json"]')).forEach(s=>{
+      try{const p=JSON.parse(s.textContent);const t=p['@type']||(Array.isArray(p)&&p[0]?p[0]['@type']:null);if(t)schemaTypes.push(t);}catch(e){}
+    });
+    if(!schemaTypes.length){
+      Array.from(doc.querySelectorAll('[itemtype]')).forEach(el=>{const t=(el.getAttribute('itemtype')||'').split('/').pop();if(t&&!schemaTypes.includes(t))schemaTypes.push(t);});
+    }
+  }
+  checks.push({id:'T14',name:'Structured Data (Schema.org)',status:schemaTypes.length?'green':'amber',
+    finding:schemaTypes.length?`Schema Markup gefunden: ${schemaTypes.slice(0,3).join(', ')}${schemaTypes.length>3?' + '+(schemaTypes.length-3)+' weitere':''}` :'Kein Schema.org Markup (JSON-LD oder Microdata) gefunden.',
+    detail:schemaTypes.length?'':'Structured Data ermöglicht Rich Results in der SERP (Bewertungen, FAQ, Breadcrumb etc.).',
+    fix:schemaTypes.length?'':'JSON-LD Markup ergänzen (z.B. WebPage, Product, Article, FAQPage, BreadcrumbList).'});
+
+  // ── T15: Heading-Hierarchie ──────────────────────────
+  let h2Count=0,h3Count=0,headingIssue='';
+  if(doc){
+    h2Count=doc.querySelectorAll('h2').length;
+    h3Count=doc.querySelectorAll('h3').length;
+    if(h3Count>0&&h2Count===0) headingIssue='H3-Tags vorhanden, aber keine H2 (Hierarchiesprung H1→H3).';
+    else if(h2Count===0&&h1s.length>0) headingIssue='Keine H2-Überschriften — fehlende Inhaltsstruktur.';
+  }
+  checks.push({id:'T15',name:'Heading-Hierarchie',status:headingIssue?'amber':'green',
+    finding:headingIssue||`Hierarchie korrekt: H2: ${h2Count} · H3: ${h3Count}`,
+    detail:headingIssue?'Korrekte Heading-Hierarchie hilft Google, die Inhaltsstruktur und Abschnitte zu verstehen.':'',
+    fix:headingIssue?'Inhalte in logische Abschnitte mit H2/H3 gliedern.':''});
+
+  // ── T16: Twitter Card Tags ────────────────────────────
+  let twCard='';
+  if(doc){ twCard=(doc.querySelector('meta[name="twitter:card"]')?.getAttribute('content')||'').trim(); }
+  checks.push({id:'T16',name:'Twitter Card Tags',status:twCard?'green':'amber',
+    finding:twCard?`twitter:card vorhanden: "${twCard}"`:'Kein <meta name="twitter:card"> gefunden.',
+    detail:twCard?'':'Twitter/X Card Tags steuern die Link-Vorschau beim Teilen auf Twitter/X.',
+    fix:twCard?'':'<meta name="twitter:card" content="summary_large_image"> im <head> ergänzen.'});
+
+  // ── T17: Desktop PageSpeed-Score ─────────────────────
+  if(psiDesktop?.success){
+    const deskScore=psiDesktop.perf_score||0;
+    checks.push({id:'T17',name:'Desktop PageSpeed-Score',status:deskScore>=90?'green':deskScore>=50?'amber':'red',
+      finding:`Desktop Score: ${deskScore}/100 — ${deskScore>=90?'Sehr gut':deskScore>=50?'Verbesserungsbedarf':'Kritisch'} · LCP: ${psiDesktop.lcp||'–'} · CLS: ${psiDesktop.cls||'–'}`,
+      detail:'',
+      fix:deskScore<90?'Render-blocking Ressourcen entfernen, Bilder optimieren, Server-Antwortzeit reduzieren.':''});
+  }
+
+  // ── T18: INP (Interaction to Next Paint) ─────────────
+  const inpVal=psiDesktop?.inp||psi?.inp||null;
+  if(inpVal){
+    const inpMs=parseFloat(inpVal)||0;
+    checks.push({id:'T18',name:'Interaction to Next Paint (INP)',status:inpMs<=200?'green':inpMs<=500?'amber':'red',
+      finding:`INP: ${inpVal} — ${inpMs<=200?'Gut (≤200ms)':inpMs<=500?'Verbesserungsbedarf (≤500ms)':'Kritisch (>500ms)'}`,
+      detail:inpMs>200?'INP misst die Reaktionszeit auf Nutzerinteraktionen (Klicks, Formulare, Dropdowns). Zielwert: ≤200ms.':'',
+      fix:inpMs>200?'Schwere JavaScript-Ausführung reduzieren, Long Tasks aufteilen, Event-Handler optimieren.':''});
+  }
+
+  // ── T19: Cross-Domain Canonical ───────────────────────
+  if(canonicalOk&&canonical&&url){
+    try{
+      const canonOrigin=new URL(canonical).origin;
+      const pageOrigin=new URL(url).origin;
+      if(canonOrigin!==pageOrigin){
+        checks.push({id:'T19',name:'Cross-Domain Canonical',status:'red',
+          finding:`Canonical zeigt auf andere Domain: ${canonOrigin} (Seite: ${pageOrigin})`,
+          detail:'Ein Cross-Domain-Canonical übergibt den gesamten Link-Wert an eine fremde Domain und macht diese Seite für Google unsichtbar.',
+          fix:'Canonical auf die eigene Domain zeigen lassen — oder absichtliche Cross-Domain-Kanonisierung bewusst prüfen.'});
+      }
+    }catch(e){}
+  }
+
+  // ── T20: Render-blocking Scripts ─────────────────────
+  let blockingScripts=0,blockingExamples=[];
+  if(doc){
+    Array.from(doc.querySelectorAll('head script[src]')).forEach(s=>{
+      if(!s.hasAttribute('defer')&&!s.hasAttribute('async')){
+        blockingScripts++;
+        const src=(s.getAttribute('src')||'').split('/').pop().split('?')[0];
+        if(blockingExamples.length<3&&src.length>2)blockingExamples.push(src);
+      }
+    });
+  }
+  checks.push({id:'T20',name:'Render-blocking Scripts',status:blockingScripts===0?'green':blockingScripts<=2?'amber':'red',
+    finding:blockingScripts===0?'Keine render-blocking Scripts im <head> gefunden.'
+      :blockingScripts===1?`1 render-blocking Script im <head>: ${blockingExamples.join(', ')}`
+      :`${blockingScripts} render-blocking Scripts im <head>: ${blockingExamples.join(', ')}${blockingScripts>3?' u.a.':''}`,
+    detail:blockingScripts>0?'Scripts ohne defer/async im <head> blockieren das Browser-Rendering bis sie vollständig geladen sind.':'',
+    fix:blockingScripts>0?'defer oder async Attribut zu <script src="…">-Tags im <head> hinzufügen.':''});
+
+  // ── T21: Lazy Loading (Bilder) ────────────────────────
+  let lazyMissing=0,lazyTotal=0;
+  if(doc){
+    const allImgs=Array.from(doc.querySelectorAll('img'));
+    const belowFold=allImgs.slice(2); // Erste 2 Bilder (Hero/LCP) ausnehmen
+    lazyTotal=belowFold.length;
+    belowFold.forEach(img=>{ if(img.getAttribute('loading')!=='lazy')lazyMissing++; });
+  }
+  const lazyStatus=lazyTotal===0?'green':lazyMissing===0?'green':lazyMissing<=Math.ceil(lazyTotal*0.4)?'amber':'red';
+  checks.push({id:'T21',name:'Lazy Loading (Bilder)',status:lazyStatus,
+    finding:lazyTotal===0?'Wenige Bilder — Lazy Loading nicht relevant.'
+      :lazyMissing===0?`Alle ${lazyTotal} Bilder (ab Position 3) haben loading="lazy".`
+      :`${lazyMissing} von ${lazyTotal} Bildern ohne loading="lazy" (ab Bild 3).`,
+    detail:lazyMissing>0?'Lazy Loading verhindert das sofortige Laden von Off-Screen-Bildern — verbessert LCP und PageSpeed.':'',
+    fix:lazyMissing>0?'loading="lazy" zu allen Bildern hinzufügen, die nicht im initialen Viewport sind. Hero-Bild NICHT lazy laden.':''});
+
+  // ── T22: Moderne Bildformate (WebP/AVIF) ─────────────
+  let modernFormatFound=false,imgCount22=0;
+  if(doc){
+    imgCount22=doc.querySelectorAll('img').length;
+    const allSrcs=[
+      ...Array.from(doc.querySelectorAll('img[src]')).map(i=>i.getAttribute('src')||''),
+      ...Array.from(doc.querySelectorAll('source[srcset]')).map(s=>s.getAttribute('srcset')||''),
+    ];
+    modernFormatFound=allSrcs.some(s=>/\.(webp|avif)/i.test(s));
+  }
+  checks.push({id:'T22',name:'Moderne Bildformate (WebP/AVIF)',status:imgCount22===0?'green':modernFormatFound?'green':'amber',
+    finding:imgCount22===0?'Keine Bilder gefunden.'
+      :modernFormatFound?'WebP oder AVIF Bildformat erkannt.'
+      :'Keine WebP- oder AVIF-Bilder gefunden — nur klassische Formate (JPEG/PNG).',
+    detail:!modernFormatFound&&imgCount22>0?'WebP ist ~30% kleiner als JPEG bei gleicher Qualität. AVIF nochmals kompakter.':'',
+    fix:!modernFormatFound&&imgCount22>0?'Bilder in WebP konvertieren. Mit <picture>-Element Fallback auf JPEG für ältere Browser bereitstellen.':''});
+
+  // ── T23: Mixed Content (HTTP-Ressourcen) ─────────────
+  let mixedCount=0,mixedExamples=[];
+  if(doc&&(url||'').startsWith('https://')){
+    [['img','src'],['script','src'],['link','href'],['iframe','src']].forEach(([sel,attr])=>{
+      Array.from(doc.querySelectorAll(`${sel}[${attr}]`)).forEach(el=>{
+        const val=el.getAttribute(attr)||'';
+        if(val.startsWith('http://')){
+          mixedCount++;
+          const host=val.replace('http://','').split('/')[0];
+          if(mixedExamples.length<3&&host.length>2)mixedExamples.push(host);
+        }
+      });
+    });
+  }
+  const mixedStatus=!(url||'').startsWith('https://')?'green':mixedCount===0?'green':mixedCount<=2?'amber':'red';
+  checks.push({id:'T23',name:'Mixed Content (HTTP-Ressourcen)',status:mixedStatus,
+    finding:!(url||'').startsWith('https://')?'HTTP-Seite — Mixed Content nicht relevant.'
+      :mixedCount===0?'Keine HTTP-Ressourcen auf HTTPS-Seite.'
+      :`${mixedCount} HTTP-Ressource${mixedCount>1?'n':''} auf HTTPS-Seite: ${mixedExamples.join(', ')}${mixedCount>3?' u.a.':''}`,
+    detail:mixedCount>0?'Browser blockieren aktive Mixed Content (Scripts, CSS). Passive Mixed Content (Bilder) erzeugt Sicherheitswarnungen.':'',
+    fix:mixedCount>0?'Alle Ressourcen auf HTTPS umstellen. Relative Pfade (/pfad/zur/datei) oder protocol-relative URLs (//) verwenden.':''});
+
+  // ── T24: Generische Anchor-Texte ──────────────────────
+  let genericAnchors=0,genericExamples=[];
+  if(doc){
+    const genericRe=/^(hier|hier klicken|klicken|click here|mehr|mehr erfahren|lesen sie mehr|read more|weiterlesen|weiter|details|details anzeigen|öffnen|anzeigen|jetzt|link|seite)$/i;
+    Array.from(doc.querySelectorAll('a[href]')).forEach(a=>{
+      const text=(a.textContent||'').trim();
+      if(genericRe.test(text)){
+        genericAnchors++;
+        if(genericExamples.length<4&&!genericExamples.includes('"'+text.toLowerCase()+'"'))genericExamples.push('"'+text+'"');
+      }
+    });
+  }
+  checks.push({id:'T24',name:'Anchor-Texte (Qualität)',status:genericAnchors===0?'green':genericAnchors<=3?'amber':'red',
+    finding:genericAnchors===0?'Keine generischen Anchor-Texte gefunden.'
+      :`${genericAnchors} generische${genericAnchors>1?' Anchor-Texte':' Anchor-Text'} erkannt: ${genericExamples.join(', ')}`,
+    detail:genericAnchors>0?'Generische Texte wie "hier klicken" geben Google kein Signal über die verlinkte Seite.':'',
+    fix:genericAnchors>0?'Anchor-Text durch beschreibenden Text ersetzen, der den Inhalt der Zielseite erklärt.':''});
+
+  // ── T25: Übermäßige Link-Anzahl ───────────────────────
+  let linkCount=0;
+  if(doc){ linkCount=doc.querySelectorAll('a[href]').length; }
+  checks.push({id:'T25',name:'Link-Anzahl (gesamt)',status:linkCount<=100?'green':linkCount<=150?'amber':'red',
+    finding:linkCount===0?'Keine Links gefunden.'
+      :linkCount<=100?`${linkCount} Links — unauffällig.`
+      :linkCount<=150?`${linkCount} Links — im oberen Bereich, Mega-Menüs und Footer prüfen.`
+      :`${linkCount} Links — sehr viele, Link-Equity je Link wird verwässert.`,
+    detail:linkCount>150?'Sehr viele Links auf einer Seite verteilen den PageRank auf viele Ziele. Mega-Menüs und Footer-Links sind häufige Ursache.':'',
+    fix:linkCount>150?'Mega-Menüs, Footer-Links und redundante Navigationselemente reduzieren.':''});
+
   return checks;
 }
 
 function renderTechnicalSeo(){
-  const checks = runTechnicalSeo(currentHtml, currentUrl, psiData, sitemapData);
+  const checks = runTechnicalSeo(currentHtml, currentUrl, psiData, sitemapData, psiDesktopData);
   const el = document.getElementById('technical-panel-content');
   if(!el) return;
 
@@ -2872,18 +3057,35 @@ function renderTechnicalSeo(){
   const r=checks.filter(c=>c.status==='red').length;
   const total=checks.length;
   const score=Math.round((g*100+a*50)/total);
+  const scoreColor=score>=70?'var(--green)':score>=45?'var(--amber)':'var(--red)';
 
-  const colorMap={green:'var(--green)',amber:'var(--amber)',red:'var(--red)'};
-  const iconMap={green:'✓',amber:'◑',red:'✗'};
-  const bgMap={green:'var(--green-bg)',amber:'var(--amber-bg)',red:'var(--red-bg)'};
-  const borderMap={green:'var(--green-border)',amber:'var(--amber-border)',red:'var(--red-border)'};
+  // ── Cluster-Definitionen ──────────────────────────────
+  const clusters=[
+    {id:'A',name:'Indexierbarkeit & Crawling',
+      hint:{green:'Seite ist korrekt indexierbar und für Google erreichbar.',amber:'Kleinere Crawling-Probleme — sollten zeitnah behoben werden.',red:'Kritische Indexierungsprobleme — Google kann die Seite nicht korrekt erfassen.'},
+      ids:['T1','T2','T8','T9','T12','T19']},
+    {id:'B',name:'On-Page Meta & Markup',
+      hint:{green:'Meta-Daten, Überschriften und Markup vollständig und korrekt.',amber:'Einzelne Meta-Elemente fehlen oder sind nicht optimal.',red:'Wichtige On-Page-Elemente fehlen — starker SEO-Impact.'},
+      ids:['T3','T4','T5','T15','T13','T14','T7','T16']},
+    {id:'C',name:'Bilder & Ressourcen',
+      hint:{green:'Bilder optimiert und Ressourcen korrekt eingebunden.',amber:'Optimierungspotenzial bei Bilder-SEO oder Ressourcen-Laden.',red:'Kritische Probleme mit Bild-Optimierung oder Mixed Content.'},
+      ids:['T6','T20','T21','T22','T23']},
+    {id:'D',name:'Performance & Core Web Vitals',
+      hint:{green:'Sehr gute Ladeperformance auf Mobile und Desktop.',amber:'Performance-Probleme — LCP, INP oder Score unter Zielwert.',red:'Kritische Performance-Probleme — starker Einfluss auf Rankings und Conversions.'},
+      ids:['T10','T11','T17','T18']},
+    {id:'E',name:'Links & Seitenstruktur',
+      hint:{green:'Interne Verlinkung und Seitenstruktur unauffällig.',amber:'Einzelne Auffälligkeiten bei Anchor-Texten oder Link-Menge.',red:'Strukturelle Link-Probleme — verbesserungswürdig.'},
+      ids:['T24','T25']},
+  ];
 
-  let html = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+  const R=36,SW=10,CX=48,CY=48,circ=2*Math.PI*R;
+
+  let html=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
     <div style="display:flex;align-items:center;gap:16px">
-      <div style="font-size:36px;font-weight:700;line-height:1;color:${score>=70?'var(--green)':score>=45?'var(--amber)':'var(--red)'}">${score}%</div>
+      <div style="font-size:36px;font-weight:700;line-height:1;color:${scoreColor}">${score}%</div>
       <div>
         <div style="font-size:13px;font-weight:600;color:var(--text)">${score>=70?'Technisch solide':score>=45?'Verbesserungsbedarf':'Kritische Probleme'}</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px">${total} Prüfpunkte · Quelle: Google SEO Starter Guide</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">${total} Prüfpunkte in 5 Bereichen</div>
       </div>
     </div>
     <div style="display:flex;gap:8px">
@@ -2892,39 +3094,65 @@ function renderTechnicalSeo(){
       <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;border:1px solid var(--red-border);background:var(--red-bg);font-size:11px;font-weight:600;color:var(--red)">✗ ${r}</span>
     </div>
   </div>
-  <div style="display:flex;flex-direction:column;gap:0">`;
+  <div class="cluster-overview">`;
 
-  checks.forEach((c,i)=>{
-    const isLast = i===checks.length-1;
-    html += `<div style="display:flex;align-items:flex-start;gap:14px;padding:14px 0;${isLast?'':'border-bottom:1px solid var(--border)'}">
-      <div style="width:28px;height:28px;border-radius:50%;background:${bgMap[c.status]};border:1px solid ${borderMap[c.status]};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:${colorMap[c.status]};flex-shrink:0;margin-top:1px">${iconMap[c.status]}</div>
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
-          <span style="font-size:10px;font-weight:600;color:var(--text3);font-family:'Geist Mono','Courier New',monospace">${c.id}</span>
-          <span style="font-size:13px;font-weight:600;color:var(--text)">${c.name}</span>
-        </div>
-        <div style="font-size:12px;color:var(--text2);line-height:1.5">${escHtml(c.finding)}</div>
-        ${c.detail?`<div style="font-size:11px;color:var(--text3);margin-top:4px;line-height:1.4">${escHtml(c.detail)}</div>`:''}
-        ${c.fix?`<div style="font-size:11px;color:var(--accent);margin-top:5px;padding:4px 8px;background:var(--accent-bg);border-radius:var(--radius-sm);border:1px solid var(--accent-border);line-height:1.4"><strong>Fix:</strong> ${escHtml(c.fix)}</div>`:''}
-      </div>
-    </div>`;
+  clusters.forEach(cl=>{
+    const clChecks=checks.filter(c=>cl.ids.includes(c.id));
+    if(!clChecks.length)return;
+    const cg=clChecks.filter(c=>c.status==='green').length;
+    const ca=clChecks.filter(c=>c.status==='amber').length;
+    const cr=clChecks.filter(c=>c.status==='red').length;
+    const cscore=Math.round((cg*100+ca*50)/clChecks.length);
+    const cls=cscore>=70?'green':cscore>=45?'amber':'red';
+    const color=cls==='green'?'var(--green)':cls==='amber'?'var(--amber)':'var(--red)';
+    const dash=(cscore/100*circ).toFixed(1);
+    const hint=cl.hint[cls]||'';
+    const cardId='tech-cluster-'+cl.id;
+    const rows=clChecks.map(c=>{
+      const sym=c.status==='green'?'✓':c.status==='amber'?'◑':'✗';
+      return`<div class="cluster-crit-row">`
+        +`<div class="cluster-crit-meta"><div class="status-dot ${c.status}">${sym}</div><div class="cluster-crit-id">${escHtml(c.id)}</div></div>`
+        +`<div class="cluster-crit-main">`
+        +`<div class="cluster-crit-name">${escHtml(c.name)}</div>`
+        +(c.finding?`<div class="cluster-crit-finding">${escHtml(c.finding.substring(0,180)+(c.finding.length>180?'…':''))}</div>`:'')
+        +(c.fix&&c.status!=='green'?`<div class="cluster-crit-improve">→ ${escHtml(c.fix.substring(0,180)+(c.fix.length>180?'…':''))}</div>`:'')
+        +`</div></div>`;
+    }).join('');
+    html+=`<div class="cluster-card${cr>0?' open':''}" id="${cardId}">`
+      +`<div class="cluster-card-header" onclick="toggleCluster('${cardId}')">`
+      +`<div class="cluster-card-donut"><svg width="96" height="96" viewBox="0 0 96 96">`
+      +`<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="var(--bg4)" stroke-width="${SW}"/>`
+      +`<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="${color}" stroke-width="${SW}" stroke-dasharray="${dash} ${circ.toFixed(1)}" stroke-linecap="round" transform="rotate(-90 ${CX} ${CY})"/>`
+      +`<text x="${CX}" y="${CY}" text-anchor="middle" dominant-baseline="central" font-size="18" font-weight="700" fill="${color}" font-family="Inter,sans-serif">${cscore}%</text>`
+      +`</svg></div>`
+      +`<div class="cluster-card-info">`
+      +`<div class="cluster-card-name">${escHtml(cl.name)}</div>`
+      +`<div style="font-size:11px;color:var(--text3);margin-top:3px;margin-bottom:6px;font-style:italic;line-height:1.4">${escHtml(hint)}</div>`
+      +`<div style="display:flex;gap:10px;font-size:12px">`
+      +`<span style="color:var(--green)">${cg} ✓</span>`
+      +`<span style="color:var(--amber)">${ca} ◑</span>`
+      +`<span style="color:var(--red)">${cr} ✗</span>`
+      +`</div></div>`
+      +`<svg class="cluster-card-toggle" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>`
+      +`</div>`
+      +`<div class="cluster-card-body">${rows}</div>`
+      +`</div>`;
   });
 
-  html += '</div>';
-  el.innerHTML = html;
+  html+='</div>';
+  el.innerHTML=html;
 
-  // Update module card + nav score
-  const techScore = score;
+  // Modul-Kachel + Sidebar-Score aktualisieren
   const mcEl=document.getElementById('mc-technical-score');
   const navEl=document.getElementById('nav-score-technical');
   const mcBar=document.getElementById('mc-technical-bar');
   const mcLabel=document.getElementById('mc-technical-label');
   const mcCard=document.getElementById('mc-technical');
-  if(mcEl){mcEl.textContent=techScore+'%';mcEl.className='module-card-score '+(techScore>=70?'green':techScore>=45?'amber':'red');}
-  if(navEl){navEl.textContent=techScore+'%';navEl.style.display='';}
-  if(mcBar){mcBar.style.width=techScore+'%';mcBar.className='module-card-bar '+(techScore>=70?'green':techScore>=45?'amber':'red');}
-  if(mcLabel)mcLabel.textContent=techScore>=70?'Technisch solide':techScore>=45?'Optimierungsbedarf':'Kritische Probleme';
-  if(mcCard){mcCard.classList.remove('mc-green','mc-amber','mc-red');mcCard.classList.add(techScore>=70?'mc-green':techScore>=45?'mc-amber':'mc-red');}
+  if(mcEl){mcEl.textContent=score+'%';mcEl.className='module-card-score '+(score>=70?'green':score>=45?'amber':'red');}
+  if(navEl){navEl.textContent=score+'%';navEl.style.display='';}
+  if(mcBar){mcBar.style.width=score+'%';mcBar.className='module-card-bar '+(score>=70?'green':score>=45?'amber':'red');}
+  if(mcLabel)mcLabel.textContent=score>=70?'Technisch solide':score>=45?'Optimierungsbedarf':'Kritische Probleme';
+  if(mcCard){mcCard.classList.remove('mc-green','mc-amber','mc-red');mcCard.classList.add(score>=70?'mc-green':score>=45?'mc-amber':'mc-red');}
 }
 
 function renderKeywordFit(){

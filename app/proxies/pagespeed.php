@@ -111,4 +111,6 @@ echo json_encode([
     'fcp_score'  => metricScore($audits, 'first-contentful-paint'),
     'lcp_score'  => metricScore($audits, 'largest-contentful-paint'),
     'cls_score'  => metricScore($audits, 'cumulative-layout-shift'),
+    'inp'        => metricVal($audits, 'interaction-to-next-paint'),
+    'inp_score'  => metricScore($audits, 'interaction-to-next-paint'),
 ]);
