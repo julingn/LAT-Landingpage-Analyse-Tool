@@ -3154,17 +3154,16 @@ function renderTechnicalSeo(){
       html+=`<div style="font-size:12px;color:var(--text3);padding:4px 0">Keine Probleme — alle Prüfpunkte grün.</div>`;
     }
     html+=`</div></div>`;
-    // Nächste Schritte (volle Breite)
+    // Nächste Schritte (volle Breite, max. 3, als horizontale Cards)
     if(topFixes.length){
+      const stepItems=[...redChecks,...amberChecks].filter(c=>c.fix).slice(0,3);
       html+=`<div class="exec-summary-steps" style="grid-column:1/-1">
-        <div class="exec-summary-section-title" style="margin-bottom:10px">Empfohlene nächste Schritte</div>`;
-      topFixes.forEach((c,i)=>{
-        html+=`<div class="exec-summary-item">
-          <span class="exec-summary-num">${i+1}</span>
-          <span><strong>${escHtml(c.id)} — ${escHtml(c.name)}:</strong> ${escHtml(c.fix||'')}</span>
-        </div>`;
+        <div class="exec-summary-section-title" style="margin-bottom:10px">Empfohlene nächste Schritte</div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px">`;
+      stepItems.forEach((c,i)=>{
+        html+=`<div style="display:flex;align-items:flex-start;gap:10px;background:var(--bg2);border-radius:var(--radius-sm);padding:10px 12px;border:1px solid var(--border)"><span class="exec-summary-num">${i+1}</span><span style="flex:1;font-size:12px;color:var(--text2);line-height:1.5"><strong>${escHtml(c.id)}:</strong> ${escHtml(c.fix||'')}</span></div>`;
       });
-      html+=`</div>`;
+      html+=`</div></div>`;
     }
     esContent.innerHTML=html;
     esCard.style.display='block';
