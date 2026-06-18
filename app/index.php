@@ -2604,9 +2604,10 @@ function renderResults(keyword){
   const totalSec=Math.round((Date.now()-analysisStartTime)/1000);
   if(totalSec>0)timerChip.innerHTML=`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${formatTime(totalSec)}`;
 
-  document.getElementById('cnt-g').textContent=g;
-  document.getElementById('cnt-a').textContent=a;
-  document.getElementById('cnt-r').textContent=r;
+  const _cht=g+a+r;
+  document.getElementById('cnt-g').textContent=_cht>0?Math.round(g/_cht*100)+'%':'0%';
+  document.getElementById('cnt-a').textContent=_cht>0?Math.round(a/_cht*100)+'%':'0%';
+  document.getElementById('cnt-r').textContent=_cht>0?Math.round(r/_cht*100)+'%':'0%';
 
   const gscPanel=document.getElementById('gsc-panel');
   if(gscData?.keywords?.length){
@@ -3108,9 +3109,9 @@ function renderTechnicalSeo(){
   if(levelEl){levelEl.textContent=levelLabel;levelEl.className='score-hero-level '+cls;}
   if(interpEl)interpEl.textContent=interpMap[cls]||'';
   if(barEl){barEl.style.width=score+'%';barEl.className='score-hero-bar '+cls;}
-  if(cntG)cntG.textContent=g;
-  if(cntA)cntA.textContent=a;
-  if(cntR)cntR.textContent=r;
+  if(cntG)cntG.textContent=total>0?Math.round(g/total*100)+'%':'0%';
+  if(cntA)cntA.textContent=total>0?Math.round(a/total*100)+'%':'0%';
+  if(cntR)cntR.textContent=total>0?Math.round(r/total*100)+'%':'0%';
   if(cntT)cntT.textContent=total;
   if(chipG)chipG.className='score-chip '+(g>0?'green':'');
   if(chipA)chipA.className='score-chip '+(a>0?'amber':'');
