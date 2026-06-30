@@ -576,9 +576,8 @@ button{font-family:inherit}
 .pv-sources-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .pv-source-badge{display:flex;align-items:center;gap:5px;padding:4px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:999px;font-size:11px;color:var(--text2)}
 .pv-source-badge svg{color:var(--text3)}
-.pv-results-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px}
+.pv-results-list{display:flex;flex-direction:column;gap:16px;margin-top:24px}
 .pv-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--shadow-sm);position:relative}
-.pv-card-full{grid-column:1/-1}
 .pv-card-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .pv-card-label svg{flex-shrink:0}
 .pv-card-body{font-size:13px;color:var(--text);line-height:1.6}
@@ -621,7 +620,14 @@ button{font-family:inherit}
 .pv-loading-spinner{width:32px;height:32px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:pv-spin .7s linear infinite}
 @keyframes pv-spin{to{transform:rotate(360deg)}}
 .pv-export-area{font-family:'Geist Mono',monospace;font-size:12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;white-space:pre-wrap;word-break:break-word;max-height:400px;overflow-y:auto;color:var(--text2);margin-top:4px}
-@media(max-width:900px){.pv-input-grid,.pv-results-grid,.pv-hero-grid{grid-template-columns:1fr}.pv-input-grid .full,.pv-hero-field.full{grid-column:1}}
+.pv-data-hint{display:flex;align-items:flex-start;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap}
+.pv-data-hint-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);white-space:nowrap;padding-top:2px}
+.pv-data-source-tag{font-size:10px;padding:2px 8px;border-radius:999px;background:var(--bg3);color:var(--text2);border:1px solid var(--border2);white-space:nowrap}
+.pv-data-source-tag.gsc{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border)}
+.pv-data-source-tag.sistrix{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)}
+.pv-data-source-tag.dataforseo{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
+.pv-data-source-tag.pvgis{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-border)}
+@media(max-width:900px){.pv-input-grid,.pv-hero-grid{grid-template-columns:1fr}.pv-input-grid .full,.pv-hero-field.full{grid-column:1}}
 </style>
 </head>
 <body>
@@ -1222,110 +1228,7 @@ button{font-family:inherit}
 
   <!-- Ergebnisbereich -->
   <div id="pv-results" style="display:none">
-
-    <!-- Meta & Hero -->
-    <div class="pv-results-grid">
-      <!-- Meta -->
-      <div class="pv-card">
-        <div class="pv-card-label">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
-          Meta
-        </div>
-        <button class="pv-copy-btn" onclick="pvCopySection('meta')" id="pv-copy-meta">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          Kopieren
-        </button>
-        <div class="pv-meta-row" id="pv-meta-content"></div>
-      </div>
-
-      <!-- Hero -->
-      <div class="pv-card">
-        <div class="pv-card-label">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Hero
-        </div>
-        <button class="pv-copy-btn" onclick="pvCopySection('hero')" id="pv-copy-hero">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          Kopieren
-        </button>
-        <div class="pv-hero-grid" id="pv-hero-content"></div>
-      </div>
-    </div>
-
-    <!-- Sections -->
-    <div class="pv-results-grid" id="pv-sections-grid" style="margin-top:0"></div>
-
-    <!-- FAQ -->
-    <div class="pv-results-grid" style="margin-top:0">
-      <div class="pv-card pv-card-full">
-        <div class="pv-card-label">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          FAQ
-        </div>
-        <button class="pv-copy-btn" onclick="pvCopySection('faq')" id="pv-copy-faq">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          Kopieren
-        </button>
-        <div class="pv-faq-list" id="pv-faq-content"></div>
-      </div>
-    </div>
-
-    <!-- SEO + CRO Checklisten -->
-    <div class="pv-results-grid" style="margin-top:0">
-      <div class="pv-card">
-        <div class="pv-card-label">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-          SEO-Checkliste
-        </div>
-        <button class="pv-copy-btn" onclick="pvCopySection('seoChecklist')" id="pv-copy-seoChecklist">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          Kopieren
-        </button>
-        <div class="pv-checklist" id="pv-seo-checklist-content"></div>
-      </div>
-      <div class="pv-card">
-        <div class="pv-card-label">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          CRO-Checkliste
-        </div>
-        <button class="pv-copy-btn" onclick="pvCopySection('croChecklist')" id="pv-copy-croChecklist">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          Kopieren
-        </button>
-        <div class="pv-checklist" id="pv-cro-checklist-content"></div>
-      </div>
-    </div>
-
-    <!-- Empfehlungen -->
-    <div class="pv-results-grid" style="margin-top:0">
-      <div class="pv-card pv-card-full">
-        <div class="pv-card-label">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-          Empfehlungen
-        </div>
-        <button class="pv-copy-btn" onclick="pvCopySection('recommendations')" id="pv-copy-recommendations">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          Kopieren
-        </button>
-        <div class="pv-rec-list" id="pv-rec-content"></div>
-      </div>
-    </div>
-
-    <!-- Markdown-Export -->
-    <div class="pv-results-grid" style="margin-top:0;margin-bottom:48px">
-      <div class="pv-card pv-card-full">
-        <div class="pv-card-label">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          Markdown-Export
-        </div>
-        <button class="pv-copy-btn" onclick="pvCopySection('exportMarkdown')" id="pv-copy-exportMarkdown">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          Gesamten Export kopieren
-        </button>
-        <div class="pv-export-area" id="pv-export-content"></div>
-      </div>
-    </div>
-
+    <div id="pv-results-list" style="margin-top:24px;margin-bottom:48px"></div>
   </div><!-- /#pv-results -->
 </div><!-- /view-localpv -->
 
@@ -4060,94 +3963,129 @@ async function pvGenerate(){
 }
 
 function pvRenderResults(d){
-  // Meta
-  const metaEl=document.getElementById('pv-meta-content');
-  metaEl.innerHTML=`
-    <div class="pv-meta-field"><div class="pv-meta-field-label">Title (${(d.meta?.title||'').length} Zeichen)</div><div class="pv-meta-value">${escHtml(d.meta?.title||'–')}</div></div>
-    <div class="pv-meta-field" style="margin-top:8px"><div class="pv-meta-field-label">Description (${(d.meta?.description||'').length} Zeichen)</div><div class="pv-meta-value">${escHtml(d.meta?.description||'–')}</div></div>
-  `;
-
-  // Hero
-  const heroEl=document.getElementById('pv-hero-content');
-  const h=d.hero||{};
-  heroEl.innerHTML=`
-    <div class="pv-hero-field full"><div class="pv-hero-field-label">H1</div><div class="pv-hero-value">${escHtml(h.h1||'–')}</div></div>
-    <div class="pv-hero-field full"><div class="pv-hero-field-label">Subline</div><div class="pv-hero-value">${escHtml(h.subline||'–')}</div></div>
-    <div class="pv-hero-field"><div class="pv-hero-field-label">Primärer CTA</div><div class="pv-hero-value">${escHtml(h.primaryCta||'–')}</div></div>
-    <div class="pv-hero-field"><div class="pv-hero-field-label">Sekundärer CTA</div><div class="pv-hero-value">${escHtml(h.secondaryCta||'–')}</div></div>
-  `;
-
-  // Sections
-  const sec=d.sections||{};
-  const sectionDefs=[
-    {key:'intro',label:'Einleitungstext'},
-    {key:'solarPotential',label:'Solarpotenzial-Sektion'},
-    {key:'benefitsIntro',label:'Vorteile / Benefits'},
-    {key:'statisticsExplanation',label:'Kennzahlenblock'},
-    {key:'projectsIntro',label:'Referenzprojekte'},
-    {key:'economicsText',label:'Wirtschaftlichkeitsgrafik'},
-    {key:'faqIntro',label:'FAQ-Einleitung'},
-    {key:'formIntro',label:'Formular / CTA'},
-  ];
-  const secGrid=document.getElementById('pv-sections-grid');
-  secGrid.innerHTML=sectionDefs.map(s=>`
-    <div class="pv-card">
-      <div class="pv-card-label">${escHtml(s.label)}</div>
-      <button class="pv-copy-btn" onclick="pvCopySectionText(${JSON.stringify(sec[s.key]||'')},this)">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-        Kopieren
-      </button>
-      <div class="pv-card-body">${escHtml(sec[s.key]||'–')}</div>
-    </div>
-  `).join('');
-
-  // FAQ
-  const faqEl=document.getElementById('pv-faq-content');
+  const m=d.meta||{},h=d.hero||{},sec=d.sections||{};
   const faq=Array.isArray(d.faq)?d.faq:[];
-  faqEl.innerHTML=faq.map((f,i)=>`
-    <div class="pv-faq-item">
-      <div class="pv-faq-q">${i+1}. ${escHtml(f.question||'')}</div>
-      <div class="pv-faq-a">${escHtml(f.answer||'')}</div>
-    </div>
-  `).join('');
-
-  // SEO Checklist
-  pvRenderChecklist(document.getElementById('pv-seo-checklist-content'), d.seoChecklist||[]);
-  // CRO Checklist
-  pvRenderChecklist(document.getElementById('pv-cro-checklist-content'), d.croChecklist||[]);
-
-  // Recommendations
-  const recEl=document.getElementById('pv-rec-content');
-  const recs=Array.isArray(d.recommendations)?d.recommendations:[];
-  recEl.innerHTML=recs.map(r=>`
-    <div class="pv-rec-item">
-      <span class="pv-rec-prio ${escHtml(r.priority||'low')}">${escHtml(r.priority||'low')}</span>
-      <div class="pv-rec-body">
-        <div class="pv-rec-module">${escHtml(r.module||'')}</div>
-        <div class="pv-rec-text">${escHtml(r.recommendation||'')}</div>
-      </div>
-    </div>
-  `).join('');
-
-  // Markdown Export
-  document.getElementById('pv-export-content').textContent=d.exportMarkdown||'';
+  const cards=[];
+  const CI='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  function hint(sources){
+    if(!sources||!sources.length)return '';
+    return '<div class="pv-data-hint"><span class="pv-data-hint-label">Perspektivisch:</span>'+
+      sources.map(s=>`<span class="pv-data-source-tag ${escHtml(s.c)}" title="${escHtml(s.d)}">${escHtml(s.l)}</span>`).join('')+
+      '</div>';
+  }
+  function card(icon,label,id,oc,content,h2){
+    return `<div class="pv-card"><div class="pv-card-label">${icon}${escHtml(label)}</div>`+
+      `<button class="pv-copy-btn" id="pv-copy-${id}" onclick="${escHtml(oc)}">${CI} Kopieren</button>`+
+      content+h2+'</div>';
+  }
+  // 1. Meta
+  cards.push(card(
+    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="15" x2="12" y2="15"/></svg>',
+    'Meta','meta',"pvCopySection('meta')",
+    `<div class="pv-meta-row"><div class="pv-meta-field"><div class="pv-meta-field-label">Title (${(m.title||'').length} Zeichen)</div><div class="pv-meta-value">${escHtml(m.title||'–')}</div></div>`+
+    `<div class="pv-meta-field" style="margin-top:8px"><div class="pv-meta-field-label">Description (${(m.description||'').length} Zeichen)</div><div class="pv-meta-value">${escHtml(m.description||'–')}</div></div></div>`,
+    hint([{c:'gsc',l:'GSC · CTR & Ø-Position',d:'Aktuelle CTR und Ranking-Position zeigen, ob Title & Description Klicks generieren. Direkte Vorlage für datenbasierte Titeloptimierung.'},
+          {c:'dataforseo',l:'DataForSEO · Suchvolumen & SERP-Preview',d:'Keyword-Suchvolumen zur Priorisierung des Haupt-Keywords im Title; SERP-Vorschau prüft Snippet-Darstellung in Google.'}])
+  ));
+  // 2. Hero
+  cards.push(card(
+    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>',
+    'Hero','hero',"pvCopySection('hero')",
+    `<div class="pv-hero-grid">`+
+    `<div class="pv-hero-field full"><div class="pv-hero-field-label">H1</div><div class="pv-hero-value">${escHtml(h.h1||'–')}</div></div>`+
+    `<div class="pv-hero-field full"><div class="pv-hero-field-label">Subline</div><div class="pv-hero-value">${escHtml(h.subline||'–')}</div></div>`+
+    `<div class="pv-hero-field"><div class="pv-hero-field-label">Primärer CTA</div><div class="pv-hero-value">${escHtml(h.primaryCta||'–')}</div></div>`+
+    `<div class="pv-hero-field"><div class="pv-hero-field-label">Sekundärer CTA</div><div class="pv-hero-value">${escHtml(h.secondaryCta||'–')}</div></div></div>`,
+    hint([{c:'gsc',l:'GSC · Top-Queries',d:'Die häufigsten Suchanfragen der bestehenden LP zeigen, welche Keywords Nutzer wirklich eingeben — ideal zur H1-Schärfung und CTA-Formulierung.'},
+          {c:'dataforseo',l:'DataForSEO · Keyword-Varianten',d:'Lokale Varianten und Suchvolumina helfen, den stärksten Begriff für H1 und CTA auszuwählen.'}])
+  ));
+  // 3–10. Content Sections in LP-Reihenfolge
+  const secDefs=[
+    {k:'intro',            l:'Einleitungstext',         i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="13" y1="18" x2="3" y2="18"/></svg>',
+     h:[{c:'gsc',l:'GSC · Nutzerintention',d:'Top-Queries zeigen, was Nutzer wirklich suchen — Einleitung kann gezielt die häufigsten Suchanfragen aufgreifen.'},
+        {c:'sistrix',l:'Sistrix · Wettbewerber',d:'Wie positionieren Wettbewerber ihr Intro? Lücken und Differenzierungspotenziale erkennen.'}]},
+    {k:'solarPotential',   l:'Solarpotenzial',          i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
+     h:[{c:'pvgis',l:'PVGIS / DWD · Einstrahlungsdaten',d:'Tatsächliche Globalstrahlungsdaten für die PLZ/Region. Ersetzt generische KI-Annahmen durch echte, belegbare Ertragspotenziale.'}]},
+    {k:'benefitsIntro',    l:'Vorteile / Benefits',     i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
+     h:[{c:'sistrix',l:'Sistrix · Keyword-Chancen',d:'Welche Vorteils-Keywords ranken Wettbewerber besonders gut? Fehlende USPs aufdecken und gezielte Keyword-Chancen nutzen.'}]},
+    {k:'statisticsExplanation',l:'Kennzahlenblock',     i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+     h:[{c:'dataforseo',l:'DataForSEO · Lokales Suchvolumen',d:'Regionale Suchvolumina als Kontext: die tatsächliche Nachfrage nach PV in der Region in Zahlen fassen.'},
+        {c:'sistrix',l:'Sistrix · Marktdaten',d:'Sichtbarkeitsindex und Keyword-Anzahl der stärksten Wettbewerber als Marktorientierung.'}]},
+    {k:'projectsIntro',    l:'Referenzprojekte',        i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+     h:[{c:'gsc',l:'GSC · Seiten-Performance',d:'Klick- und Impressionsdaten zeigen, ob die Referenzseite bereits Sichtbarkeit hat und welche Regionen besonders performen.'}]},
+    {k:'economicsText',    l:'Wirtschaftlichkeitsgrafik',i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+     h:[{c:'dataforseo',l:'DataForSEO · Wettbewerber-Angebote',d:'Welche ROI-Versprechen ranken Wettbewerber in Ads und organisch? Realistische Benchmarks für Wirtschaftlichkeitsargumente.'}]},
+    {k:'faqIntro',         l:'FAQ-Einleitung',          i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+     h:[{c:'dataforseo',l:'DataForSEO · People Also Ask',d:'SERP-Features zeigen, welche Fragen Google für die Suchanfrage besonders relevant einstuft — direkte FAQ-Vorlage.'}]},
+    {k:'formIntro',        l:'Formular / CTA',          i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>',
+     h:[{c:'gsc',l:'GSC · CTR-Optimierung',d:'Niedrige CTR trotz guter Position deutet auf schwache CTA-Texte hin — GSC-Daten liefern den Benchmark für Optimierungen.'}]},
+  ];
+  secDefs.forEach(s=>{
+    cards.push(card(s.i,s.l,'sec-'+s.k,
+      `pvCopySectionText(${JSON.stringify(sec[s.k]||'')},this)`,
+      `<div class="pv-card-body">${escHtml(sec[s.k]||'–')}</div>`,
+      hint(s.h||[])
+    ));
+  });
+  // 11. FAQ
+  cards.push(card(
+    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    'FAQ','faq',"pvCopySection('faq')",
+    '<div class="pv-faq-list">'+faq.map((f,i)=>`<div class="pv-faq-item"${i>0?' style="margin-top:10px"':''}><div class="pv-faq-q">${i+1}. ${escHtml(f.question||'')}</div><div class="pv-faq-a">${escHtml(f.answer||'')}</div></div>`).join('')+'</div>',
+    hint([{c:'dataforseo',l:'DataForSEO · People Also Ask',d:'Direkte Übernahme echter Nutzerfragen aus der Google SERP — stärkere Relevanzsignale als rein KI-generierte FAQ-Fragen.'},
+          {c:'gsc',l:'GSC · W-Fragen aus Queries',d:'Queries mit "wie", "was", "warum", "kosten" sind direkte FAQ-Kandidaten mit belegtem Suchvolumen.'}])
+  ));
+  // 12. SEO-Checkliste
+  cards.push(card(
+    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
+    'SEO-Checkliste','seoChecklist',"pvCopySection('seoChecklist')",
+    '<div class="pv-checklist">'+pvChecklistHtml(d.seoChecklist||[])+'</div>',
+    hint([{c:'gsc',l:'GSC · Ø-Position & Klicks',d:'Ranking-Position und CTR pro Keyword zeigen, welche SEO-Maßnahmen wirken und wo der größte Handlungsbedarf besteht.'},
+          {c:'sistrix',l:'Sistrix · Sichtbarkeitsindex',d:'Langzeit-Verlauf zeigt Penaltys, Ranking-Gewinne und saisonale Schwankungen — Basis für technische Priorisierung.'},
+          {c:'dataforseo',l:'DataForSEO · SERP-Features',d:'Welche Features (Snippets, Local Pack, FAQs) erscheinen für Ziel-Keywords? Direkte Handlungsempfehlungen für strukturierte Daten.'}])
+  ));
+  // 13. CRO-Checkliste
+  cards.push(card(
+    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+    'CRO-Checkliste','croChecklist',"pvCopySection('croChecklist')",
+    '<div class="pv-checklist">'+pvChecklistHtml(d.croChecklist||[])+'</div>',
+    hint([{c:'gsc',l:'GSC · CTR-Analyse',d:'Niedrige CTR trotz guter Position = schwache Meta/Hero. Direkter Feedback-Loop zwischen SERP-CTR und CRO-Optimierungen.'},
+          {c:'sistrix',l:'Sistrix · Wettbewerber-Snippets',d:'Trust-Signale, Bewertungen und CTAs in Konkurrenz-Ergebnissen als CRO-Benchmark für die eigene LP.'}])
+  ));
+  // 14. Empfehlungen
+  const recsHtml=(Array.isArray(d.recommendations)?d.recommendations:[]).map(r=>
+    `<div class="pv-rec-item"><span class="pv-rec-prio ${escHtml(r.priority||'low')}">${escHtml(r.priority||'low')}</span>`+
+    `<div class="pv-rec-body"><div class="pv-rec-module">${escHtml(r.module||'')}</div><div class="pv-rec-text">${escHtml(r.recommendation||'')}</div></div></div>`
+  ).join('');
+  cards.push(card(
+    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
+    'Empfehlungen','recommendations',"pvCopySection('recommendations')",
+    `<div class="pv-rec-list">${recsHtml}</div>`,
+    hint([{c:'gsc',l:'GSC',d:'Rankings, CTR und Top-Queries als Grundlage für priorisierte Maßnahmen.'},
+          {c:'sistrix',l:'Sistrix',d:'Sichtbarkeit und Wettbewerbervergleich zur Gewichtung der Empfehlungen.'},
+          {c:'dataforseo',l:'DataForSEO',d:'Suchvolumen und SERP-Features zur ROI-Einschätzung der empfohlenen Maßnahmen.'}])
+  ));
+  // 15. Markdown-Export
+  cards.push(card(
+    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+    'Markdown-Export','exportMarkdown',"pvCopySection('exportMarkdown')",
+    `<div class="pv-export-area">${escHtml(d.exportMarkdown||'')}</div>`,
+    ''
+  ));
+  document.getElementById('pv-results-list').innerHTML=cards.join('');
 }
 
-function pvRenderChecklist(el, items){
-  el.innerHTML=items.map(item=>{
+function pvChecklistHtml(items){
+  return items.map(item=>{
     const st=item.status||'ok';
     const icon=st==='ok'
       ?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
       :st==='warning'
       ?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
       :'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-    return`<div class="pv-checklist-item">
-      <div class="pv-checklist-status ${escHtml(st)}">${icon}</div>
-      <div class="pv-checklist-text">
-        <div class="pv-checklist-item-label">${escHtml(item.item||'')}</div>
-        ${item.note?`<div class="pv-checklist-note">${escHtml(item.note)}</div>`:''}
-      </div>
-    </div>`;
+    return`<div class="pv-checklist-item"><div class="pv-checklist-status ${escHtml(st)}">${icon}</div>`+
+      `<div class="pv-checklist-text"><div class="pv-checklist-item-label">${escHtml(item.item||'')}</div>`+
+      `${item.note?`<div class="pv-checklist-note">${escHtml(item.note)}</div>`:''}</div></div>`;
   }).join('');
 }
 
