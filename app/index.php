@@ -566,6 +566,62 @@ button{font-family:inherit}
 .page-preview-img-wrap img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;transition:opacity .3s}
 .page-preview-footer{font-size:11px;color:var(--text3);padding:6px 12px;background:var(--bg3);border-top:1px solid var(--border);display:flex;align-items:center;gap:6px}
 @media(max-width:900px){.module-grid{grid-template-columns:1fr 1fr}}
+/* ── Local PV Generator ──────────────────────────────────────────────── */
+.pv-input-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.pv-input-grid .full{grid-column:1/-1}
+.pv-generate-btn{display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;font-family:inherit;margin-top:16px}
+.pv-generate-btn:hover{background:var(--accent2)}
+.pv-generate-btn:disabled{opacity:.5;cursor:not-allowed}
+.pv-generate-btn svg{flex-shrink:0}
+.pv-sources-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.pv-source-badge{display:flex;align-items:center;gap:5px;padding:4px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:999px;font-size:11px;color:var(--text2)}
+.pv-source-badge svg{color:var(--text3)}
+.pv-results-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px}
+.pv-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;box-shadow:var(--shadow-sm);position:relative}
+.pv-card-full{grid-column:1/-1}
+.pv-card-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.pv-card-label svg{flex-shrink:0}
+.pv-card-body{font-size:13px;color:var(--text);line-height:1.6}
+.pv-copy-btn{position:absolute;top:12px;right:12px;display:flex;align-items:center;gap:5px;padding:4px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:11px;font-weight:500;color:var(--text2);cursor:pointer;transition:background .12s,color .12s;font-family:inherit}
+.pv-copy-btn:hover{background:var(--bg4);color:var(--text)}
+.pv-copy-btn.copied{background:var(--green-bg);border-color:var(--green-border);color:var(--green)}
+.pv-checklist{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.pv-checklist-item{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:var(--radius-sm);background:var(--bg3)}
+.pv-checklist-status{flex-shrink:0;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.pv-checklist-status.ok{background:var(--green-bg);color:var(--green)}
+.pv-checklist-status.warning{background:var(--amber-bg);color:var(--amber)}
+.pv-checklist-status.missing{background:var(--red-bg);color:var(--red)}
+.pv-checklist-text{flex:1}
+.pv-checklist-item-label{font-size:12px;font-weight:500;color:var(--text)}
+.pv-checklist-note{font-size:11px;color:var(--text3);margin-top:2px}
+.pv-faq-list{display:flex;flex-direction:column;gap:10px}
+.pv-faq-item{}
+.pv-faq-q{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+.pv-faq-a{font-size:12px;color:var(--text2);line-height:1.6}
+.pv-rec-list{display:flex;flex-direction:column;gap:8px}
+.pv-rec-item{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:var(--radius-sm);background:var(--bg3)}
+.pv-rec-prio{flex-shrink:0;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;margin-top:2px}
+.pv-rec-prio.high{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.pv-rec-prio.medium{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.pv-rec-prio.low{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+.pv-rec-body{flex:1}
+.pv-rec-module{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:2px}
+.pv-rec-text{font-size:12px;color:var(--text)}
+.pv-meta-row{display:grid;grid-template-columns:1fr;gap:8px}
+.pv-meta-field{}
+.pv-meta-field-label{font-size:11px;font-weight:600;color:var(--text3);margin-bottom:3px}
+.pv-meta-value{font-size:13px;color:var(--text);line-height:1.5;background:var(--bg3);padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border)}
+.pv-hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pv-hero-field{}
+.pv-hero-field-label{font-size:11px;font-weight:600;color:var(--text3);margin-bottom:3px}
+.pv-hero-value{font-size:13px;color:var(--text);line-height:1.5;background:var(--bg3);padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border)}
+.pv-hero-field.full{grid-column:1/-1}
+.pv-error-box{background:var(--red-bg);border:1px solid var(--red-border);border-radius:var(--radius);padding:14px 16px;color:var(--red);font-size:13px;margin-top:16px}
+.pv-loading{display:flex;flex-direction:column;align-items:center;gap:12px;padding:48px 0;color:var(--text3);font-size:13px}
+.pv-loading-spinner{width:32px;height:32px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:pv-spin .7s linear infinite}
+@keyframes pv-spin{to{transform:rotate(360deg)}}
+.pv-export-area{font-family:'Geist Mono',monospace;font-size:12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;white-space:pre-wrap;word-break:break-word;max-height:400px;overflow-y:auto;color:var(--text2);margin-top:4px}
+@media(max-width:900px){.pv-input-grid,.pv-results-grid,.pv-hero-grid{grid-template-columns:1fr}.pv-input-grid .full,.pv-hero-field.full{grid-column:1}}
 </style>
 </head>
 <body>
@@ -610,6 +666,11 @@ button{font-family:inherit}
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
       UX / CRO
       <span class="nav-score" id="nav-score-ux">–</span>
+    </button>
+    <div class="nav-section-label">Tools</div>
+    <button class="nav-item" data-view="localpv" onclick="showView('localpv')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      Local PV Generator
     </button>
     <div class="nav-section-label" style="margin-top:auto">System</div>
     <button class="nav-item" data-view="settings" onclick="showView('settings')">
@@ -1071,6 +1132,203 @@ button{font-family:inherit}
   </div>
 </div><!-- /view-ux -->
 
+<!-- ═══════════════════════════════════════════════════════════
+     VIEW: LOCAL PV GENERATOR
+════════════════════════════════════════════════════════════ -->
+<div class="view-panel" id="view-localpv">
+  <div class="input-card">
+    <div class="card-header">
+      <div class="card-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </div>
+      <div>
+        <div class="card-title">Local PV Generator</div>
+        <div class="card-sub">Erzeuge strukturierte SEO- und CRO-Bausteine für lokale Photovoltaik-Landingpages auf Basis von Stadt oder PLZ.</div>
+      </div>
+    </div>
+
+    <div class="pv-input-grid">
+      <div class="full">
+        <div class="settings-field">
+          <label class="settings-label" for="pv-city">Stadt oder PLZ <span style="color:var(--red)">*</span></label>
+          <input type="text" id="pv-city" class="settings-input" placeholder="z.B. Darmstadt oder 64283" autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+      <div>
+        <div class="settings-field" style="margin-top:0">
+          <label class="settings-label" for="pv-keyword">Hauptkeyword <span style="color:var(--text3);font-weight:400">(optional)</span></label>
+          <input type="text" id="pv-keyword" class="settings-input" placeholder="z.B. photovoltaik darmstadt" autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+      <div>
+        <div class="settings-field" style="margin-top:0">
+          <label class="settings-label" for="pv-url">Bestehende Landingpage-URL <span style="color:var(--text3);font-weight:400">(optional)</span></label>
+          <input type="url" id="pv-url" class="settings-input" placeholder="https://example.com/pv/darmstadt" autocomplete="off">
+        </div>
+      </div>
+      <div class="full">
+        <div class="settings-field" style="margin-top:0">
+          <label class="settings-label" for="pv-template">Seitentyp / Template <span style="color:var(--text3);font-weight:400">(optional)</span></label>
+          <input type="text" id="pv-template" class="settings-input" placeholder="z.B. Stadtlandingpage, PLZ-Seite, Produktseite" autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+    </div>
+
+    <div id="pv-validation-msg" style="display:none;color:var(--red);font-size:12px;margin-top:8px;font-weight:500">
+      Bitte Stadt oder PLZ eingeben.
+    </div>
+
+    <button class="pv-generate-btn" id="pv-btn-generate" onclick="pvGenerate()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Bausteine generieren
+    </button>
+
+    <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px">
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:8px">Perspektivisch nutzbare Datenquellen</div>
+      <div class="pv-sources-row">
+        <div class="pv-source-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 21l-4.35-4.35M11 19A8 8 0 1 1 19 11"/></svg>
+          Google Search Console
+        </div>
+        <div class="pv-source-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Sistrix
+        </div>
+        <div class="pv-source-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          DataForSEO
+        </div>
+        <div class="pv-source-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          PVGIS / DWD (geplant)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lade-Zustand -->
+  <div id="pv-loading" style="display:none">
+    <div class="pv-loading">
+      <div class="pv-loading-spinner"></div>
+      <span>Bausteine werden generiert…</span>
+      <span style="font-size:11px;color:var(--text3)">Dies kann 15–30 Sekunden dauern.</span>
+    </div>
+  </div>
+
+  <!-- Fehler-Zustand -->
+  <div id="pv-error" style="display:none">
+    <div class="pv-error-box" id="pv-error-msg"></div>
+  </div>
+
+  <!-- Ergebnisbereich -->
+  <div id="pv-results" style="display:none">
+
+    <!-- Meta & Hero -->
+    <div class="pv-results-grid">
+      <!-- Meta -->
+      <div class="pv-card">
+        <div class="pv-card-label">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
+          Meta
+        </div>
+        <button class="pv-copy-btn" onclick="pvCopySection('meta')" id="pv-copy-meta">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Kopieren
+        </button>
+        <div class="pv-meta-row" id="pv-meta-content"></div>
+      </div>
+
+      <!-- Hero -->
+      <div class="pv-card">
+        <div class="pv-card-label">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Hero
+        </div>
+        <button class="pv-copy-btn" onclick="pvCopySection('hero')" id="pv-copy-hero">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Kopieren
+        </button>
+        <div class="pv-hero-grid" id="pv-hero-content"></div>
+      </div>
+    </div>
+
+    <!-- Sections -->
+    <div class="pv-results-grid" id="pv-sections-grid" style="margin-top:0"></div>
+
+    <!-- FAQ -->
+    <div class="pv-results-grid" style="margin-top:0">
+      <div class="pv-card pv-card-full">
+        <div class="pv-card-label">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          FAQ
+        </div>
+        <button class="pv-copy-btn" onclick="pvCopySection('faq')" id="pv-copy-faq">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Kopieren
+        </button>
+        <div class="pv-faq-list" id="pv-faq-content"></div>
+      </div>
+    </div>
+
+    <!-- SEO + CRO Checklisten -->
+    <div class="pv-results-grid" style="margin-top:0">
+      <div class="pv-card">
+        <div class="pv-card-label">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          SEO-Checkliste
+        </div>
+        <button class="pv-copy-btn" onclick="pvCopySection('seoChecklist')" id="pv-copy-seoChecklist">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Kopieren
+        </button>
+        <div class="pv-checklist" id="pv-seo-checklist-content"></div>
+      </div>
+      <div class="pv-card">
+        <div class="pv-card-label">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          CRO-Checkliste
+        </div>
+        <button class="pv-copy-btn" onclick="pvCopySection('croChecklist')" id="pv-copy-croChecklist">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Kopieren
+        </button>
+        <div class="pv-checklist" id="pv-cro-checklist-content"></div>
+      </div>
+    </div>
+
+    <!-- Empfehlungen -->
+    <div class="pv-results-grid" style="margin-top:0">
+      <div class="pv-card pv-card-full">
+        <div class="pv-card-label">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          Empfehlungen
+        </div>
+        <button class="pv-copy-btn" onclick="pvCopySection('recommendations')" id="pv-copy-recommendations">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Kopieren
+        </button>
+        <div class="pv-rec-list" id="pv-rec-content"></div>
+      </div>
+    </div>
+
+    <!-- Markdown-Export -->
+    <div class="pv-results-grid" style="margin-top:0;margin-bottom:48px">
+      <div class="pv-card pv-card-full">
+        <div class="pv-card-label">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Markdown-Export
+        </div>
+        <button class="pv-copy-btn" onclick="pvCopySection('exportMarkdown')" id="pv-copy-exportMarkdown">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Gesamten Export kopieren
+        </button>
+        <div class="pv-export-area" id="pv-export-content"></div>
+      </div>
+    </div>
+
+  </div><!-- /#pv-results -->
+</div><!-- /view-localpv -->
+
 <div class="view-panel" id="view-settings">
   <div class="input-card">
     <div class="card-header">
@@ -1342,6 +1600,7 @@ const VIEW_META={
   performance:{title:'Performance',sub:'Rankings · Sichtbarkeit · Quick Wins'},
   geo:{title:'GEO / AEO',sub:'KI-Sichtbarkeit in AI-Suchmaschinen'},
   keywords:{title:'Keyword Fit',sub:'Intent-Analyse · Targeting · Potenzial'},
+  localpv:{title:'Local PV Generator',sub:'SEO- & CRO-Bausteine für lokale Photovoltaik-Landingpages'},
   settings:{title:'Einstellungen',sub:'API-Keys · Modell · Passwort'},
 };
 
@@ -1356,6 +1615,10 @@ function showView(name){
   const meta=VIEW_META[name]||{title:name,sub:''};
   document.getElementById('view-title').textContent=meta.title;
   document.getElementById('view-subtitle').textContent=meta.sub;
+  // Hide URL-input header for standalone tool views
+  const hf=document.getElementById('header-form');
+  if(name==='localpv'||name==='settings'){hf.style.display='none';}
+  else{hf.style.display='';}
   if(name==='overview'){
     // Progress-Section zeigen wenn Analyse läuft ODER Log-Inhalt vorhanden
     const ps=document.getElementById('progress-section');
@@ -3739,6 +4002,199 @@ const _dmCb=document.getElementById('setting-dark-mode');
 if(_dmCb)_dmCb.checked=document.documentElement.getAttribute('data-theme')==='dark';
 // Initial view
 showView('overview');
+
+// ═══════════════════════════════════════════════════════════
+// LOCAL PV GENERATOR
+// ═══════════════════════════════════════════════════════════
+let pvData = null;
+
+async function pvGenerate(){
+  const city = document.getElementById('pv-city').value.trim();
+  const validMsg = document.getElementById('pv-validation-msg');
+  if(!city){
+    validMsg.style.display='block';
+    document.getElementById('pv-city').focus();
+    return;
+  }
+  validMsg.style.display='none';
+
+  const keyword  = document.getElementById('pv-keyword').value.trim();
+  const url      = document.getElementById('pv-url').value.trim();
+  const template = document.getElementById('pv-template').value.trim();
+
+  // UI: loading state
+  document.getElementById('pv-btn-generate').disabled=true;
+  document.getElementById('pv-loading').style.display='block';
+  document.getElementById('pv-results').style.display='none';
+  document.getElementById('pv-error').style.display='none';
+
+  const body = {
+    cityOrPostalCode: city,
+    primaryKeyword:   keyword,
+    landingPageUrl:   url,
+    templateType:     template,
+    csrf_token:       CSRF_TOKEN,
+  };
+
+  try{
+    const res = await fetch('localpv.php',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},
+      body:JSON.stringify(body),
+    });
+    const data = await res.json();
+    if(!res.ok||data.error){
+      const msg = typeof data.error==='object' ? data.error.message : (data.error||'Unbekannter Fehler');
+      throw new Error(msg);
+    }
+    pvData = data;
+    pvRenderResults(data);
+    document.getElementById('pv-results').style.display='block';
+  }catch(e){
+    document.getElementById('pv-error-msg').textContent = 'Fehler: '+e.message;
+    document.getElementById('pv-error').style.display='block';
+  }finally{
+    document.getElementById('pv-loading').style.display='none';
+    document.getElementById('pv-btn-generate').disabled=false;
+  }
+}
+
+function pvRenderResults(d){
+  // Meta
+  const metaEl=document.getElementById('pv-meta-content');
+  metaEl.innerHTML=`
+    <div class="pv-meta-field"><div class="pv-meta-field-label">Title (${(d.meta?.title||'').length} Zeichen)</div><div class="pv-meta-value">${escHtml(d.meta?.title||'–')}</div></div>
+    <div class="pv-meta-field" style="margin-top:8px"><div class="pv-meta-field-label">Description (${(d.meta?.description||'').length} Zeichen)</div><div class="pv-meta-value">${escHtml(d.meta?.description||'–')}</div></div>
+  `;
+
+  // Hero
+  const heroEl=document.getElementById('pv-hero-content');
+  const h=d.hero||{};
+  heroEl.innerHTML=`
+    <div class="pv-hero-field full"><div class="pv-hero-field-label">H1</div><div class="pv-hero-value">${escHtml(h.h1||'–')}</div></div>
+    <div class="pv-hero-field full"><div class="pv-hero-field-label">Subline</div><div class="pv-hero-value">${escHtml(h.subline||'–')}</div></div>
+    <div class="pv-hero-field"><div class="pv-hero-field-label">Primärer CTA</div><div class="pv-hero-value">${escHtml(h.primaryCta||'–')}</div></div>
+    <div class="pv-hero-field"><div class="pv-hero-field-label">Sekundärer CTA</div><div class="pv-hero-value">${escHtml(h.secondaryCta||'–')}</div></div>
+  `;
+
+  // Sections
+  const sec=d.sections||{};
+  const sectionDefs=[
+    {key:'intro',label:'Einleitungstext'},
+    {key:'solarPotential',label:'Solarpotenzial-Sektion'},
+    {key:'benefitsIntro',label:'Vorteile / Benefits'},
+    {key:'statisticsExplanation',label:'Kennzahlenblock'},
+    {key:'projectsIntro',label:'Referenzprojekte'},
+    {key:'economicsText',label:'Wirtschaftlichkeitsgrafik'},
+    {key:'faqIntro',label:'FAQ-Einleitung'},
+    {key:'formIntro',label:'Formular / CTA'},
+  ];
+  const secGrid=document.getElementById('pv-sections-grid');
+  secGrid.innerHTML=sectionDefs.map(s=>`
+    <div class="pv-card">
+      <div class="pv-card-label">${escHtml(s.label)}</div>
+      <button class="pv-copy-btn" onclick="pvCopySectionText(${JSON.stringify(sec[s.key]||'')},this)">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Kopieren
+      </button>
+      <div class="pv-card-body">${escHtml(sec[s.key]||'–')}</div>
+    </div>
+  `).join('');
+
+  // FAQ
+  const faqEl=document.getElementById('pv-faq-content');
+  const faq=Array.isArray(d.faq)?d.faq:[];
+  faqEl.innerHTML=faq.map((f,i)=>`
+    <div class="pv-faq-item">
+      <div class="pv-faq-q">${i+1}. ${escHtml(f.question||'')}</div>
+      <div class="pv-faq-a">${escHtml(f.answer||'')}</div>
+    </div>
+  `).join('');
+
+  // SEO Checklist
+  pvRenderChecklist(document.getElementById('pv-seo-checklist-content'), d.seoChecklist||[]);
+  // CRO Checklist
+  pvRenderChecklist(document.getElementById('pv-cro-checklist-content'), d.croChecklist||[]);
+
+  // Recommendations
+  const recEl=document.getElementById('pv-rec-content');
+  const recs=Array.isArray(d.recommendations)?d.recommendations:[];
+  recEl.innerHTML=recs.map(r=>`
+    <div class="pv-rec-item">
+      <span class="pv-rec-prio ${escHtml(r.priority||'low')}">${escHtml(r.priority||'low')}</span>
+      <div class="pv-rec-body">
+        <div class="pv-rec-module">${escHtml(r.module||'')}</div>
+        <div class="pv-rec-text">${escHtml(r.recommendation||'')}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // Markdown Export
+  document.getElementById('pv-export-content').textContent=d.exportMarkdown||'';
+}
+
+function pvRenderChecklist(el, items){
+  el.innerHTML=items.map(item=>{
+    const st=item.status||'ok';
+    const icon=st==='ok'
+      ?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+      :st==='warning'
+      ?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+      :'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+    return`<div class="pv-checklist-item">
+      <div class="pv-checklist-status ${escHtml(st)}">${icon}</div>
+      <div class="pv-checklist-text">
+        <div class="pv-checklist-item-label">${escHtml(item.item||'')}</div>
+        ${item.note?`<div class="pv-checklist-note">${escHtml(item.note)}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function pvCopySectionText(text,btn){
+  navigator.clipboard.writeText(text||'').then(()=>{
+    const orig=btn.innerHTML;
+    btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Kopiert';
+    btn.classList.add('copied');
+    setTimeout(()=>{btn.innerHTML=orig;btn.classList.remove('copied');},2000);
+  });
+}
+
+function pvCopySection(key){
+  if(!pvData) return;
+  const btn=document.getElementById('pv-copy-'+key);
+  let text='';
+  if(key==='meta'){
+    text=`Title: ${pvData.meta?.title||''}\nDescription: ${pvData.meta?.description||''}`;
+  }else if(key==='hero'){
+    const h=pvData.hero||{};
+    text=`H1: ${h.h1||''}\nSubline: ${h.subline||''}\nPrimärer CTA: ${h.primaryCta||''}\nSekundärer CTA: ${h.secondaryCta||''}`;
+  }else if(key==='faq'){
+    const faq=Array.isArray(pvData.faq)?pvData.faq:[];
+    text=faq.map((f,i)=>`${i+1}. ${f.question||''}\n${f.answer||''}`).join('\n\n');
+  }else if(key==='seoChecklist'){
+    const items=Array.isArray(pvData.seoChecklist)?pvData.seoChecklist:[];
+    text=items.map(i=>`[${(i.status||'ok').toUpperCase()}] ${i.item||''}${i.note?' — '+i.note:''}`).join('\n');
+  }else if(key==='croChecklist'){
+    const items=Array.isArray(pvData.croChecklist)?pvData.croChecklist:[];
+    text=items.map(i=>`[${(i.status||'ok').toUpperCase()}] ${i.item||''}${i.note?' — '+i.note:''}`).join('\n');
+  }else if(key==='recommendations'){
+    const recs=Array.isArray(pvData.recommendations)?pvData.recommendations:[];
+    text=recs.map(r=>`[${(r.priority||'').toUpperCase()}] ${r.module||''}: ${r.recommendation||''}`).join('\n');
+  }else if(key==='exportMarkdown'){
+    text=pvData.exportMarkdown||'';
+  }
+  navigator.clipboard.writeText(text).then(()=>{
+    if(!btn)return;
+    const orig=btn.innerHTML;
+    btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Kopiert';
+    btn.classList.add('copied');
+    setTimeout(()=>{btn.innerHTML=orig;btn.classList.remove('copied');},2000);
+  });
+}
+
+// Enter-Taste im Stadt-Feld
+document.getElementById('pv-city').addEventListener('keydown',e=>{if(e.key==='Enter')pvGenerate();});
 </script>
 </div><!-- /content-wrap -->
 </body>
