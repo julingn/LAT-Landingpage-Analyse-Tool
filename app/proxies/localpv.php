@@ -13,7 +13,7 @@
  *                croChecklist, recommendations, exportMarkdown)
  */
 
-set_time_limit(120);
+set_time_limit(180);
 header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -278,7 +278,7 @@ if ($provider === 'openai') {
     ];
     $payload = [
         'model'      => $model,
-        'max_tokens' => 4000,
+        'max_tokens' => 8000,
         'messages'   => $oaiMessages,
     ];
     $ch = curl_init('https://api.openai.com/v1/chat/completions');
@@ -296,7 +296,7 @@ if ($provider === 'openai') {
     // Anthropic
     $payload = [
         'model'      => $model,
-        'max_tokens' => 4000,
+        'max_tokens' => 8000,
         'system'     => $systemPrompt,
         'messages'   => [
             ['role' => 'user', 'content' => $userPrompt],
