@@ -39,11 +39,29 @@ session_write_close(); // Lock sofort freigeben
 // ── Config ───────────────────────────────────────────────────────────────
 require_once __DIR__ . '/../config.php';
 
-$apiKey = CFG_ANTHROPIC_KEY;
-if (empty($apiKey)) {
-    http_response_code(503);
-    echo json_encode(['error' => ['type' => 'no_key', 'message' => 'Kein Anthropic API-Key hinterlegt. Bitte unter Einstellungen setzen oder ANTHROPIC_API_KEY als ENV hinterlegen.']]);
-    exit;
+$provider = CFG_AI_PROVIDER; // 'anthropic' oder 'openai'
+
+// Key-Auswahl: Provider-Einstellung + Fallback auf verfügbaren Key
+if ($provider === 'openai') {
+    $apiKey = CFG_OPENAI_KEY;
+    if (empty($apiKey)) {
+        http_response_code(503);
+        echo json_encode(['error' => ['type' => 'no_key', 'message' => 'Kein OpenAI API-Key hinterlegt. Bitte OPENAI_API_KEY als ENV setzen oder in den Einstellungen hinterlegen.']]);
+        exit;
+    }
+} else {
+    $apiKey = CFG_ANTHROPIC_KEY;
+    if (empty($apiKey)) {
+        // Fallback: OpenAI nutzen wenn Anthropic-Key fehlt
+        if (!empty(CFG_OPENAI_KEY)) {
+            $provider = 'openai';
+            $apiKey   = CFG_OPENAI_KEY;
+        } else {
+            http_response_code(503);
+            echo json_encode(['error' => ['type' => 'no_key', 'message' => 'Kein API-Key hinterlegt. Bitte ANTHROPIC_API_KEY oder OPENAI_API_KEY als ENV setzen.']]);
+            exit;
+        }
+    }
 }
 
 // ── Input parsen ─────────────────────────────────────────────────────────
@@ -200,30 +218,54 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
 Antworte NUR mit dem JSON-Objekt. Kein erklärender Text davor oder danach. Kein Markdown-Codeblock.
 UPROMPT;
 
-// ── Anthropic API-Call ────────────────────────────────────────────────────
-$model = CFG_AI_MODEL;
+// ── API-Call ──────────────────────────────────────────────────────────────
+$model = ($provider === 'openai') ? CFG_OPENAI_MODEL : CFG_AI_MODEL;
 
-$payload = [
-    'model'      => $model,
-    'max_tokens' => 4000,
-    'system'     => $systemPrompt,
-    'messages'   => [
-        ['role' => 'user', 'content' => $userPrompt],
-    ],
-];
-
-$ch = curl_init('https://api.anthropic.com/v1/messages');
-curl_setopt_array($ch, [
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_POST           => true,
-    CURLOPT_POSTFIELDS     => json_encode($payload),
-    CURLOPT_TIMEOUT        => 120,
-    CURLOPT_HTTPHEADER     => [
-        'Content-Type: application/json',
-        'x-api-key: ' . $apiKey,
-        'anthropic-version: 2023-06-01',
-    ],
-]);
+if ($provider === 'openai') {
+    // OpenAI: system-Prompt als role=system Nachricht
+    $oaiMessages = [
+        ['role' => 'system',  'content' => $systemPrompt],
+        ['role' => 'user',    'content' => $userPrompt],
+    ];
+    $payload = [
+        'model'      => $model,
+        'max_tokens' => 4000,
+        'messages'   => $oaiMessages,
+    ];
+    $ch = curl_init('https://api.openai.com/v1/chat/completions');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => json_encode($payload),
+        CURLOPT_TIMEOUT        => 120,
+        CURLOPT_HTTPHEADER     => [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $apiKey,
+        ],
+    ]);
+} else {
+    // Anthropic
+    $payload = [
+        'model'      => $model,
+        'max_tokens' => 4000,
+        'system'     => $systemPrompt,
+        'messages'   => [
+            ['role' => 'user', 'content' => $userPrompt],
+        ],
+    ];
+    $ch = curl_init('https://api.anthropic.com/v1/messages');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => json_encode($payload),
+        CURLOPT_TIMEOUT        => 120,
+        CURLOPT_HTTPHEADER     => [
+            'Content-Type: application/json',
+            'x-api-key: ' . $apiKey,
+            'anthropic-version: 2023-06-01',
+        ],
+    ]);
+}
 
 $response  = curl_exec($ch);
 $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -244,8 +286,13 @@ if ($httpCode !== 200) {
 }
 
 // ── Antwort parsen ────────────────────────────────────────────────────────
-$data    = json_decode($response, true);
-$rawText = $data['content'][0]['text'] ?? '';
+$data = json_decode($response, true);
+// Text je nach Provider extrahieren
+if ($provider === 'openai') {
+    $rawText = $data['choices'][0]['message']['content'] ?? '';
+} else {
+    $rawText = $data['content'][0]['text'] ?? '';
+}
 
 // Markdown-Code-Fences entfernen falls vorhanden
 $jsonStr = $rawText;
