@@ -581,6 +581,14 @@ button{font-family:inherit}
 .pv-card-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .pv-card-label svg{flex-shrink:0}
 .pv-card-body{font-size:13px;color:var(--text);line-height:1.6}
+.pv-sec-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:4px;margin-top:12px}
+.pv-sec-label:first-child{margin-top:0}
+.pv-sec-micro{font-size:13px;line-height:1.6;color:var(--accent);background:var(--accent-bg);padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--accent-border)}
+.pv-sec-content{font-size:13px;line-height:1.75;color:var(--text)}
+.pv-sec-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:4px;margin-top:12px}
+.pv-sec-label:first-child{margin-top:0}
+.pv-sec-micro{font-size:13px;line-height:1.6;color:var(--accent);background:var(--accent-bg);padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--accent-border)}
+.pv-sec-content{font-size:13px;line-height:1.75;color:var(--text)}
 .pv-copy-btn{position:absolute;top:12px;right:12px;display:flex;align-items:center;gap:5px;padding:4px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:11px;font-weight:500;color:var(--text2);cursor:pointer;transition:background .12s,color .12s;font-family:inherit}
 .pv-copy-btn:hover{background:var(--bg4);color:var(--text)}
 .pv-copy-btn.copied{background:var(--green-bg);border-color:var(--green-border);color:var(--green)}
@@ -4021,9 +4029,14 @@ function pvRenderResults(d){
      h:[{c:'gsc',l:'GSC · CTR-Optimierung',d:'Niedrige CTR trotz guter Position deutet auf schwache CTA-Texte hin — GSC-Daten liefern den Benchmark für Optimierungen.'}]},
   ];
   secDefs.forEach(s=>{
+    const sObj=sec[s.k]||{};
+    const sMicro=typeof sObj==='object'?(sObj.micro||'–'):(sObj||'–');
+    const sFull=typeof sObj==='object'?(sObj.content||''):(typeof sObj==='string'?sObj:'');
+    const sCopy=sFull?`Micro:\n${sMicro}\n\nContent:\n${sFull}`:sMicro;
     cards.push(card(s.i,s.l,'sec-'+s.k,
-      `pvCopySectionText(${JSON.stringify(sec[s.k]||'')},this)`,
-      `<div class="pv-card-body">${escHtml(sec[s.k]||'–')}</div>`,
+      `pvCopySectionText(${JSON.stringify(sCopy)},this)`,
+      `<div class="pv-sec-label">Micro / UI-Text</div><div class="pv-sec-micro">${escHtml(sMicro)}</div>`+
+      (sFull?`<div class="pv-sec-label">Content / SEO-Text</div><div class="pv-sec-content">${escHtml(sFull)}</div>`:''),
       hint(s.h||[])
     ));
   });

@@ -128,21 +128,43 @@ $contextBlock = !empty($contextLines)
 
 // ── Prompts ──────────────────────────────────────────────────────────────
 $systemPrompt = <<<'SYSPROMPT'
-Du bist ein erfahrener SEO- und CRO-Spezialist für lokale Photovoltaik-Landingpages in Deutschland.
-Deine Aufgabe: Strukturierte, modulare Content-Bausteine für eine lokale PV-Landingpage erstellen.
+Du bist ein spezialisierter SEO- und CRO-Assistent für lokale Photovoltaik-Landingpages in Deutschland.
+Du unterstützt ein internes Tool namens LAT (Landingpage Analyse Tool).
 
-INHALTLICHE REGELN (strikt einhalten):
-- Keine erfundenen USPs, Referenzprojekte oder konkreten Zahlen ohne echte Datenbasis
-- Keine langen Stadtporträts, kein Tourismus-Content
-- Kein generischer Fülltext (z.B. "X ist eine wunderschöne Stadt")
-- Fokus auf: lokale Suchintention, Photovoltaik-Nutzen, Conversion, Vertrauen
-- PV-Rechner im Hero = primäre Conversion (Hauptziel der Seite)
-- Formular am Seitenende = sekundäre Backup-Conversion
-- Kurze, klare Brückentexte zwischen bestehenden visuellen Modulen
-- Wenn keine echten Daten vorliegen: neutrale, glaubwürdige Formulierungen statt erfundener Zahlen
-- Texte: sachlich, klar, vertrauenswürdig, conversion-orientiert
-- Stadt/PLZ natürlich einbinden (nicht keyword-stuffing)
-- Sprache: Deutsch
+AUFGABE:
+Erzeuge strukturierte, modulare Content-Bausteine für eine lokale Photovoltaik-Landingpage.
+Du erzeugst KEINEN langen Fließtext. Du erzeugst modulare Inhalte pro Seitenabschnitt.
+
+JEDE SECTION HAT ZWEI PFLICHTEBENEN:
+1. "micro" — max. 1–2 Sätze, für UI/Teaser/Übergänge, kurz und klar, ohne Füllwörter
+2. "content" — 80–150 Wörter, eigenständiger SEO-Absatz, konkret und direkt nutzbar
+
+KONTEXT:
+Diese Seiten verkaufen Photovoltaikanlagen in lokalen Märkten.
+Seitenmodule: Hero (PV-Rechner = primäre CTA) → Einstieg → Vorteile → Solarpotenzial → Kennzahlen → Referenzen → Wirtschaftlichkeit → FAQ → Formular (Backup-Conversion).
+
+CONVERSION-LOGIK:
+- PV-Rechner im Hero ist der primäre Conversion-Punkt
+- Formular am Seitenende ist nur sekundär
+- Texte erklären visuelle Module, ersetzen sie nicht
+- Nutzer sollen immer wieder zum Rechner oder zur Anfrage geführt werden
+
+SCHREIBREGELN (strikt):
+VERBOTEN:
+- erfundene USPs, Referenzprojekte, konkrete Zahlen ohne Datenbasis
+- lange Stadtbeschreibungen, Tourismus-Content
+- Floskeln wie "die Stadt hat sich entwickelt", generische KI-Phrasen
+
+ERLAUBT UND ERWÜNSCHT:
+- konkrete Aussagen zu Dachflächen, Eigenverbrauch, Stromkosten, typischen Gebäudetypen
+- lokale Einbindung mit Stadtname/PLZ (natürlich, kein Keyword-Stuffing)
+- realistische Aussagen ohne exakte erfundene Zahlen
+- sachliche, direkt nutzbare Texte ohne Nachbearbeitung
+
+QUALITÄTSZIEL:
+- Output direkt in echte Landingpage einbaubar
+- nicht nach KI klingen, nicht generisch wirken
+- wenn unsicher: weniger schreiben, aber substanzieller
 
 AUSGABEFORMAT: Antworte NUR mit einem validen JSON-Objekt. Kein erklärender Text. Kein Markdown-Codeblock.
 SYSPROMPT;
@@ -161,62 +183,89 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
     "landingPageUrl": "{$landingPageUrl}"
   },
   "meta": {
-    "title": "SEO-optimierter Meta-Title (max. 60 Zeichen, Keyword + Stadt)",
-    "description": "Meta-Description (max. 160 Zeichen, Nutzen + CTA)"
+    "title": "SEO-optimierter Meta-Title (max. 60 Zeichen, Haupt-Keyword + Stadt)",
+    "description": "Meta-Description (max. 160 Zeichen, konkreter Nutzen + CTA)"
   },
   "hero": {
     "h1": "Prägnante H1 mit lokalem Keyword (max. 70 Zeichen)",
     "subline": "Vertrauensbildende Subline (max. 120 Zeichen, kein Buzzword-Bingo)",
     "primaryCta": "CTA-Text für PV-Rechner-Button (kurz, handlungsorientiert)",
-    "secondaryCta": "Sekundärer CTA-Text (z.B. für kostenlose Beratung)"
+    "secondaryCta": "Sekundärer CTA-Text (z.B. kostenlose Beratung)"
   },
   "sections": {
-    "intro": "Einleitungstext (2-3 Sätze, lokal, nutzenorientiert, kein Tourismus-Content)",
-    "solarPotential": "Brückentext zur Solarpotenzial-Sektion (1-2 Sätze, was der Nutzer dort erfährt)",
-    "benefitsIntro": "Einleitung zur Vorteile/Benefits-Sektion (1-2 Sätze)",
-    "statisticsExplanation": "Brückentext zum Kennzahlenblock (1-2 Sätze, kontextuell erklärend)",
-    "projectsIntro": "Einleitung zur Referenzprojekte-Sektion (1-2 Sätze, ohne erfundene Projekte)",
-    "economicsText": "Brückentext zur Wirtschaftlichkeitsgrafik (1-2 Sätze, ROI-fokussiert)",
-    "faqIntro": "Einleitung zum FAQ-Bereich (1 Satz)",
-    "formIntro": "Text über dem Kontaktformular (1-2 Sätze, sekundäre Conversion, kein Druck)"
+    "intro": {
+      "micro": "1–2 Sätze für UI/Teaser (max. 30 Wörter, kein Fülltext, lokal)",
+      "content": "80–150 Wörter — eigenständiger Einstiegstext, nutzenorientiert, lokal eingebunden, kein Tourismus-Content"
+    },
+    "solarPotential": {
+      "micro": "1–2 Sätze Brückentext zur Solarpotenzial-Grafik",
+      "content": "80–150 Wörter — erklärt was der Nutzer in der Grafik erfährt, warum das Solarpotenzial in dieser Region relevant ist, ohne erfundene Einstrahlungswerte"
+    },
+    "benefitsIntro": {
+      "micro": "1–2 Sätze Einleitung zu den Vorteilen",
+      "content": "80–150 Wörter — konkrete Vorteile einer PV-Anlage im lokalen Kontext (Eigenverbrauch, Stromkosten, typische Gebäudetypen), ohne erfundene Zahlen"
+    },
+    "statisticsExplanation": {
+      "micro": "1–2 Sätze Brückentext zum Kennzahlenblock",
+      "content": "80–150 Wörter — kontextualisiert die Kennzahlen für den lokalen Markt, erklärt Bedeutung ohne die Zahlen selbst zu erfinden"
+    },
+    "projectsIntro": {
+      "micro": "1–2 Sätze Einleitung zu Referenzprojekten (keine erfundenen Projekte)",
+      "content": "80–150 Wörter — Rahmentext der Vertrauen schafft, ohne konkrete Projekte zu erfinden; beschreibt Erfahrung und Expertise im lokalen Markt"
+    },
+    "economicsText": {
+      "micro": "1–2 Sätze Brückentext zur Wirtschaftlichkeitsgrafik",
+      "content": "80–150 Wörter — ROI-fokussiert, erklärt Amortisation und Eigenverbrauch realistisch ohne erfundene Zeiträume oder Renditeversprechen"
+    },
+    "faqIntro": {
+      "micro": "1 Satz Einleitung zum FAQ-Bereich",
+      "content": "80–150 Wörter — warum diese FAQs relevant für lokale PV-Käufer in dieser Region sind, welche Fragen hier beantwortet werden"
+    },
+    "formIntro": {
+      "micro": "1–2 Sätze über dem Formular (kein Druck, Backup-Conversion)",
+      "content": "80–150 Wörter — erklärt den nächsten Schritt, schafft Vertrauen, leitet sanft zur Anfrage, kein Verkaufsdruck"
+    }
   },
   "faq": [
-    {"question": "Häufige PV-Frage 1 (lokal relevant)", "answer": "Klare, ehrliche Antwort (2-4 Sätze)"},
-    {"question": "Häufige PV-Frage 2 (technisch)", "answer": "Klare, ehrliche Antwort"},
-    {"question": "Häufige PV-Frage 3 (Kosten/Förderung)", "answer": "Klare, ehrliche Antwort"},
-    {"question": "Häufige PV-Frage 4 (Wirtschaftlichkeit)", "answer": "Klare, ehrliche Antwort"},
-    {"question": "Häufige PV-Frage 5 (lokale Bedingungen)", "answer": "Klare, ehrliche Antwort"}
+    {"question": "Häufige lokale PV-Frage 1", "answer": "80–120 Wörter, konkret, ohne generische Aussagen"},
+    {"question": "Häufige technische PV-Frage 2", "answer": "80–120 Wörter, konkret"},
+    {"question": "Frage zu Kosten und Förderung 3", "answer": "80–120 Wörter, konkret"},
+    {"question": "Frage zur Wirtschaftlichkeit 4", "answer": "80–120 Wörter, konkret"},
+    {"question": "Frage zu lokalen Bedingungen 5", "answer": "80–120 Wörter, konkret"}
   ],
   "seoChecklist": [
-    {"item": "Meta-Title enthält Haupt-Keyword + Stadt", "status": "ok", "note": "Bewertungshinweis basierend auf generiertem Title"},
-    {"item": "Meta-Description mit klarem CTA", "status": "ok", "note": "..."},
+    {"item": "Meta-Title enthält Haupt-Keyword + Stadt", "status": "ok", "note": "Realistisch bewerten basierend auf generiertem Title"},
+    {"item": "Meta-Description mit klarem CTA und Nutzenversprechen", "status": "ok", "note": "..."},
     {"item": "H1 mit lokalem Keyword", "status": "ok", "note": "..."},
-    {"item": "Lokaler Breadcrumb empfohlen", "status": "warning", "note": "..."},
+    {"item": "Lokaler Breadcrumb vorhanden", "status": "warning", "note": "..."},
     {"item": "Strukturierte Daten (LocalBusiness-Schema)", "status": "missing", "note": "..."},
     {"item": "FAQ-Schema (FAQPage)", "status": "ok", "note": "..."},
     {"item": "Canonical-Tag korrekt gesetzt", "status": "warning", "note": "..."},
     {"item": "Interne Verlinkung zur Hauptseite", "status": "ok", "note": "..."}
   ],
   "croChecklist": [
-    {"item": "PV-Rechner als primäre CTA im Hero sichtbar", "status": "ok", "note": "..."},
-    {"item": "Vertrauenssignale im Hero-Bereich (Siegel, Bewertungen)", "status": "warning", "note": "..."},
-    {"item": "Klarer Nutzen in der H1 erkennbar", "status": "ok", "note": "..."},
-    {"item": "Sekundäres Formular klar und friktionsarm", "status": "warning", "note": "..."},
+    {"item": "PV-Rechner als primäre CTA im Hero sichtbar und prominent", "status": "ok", "note": "..."},
+    {"item": "Vertrauenssignale im Hero-Bereich (Siegel, Bewertungen, Zertifikate)", "status": "warning", "note": "..."},
+    {"item": "Klarer Nutzen in H1 und Subline erkennbar", "status": "ok", "note": "..."},
+    {"item": "Nutzerführung zurück zum Rechner nach den Sections", "status": "warning", "note": "..."},
     {"item": "Social Proof / Referenzen vorhanden", "status": "missing", "note": "..."},
-    {"item": "Mobile Hero-CTA ohne Scrollen sichtbar", "status": "warning", "note": "..."}
+    {"item": "Mobile Hero-CTA ohne Scrollen sichtbar", "status": "warning", "note": "..."},
+    {"item": "Formular friktionsarm (wenige Pflichtfelder)", "status": "warning", "note": "..."}
   ],
   "recommendations": [
-    {"module": "Hero", "priority": "high", "recommendation": "Konkreter Optimierungshinweis für den Hero-Bereich"},
+    {"module": "Hero", "priority": "high", "recommendation": "Konkreter, umsetzbarer Optimierungshinweis"},
     {"module": "Social Proof", "priority": "high", "recommendation": "Empfehlung zu Vertrauenssignalen"},
-    {"module": "Strukturierte Daten", "priority": "medium", "recommendation": "Schema.org-Empfehlung"},
+    {"module": "Strukturierte Daten", "priority": "medium", "recommendation": "Schema.org LocalBusiness + FAQPage"},
     {"module": "FAQ", "priority": "medium", "recommendation": "FAQ-Optimierungshinweis"},
     {"module": "Mobile", "priority": "low", "recommendation": "Mobile-CTA-Hinweis"}
   ],
-  "exportMarkdown": "# Local PV Generator — {$cityOrPostalCode}\n\n## Meta\n**Title:** [title]\n**Description:** [description]\n\n## Hero\n**H1:** [h1]\n**Subline:** [subline]\n**Primärer CTA:** [primaryCta]\n**Sekundärer CTA:** [secondaryCta]\n\n[weitere Sektionen als Markdown]"
+  "exportMarkdown": "Vollständiges Markdown aller generierten Bausteine in lesbarer Form, gegliedert nach Abschnitten"
 }
 
-Antworte NUR mit dem JSON-Objekt. Kein erklärender Text davor oder danach. Kein Markdown-Codeblock.
+WICHTIG: Nicht alles pauschal auf 'ok' setzen — SEO- und CRO-Checkliste realistisch bewerten.
+Antworte NUR mit dem JSON-Objekt. Kein erklärender Text. Kein Markdown-Codeblock.
 UPROMPT;
+
 
 // ── API-Call ──────────────────────────────────────────────────────────────
 $model = ($provider === 'openai') ? CFG_OPENAI_MODEL : CFG_AI_MODEL;
