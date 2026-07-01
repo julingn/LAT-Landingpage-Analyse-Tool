@@ -131,29 +131,53 @@ $systemPrompt = <<<'SYSPROMPT'
 Du bist ein spezialisierter SEO- und CRO-Assistent für lokale Photovoltaik-Landingpages in Deutschland.
 Du unterstützt ein internes Tool namens LAT (Landingpage Analyse Tool).
 
+GRUNDANNAHME (immer gültig):
+Die Ziel-Landingpage enthält einen PV-Rechner im Hero-Bereich.
+Der PV-Rechner ist der primäre Conversion-Punkt — kein Text, keine CTA darf das in Frage stellen.
+Das Kontaktformular am Seitenende ist nur eine sekundäre Backup-Conversion.
+
 AUFGABE:
 Erzeuge strukturierte, modulare Content-Bausteine für eine lokale Photovoltaik-Landingpage.
 Du erzeugst KEINEN langen Fließtext. Du erzeugst modulare Inhalte pro Seitenabschnitt.
+
+SEITENSTRUKTUR (LP-Reihenfolge):
+1. Hero — H1 + Subline + Rechner-Microcopy + primärer CTA (→ Rechner) + sekundärer CTA
+2. Intro — lokaler Einstiegstext
+3. Vorteile — 4 Kacheln: Unabhängigkeit, Wertsteigerung, Alles aus einer Hand, Zuverlässiger Partner
+4. Solarpotenzial — Grafik-Begleitung
+5. Kennzahlen — Statistik-Block
+6. 3-Schritte-Prozess — Ablauf-Erklärung
+7. Referenzprojekte — Trust ohne erfundene Projekte
+8. Wirtschaftlichkeit — ROI-Grafik-Begleitung
+9. Kundenstimmen — Trust-Einleitung
+10. FAQ — Accordion
+11. Formular — Backup-CTA (weich, kein Druck)
 
 JEDE SECTION HAT ZWEI PFLICHTEBENEN:
 1. "micro" — max. 1–2 Sätze, für UI/Teaser/Übergänge, kurz und klar, ohne Füllwörter
 2. "content" — 80–150 Wörter, eigenständiger SEO-Absatz, konkret und direkt nutzbar
 
-KONTEXT:
-Diese Seiten verkaufen Photovoltaikanlagen in lokalen Märkten.
-Seitenmodule: Hero (PV-Rechner = primäre CTA) → Einstieg → Vorteile → Solarpotenzial → Kennzahlen → Referenzen → Wirtschaftlichkeit → FAQ → Formular (Backup-Conversion).
-
 CONVERSION-LOGIK:
-- PV-Rechner im Hero ist der primäre Conversion-Punkt
-- Formular am Seitenende ist nur sekundär
-- Texte erklären visuelle Module, ersetzen sie nicht
-- Nutzer sollen immer wieder zum Rechner oder zur Anfrage geführt werden
+- Hero-CTA führt immer zum PV-Rechner ("Jetzt Potenzial berechnen" o. ä.)
+- Micro-CTAs nach Abschnitten führen ebenfalls zurück zum Rechner
+- Formular-CTA ist sanft formuliert, kein Verkaufsdruck
+- ctaStrategy liefert 3 Beispiel-CTAs pro Conversion-Ebene + 3 Micro-CTAs mit Placement
+
+VORTEILE-BLOCK (benefits):
+Exakt 4 Kacheln mit festen Titeln: Unabhängigkeit, Wertsteigerung, Alles aus einer Hand, Zuverlässiger Partner.
+Jede Kachel: title (fix) + text (2–3 Sätze, konkret, lokal, kein Buzzword-Bingo).
+
+PLACEMENT MAP:
+Erzeuge ein "placementMap"-Array mit 11 Einträgen (order 1–11).
+Jeder Eintrag beschreibt genau ein Seitenmodul: order, module, visualType, contentNeeded, generatedFields, recommendation.
+Die recommendation ist ein konkreter Einbauhinweis (1–2 Sätze).
 
 SCHREIBREGELN (strikt):
 VERBOTEN:
-- erfundene USPs, Referenzprojekte, konkrete Zahlen ohne Datenbasis
+- erfundene Referenzprojekte, konkrete erfundene Zahlen, erfundene Einstrahlungswerte
 - lange Stadtbeschreibungen, Tourismus-Content
 - Floskeln wie "die Stadt hat sich entwickelt", generische KI-Phrasen
+- Renditeversprechen oder konkrete Amortisationszeiträume ohne Datenbasis
 
 ERLAUBT UND ERWÜNSCHT:
 - konkrete Aussagen zu Dachflächen, Eigenverbrauch, Stromkosten, typischen Gebäudetypen
@@ -174,13 +198,16 @@ Erstelle strukturierte SEO- und CRO-Bausteine für eine lokale Photovoltaik-Land
 
 Zielort: {$cityOrPostalCode}{$contextBlock}
 
+Der PV-Rechner ist im Hero. Er ist die primäre Conversion. Das Formular am Ende ist nur Backup.
+
 Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
 
 {
   "input": {
     "cityOrPostalCode": "{$cityOrPostalCode}",
     "primaryKeyword": "{$primaryKeyword}",
-    "landingPageUrl": "{$landingPageUrl}"
+    "landingPageUrl": "{$landingPageUrl}",
+    "pvCalculatorInHero": true
   },
   "meta": {
     "title": "SEO-optimierter Meta-Title (max. 60 Zeichen, Haupt-Keyword + Stadt)",
@@ -189,43 +216,99 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
   "hero": {
     "h1": "Prägnante H1 mit lokalem Keyword (max. 70 Zeichen)",
     "subline": "Vertrauensbildende Subline (max. 120 Zeichen, kein Buzzword-Bingo)",
-    "primaryCta": "CTA-Text für PV-Rechner-Button (kurz, handlungsorientiert)",
-    "secondaryCta": "Sekundärer CTA-Text (z.B. kostenlose Beratung)"
+    "calculatorIntro": "1–2 Sätze Microcopy direkt über/neben dem PV-Rechner — erklärt kurz was der Nutzer berechnen kann, motiviert zur Interaktion",
+    "primaryCta": "CTA-Text für den PV-Rechner-Button (kurz, handlungsorientiert, z.B. Jetzt Potenzial berechnen)",
+    "secondaryCta": "Sekundärer CTA-Text für Beratungsanfrage (sanft, kein Druck)"
   },
+  "benefits": [
+    {"title": "Unabhängigkeit", "text": "2–3 Sätze, konkret, lokal, kein Buzzword-Bingo", "placement": "Vorteile-Kachel"},
+    {"title": "Wertsteigerung", "text": "2–3 Sätze, konkret, lokal", "placement": "Vorteile-Kachel"},
+    {"title": "Alles aus einer Hand", "text": "2–3 Sätze, konkret, lokal", "placement": "Vorteile-Kachel"},
+    {"title": "Zuverlässiger Partner", "text": "2–3 Sätze, konkret, lokal", "placement": "Vorteile-Kachel"}
+  ],
   "sections": {
     "intro": {
       "micro": "1–2 Sätze für UI/Teaser (max. 30 Wörter, kein Fülltext, lokal)",
-      "content": "80–150 Wörter — eigenständiger Einstiegstext, nutzenorientiert, lokal eingebunden, kein Tourismus-Content"
+      "content": "80–150 Wörter — eigenständiger Einstiegstext, nutzenorientiert, lokal eingebunden, kein Tourismus-Content",
+      "placement": "Direkt unter dem Hero"
     },
     "solarPotential": {
       "micro": "1–2 Sätze Brückentext zur Solarpotenzial-Grafik",
-      "content": "80–150 Wörter — erklärt was der Nutzer in der Grafik erfährt, warum das Solarpotenzial in dieser Region relevant ist, ohne erfundene Einstrahlungswerte"
-    },
-    "benefitsIntro": {
-      "micro": "1–2 Sätze Einleitung zu den Vorteilen",
-      "content": "80–150 Wörter — konkrete Vorteile einer PV-Anlage im lokalen Kontext (Eigenverbrauch, Stromkosten, typische Gebäudetypen), ohne erfundene Zahlen"
+      "content": "80–150 Wörter — erklärt was der Nutzer in der Grafik erfährt, warum das Solarpotenzial in dieser Region relevant ist, ohne erfundene Einstrahlungswerte",
+      "placement": "Vor oder unter der Solarpotenzial-Grafik"
     },
     "statisticsExplanation": {
       "micro": "1–2 Sätze Brückentext zum Kennzahlenblock",
-      "content": "80–150 Wörter — kontextualisiert die Kennzahlen für den lokalen Markt, erklärt Bedeutung ohne die Zahlen selbst zu erfinden"
+      "content": "80–150 Wörter — kontextualisiert die Kennzahlen für den lokalen Markt, erklärt Bedeutung ohne die Zahlen selbst zu erfinden",
+      "placement": "Unter dem Kennzahlen-Block"
+    },
+    "processIntro": {
+      "micro": "1–2 Sätze Einleitung zum 3-Schritte-Prozess",
+      "content": "80–150 Wörter — erklärt den Ablauf von der Erstberatung bis zur Inbetriebnahme, schafft Vertrauen ohne konkrete Zeitversprechen",
+      "placement": "Über dem 3-Schritte-Prozess"
     },
     "projectsIntro": {
       "micro": "1–2 Sätze Einleitung zu Referenzprojekten (keine erfundenen Projekte)",
-      "content": "80–150 Wörter — Rahmentext der Vertrauen schafft, ohne konkrete Projekte zu erfinden; beschreibt Erfahrung und Expertise im lokalen Markt"
+      "content": "80–150 Wörter — Rahmentext der Vertrauen schafft, ohne konkrete Projekte zu erfinden; beschreibt Erfahrung und Expertise im lokalen Markt",
+      "placement": "Über den Referenzprojekt-Karten"
     },
     "economicsText": {
       "micro": "1–2 Sätze Brückentext zur Wirtschaftlichkeitsgrafik",
-      "content": "80–150 Wörter — ROI-fokussiert, erklärt Amortisation und Eigenverbrauch realistisch ohne erfundene Zeiträume oder Renditeversprechen"
+      "content": "80–150 Wörter — ROI-fokussiert, erklärt Amortisation und Eigenverbrauch realistisch ohne erfundene Zeiträume oder Renditeversprechen",
+      "placement": "Vor der Wirtschaftlichkeitsgrafik"
+    },
+    "testimonialsIntro": {
+      "micro": "1–2 Sätze Trust-Einleitung über Kundenstimmen",
+      "content": "80–150 Wörter — erklärt warum echte Kundenstimmen wichtig sind, leitet zur Bewertungssektion über, kein erfundener Social Proof",
+      "placement": "Über den Kundenstimmen"
     },
     "faqIntro": {
       "micro": "1 Satz Einleitung zum FAQ-Bereich",
-      "content": "80–150 Wörter — warum diese FAQs relevant für lokale PV-Käufer in dieser Region sind, welche Fragen hier beantwortet werden"
+      "content": "80–150 Wörter — warum diese FAQs relevant für lokale PV-Käufer in dieser Region sind, welche Fragen hier beantwortet werden",
+      "placement": "Über dem FAQ-Accordion"
     },
     "formIntro": {
       "micro": "1–2 Sätze über dem Formular (kein Druck, Backup-Conversion)",
-      "content": "80–150 Wörter — erklärt den nächsten Schritt, schafft Vertrauen, leitet sanft zur Anfrage, kein Verkaufsdruck"
+      "content": "80–150 Wörter — erklärt den nächsten Schritt, schafft Vertrauen, leitet sanft zur Anfrage, kein Verkaufsdruck",
+      "placement": "Über dem Kontaktformular als Backup-CTA"
     }
   },
+  "ctaStrategy": {
+    "primaryConversion": {
+      "element": "PV-Rechner im Hero",
+      "ctaExamples": [
+        "Konkreter CTA-Text 1 für PV-Rechner (z.B. Jetzt Potenzial berechnen)",
+        "Konkreter CTA-Text 2 für PV-Rechner",
+        "Konkreter CTA-Text 3 für PV-Rechner"
+      ]
+    },
+    "secondaryConversion": {
+      "element": "Formular am Seitenende",
+      "ctaExamples": [
+        "Sanfter CTA-Text 1 für Formular",
+        "Sanfter CTA-Text 2 für Formular",
+        "Sanfter CTA-Text 3 für Formular"
+      ]
+    },
+    "microCtas": [
+      {"placement": "Nach Solarpotenzial", "text": "Kurzer Micro-CTA zurück zum Rechner"},
+      {"placement": "Nach Kennzahlen", "text": "Kurzer Micro-CTA zurück zum Rechner"},
+      {"placement": "Nach Referenzprojekten", "text": "Kurzer Micro-CTA zum Rechner oder zur Anfrage"}
+    ]
+  },
+  "placementMap": [
+    {"order": 1, "module": "Hero", "visualType": "split-layout", "contentNeeded": ["H1", "Subline", "Calculator Intro", "Primary CTA"], "generatedFields": ["hero.h1", "hero.subline", "hero.calculatorIntro", "hero.primaryCta"], "recommendation": "Konkreter Einbauhinweis für Hero-Module"},
+    {"order": 2, "module": "Intro", "visualType": "text-block", "contentNeeded": ["Kurzer lokaler Einstieg"], "generatedFields": ["sections.intro.micro", "sections.intro.content"], "recommendation": "Einbauhinweis"},
+    {"order": 3, "module": "Vorteile", "visualType": "four-card-grid", "contentNeeded": ["Unabhängigkeit", "Wertsteigerung", "Alles aus einer Hand", "Zuverlässiger Partner"], "generatedFields": ["benefits[0]", "benefits[1]", "benefits[2]", "benefits[3]"], "recommendation": "Einbauhinweis"},
+    {"order": 4, "module": "Solarpotenzial-Grafik", "visualType": "chart-section", "contentNeeded": ["Einordnung vor Grafik"], "generatedFields": ["sections.solarPotential.micro", "sections.solarPotential.content"], "recommendation": "Einbauhinweis"},
+    {"order": 5, "module": "Kennzahlen-Block", "visualType": "statistics-gradient", "contentNeeded": ["Erklärung der Zahlen"], "generatedFields": ["sections.statisticsExplanation.micro", "sections.statisticsExplanation.content"], "recommendation": "Einbauhinweis"},
+    {"order": 6, "module": "3-Schritte-Prozess", "visualType": "process-grid", "contentNeeded": ["Ablauf-Erklärung"], "generatedFields": ["sections.processIntro.micro", "sections.processIntro.content"], "recommendation": "Einbauhinweis"},
+    {"order": 7, "module": "Referenzprojekte", "visualType": "project-cards", "contentNeeded": ["Einordnung der Projektkarten"], "generatedFields": ["sections.projectsIntro.micro", "sections.projectsIntro.content"], "recommendation": "Einbauhinweis"},
+    {"order": 8, "module": "Wirtschaftlichkeit", "visualType": "economics-chart", "contentNeeded": ["Eigenverbrauch", "Einspeisung", "Stromkosten"], "generatedFields": ["sections.economicsText.micro", "sections.economicsText.content"], "recommendation": "Einbauhinweis"},
+    {"order": 9, "module": "Kundenstimmen", "visualType": "testimonial-section", "contentNeeded": ["Trust-Einleitung"], "generatedFields": ["sections.testimonialsIntro.micro", "sections.testimonialsIntro.content"], "recommendation": "Einbauhinweis"},
+    {"order": 10, "module": "FAQ", "visualType": "accordion", "contentNeeded": ["FAQ Intro", "lokale FAQ-Fragen"], "generatedFields": ["sections.faqIntro.micro", "faq"], "recommendation": "Einbauhinweis"},
+    {"order": 11, "module": "Formular", "visualType": "form-section", "contentNeeded": ["Backup-CTA", "Beratungstext"], "generatedFields": ["sections.formIntro.micro", "sections.formIntro.content"], "recommendation": "Einbauhinweis"}
+  ],
   "faq": [
     {"question": "Häufige lokale PV-Frage 1", "answer": "80–120 Wörter, konkret, ohne generische Aussagen"},
     {"question": "Häufige technische PV-Frage 2", "answer": "80–120 Wörter, konkret"},
@@ -245,12 +328,13 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
   ],
   "croChecklist": [
     {"item": "PV-Rechner als primäre CTA im Hero sichtbar und prominent", "status": "ok", "note": "..."},
+    {"item": "Calculator Intro (Microcopy) über dem Rechner vorhanden", "status": "ok", "note": "..."},
     {"item": "Vertrauenssignale im Hero-Bereich (Siegel, Bewertungen, Zertifikate)", "status": "warning", "note": "..."},
     {"item": "Klarer Nutzen in H1 und Subline erkennbar", "status": "ok", "note": "..."},
-    {"item": "Nutzerführung zurück zum Rechner nach den Sections", "status": "warning", "note": "..."},
-    {"item": "Social Proof / Referenzen vorhanden", "status": "missing", "note": "..."},
+    {"item": "Micro-CTAs nach Abschnitten führen zurück zum Rechner", "status": "warning", "note": "..."},
+    {"item": "Social Proof / Kundenstimmen vorhanden", "status": "missing", "note": "..."},
     {"item": "Mobile Hero-CTA ohne Scrollen sichtbar", "status": "warning", "note": "..."},
-    {"item": "Formular friktionsarm (wenige Pflichtfelder)", "status": "warning", "note": "..."}
+    {"item": "Formular friktionsarm und als Alternative positioniert", "status": "warning", "note": "..."}
   ],
   "recommendations": [
     {"module": "Hero", "priority": "high", "recommendation": "Konkreter, umsetzbarer Optimierungshinweis"},
