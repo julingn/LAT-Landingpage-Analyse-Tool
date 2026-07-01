@@ -3978,6 +3978,14 @@ showView('overview');
 // ═══════════════════════════════════════════════════════════
 let pvData = null;
 
+function pvSwitchTab(name,btn){
+  document.querySelectorAll('.pv-tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.pv-tab-panel').forEach(p=>p.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const panel=document.getElementById('pv-tab-'+name);
+  if(panel) panel.classList.add('active');
+}
+
 async function pvGenerate(){
   const city = document.getElementById('pv-city').value.trim();
   const validMsg = document.getElementById('pv-validation-msg');
@@ -3997,6 +4005,7 @@ async function pvGenerate(){
   document.getElementById('pv-loading').style.display='block';
   document.getElementById('pv-results').style.display='none';
   document.getElementById('pv-error').style.display='none';
+  pvSwitchTab('content', document.querySelector('.pv-tab-btn'));
 
   const body = {
     cityOrPostalCode: city,
@@ -4061,39 +4070,44 @@ function pvRenderResults(d){
     `<div class="pv-hero-grid">`+
     `<div class="pv-hero-field full"><div class="pv-hero-field-label">H1</div><div class="pv-hero-value">${escHtml(h.h1||'–')}</div></div>`+
     `<div class="pv-hero-field full"><div class="pv-hero-field-label">Subline</div><div class="pv-hero-value">${escHtml(h.subline||'–')}</div></div>`+
-    `<div class="pv-hero-field"><div class="pv-hero-field-label">Primärer CTA</div><div class="pv-hero-value">${escHtml(h.primaryCta||'–')}</div></div>`+
-    `<div class="pv-hero-field"><div class="pv-hero-field-label">Sekundärer CTA</div><div class="pv-hero-value">${escHtml(h.secondaryCta||'–')}</div></div></div>`,
+    `<div class="pv-hero-field full"><div class="pv-hero-field-label">Calculator Intro (Rechner-Microcopy)</div><div class="pv-hero-value" style="border-color:var(--accent-border)">${escHtml(h.calculatorIntro||'–')}</div></div>`+
+    `<div class="pv-hero-field"><div class="pv-hero-field-label">Primärer CTA → Rechner</div><div class="pv-hero-value">${escHtml(h.primaryCta||'–')}</div></div>`+
+    `<div class="pv-hero-field"><div class="pv-hero-field-label">Sekundärer CTA → Formular</div><div class="pv-hero-value">${escHtml(h.secondaryCta||'–')}</div></div></div>`,
     hint([{c:'gsc',l:'GSC · Top-Queries',d:'Die häufigsten Suchanfragen der bestehenden LP zeigen, welche Keywords Nutzer wirklich eingeben — ideal zur H1-Schärfung und CTA-Formulierung.'},
           {c:'dataforseo',l:'DataForSEO · Keyword-Varianten',d:'Lokale Varianten und Suchvolumina helfen, den stärksten Begriff für H1 und CTA auszuwählen.'}])
   ));
   // 3–10. Content Sections in LP-Reihenfolge
   const secDefs=[
-    {k:'intro',            l:'Einleitungstext',         i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="13" y1="18" x2="3" y2="18"/></svg>',
-     h:[{c:'gsc',l:'GSC · Nutzerintention',d:'Top-Queries zeigen, was Nutzer wirklich suchen — Einleitung kann gezielt die häufigsten Suchanfragen aufgreifen.'},
-        {c:'sistrix',l:'Sistrix · Wettbewerber',d:'Wie positionieren Wettbewerber ihr Intro? Lücken und Differenzierungspotenziale erkennen.'}]},
-    {k:'solarPotential',   l:'Solarpotenzial',          i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
-     h:[{c:'pvgis',l:'PVGIS / DWD · Einstrahlungsdaten',d:'Tatsächliche Globalstrahlungsdaten für die PLZ/Region. Ersetzt generische KI-Annahmen durch echte, belegbare Ertragspotenziale.'}]},
-    {k:'benefitsIntro',    l:'Vorteile / Benefits',     i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
-     h:[{c:'sistrix',l:'Sistrix · Keyword-Chancen',d:'Welche Vorteils-Keywords ranken Wettbewerber besonders gut? Fehlende USPs aufdecken und gezielte Keyword-Chancen nutzen.'}]},
-    {k:'statisticsExplanation',l:'Kennzahlenblock',     i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
-     h:[{c:'dataforseo',l:'DataForSEO · Lokales Suchvolumen',d:'Regionale Suchvolumina als Kontext: die tatsächliche Nachfrage nach PV in der Region in Zahlen fassen.'},
-        {c:'sistrix',l:'Sistrix · Marktdaten',d:'Sichtbarkeitsindex und Keyword-Anzahl der stärksten Wettbewerber als Marktorientierung.'}]},
-    {k:'projectsIntro',    l:'Referenzprojekte',        i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
-     h:[{c:'gsc',l:'GSC · Seiten-Performance',d:'Klick- und Impressionsdaten zeigen, ob die Referenzseite bereits Sichtbarkeit hat und welche Regionen besonders performen.'}]},
-    {k:'economicsText',    l:'Wirtschaftlichkeitsgrafik',i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
-     h:[{c:'dataforseo',l:'DataForSEO · Wettbewerber-Angebote',d:'Welche ROI-Versprechen ranken Wettbewerber in Ads und organisch? Realistische Benchmarks für Wirtschaftlichkeitsargumente.'}]},
-    {k:'faqIntro',         l:'FAQ-Einleitung',          i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
-     h:[{c:'dataforseo',l:'DataForSEO · People Also Ask',d:'SERP-Features zeigen, welche Fragen Google für die Suchanfrage besonders relevant einstuft — direkte FAQ-Vorlage.'}]},
-    {k:'formIntro',        l:'Formular / CTA',          i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>',
-     h:[{c:'gsc',l:'GSC · CTR-Optimierung',d:'Niedrige CTR trotz guter Position deutet auf schwache CTA-Texte hin — GSC-Daten liefern den Benchmark für Optimierungen.'}]},
+    {k:'intro',            l:'Einleitungstext',          i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="13" y1="18" x2="3" y2="18"/></svg>',
+     h:[{c:'gsc',l:'GSC · Nutzerintention',d:'Top-Queries zeigen, was Nutzer wirklich suchen.'},
+        {c:'sistrix',l:'Sistrix · Wettbewerber',d:'Wie positionieren Wettbewerber ihr Intro?'}]},
+    {k:'solarPotential',   l:'Solarpotenzial',           i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
+     h:[{c:'pvgis',l:'PVGIS / DWD · Einstrahlungsdaten',d:'Tatsächliche Globalstrahlungsdaten für die PLZ/Region.'}]},
+    {k:'statisticsExplanation',l:'Kennzahlenblock',      i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+     h:[{c:'dataforseo',l:'DataForSEO · Lokales Suchvolumen',d:'Regionale Suchvolumina als Kontext.'},
+        {c:'sistrix',l:'Sistrix · Marktdaten',d:'Sichtbarkeitsindex und Keyword-Anzahl.'}]},
+    {k:'processIntro',     l:'3-Schritte-Prozess',       i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>',
+     h:[]},
+    {k:'projectsIntro',    l:'Referenzprojekte',          i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+     h:[{c:'gsc',l:'GSC · Seiten-Performance',d:'Klick- und Impressionsdaten zeigen regionale Performance.'}]},
+    {k:'economicsText',    l:'Wirtschaftlichkeitsgrafik', i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+     h:[{c:'dataforseo',l:'DataForSEO · Wettbewerber-Angebote',d:'ROI-Versprechen der Wettbewerber als Benchmark.'}]},
+    {k:'testimonialsIntro',l:'Kundenstimmen',             i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+     h:[]},
+    {k:'faqIntro',         l:'FAQ-Einleitung',            i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+     h:[{c:'dataforseo',l:'DataForSEO · People Also Ask',d:'SERP-Features zeigen die relevantesten Nutzerfragen.'}]},
+    {k:'formIntro',        l:'Formular / Backup-CTA',     i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>',
+     h:[{c:'gsc',l:'GSC · CTR-Optimierung',d:'Niedrige CTR trotz guter Position deutet auf schwache CTAs hin.'}]},
   ];
   secDefs.forEach(s=>{
     const sObj=sec[s.k]||{};
     const sMicro=typeof sObj==='object'?(sObj.micro||'–'):(sObj||'–');
     const sFull=typeof sObj==='object'?(sObj.content||''):(typeof sObj==='string'?sObj:'');
+    const sPlace=typeof sObj==='object'?(sObj.placement||''):'';
     const sCopy=sFull?`Micro:\n${sMicro}\n\nContent:\n${sFull}`:sMicro;
     cards.push(card(s.i,s.l,'sec-'+s.k,
       `pvCopySectionText(${JSON.stringify(sCopy)},this)`,
+      (sPlace?`<div class="pv-placement-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg>${escHtml(sPlace)}</div>`:'')+
       `<div class="pv-sec-label">Micro / UI-Text</div><div class="pv-sec-micro">${escHtml(sMicro)}</div>`+
       (sFull?`<div class="pv-sec-label">Content / SEO-Text</div><div class="pv-sec-content">${escHtml(sFull)}</div>`:''),
       hint(s.h||[])
@@ -4144,7 +4158,60 @@ function pvRenderResults(d){
     `<div class="pv-export-area">${escHtml(d.exportMarkdown||'')}</div>`,
     ''
   ));
-  document.getElementById('pv-results-list').innerHTML=cards.join('');
+
+  // ── Tab 1: Content (Meta, Hero, Benefits, Sections, FAQ) ──
+  const benefits=Array.isArray(d.benefits)?d.benefits:[];
+  const benefitsHtml=benefits.length?
+    '<div class="pv-card"><div class="pv-card-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Vorteile (4 Kacheln)</div>'+
+    `<button class="pv-copy-btn" id="pv-copy-benefits" onclick="pvCopySection('benefits')">${CI} Kopieren</button>`+
+    '<div class="pv-benefits-grid">'+
+    benefits.map(b=>`<div class="pv-benefit-card"><div class="pv-benefit-title">${escHtml(b.title||'')}</div><div class="pv-benefit-text">${escHtml(b.text||'')}</div>${b.placement?`<div class="pv-benefit-placement">${escHtml(b.placement)}</div>`:''}</div>`).join('')+
+    '</div></div>':'';
+
+  const cta=d.ctaStrategy||{};
+  const prim=cta.primaryConversion||{};
+  const sec2=cta.secondaryConversion||{};
+  const mCtAs=Array.isArray(cta.microCtas)?cta.microCtas:[];
+  const ctaHtml=`<div class="pv-card"><div class="pv-card-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>CTA-Strategie</div>`+
+    `<button class="pv-copy-btn" id="pv-copy-ctaStrategy" onclick="pvCopySection('ctaStrategy')">${CI} Kopieren</button>`+
+    `<div class="pv-cta-strategy">`+
+    `<div class="pv-cta-block"><div class="pv-cta-block-label primary">Primär → ${escHtml(prim.element||'PV-Rechner')}</div>`+
+    (Array.isArray(prim.ctaExamples)?prim.ctaExamples.map(t=>`<div class="pv-cta-example" title="Kopieren" onclick="pvCopySectionText(${JSON.stringify(t)},this)">${escHtml(t)}</div>`).join(''):'')+
+    `</div>`+
+    `<div class="pv-cta-block"><div class="pv-cta-block-label secondary">Sekundär → ${escHtml(sec2.element||'Formular')}</div>`+
+    (Array.isArray(sec2.ctaExamples)?sec2.ctaExamples.map(t=>`<div class="pv-cta-example" title="Kopieren" onclick="pvCopySectionText(${JSON.stringify(t)},this)">${escHtml(t)}</div>`).join(''):'')+
+    `</div></div>`+
+    (mCtAs.length?`<div class="pv-micro-ctas"><div class="pv-micro-cta-label">Micro-CTAs (Zwischenabschnitte)</div>`+
+      mCtAs.map(mc=>`<div class="pv-micro-cta-item"><span class="pv-micro-cta-placement">${escHtml(mc.placement||'')}</span><span class="pv-micro-cta-text">${escHtml(mc.text||'')}</span></div>`).join('')+
+      `</div>`:'')+
+    `</div>`;
+
+  document.getElementById('pv-results-list').innerHTML=cards.slice(0,12).join('')+benefitsHtml+ctaHtml;
+
+  // ── Tab 2: Placement Map ──
+  const pm=Array.isArray(d.placementMap)?d.placementMap:[];
+  const pmHtml=pm.length?
+    '<div class="pv-placement-map">'+pm.map(p=>{
+      const anchor='pv-copy-sec-'+(p.generatedFields&&p.generatedFields[0]?p.generatedFields[0].replace(/[^a-zA-Z0-9]/g,'-'):'');
+      return `<div class="pv-placement-item">`+
+        `<div class="pv-placement-num">${p.order||''}</div>`+
+        `<div class="pv-placement-body">`+
+        `<div class="pv-placement-module">${escHtml(p.module||'')}</div>`+
+        `<div class="pv-placement-visual">${escHtml(p.visualType||'')}</div>`+
+        `<div class="pv-placement-fields">${(p.generatedFields||[]).map(f=>`<span class="pv-placement-field-tag">${escHtml(f)}</span>`).join('')}</div>`+
+        (p.recommendation?`<div class="pv-placement-rec">${escHtml(p.recommendation)}</div>`:'')+
+        `</div>`+
+        `<button class="pv-placement-jump" onclick="pvSwitchTab('content',document.querySelector('.pv-tab-btn'));document.getElementById('pv-tab-content').scrollIntoView({behavior:'smooth'})">→ Content</button>`+
+        `</div>`;
+    }).join('')+'</div>':
+    '<div style="color:var(--text3);font-size:13px;padding:24px 0">Keine Placement Map im letzten Ergebnis.</div>';
+  document.getElementById('pv-placement-list').innerHTML=pmHtml;
+
+  // ── Tab 3: SEO / CRO Checks + Empfehlungen ──
+  document.getElementById('pv-checks-list').innerHTML=cards.slice(12,15).join('');
+
+  // ── Tab 4: Markdown Export ──
+  document.getElementById('pv-export-content').innerHTML=cards[15]||cards[cards.length-1]||'';
 }
 
 function pvChecklistHtml(items){
@@ -4178,7 +4245,16 @@ function pvCopySection(key){
     text=`Title: ${pvData.meta?.title||''}\nDescription: ${pvData.meta?.description||''}`;
   }else if(key==='hero'){
     const h=pvData.hero||{};
-    text=`H1: ${h.h1||''}\nSubline: ${h.subline||''}\nPrimärer CTA: ${h.primaryCta||''}\nSekundärer CTA: ${h.secondaryCta||''}`;
+    text=`H1: ${h.h1||''}\nSubline: ${h.subline||''}\nCalculator Intro: ${h.calculatorIntro||''}\nPrimärer CTA: ${h.primaryCta||''}\nSekundärer CTA: ${h.secondaryCta||''}`;
+  }else if(key==='benefits'){
+    const bn=Array.isArray(pvData.benefits)?pvData.benefits:[];
+    text=bn.map(b=>`${b.title||''}:\n${b.text||''}`).join('\n\n');
+  }else if(key==='ctaStrategy'){
+    const cs=pvData.ctaStrategy||{};
+    const p=(cs.primaryConversion?.ctaExamples||[]).join('\n');
+    const s=(cs.secondaryConversion?.ctaExamples||[]).join('\n');
+    const mc=(cs.microCtas||[]).map(m=>`${m.placement}: ${m.text}`).join('\n');
+    text=`Primär (Rechner):\n${p}\n\nSekundär (Formular):\n${s}\n\nMicro-CTAs:\n${mc}`;
   }else if(key==='faq'){
     const faq=Array.isArray(pvData.faq)?pvData.faq:[];
     text=faq.map((f,i)=>`${i+1}. ${f.question||''}\n${f.answer||''}`).join('\n\n');
