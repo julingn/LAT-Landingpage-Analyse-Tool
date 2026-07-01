@@ -346,6 +346,19 @@ Jede Section-Karte zeigt:
 - `pvSwitchTab()`, `pvRefine()`, erweitertes `pvCopySection()`
 - „Content schärfen"-Button → zweiter KI-Pass (`app/proxies/localpvrefine.php`) mit Refinement-System-Prompt
 
+### Phase 7.2.1 — Level-3 Conversion-Pass + versionierter Speicher ✅ (01.07.2026)
+
+> **Commit:** `cbf66c1`
+
+**Umgesetzt:**
+- Neuer Proxy `app/proxies/localpvconvert.php` — Level-3 KI-Pass auf Basis der Level-2-Ausgabe: selektive Conversion-Stärke (nur dort wo echte Schwächen), CTA-Logik, FAQ entscheidungsunterstützend, Micro-CTAs konkret
+- Thin include: `app/localpvconvert.php` → `require_once proxies/localpvconvert.php`
+- **Versionierter Speicher:** `pvVersions = {raw, sharpened, conversion}` — jede Stufe separat gespeichert
+- **Version-Switcher:** Pill-Bar über den Tabs (Rohfassung / Content geschärft / Conversion optimiert) — beim Wechsel alle Tabs neu gerendert, nicht-verfügbare Versionen deaktiviert
+- **„Conversion optimieren"-Button** im Tab-Bar neben „Content schärfen" — nur aktiv wenn Level-2 vorhanden
+- JS-Funktionen: `pvConvert()`, `pvSwitchVersion()`, `pvUpdateVersionUI()`
+- Pipeline: Raw → (Level 2) Content geschärft → (Level 3) Conversion optimiert — jederzeit rückwärts navigierbar
+
 ### Nächster Schritt — Phase 7.3: Echtdaten-Kontext aus aktiver Analyse ❌
 
 > **Status:** Noch nicht implementiert — Proxy ist vorbereitet, Frontend sendet die Daten noch nicht.
@@ -380,6 +393,7 @@ if(serpData) body.dataforseoContext = { search_volume: serpData.searchVolume, se
 
 | Datum | Version | Änderung |
 |---|---|---|
+| 01.07.2026 | v3.11 | Local PV Generator: Level-3 Conversion-Pass (`localpvconvert.php`, `pvConvert()`), versionierter Speicher (raw/sharpened/conversion), Version-Switcher UI — `cbf66c1` |
 | 01.07.2026 | v3.10 | Local PV Generator: Content-Schärfungs-Pass (`localpvrefine.php`, `pvRefine()`-Button) — `4476abc` |
 | 01.07.2026 | v3.9 | Local PV Generator: Struktur-Upgrade (benefits, ctaStrategy, placementMap, Tab-UI, neue Sections) — P1–P4 `d444e1b`·`8aae31b`·`3151c7e`·`66289c0` |
 | 30.06.2026 | v3.8 | Local PV Generator: Prompt-Upgrade mit micro/content Zweistufigkeit pro Section, neuer System-Prompt mit Conversion-Logik + Verbotsliste — `a16d523` |
