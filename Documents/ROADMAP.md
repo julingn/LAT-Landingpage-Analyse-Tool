@@ -270,6 +270,102 @@ Screenshot: [Desktop 1280px Vorschau]
 
 ---
 
+## Phase 7 — Local PV Generator: Tools-Modul ✅ (30.06.2026)
+
+> **Ziel:** Eigenständiges Werkzeug in der Sidebar (keine URL-Analyse) — generiert fertige SEO- & CRO-Bausteine für lokale Photovoltaik-Landingpages.  
+> **Commits:** `3d5ccc4` (Basis) · `17ff120` (OpenAI-Fallback) · `290e90f` (Vertical Card Layout) · `a16d523` (micro/content Zweistufigkeit)
+
+### Architektur
+
+| Aspekt | Umsetzung |
+|---|---|
+| Eingabe | Stadt / PLZ (Pflicht) + optionale Felder: Haupt-Keyword, LP-URL, Template-Typ |
+| Datenquellen | GSC-Kontext, Sistrix-Kontext, DataForSEO-Kontext (optional, aus aktivem Analyse-Ergebnis) |
+| Backend | `app/proxies/localpv.php` — Anthropic (primär) / OpenAI (Fallback) |
+| Routing | `app/localpv.php` (thin include) → `router.php` |
+| Sidebar | Neue „Tools"-Sektion zwischen UX/CRO und System, `data-view="localpv"` |
+| Header | `showView()` blendet URL-Header-Form aus (`hf.style.display='none'`) |
+
+### Output-Struktur (JSON)
+
+```json
+{
+  "input": { "cityOrPostalCode": "...", "primaryKeyword": "...", "landingPageUrl": "..." },
+  "meta": { "title": "...", "description": "..." },
+  "hero": { "h1": "...", "subline": "...", "primaryCta": "...", "secondaryCta": "..." },
+  "sections": {
+    "intro":                 { "micro": "1–2 UI-Sätze", "content": "80–150 Wörter SEO-Text" },
+    "solarPotential":        { "micro": "...", "content": "..." },
+    "benefitsIntro":         { "micro": "...", "content": "..." },
+    "statisticsExplanation": { "micro": "...", "content": "..." },
+    "projectsIntro":         { "micro": "...", "content": "..." },
+    "economicsText":         { "micro": "...", "content": "..." },
+    "faqIntro":              { "micro": "...", "content": "..." },
+    "formIntro":             { "micro": "...", "content": "..." }
+  },
+  "faq": [ { "question": "...", "answer": "80–120 Wörter" } ],
+  "seoChecklist":  [ { "item": "...", "status": "ok|warning|missing", "note": "..." } ],
+  "croChecklist":  [ { "item": "...", "status": "ok|warning|missing", "note": "..." } ],
+  "recommendations": [ { "module": "...", "priority": "high|medium|low", "recommendation": "..." } ],
+  "exportMarkdown": "vollständiges Markdown aller Bausteine"
+}
+```
+
+### Zweistufige Section-Darstellung (UI)
+
+Jede Section-Karte zeigt:
+- **Micro / UI-Text** — akzentfarbig hinterlegt, sofort als Teaser/UI-Text erkennbar
+- **Content / SEO-Text** — darunter, voller SEO-Absatz (80–150 Wörter)
+- Kopieren übergibt beide Ebenen: `Micro:\n...\n\nContent:\n...`
+
+### Prompt-Qualitätsregeln (System-Prompt)
+- Conversion-Logik: PV-Rechner = primäre CTA, Formular = Backup-Conversion (sekundär)
+- Verbotsliste: keine erfundenen Zahlen/Einstrahlungswerte, kein Tourismus-Content, keine Floskeln
+- SEO- und CRO-Checklisten werden realistisch bewertet (nicht alles pauschal „ok")
+- Ziel: Output direkt in echte Landingpage einbaubar, nicht nach KI klingend
+
+### JS-Funktionen
+- `pvGenerate()` — POST zu `localpv.php`, zeigt Loading/Error/Results
+- `pvRenderResults(d)` — rendert alle 15 Kacheln in LP-Reihenfolge (Meta → Hero → 8 Sections → FAQ → SEO-CL → CRO-CL → Empfehlungen → Markdown)
+- `pvCopySectionText(text, btn)` — Clipboard + visuelles Feedback
+- `pvCopySection(key)` — strukturierte Sections (meta, hero, faq, checklists, recommendations)
+- `pvChecklistHtml(items)` — Checklisten-HTML
+
+### CSS-Klassen (`.pv-*`)
+`.pv-results-list`, `.pv-card`, `.pv-card-label`, `.pv-card-body`, `.pv-copy-btn`, `.pv-data-hint`, `.pv-data-source-tag` (`.gsc` / `.sistrix` / `.dataforseo` / `.pvgis`), `.pv-sec-label`, `.pv-sec-micro`, `.pv-sec-content`, `.pv-faq-*`, `.pv-checklist-*`, `.pv-rec-*`, `.pv-hero-grid`, `.pv-loading`, `.pv-generate-btn`, `.pv-export-area`
+
+### Phase 7.2 — Struktur-Upgrade + Tab-UI + Schärfungs-Pass ✅ (01.07.2026)
+
+> **Commits:** `d444e1b` (P1 Backend) · `8aae31b` (P2 CSS) · `3151c7e` (P3 HTML) · `66289c0` (P4 JS) · `4476abc` (Schärfungs-Pass)
+
+**Umgesetzt:**
+- Neues JSON-Schema: `benefits` (4 Kacheln), `ctaStrategy` (primär/sekundär + Micro-CTAs), `placementMap` (11 Module), `processIntro`, `testimonialsIntro`, `hero.calculatorIntro`, `sections.*.placement`, `pvCalculatorInHero: true`
+- Tab-UI: Content / Placement Map / SEO+CRO Checks / Markdown Export
+- Placement Map als vertikale LP-Skizze mit Modul, Layout-Typ, Feldreferenzen, Einbauhinweis
+- Benefits-Grid (4-Kacheln), CTA-Strategie-Karte mit klickbaren Beispielen
+- `pvSwitchTab()`, `pvRefine()`, erweitertes `pvCopySection()`
+- „Content schärfen"-Button → zweiter KI-Pass (`app/proxies/localpvrefine.php`) mit Refinement-System-Prompt
+
+### Nächster Schritt — Phase 7.3: Echtdaten-Kontext aus aktiver Analyse ❌
+
+> **Status:** Noch nicht implementiert — Proxy ist vorbereitet, Frontend sendet die Daten noch nicht.
+
+**Ziel:** Wenn vor dem PV-Generator-Aufruf eine URL analysiert wurde, fließen die echten GSC-/Sistrix-/DataForSEO-Daten automatisch in den Prompt ein.
+
+**Was fehlt:** In `pvGenerate()` (`app/index.php`) die globalen Analyse-Variablen auslesen und im POST-Body mitschicken:
+
+```js
+if(gscData) body.gscContext = { queries: gscData.queries?.slice(0,10), clicks: gscData.totalClicks, impressions: gscData.totalImpressions, avgPosition: gscData.avgPosition };
+if(sistrixData) body.sistrixContext = { visibility: sistrixData.visibility, kw_count: sistrixData.kwCount, keywords: sistrixData.keywords?.slice(0,10) };
+if(serpData) body.dataforseoContext = { search_volume: serpData.searchVolume, serp_features: serpData.serpFeatures };
+```
+
+**Backend:** `app/proxies/localpv.php` ist vollständig vorbereitet.
+
+**Auswirkung:** Die „Perspektivisch"-Badges werden dann zu echten Kontextquellen.
+
+---
+
 ## Offene Entscheidungen (blockieren jeweils den nächsten Schritt)
 
 | # | Frage | Betrifft |
@@ -284,6 +380,10 @@ Screenshot: [Desktop 1280px Vorschau]
 
 | Datum | Version | Änderung |
 |---|---|---|
+| 01.07.2026 | v3.10 | Local PV Generator: Content-Schärfungs-Pass (`localpvrefine.php`, `pvRefine()`-Button) — `4476abc` |
+| 01.07.2026 | v3.9 | Local PV Generator: Struktur-Upgrade (benefits, ctaStrategy, placementMap, Tab-UI, neue Sections) — P1–P4 `d444e1b`·`8aae31b`·`3151c7e`·`66289c0` |
+| 30.06.2026 | v3.8 | Local PV Generator: Prompt-Upgrade mit micro/content Zweistufigkeit pro Section, neuer System-Prompt mit Conversion-Logik + Verbotsliste — `a16d523` |
+| 30.06.2026 | v3.7 | Local PV Generator: Tools-Modul (Sidebar, `#view-localpv`, `app/proxies/localpv.php`), Anthropic/OpenAI-Fallback, vertikales Card-Layout, Datenquellen-Badges — `3d5ccc4`·`17ff120`·`290e90f` |
 | 18.06.2026 | v3.6 | M2 Technical SEO v2: 14 neue Checks (T12–T25), 5 Cluster-Layout (wie SQEG), Desktop PSI + INP, Sitemap-Check — `c45d8f5` |
 | 18.06.2026 | v3.5 | M2 Technical SEO: T12 Sitemap-Check (LP-URL in sitemap.xml via fetch.php) — `8e0cd1f` |
 | 10.06.2026 | v3.4 | M2 Technical SEO Modul (deterministisch, 11 Checks, HTML-Parsing) — `107f4d8` |
