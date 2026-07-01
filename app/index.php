@@ -1276,9 +1276,26 @@ button{font-family:inherit}
     <div class="pv-error-box" id="pv-error-msg"></div>
   </div>
 
-  <!-- Ergebnisbereich -->
+  <!-- Ergebnisbereich mit Tabs -->
   <div id="pv-results" style="display:none">
-    <div id="pv-results-list" style="margin-top:24px;margin-bottom:48px"></div>
+    <div class="pv-tabs">
+      <button class="pv-tab-btn active" onclick="pvSwitchTab('content',this)">Content</button>
+      <button class="pv-tab-btn" onclick="pvSwitchTab('placement',this)">Placement Map</button>
+      <button class="pv-tab-btn" onclick="pvSwitchTab('checks',this)">SEO / CRO Checks</button>
+      <button class="pv-tab-btn" onclick="pvSwitchTab('export',this)">Markdown Export</button>
+    </div>
+    <div id="pv-tab-content" class="pv-tab-panel active" style="margin-bottom:48px">
+      <div id="pv-results-list" style="margin-top:16px"></div>
+    </div>
+    <div id="pv-tab-placement" class="pv-tab-panel" style="margin-bottom:48px">
+      <div id="pv-placement-list" style="margin-top:16px"></div>
+    </div>
+    <div id="pv-tab-checks" class="pv-tab-panel" style="margin-bottom:48px">
+      <div id="pv-checks-list" style="margin-top:16px"></div>
+    </div>
+    <div id="pv-tab-export" class="pv-tab-panel" style="margin-bottom:48px">
+      <div id="pv-export-content" style="margin-top:16px"></div>
+    </div>
   </div><!-- /#pv-results -->
 </div><!-- /view-localpv -->
 
