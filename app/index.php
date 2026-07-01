@@ -641,6 +641,11 @@ button{font-family:inherit}
 .pv-tab-btn{padding:8px 16px;font-size:12px;font-weight:600;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:inherit;transition:color .15s,border-color .15s;margin-bottom:-1px;white-space:nowrap}
 .pv-tab-btn:hover{color:var(--text2)}
 .pv-tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.pv-refine-btn{margin-left:auto;display:flex;align-items:center;gap:6px;padding:5px 12px;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:var(--radius-sm);font-size:11px;font-weight:600;color:var(--accent);cursor:pointer;font-family:inherit;transition:background .15s;white-space:nowrap;margin-bottom:-1px}
+.pv-refine-btn:hover{background:var(--accent);color:#fff}
+.pv-refine-btn:disabled{opacity:.5;cursor:not-allowed}
+.pv-refine-btn svg{flex-shrink:0}
+.pv-refine-notice{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius-sm);font-size:12px;color:var(--green);margin-top:12px}
 .pv-tab-panel{display:none}
 .pv-tab-panel.active{display:block}
 /* ── Benefits Grid ── */
@@ -1283,6 +1288,10 @@ button{font-family:inherit}
       <button class="pv-tab-btn" onclick="pvSwitchTab('placement',this)">Placement Map</button>
       <button class="pv-tab-btn" onclick="pvSwitchTab('checks',this)">SEO / CRO Checks</button>
       <button class="pv-tab-btn" onclick="pvSwitchTab('export',this)">Markdown Export</button>
+      <button class="pv-refine-btn" id="pv-btn-refine" onclick="pvRefine()" title="Generierten Content mit einem zweiten KI-Pass schärfen">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Content schärfen
+      </button>
     </div>
     <div id="pv-tab-content" class="pv-tab-panel active" style="margin-bottom:48px">
       <div id="pv-results-list" style="margin-top:16px"></div>
@@ -3984,6 +3993,45 @@ function pvSwitchTab(name,btn){
   if(btn) btn.classList.add('active');
   const panel=document.getElementById('pv-tab-'+name);
   if(panel) panel.classList.add('active');
+}
+
+async function pvRefine(){
+  if(!pvData){return;}
+  const btn=document.getElementById('pv-btn-refine');
+  const origHtml=btn.innerHTML;
+  btn.disabled=true;
+  btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Wird geschärft…';
+  // Bestehende Hinweis-Box entfernen
+  const old=document.getElementById('pv-refine-notice');
+  if(old) old.remove();
+  try{
+    const res=await fetch('localpvrefine.php',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},
+      body:JSON.stringify({currentJson:pvData,csrf_token:CSRF_TOKEN}),
+    });
+    const data=await res.json();
+    if(!res.ok||data.error){
+      const msg=typeof data.error==='object'?data.error.message:(data.error||'Unbekannter Fehler');
+      throw new Error(msg);
+    }
+    pvData=data;
+    pvRenderResults(data);
+    // Erfolgs-Hinweis anzeigen
+    const notice=document.createElement('div');
+    notice.id='pv-refine-notice';
+    notice.className='pv-refine-notice';
+    notice.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Content erfolgreich geschärft — alle Tabs wurden aktualisiert.';
+    document.getElementById('pv-results').insertAdjacentElement('afterbegin',notice);
+    setTimeout(()=>notice.remove(),6000);
+  }catch(e){
+    const errBox=document.getElementById('pv-error-msg');
+    errBox.textContent='Fehler beim Schärfen: '+e.message;
+    document.getElementById('pv-error').style.display='block';
+  }finally{
+    btn.disabled=false;
+    btn.innerHTML=origHtml;
+  }
 }
 
 async function pvGenerate(){
