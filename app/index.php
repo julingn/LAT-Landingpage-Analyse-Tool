@@ -646,6 +646,12 @@ button{font-family:inherit}
 .pv-refine-btn:disabled{opacity:.5;cursor:not-allowed}
 .pv-refine-btn svg{flex-shrink:0}
 .pv-refine-notice{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius-sm);font-size:12px;color:var(--green);margin-top:12px}
+.pv-version-bar{display:flex;align-items:center;gap:6px;padding:8px 0 10px;flex-wrap:wrap}
+.pv-version-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-right:2px}
+.pv-version-btn{padding:3px 10px;font-size:11px;font-weight:500;background:var(--bg3);border:1px solid var(--border);border-radius:999px;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap}
+.pv-version-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.pv-version-btn.active{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent);font-weight:600}
+.pv-version-btn:disabled{opacity:.35;cursor:not-allowed}
 .pv-tab-panel{display:none}
 .pv-tab-panel.active{display:block}
 /* ── Benefits Grid ── */
@@ -1288,10 +1294,20 @@ button{font-family:inherit}
       <button class="pv-tab-btn" onclick="pvSwitchTab('placement',this)">Placement Map</button>
       <button class="pv-tab-btn" onclick="pvSwitchTab('checks',this)">SEO / CRO Checks</button>
       <button class="pv-tab-btn" onclick="pvSwitchTab('export',this)">Markdown Export</button>
-      <button class="pv-refine-btn" id="pv-btn-refine" onclick="pvRefine()" title="Generierten Content mit einem zweiten KI-Pass schärfen">
+      <button class="pv-refine-btn" id="pv-btn-refine" onclick="pvRefine()" title="Content mit einem zweiten KI-Pass schärfen">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         Content schärfen
       </button>
+      <button class="pv-refine-btn" id="pv-btn-convert" onclick="pvConvert()" title="Auf Basis von Level 2 conversion-optimieren" disabled style="background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Conversion optimieren
+      </button>
+    </div>
+    <div class="pv-version-bar" id="pv-version-bar" style="display:none">
+      <span class="pv-version-label">Version:</span>
+      <button class="pv-version-btn active" id="pvv-raw" onclick="pvSwitchVersion('raw')">Rohfassung</button>
+      <button class="pv-version-btn" id="pvv-sharpened" onclick="pvSwitchVersion('sharpened')" disabled>Content geschärft</button>
+      <button class="pv-version-btn" id="pvv-conversion" onclick="pvSwitchVersion('conversion')" disabled>Conversion optimiert</button>
     </div>
     <div id="pv-tab-content" class="pv-tab-panel active" style="margin-bottom:48px">
       <div id="pv-results-list" style="margin-top:16px"></div>
@@ -3986,6 +4002,29 @@ showView('overview');
 // LOCAL PV GENERATOR
 // ═══════════════════════════════════════════════════════════
 let pvData = null;
+let pvVersions = { raw: null, sharpened: null, conversion: null };
+
+function pvUpdateVersionUI(activeKey){
+  const bar=document.getElementById('pv-version-bar');
+  if(!bar)return;
+  const hasAny=pvVersions.raw||pvVersions.sharpened||pvVersions.conversion;
+  bar.style.display=hasAny?'flex':'none';
+  ['raw','sharpened','conversion'].forEach(k=>{
+    const btn=document.getElementById('pvv-'+k);
+    if(!btn)return;
+    btn.disabled=!pvVersions[k];
+    btn.classList.toggle('active',k===(activeKey||(pvVersions.conversion?'conversion':pvVersions.sharpened?'sharpened':'raw')));
+  });
+  const cb=document.getElementById('pv-btn-convert');
+  if(cb) cb.disabled=!pvVersions.sharpened;
+}
+
+function pvSwitchVersion(key){
+  if(!pvVersions[key])return;
+  pvData=pvVersions[key];
+  pvRenderResults(pvVersions[key]);
+  pvUpdateVersionUI(key);
+}
 
 function pvSwitchTab(name,btn){
   document.querySelectorAll('.pv-tab-btn').forEach(b=>b.classList.remove('active'));
@@ -4022,7 +4061,10 @@ async function pvRefine(){
       throw new Error(msg);
     }
     pvData=data;
+    pvVersions.sharpened=data;
+    pvVersions.conversion=null;
     pvRenderResults(data);
+    pvUpdateVersionUI('sharpened');
     // Erfolgs-Hinweis anzeigen
     const notice=document.createElement('div');
     notice.id='pv-refine-notice';
@@ -4036,6 +4078,49 @@ async function pvRefine(){
     document.getElementById('pv-error').style.display='block';
   }finally{
     btn.disabled=false;
+    btn.innerHTML=origHtml;
+  }
+}
+
+async function pvConvert(){
+  if(!pvVersions.sharpened){return;}
+  const btn=document.getElementById('pv-btn-convert');
+  const origHtml=btn.innerHTML;
+  btn.disabled=true;
+  btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Wird optimiert…';
+  const old=document.getElementById('pv-refine-notice');
+  if(old)old.remove();
+  try{
+    const res=await fetch('localpvconvert.php',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},
+      body:JSON.stringify({currentJson:pvVersions.sharpened,csrf_token:CSRF_TOKEN}),
+    });
+    let data;
+    const rawText=await res.text();
+    try{data=JSON.parse(rawText);}
+    catch(parseErr){throw new Error(`HTTP ${res.status} — Server-Antwort kein JSON: ${rawText.substring(0,200)}`);}
+    if(!res.ok||data.error){
+      const err=data.error||{};
+      const msg=typeof err==='object'?(err.message||JSON.stringify(err)):(err||`HTTP ${res.status}`);
+      throw new Error(msg);
+    }
+    pvData=data;
+    pvVersions.conversion=data;
+    pvRenderResults(data);
+    pvUpdateVersionUI('conversion');
+    const notice=document.createElement('div');
+    notice.id='pv-refine-notice';
+    notice.className='pv-refine-notice';
+    notice.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Conversion-Optimierung abgeschlossen (Level 3).';
+    document.getElementById('pv-results').insertAdjacentElement('afterbegin',notice);
+    setTimeout(()=>notice.remove(),6000);
+  }catch(e){
+    const errBox=document.getElementById('pv-error-msg');
+    errBox.textContent='Fehler bei Conversion-Optimierung: '+e.message;
+    document.getElementById('pv-error').style.display='block';
+  }finally{
+    btn.disabled=!pvVersions.sharpened;
     btn.innerHTML=origHtml;
   }
 }
@@ -4087,7 +4172,11 @@ async function pvGenerate(){
       throw new Error(msg);
     }
     pvData = data;
+    pvVersions.raw = data;
+    pvVersions.sharpened = null;
+    pvVersions.conversion = null;
     pvRenderResults(data);
+    pvUpdateVersionUI('raw');
     document.getElementById('pv-results').style.display='block';
   }catch(e){
     document.getElementById('pv-error-msg').textContent = 'Fehler: '+e.message;
