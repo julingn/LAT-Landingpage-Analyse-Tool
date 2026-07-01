@@ -636,6 +636,48 @@ button{font-family:inherit}
 .pv-data-source-tag.dataforseo{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
 .pv-data-source-tag.pvgis{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-border)}
 @media(max-width:900px){.pv-input-grid,.pv-hero-grid{grid-template-columns:1fr}.pv-input-grid .full,.pv-hero-field.full{grid-column:1}}
+/* ── PV Tabs ── */
+.pv-tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-top:24px;margin-bottom:0}
+.pv-tab-btn{padding:8px 16px;font-size:12px;font-weight:600;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:inherit;transition:color .15s,border-color .15s;margin-bottom:-1px;white-space:nowrap}
+.pv-tab-btn:hover{color:var(--text2)}
+.pv-tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.pv-tab-panel{display:none}
+.pv-tab-panel.active{display:block}
+/* ── Benefits Grid ── */
+.pv-benefits-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.pv-benefit-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px}
+.pv-benefit-title{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:5px}
+.pv-benefit-text{font-size:12px;line-height:1.6;color:var(--text2)}
+.pv-benefit-placement{font-size:10px;color:var(--text3);margin-top:6px;padding-top:6px;border-top:1px solid var(--border)}
+/* ── CTA Strategy ── */
+.pv-cta-strategy{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
+.pv-cta-block{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px}
+.pv-cta-block-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.pv-cta-block-label.primary{color:var(--accent)}
+.pv-cta-block-label.secondary{color:var(--text3)}
+.pv-cta-element{font-size:11px;color:var(--text3);margin-bottom:6px;font-style:italic}
+.pv-cta-example{font-size:12px;color:var(--text);padding:5px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:4px;cursor:pointer;transition:border-color .12s}
+.pv-cta-example:hover{border-color:var(--accent)}
+.pv-micro-ctas{margin-top:12px}
+.pv-micro-cta-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:6px}
+.pv-micro-cta-item{display:flex;align-items:center;gap:8px;padding:5px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:4px}
+.pv-micro-cta-placement{font-size:10px;color:var(--text3);min-width:120px;flex-shrink:0}
+.pv-micro-cta-text{font-size:12px;color:var(--text)}
+/* ── Placement Map ── */
+.pv-placement-map{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.pv-placement-item{display:flex;gap:12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;position:relative}
+.pv-placement-num{flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--accent-bg);border:1px solid var(--accent-border);color:var(--accent);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.pv-placement-body{flex:1;min-width:0}
+.pv-placement-module{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
+.pv-placement-visual{font-size:11px;color:var(--text3);margin-bottom:6px}
+.pv-placement-fields{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.pv-placement-field-tag{font-size:10px;font-family:'Geist Mono',monospace;padding:2px 7px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text2)}
+.pv-placement-rec{font-size:12px;color:var(--text2);line-height:1.5;border-top:1px solid var(--border);padding-top:6px;margin-top:4px}
+.pv-placement-jump{flex-shrink:0;padding:4px 10px;font-size:11px;font-weight:500;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text2);cursor:pointer;font-family:inherit;transition:background .12s,color .12s;align-self:flex-start}
+.pv-placement-jump:hover{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-border)}
+/* ── Section Placement Badge ── */
+.pv-placement-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:999px;color:var(--text3);margin-bottom:8px}
+@media(max-width:900px){.pv-benefits-grid,.pv-cta-strategy{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
