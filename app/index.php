@@ -4010,9 +4010,15 @@ async function pvRefine(){
       headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},
       body:JSON.stringify({currentJson:pvData,csrf_token:CSRF_TOKEN}),
     });
-    const data=await res.json();
+    let data;
+    const rawText=await res.text();
+    try{ data=JSON.parse(rawText); }
+    catch(parseErr){
+      throw new Error(`HTTP ${res.status} — Server-Antwort kein JSON: ${rawText.substring(0,200)}`);
+    }
     if(!res.ok||data.error){
-      const msg=typeof data.error==='object'?data.error.message:(data.error||'Unbekannter Fehler');
+      const err=data.error||{};
+      const msg=typeof err==='object'?(err.message||JSON.stringify(err)):(err||`HTTP ${res.status}`);
       throw new Error(msg);
     }
     pvData=data;
@@ -4069,9 +4075,15 @@ async function pvGenerate(){
       headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},
       body:JSON.stringify(body),
     });
-    const data = await res.json();
+    let data;
+    const rawText = await res.text();
+    try{ data = JSON.parse(rawText); }
+    catch(parseErr){
+      throw new Error(`HTTP ${res.status} — Server-Antwort kein JSON: ${rawText.substring(0,200)}`);
+    }
     if(!res.ok||data.error){
-      const msg = typeof data.error==='object' ? data.error.message : (data.error||'Unbekannter Fehler');
+      const err = data.error||{};
+      const msg = typeof err==='object' ? (err.message||JSON.stringify(err)) : (err||`HTTP ${res.status}`);
       throw new Error(msg);
     }
     pvData = data;
