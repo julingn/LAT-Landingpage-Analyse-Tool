@@ -6,6 +6,16 @@ $csrfToken = $_SESSION['csrf_token'];
 session_write_close(); // Session-Lock sofort freigeben (Proxies brauchen Zugriff)
 // UX-Auth-Token-File schreiben (umgeht PHP-Session-Probleme mit CLI-Multi-Worker)
 @file_put_contents(sys_get_temp_dir().'/lat_ux_'.hash('sha256',$csrfToken).'.tok','1');
+// Load custom agent prompts from settings.json
+$_sfPath = __DIR__ . '/settings.json';
+$_sfData = file_exists($_sfPath) ? (json_decode(file_get_contents($_sfPath), true) ?? []) : [];
+$_agentPrompts = [
+    'sqeg'       => $_sfData['agent_prompt_sqeg']       ?? '',
+    'ux'         => $_sfData['agent_prompt_ux']         ?? '',
+    'pv'         => $_sfData['agent_prompt_pv']         ?? '',
+    'pvrefine'   => $_sfData['agent_prompt_pvrefine']   ?? '',
+    'pvconvert'  => $_sfData['agent_prompt_pvconvert']  ?? '',
+];
 ?><!DOCTYPE html>
 <html lang="de">
 <head>
@@ -652,6 +662,32 @@ button{font-family:inherit}
 .pv-version-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
 .pv-version-btn.active{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent);font-weight:600}
 .pv-version-btn:disabled{opacity:.35;cursor:not-allowed}
+/* ── Agent System ─────────────────────────────────────────────────── */
+.agent-bar{display:flex;align-items:center;gap:8px;padding:6px 0 14px;margin-top:20px}
+.agent-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 6px;background:var(--bg2);border:1px solid var(--border);border-radius:999px;font-size:11px;font-weight:500;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.agent-badge:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+.agent-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;transition:background .2s}
+.agent-dot.idle{background:var(--border)}
+.agent-dot.running{background:var(--amber);animation:agentPulse 1s ease-in-out infinite}
+.agent-dot.done{background:var(--green)}
+.agent-dot.error{background:var(--red)}
+@keyframes agentPulse{0%,100%{opacity:1}50%{opacity:.4}}
+/* Modal */
+.agent-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9000;align-items:center;justify-content:center;padding:20px}
+.agent-modal{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:700px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.agent-modal-header{padding:20px 20px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:10px}
+.agent-modal-title{flex:1}
+.agent-modal-title h3{margin:0 0 2px;font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:7px}
+.agent-modal-title p{margin:0;font-size:12px;color:var(--text3)}
+.agent-modal-close{background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;line-height:1;padding:2px 4px;border-radius:var(--radius-sm)}
+.agent-modal-close:hover{color:var(--text)}
+.agent-modal-body{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:14px}
+.agent-modal-section label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:6px}
+.agent-modal-prompt{width:100%;box-sizing:border-box;font-family:'Geist Mono',monospace;font-size:11px;line-height:1.6;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);padding:10px 12px;resize:vertical;min-height:160px}
+.agent-modal-prompt:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-border)}
+.agent-modal-output{font-family:'Geist Mono',monospace;font-size:10px;line-height:1.5;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text2);padding:10px 12px;max-height:180px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;margin:0}
+.agent-modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-shrink:0}
+.agent-custom-chip{font-size:10px;padding:2px 8px;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:999px;color:var(--accent);font-weight:600;display:none}
 .pv-tab-panel{display:none}
 .pv-tab-panel.active{display:block}
 /* ── Benefits Grid ── */
@@ -941,6 +977,15 @@ button{font-family:inherit}
      VIEW: SQEG
 ════════════════════════════════════════════════════════════ -->
 <div class="view-panel" id="view-sqeg">
+  <div class="agent-bar">
+    <button class="agent-badge" onclick="openAgentModal('sqeg')" id="agent-badge-sqeg">
+      <span class="agent-dot idle" id="agent-dot-sqeg"></span>
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      SQEG-Analyst
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+    <span class="agent-custom-chip" id="agent-custom-chip-sqeg">Custom Prompt</span>
+  </div>
   <div id="sqeg-results" style="display:none">
     <!-- Score Hero -->
     <div class="score-hero" id="score-hero" style="margin-top:28px">
@@ -1585,7 +1630,93 @@ button{font-family:inherit}
 </div>
 <script>
 const CSRF_TOKEN = '<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>';
+const AGENT_CUSTOM_PROMPTS = <?= json_encode($_agentPrompts, JSON_UNESCAPED_UNICODE) ?>;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+// ── Agent Registry ────────────────────────────────────────────────────────
+const AGENTS = {
+  sqeg: {
+    id: 'sqeg',
+    name: 'SQEG-Analyst',
+    description: 'Bewertet Content-Qualität & E-E-A-T nach 42 Kriterien des Google Search Quality Evaluator Guides (Sept. 2025). Antwortet als strukturiertes JSON-Array.',
+    defaultPrompt: `Du bist ein Google Search Quality Evaluator (SQEG September 2025).\nAntworte AUSSCHLIESSLICH als JSON-Array. Kein Text davor oder danach.\nFormat je Objekt: {"id":"1.1","category":"1: Seitenzweck & Seitentyp","criterion":"Name","sqeg_ref":"Sek. X.X","status":"green|amber|red","finding":"Beleg: [Signal aus HTML] | Regel: [WENN-Bedingung] | Bewertung: [Urteil]","improvement":"[konkreter Vorschlag, leer wenn green]","confidence":80}`,
+    status: 'idle',
+    lastOutput: null,
+    getPrompt(){ return AGENT_CUSTOM_PROMPTS.sqeg || this.defaultPrompt; },
+    hasCustom(){ return !!AGENT_CUSTOM_PROMPTS.sqeg; }
+  }
+};
+
+let _activeAgentId = null;
+
+function updateAgentBadge(id, status){
+  const dot = document.getElementById('agent-dot-' + id);
+  if(dot) dot.className = 'agent-dot ' + status;
+  if(AGENTS[id]) AGENTS[id].status = status;
+}
+
+function openAgentModal(id){
+  const agent = AGENTS[id];
+  if(!agent) return;
+  _activeAgentId = id;
+  document.getElementById('agent-modal-name').textContent = agent.name;
+  document.getElementById('agent-modal-desc').textContent = agent.description;
+  document.getElementById('agent-modal-prompt').value = agent.getPrompt();
+  const dot = document.getElementById('agent-modal-dot');
+  if(dot) dot.className = 'agent-dot ' + agent.status;
+  const outputEl = document.getElementById('agent-modal-output');
+  if(agent.lastOutput){
+    const str = JSON.stringify(agent.lastOutput, null, 2);
+    outputEl.textContent = str.length > 3000 ? str.substring(0, 3000) + '\n…(gekürzt)' : str;
+  } else {
+    outputEl.textContent = 'Noch kein Analyse-Lauf.';
+  }
+  document.getElementById('agent-modal-overlay').style.display = 'flex';
+}
+
+function closeAgentModal(){
+  document.getElementById('agent-modal-overlay').style.display = 'none';
+  _activeAgentId = null;
+}
+
+function resetAgentPrompt(){
+  const agent = AGENTS[_activeAgentId];
+  if(!agent) return;
+  document.getElementById('agent-modal-prompt').value = agent.defaultPrompt;
+}
+
+async function saveAgentPrompt(){
+  const agent = AGENTS[_activeAgentId];
+  if(!agent) return;
+  const prompt = document.getElementById('agent-modal-prompt').value.trim();
+  const fd = new FormData();
+  fd.append('action', 'save_agent_prompt');
+  fd.append('agent_id', agent.id);
+  fd.append('prompt', prompt === agent.defaultPrompt ? '' : prompt); // empty = revert to default
+  fd.append('csrf_token', CSRF_TOKEN);
+  try{
+    const r = await fetch('settings_save.php', {method:'POST', body:fd});
+    const d = await r.json();
+    if(d.success){
+      AGENT_CUSTOM_PROMPTS[agent.id] = (prompt === agent.defaultPrompt) ? '' : prompt;
+      // Update custom chip visibility
+      const chip = document.getElementById('agent-custom-chip-' + agent.id);
+      if(chip) chip.style.display = AGENT_CUSTOM_PROMPTS[agent.id] ? 'inline-flex' : 'none';
+      const msg = document.getElementById('agent-modal-save-msg');
+      if(msg){ msg.style.display='inline'; setTimeout(()=>msg.style.display='none', 2500); }
+    } else {
+      alert('Fehler: ' + (d.error || 'Unbekannter Fehler'));
+    }
+  }catch(e){ alert('Fehler beim Speichern: ' + e.message); }
+}
+
+// Close modal with Escape key
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && _activeAgentId) closeAgentModal(); });
+// Init: show custom-prompt chip if a custom prompt is already stored
+Object.keys(AGENTS).forEach(id=>{
+  const chip = document.getElementById('agent-custom-chip-' + id);
+  if(chip && AGENT_CUSTOM_PROMPTS[id]) chip.style.display = 'inline-flex';
+});
 
 // === VIEW TITLES ===
 const VIEW_META={
@@ -1986,6 +2117,7 @@ async function startAnalysis(){
   analysisResults=[];pqResults=[];e8Result=null;ymylResult=null;
   gscData=null;serpData=null;backlinkData=null;psiData=null;psiDesktopData=null;sistrixData=null;geoData=null;kwData=null;ucrData=null;sitemapData=null;
   analysisStartTime=Date.now();lastPct=0;
+  updateAgentBadge('sqeg','running');
   if(timerInterval)clearInterval(timerInterval);
   timerInterval=setInterval(updateTimer,1000);
   document.getElementById('progress-timer').textContent='';
@@ -2150,6 +2282,8 @@ async function startAnalysis(){
     }
     setProgress(92,'Ergebnisse rendern…','Fast fertig…'); // 90→92 via last batch
     renderResults(keyword);
+    AGENTS.sqeg.lastOutput = [...analysisResults];
+    updateAgentBadge('sqeg','done');
     setProgress(100,'Fertig!','Analyse abgeschlossen.');
     setTimeout(()=>{
       if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
@@ -2170,6 +2304,7 @@ async function startAnalysis(){
     document.getElementById('skeleton-wrap').style.display='none';
     log('Kritischer Fehler: '+err.message,'err');
     setProgress(0,'Fehler',err.message);
+    updateAgentBadge('sqeg','error');
   }
   document.getElementById('btn-start').disabled=false;
   document.getElementById('btn-demo').disabled=false;
@@ -2504,7 +2639,7 @@ async function classifyYmyl(htmlSnippet,url){
 async function runMiniCall(ids,htmlSnippet,url,ymyl,keyword,idx,ctx={}){
   const criteriaList=ids.map(id=>{const c=CRITERIA.find(x=>x.id===id);return`${c.id} · ${c.name} · ${c.ref}`}).join('\n');
   const ymylHint=ymyl==='clear_ymyl'?'YMYL: Klar YMYL – erhöhte Qualitätsanforderungen.':ymyl==='mixed_ymyl'?'YMYL: Teilweise YMYL – erhöhte Sorgfalt.':'';
-  const sys=`Du bist ein Google Search Quality Evaluator (SQEG September 2025).\nAntworte AUSSCHLIESSLICH als JSON-Array. Kein Text davor oder danach.\nFormat je Objekt: {"id":"1.1","category":"1: Seitenzweck & Seitentyp","criterion":"Name","sqeg_ref":"Sek. X.X","status":"green|amber|red","finding":"Beleg: [Signal aus HTML] | Regel: [WENN-Bedingung] | Bewertung: [Urteil]","improvement":"[konkreter Vorschlag, leer wenn green]","confidence":80}`;
+  const sys=AGENTS.sqeg.getPrompt();
   const contextParts=(ctx.ctxBlock||'')+(ctx.serpBlock||'')+(ctx.backlinkBlock||'')+(ctx.psiBlock||'')+(ctx.schemaBlock||'');
   const msg=`URL: ${url}\nSeitentext (vollst\u00e4ndig):\n${htmlSnippet}${keyword?'\nKeyword: '+keyword:''}\n${ymylHint}${contextParts}\n\nZu bewertende Kriterien:\n${criteriaList}`;
   const text=await callApi([{role:'user',content:msg}],sys,2500);
@@ -4431,6 +4566,40 @@ function pvCopySection(key){
 // Enter-Taste im Stadt-Feld
 document.getElementById('pv-city').addEventListener('keydown',e=>{if(e.key==='Enter')pvGenerate();});
 </script>
+
+<!-- Agent Modal -->
+<div class="agent-modal-overlay" id="agent-modal-overlay" onclick="closeAgentModal()">
+  <div class="agent-modal" onclick="event.stopPropagation()">
+    <div class="agent-modal-header">
+      <div class="agent-modal-title">
+        <h3>
+          <span class="agent-dot idle" id="agent-modal-dot"></span>
+          <span id="agent-modal-name"></span>
+        </h3>
+        <p id="agent-modal-desc"></p>
+      </div>
+      <button class="agent-modal-close" onclick="closeAgentModal()" title="Schließen">✕</button>
+    </div>
+    <div class="agent-modal-body">
+      <div class="agent-modal-section">
+        <label>System-Prompt</label>
+        <textarea class="agent-modal-prompt" id="agent-modal-prompt" rows="10" spellcheck="false"></textarea>
+      </div>
+      <div class="agent-modal-section">
+        <label>Letzter Output (Raw)</label>
+        <pre class="agent-modal-output" id="agent-modal-output">Noch kein Analyse-Lauf.</pre>
+      </div>
+    </div>
+    <div class="agent-modal-footer">
+      <button class="btn-secondary" onclick="resetAgentPrompt()" style="font-size:12px">Auf Standard zurücksetzen</button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span id="agent-modal-save-msg" style="font-size:11px;color:var(--green);display:none">✓ Gespeichert</span>
+        <button class="btn-primary agent-modal-save-btn" onclick="saveAgentPrompt()" style="font-size:12px;padding:6px 14px">Speichern</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </div><!-- /content-wrap -->
 </body>
 </html>

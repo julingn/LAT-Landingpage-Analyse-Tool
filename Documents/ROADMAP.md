@@ -379,6 +379,38 @@ if(serpData) body.dataforseoContext = { search_volume: serpData.searchVolume, se
 
 ---
 
+## Phase 8 — Agenten-System: transparente KI-Spezialisten
+
+> **Ziel:** Jeder KI-Modul-Call ist einem benannten Agenten zugeordnet. User kann Agenten anklicken, System-Prompt lesen, bearbeiten und dauerhaft in settings.json speichern.  
+> **Entschieden:** 02.07.2026
+
+### Architektur
+
+| Agent | Modul | Prompt editierbar |
+|---|---|---|
+| 🔍 SQEG-Analyst | M1 SQEG | ✅ |
+| 📐 UX-Experte | M5 UX/CRO | ✅ |
+| 🏗️ PV-Content-Stratege | Local PV Generator | ✅ |
+| ⚙️ Technical-Checker | M2 Technical SEO | ❌ (Regelwerk, kein LLM) |
+| 📊 Performance-Reader | M3 Performance | ❌ (Datenquelle) |
+| 🎯 Keyword-Analyst | M6 Keyword Fit | ❌ (Datenquelle) |
+
+**Speicherung:** Custom-Prompts → `settings.json` unter `agent_prompt_<id>`  
+**Proxy:** `settings_save.php?action=save_agent_prompt` (POST, CSRF-geschützt)  
+**Status-Tracking:** `idle → running → done | error` mit farbigem Dot im Badge  
+**Modal:** System-Prompt (editierbar) + letzter Raw-Output (read-only, collapsible)
+
+### Schritt 8.1 — SQEG-Analyst ✅ (02.07.2026)
+- Agent-Badge im SQEG-View
+- Modal: Prompt-Textarea + letzter Output + Speichern + Reset
+- `runMiniCall()` nutzt custom Prompt aus settings.json (Fallback: Default)
+- Status-Tracking: `idle → running → done/error`
+
+### Schritt 8.2 — UX-Experte ❌ (noch nicht implementiert)
+### Schritt 8.3 — PV-Content-Stratege ❌ (noch nicht implementiert)
+
+---
+
 ## Offene Entscheidungen (blockieren jeweils den nächsten Schritt)
 
 | # | Frage | Betrifft |

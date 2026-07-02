@@ -145,6 +145,32 @@ if ($action === 'save_sistrix') {
     }
 }
 
+if ($action === 'save_agent_prompt') {
+    // Only allow known agent IDs (whitelist)
+    $allowedAgents = ['sqeg', 'ux', 'pv', 'pvrefine', 'pvconvert'];
+    $agentId = preg_replace('/[^a-z_]/', '', trim($_POST['agent_id'] ?? ''));
+    if (!in_array($agentId, $allowedAgents, true)) {
+        http_response_code(422);
+        echo json_encode(['error' => 'Unbekannte Agenten-ID.']);
+        exit;
+    }
+    $prompt = trim($_POST['prompt'] ?? '');
+    if (empty($prompt)) {
+        // Empty = delete custom prompt (revert to default)
+        unset($settings['agent_prompt_' . $agentId]);
+    } else {
+        $settings['agent_prompt_' . $agentId] = $prompt;
+    }
+    $written = file_put_contents($sf, json_encode($settings, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    if ($written === false) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Konnte nicht gespeichert werden.']);
+        exit;
+    }
+    echo json_encode(['success' => true]);
+    exit;
+}
+
 if (!empty($errors)) {
     http_response_code(422);
     echo json_encode(['error' => implode(' ', $errors)]);
