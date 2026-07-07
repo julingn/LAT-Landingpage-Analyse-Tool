@@ -4304,23 +4304,37 @@ async function pvGenerate(){
 
   // ── Schritt 1: DWD Solardaten vorabladen ─────────────────────────────
   pvDwdData = null;
+  let pvDwdError = null;
   const statusEl = document.getElementById('pv-loading-status');
   if(statusEl) statusEl.textContent = '☀ DWD Standortdaten werden abgerufen\u2026';
   try{
     const dwdRes = await fetch('dwd.php?action=solar&location='+encodeURIComponent(city));
-    if(dwdRes.ok){
-      const dwd = await dwdRes.json();
-      if(dwd && dwd.irradiance_kWhm2_year && !dwd.error){
-        pvDwdData = dwd;
-        const note = dwd.estimated ? ' (Schätzung)' : ` · Station ${dwd.station?.name||''}`;
-        if(statusEl) statusEl.textContent = `☀ DWD: ${dwd.irradiance_kWhm2_year} kWh/m²${note}`;
-      }
+    const dwdText = await dwdRes.text();
+    let dwd = null;
+    try{ dwd = JSON.parse(dwdText); } catch(e){ pvDwdError = `Kein JSON: ${dwdText.substring(0,100)}`; }
+    if(dwd && dwd.error){ pvDwdError = typeof dwd.error==='string'?dwd.error:JSON.stringify(dwd.error); dwd=null; }
+    if(!dwdRes.ok && !pvDwdError){ pvDwdError = `HTTP ${dwdRes.status}`; }
+    if(dwd && dwd.irradiance_kWhm2_year){
+      pvDwdData = dwd;
+      const note = dwd.estimated ? ' (Schätzung)' : ` · Station ${dwd.station?.name||''}`;
+      if(statusEl) statusEl.textContent = `☀ DWD: ${dwd.irradiance_kWhm2_year} kWh/m²${note}`;
     }
   }catch(dwdErr){
-    // DWD-Fehler ist nicht kritisch — Generierung läuft trotzdem
+    pvDwdError = dwdErr.message||'Netzwerkfehler';
   }
-  if(statusEl && !pvDwdData) statusEl.textContent = 'KI generiert Bausteine\u2026';
+  if(statusEl && !pvDwdData) statusEl.textContent = pvDwdError ? `DWD fehlgeschlagen (${pvDwdError}) · KI generiert\u2026` : 'KI generiert Bausteine\u2026';
   if(statusEl && pvDwdData)  statusEl.textContent += ' · KI generiert Bausteine\u2026';
+
+  // DWD-Banner schon jetzt setzen (auch bei Fehler)
+  const dwdBannerEl = document.getElementById('pv-dwd-banner');
+  if(dwdBannerEl && pvDwdError && !pvDwdData){
+    dwdBannerEl.innerHTML = `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--amber)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <strong>DWD nicht verfügbar</strong>
+      <span style="color:var(--text3)">${escHtml(pvDwdError)}</span>
+    </div>`;
+    dwdBannerEl.style.display='block';
+  }
 
   const body = {
     cityOrPostalCode: city,
