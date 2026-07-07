@@ -4424,7 +4424,7 @@ function pvRenderResults(d){
      h:[{c:'gsc',l:'GSC · Nutzerintention',d:'Top-Queries zeigen, was Nutzer wirklich suchen.'},
         {c:'sistrix',l:'Sistrix · Wettbewerber',d:'Wie positionieren Wettbewerber ihr Intro?'}]},
     {k:'solarPotential',   l:'Solarpotenzial',           i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
-     h:[{c:'pvgis',l:'PVGIS / DWD · Einstrahlungsdaten',d:'Tatsächliche Globalstrahlungsdaten für die PLZ/Region.'}], dwdHint:true},
+     h:[{c:'pvgis',l:'PVGIS · Einstrahlungsdaten',d:'Tatsächliche Globalstrahlungsdaten für die PLZ/Region (PVGIS noch nicht integriert).'}], dwdHint:true},
     {k:'statisticsExplanation',l:'Kennzahlenblock',      i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
      h:[{c:'dataforseo',l:'DataForSEO · Lokales Suchvolumen',d:'Regionale Suchvolumina als Kontext.'},
         {c:'sistrix',l:'Sistrix · Marktdaten',d:'Sichtbarkeitsindex und Keyword-Anzahl.'}]},
@@ -4452,9 +4452,12 @@ function pvRenderResults(d){
       (sPlace?`<div class="pv-placement-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg>${escHtml(sPlace)}</div>`:'')+
       `<div class="pv-sec-label">Micro / UI-Text</div><div class="pv-sec-micro">${escHtml(sMicro)}</div>`+
       (sFull?`<div class="pv-sec-label">Content / SEO-Text</div><div class="pv-sec-content">${escHtml(sFull)}</div>`:''),
-      (s.dwdHint && pvDwdData
-        ? activeHint([{c:'dwd',l:'DWD OpenData (aktiv)',d:'Globalstrahlung und Sonnenstunden sind als Echtwerte in den KI-Prompt eingeflossen.'}])
-        : hint(s.h||[]))  // solarPotential-Fallback (DWD nicht verfügbar)
+      (s.dwdHint
+        ? (pvDwdData
+            ? activeHint([{c:'dwd',l:'DWD OpenData (aktiv)',d:'Globalstrahlung und Sonnenstunden sind als Echtwerte in den KI-Prompt eingeflossen.'}])
+            : '<div class="pv-data-hint"><span class="pv-data-hint-label" style="color:var(--amber)">DWD:</span><span class="pv-data-source-tag" style="background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)" title="DWD-Datenabruf fehlgeschlagen — Schätzung auf Basis geografischer Lage verwendet.">nicht verfügbar (Schätzung aktiv)</span></div>'
+              + hint(s.h||[]))
+        : hint(s.h||[]))
     ));
   });
   // 11. FAQ
