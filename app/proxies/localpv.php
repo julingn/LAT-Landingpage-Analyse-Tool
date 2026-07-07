@@ -149,11 +149,12 @@ if (is_array($dwdSolarData) && !empty($dwdSolarData['irradiance_kWhm2_year'])) {
             $dwdBlock .= "\n\nDeutschland-Vergleichswerte (für Einordnung im Content ERLAUBT):";
             if ($geIrr) $dwdBlock .= "\n- Deutschland Ø Globalstrahlung: {$geIrr} kWh/m² (Klimanormal 1991–2020)";
             if ($geSun) $dwdBlock .= "\n- Deutschland Ø Sonnenstunden: {$geSun} h/Jahr" . ($geYr ? " ({$geYr})" : '');
-            if ($geKN)  $dwdBlock .= "\n- Deutschland Klimanormal Sonnenstunden 1991–2020: {$geKN} h/Jahr";
-            if ($geSun > 0 && $sun > 0) {
-                $diff = round((($sun - $geSun) / $geSun) * 100, 1);
+            if ($geKN)   $dwdBlock .= "\n- Deutschland Klimanormal Sonnenstunden 1991\u20132020: {$geKN} h/Jahr (fairer geografischer Vergleichswert)";
+            if ($geSun > 0 && $sun > 0 && $geKN > 0) {
+                // Vergleich gegen Klimanormal, nicht Jahreswert (Jahreswerte schwanken stark)
+                $diff = round((($sun - $geKN) / $geKN) * 100, 1);
                 $sign = $diff >= 0 ? '+' : '';
-                $dwdBlock .= "\n- Standort-Einordnung: {$sign}{$diff}% gegenüber dem Deutschland-Jahresdurchschnitt";
+                $dwdBlock .= "\n- Standort-Einordnung vs. Klimanormal: {$sign}{$diff}% (positiv = sonniger als Deutschland-Langzeitschnitt)";
             }
         }
     }

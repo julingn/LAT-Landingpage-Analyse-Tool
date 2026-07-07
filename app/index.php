@@ -4402,9 +4402,11 @@ function pvRenderResults(d){
       const metricHtml = (localVal, deVal, unit, label, deLabel) =>
         `<div class="pv-dwd-bm"><div class="pv-dwd-bm-val">${localVal}</div><div class="pv-dwd-bm-unit">${unit}</div><div class="pv-dwd-bm-label">${label}</div></div>`+
         (deVal?`<div class="pv-dwd-bm" style="opacity:.75"><div class="pv-dwd-bm-val">${deVal}</div><div class="pv-dwd-bm-unit">${unit}</div><div class="pv-dwd-bm-label">${deLabel}</div></div>`:'');
-      const gaYr   = ga?.year ? ` (${ga.year})` : ga?.klimanormal_1991_2020 ? ' (Klimanormal)' : '';
-      const deIrr  = ga?.irradiance_kWhm2_year || null;
-      const deSun  = ga?.sunshine_hours_year   || null;
+      // Klimanormal 1991-2020 als fairer Benchmark (Jahresmittel 2025 war außergewöhnlich hoch)
+      const deIrr     = ga?.irradiance_kWhm2_year || null;
+      const deSun     = ga?.klimanormal_1991_2020 || ga?.sunshine_hours_year || null;
+      const deSunLbl  = ga?.klimanormal_1991_2020 ? 'Sonnenstunden Ø 1991–2020' : `Sonnenstunden Ø (${ga?.year||''})`;
+      const deHead    = 'Deutschland Klimanormal';
       dwdBanner.innerHTML =
         `<div class="pv-dwd-banner-head">${SunIco}<span class="pv-dwd-banner-title">DWD Standort-Solardaten</span>`+
         `<span class="pv-data-source-tag dwd">DWD OpenData${est?' (Schätzung)':''}</span></div>`+
@@ -4414,9 +4416,9 @@ function pvRenderResults(d){
             (pvDwdData.sunshine_hours_year?`<div class="pv-dwd-bm"><div class="pv-dwd-bm-val">${pvDwdData.sunshine_hours_year}</div><div class="pv-dwd-bm-unit">h/Jahr</div><div class="pv-dwd-bm-label">Sonnenstunden</div></div>`:'')+
           `</div>`+
           `<div class="pv-dwd-compare-div"></div>`+
-          `<div class="pv-dwd-compare-col"><div class="pv-dwd-compare-head">Deutschland${ga?gaYr:''}</div>`+
-            (deIrr?`<div class="pv-dwd-bm" style="opacity:.8"><div class="pv-dwd-bm-val">${deIrr}</div><div class="pv-dwd-bm-unit">kWh/m²/Jahr</div><div class="pv-dwd-bm-label">Globalstrahlung Ø</div></div>`:'')+
-            (deSun?`<div class="pv-dwd-bm" style="opacity:.8"><div class="pv-dwd-bm-val">${deSun}</div><div class="pv-dwd-bm-unit">h/Jahr</div><div class="pv-dwd-bm-label">Sonnenstunden Ø</div></div>`:'')+
+          `<div class="pv-dwd-compare-col"><div class="pv-dwd-compare-head">${deHead}</div>`+
+            (deIrr?`<div class="pv-dwd-bm" style="opacity:.8"><div class="pv-dwd-bm-val">${deIrr}</div><div class="pv-dwd-bm-unit">kWh/m²/Jahr</div><div class="pv-dwd-bm-label">Globalstrahlung Ø 1991–2020</div></div>`:'')+
+            (deSun?`<div class="pv-dwd-bm" style="opacity:.8"><div class="pv-dwd-bm-val">${deSun}</div><div class="pv-dwd-bm-unit">h/Jahr</div><div class="pv-dwd-bm-label">${deSunLbl}</div></div>`:'')+
             (!deIrr&&!deSun?`<div style="font-size:11px;color:var(--text3);padding-top:8px">Nicht verfügbar</div>`:'')+
           `</div>`+
         `</div>`+
