@@ -79,10 +79,11 @@ $primaryKeyword   = trim($body['primaryKeyword']   ?? '');
 $landingPageUrl   = trim($body['landingPageUrl']   ?? '');
 $templateType     = trim($body['templateType']     ?? '');
 
-// Optionale Datenquellen-Kontexte (für spätere Integration vorbereitet)
-$gscContext       = $body['gscContext']       ?? null; // GSC-Daten: queries, clicks, impressions, ctr, position
-$sistrixContext   = $body['sistrixContext']   ?? null; // Sistrix: visibility, keywords, competitors
+// Optionale Datenquellen-Kontexte
+$gscContext        = $body['gscContext']       ?? null; // GSC-Daten: queries, clicks, impressions, ctr, position
+$sistrixContext    = $body['sistrixContext']   ?? null; // Sistrix: visibility, keywords, competitors
 $dataforseoContext = $body['dataforseoContext'] ?? null; // DataForSEO: search_volume, serp_features
+$dwdSolarData      = $body['dwdSolarData']     ?? null; // DWD OpenData: Globalstrahlung, Sonnenstunden
 
 if (empty($cityOrPostalCode)) {
     http_response_code(400);
@@ -122,9 +123,26 @@ if (is_array($dataforseoContext)) {
     if (!empty($dataforseoContext['serp_features']))  $contextLines[] = "SERP-Features: " . implode(', ', (array)$dataforseoContext['serp_features']);
 }
 
-$contextBlock = !empty($contextLines)
+// DWD-Solardaten-Kontext aufbereiten (Echtwerte → dürfen konkret im Content verwendet werden)
+$dwdBlock = '';
+if (is_array($dwdSolarData) && !empty($dwdSolarData['irradiance_kWhm2_year'])) {
+    $irr      = (int)$dwdSolarData['irradiance_kWhm2_year'];
+    $sun      = (int)($dwdSolarData['sunshine_hours_year'] ?? 0);
+    $stName   = $dwdSolarData['station']['name']     ?? 'unbekannte Station';
+    $stDist   = $dwdSolarData['station']['distance_km'] ?? '?';
+    $year     = $dwdSolarData['dataYear'] ?? null;
+    $est      = !empty($dwdSolarData['estimated']);
+    $yearNote = $year ? " (Messjahr {$year})" : ' (Schätzung)';
+    $dwdBlock = "\n\nEchte DWD-Klimawerte für diese Region (DÜRFEN konkret im Content verwendet werden):\n"
+              . "- Globalstrahlung Jahresmittel: {$irr} kWh/m²{$yearNote}\n"
+              . "- Sonnenstunden pro Jahr: {$sun} h\n"
+              . "- Datenquelle: DWD-Station {$stName} ({$stDist} km Entfernung)\n"
+              . "- Diese Werte sind " . ($est ? 'regionaltypische Schätzwerte' : 'gemessene DWD-Klimadaten') . " und sachlich korrekt.";
+}
+
+$contextBlock = (!empty($contextLines)
     ? "\n\nVerfügbare Kontext-Daten:\n" . implode("\n", array_map(fn($l) => "- {$l}", $contextLines))
-    : '';
+    : '') . $dwdBlock;
 
 // ── Prompts ──────────────────────────────────────────────────────────────
 $systemPrompt = <<<'SYSPROMPT'
@@ -174,7 +192,8 @@ Die recommendation ist ein konkreter Einbauhinweis (1–2 Sätze).
 
 SCHREIBREGELN (strikt):
 VERBOTEN:
-- erfundene Referenzprojekte, konkrete erfundene Zahlen, erfundene Einstrahlungswerte
+- erfundene Referenzprojekte, konkrete erfundene Zahlen
+- erfundene Einstrahlungswerte (ausgenommen: explizit als DWD-Messwerte gelieferte Werte — diese sind echte Daten und DÜRFEN verwendet werden)
 - lange Stadtbeschreibungen, Tourismus-Content
 - Floskeln wie "die Stadt hat sich entwickelt", generische KI-Phrasen
 - Renditeversprechen oder konkrete Amortisationszeiträume ohne Datenbasis

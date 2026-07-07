@@ -1,7 +1,7 @@
 FROM php:8.3-cli-alpine
 
-RUN apk add --no-cache curl-dev libcurl openssl-dev \
-    && docker-php-ext-install curl \
+RUN apk add --no-cache curl-dev libcurl openssl-dev libzip-dev \
+    && docker-php-ext-install curl zip \
     && docker-php-ext-enable openssl || true
 
 # Chromium + Node.js for UX/CRO screenshots (Puppeteer)

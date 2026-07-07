@@ -645,6 +645,15 @@ button{font-family:inherit}
 .pv-data-source-tag.sistrix{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)}
 .pv-data-source-tag.dataforseo{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
 .pv-data-source-tag.pvgis{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-border)}
+.pv-data-source-tag.dwd{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border)}
+.pv-solar-card{display:flex;flex-direction:column;gap:12px}
+.pv-solar-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pv-solar-metric{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px}
+.pv-solar-value{font-size:22px;font-weight:700;color:var(--accent);font-family:'Geist Mono',monospace;line-height:1.1}
+.pv-solar-unit{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.pv-solar-label{font-size:11px;color:var(--text2);margin-top:4px}
+.pv-solar-source{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text3)}
+.pv-data-active .pv-data-hint-label{color:var(--blue)}
 @media(max-width:900px){.pv-input-grid,.pv-hero-grid{grid-template-columns:1fr}.pv-input-grid .full,.pv-hero-field.full{grid-column:1}}
 /* ── PV Tabs ── */
 .pv-tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-top:24px;margin-bottom:0}
@@ -1322,7 +1331,7 @@ button{font-family:inherit}
   <div id="pv-loading" style="display:none">
     <div class="pv-loading">
       <div class="pv-loading-spinner"></div>
-      <span>Bausteine werden generiert…</span>
+      <span id="pv-loading-status">Standort wird geprüft…</span>
       <span style="font-size:11px;color:var(--text3)">Dies kann 15–30 Sekunden dauern.</span>
     </div>
   </div>
@@ -4137,6 +4146,7 @@ showView('overview');
 // LOCAL PV GENERATOR
 // ═══════════════════════════════════════════════════════════
 let pvData = null;
+let pvDwdData = null;
 let pvVersions = { raw: null, sharpened: null, conversion: null };
 
 function pvUpdateVersionUI(activeKey){
@@ -4281,12 +4291,33 @@ async function pvGenerate(){
   document.getElementById('pv-error').style.display='none';
   pvSwitchTab('content', document.querySelector('.pv-tab-btn'));
 
+  // ── Schritt 1: DWD Solardaten vorabladen ─────────────────────────────
+  pvDwdData = null;
+  const statusEl = document.getElementById('pv-loading-status');
+  if(statusEl) statusEl.textContent = '☀ DWD Standortdaten werden abgerufen\u2026';
+  try{
+    const dwdRes = await fetch('dwd.php?action=solar&location='+encodeURIComponent(city));
+    if(dwdRes.ok){
+      const dwd = await dwdRes.json();
+      if(dwd && dwd.irradiance_kWhm2_year && !dwd.error){
+        pvDwdData = dwd;
+        const note = dwd.estimated ? ' (Schätzung)' : ` · Station ${dwd.station?.name||''}`;
+        if(statusEl) statusEl.textContent = `☀ DWD: ${dwd.irradiance_kWhm2_year} kWh/m²${note}`;
+      }
+    }
+  }catch(dwdErr){
+    // DWD-Fehler ist nicht kritisch — Generierung läuft trotzdem
+  }
+  if(statusEl && !pvDwdData) statusEl.textContent = 'KI generiert Bausteine\u2026';
+  if(statusEl && pvDwdData)  statusEl.textContent += ' · KI generiert Bausteine\u2026';
+
   const body = {
     cityOrPostalCode: city,
     primaryKeyword:   keyword,
     landingPageUrl:   url,
     templateType:     template,
     csrf_token:       CSRF_TOKEN,
+    dwdSolarData:     pvDwdData,
   };
 
   try{
@@ -4338,6 +4369,33 @@ function pvRenderResults(d){
       `<button class="pv-copy-btn" id="pv-copy-${id}" onclick="${escHtml(oc)}">${CI} Kopieren</button>`+
       content+h2+'</div>';
   }
+  function activeHint(sources){
+    if(!sources||!sources.length)return '';
+    return '<div class="pv-data-hint pv-data-active"><span class="pv-data-hint-label">Datenquelle:</span>'+
+      sources.map(s=>`<span class="pv-data-source-tag ${escHtml(s.c)}" title="${escHtml(s.d)}">${escHtml(s.l)}</span>`).join('')+
+      '</div>';
+  }
+  // 0. DWD Standort-Solardaten (wenn verfügbar)
+  if(pvDwdData && pvDwdData.irradiance_kWhm2_year){
+    const est=pvDwdData.estimated;
+    const yr=pvDwdData.dataYear?`Messjahr ${pvDwdData.dataYear}`:'Schätzungsbasis';
+    const stName=pvDwdData.station?.name||'–';
+    const stDist=pvDwdData.station?.distance_km?` · ${pvDwdData.station.distance_km} km`:'';
+    const sunHtml=pvDwdData.sunshine_hours_year
+      ?`<div class="pv-solar-metric"><div class="pv-solar-value">${pvDwdData.sunshine_hours_year}</div><div class="pv-solar-unit">h/Jahr</div><div class="pv-solar-label">Sonnenstunden</div></div>`
+      :'';
+    const SunIco='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+    cards.push(
+      `<div class="pv-card"><div class="pv-card-label">${SunIco}Standort-Solardaten</div>`+
+      `<div class="pv-solar-card">`+
+      `<div class="pv-solar-grid">`+
+      `<div class="pv-solar-metric"><div class="pv-solar-value">${pvDwdData.irradiance_kWhm2_year}</div><div class="pv-solar-unit">kWh/m²/Jahr</div><div class="pv-solar-label">Globalstrahlung${est?' (Schätzung)':''}</div></div>`+
+      sunHtml+
+      `</div>`+
+      `<div class="pv-solar-source"><span class="pv-data-source-tag dwd">DWD OpenData</span>${escHtml(stName)}${escHtml(stDist)} · ${escHtml(yr)}</div>`+
+      `</div></div>`
+    );
+  }
   // 1. Meta
   cards.push(card(
     '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="15" x2="12" y2="15"/></svg>',
@@ -4366,7 +4424,7 @@ function pvRenderResults(d){
      h:[{c:'gsc',l:'GSC · Nutzerintention',d:'Top-Queries zeigen, was Nutzer wirklich suchen.'},
         {c:'sistrix',l:'Sistrix · Wettbewerber',d:'Wie positionieren Wettbewerber ihr Intro?'}]},
     {k:'solarPotential',   l:'Solarpotenzial',           i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
-     h:[{c:'pvgis',l:'PVGIS / DWD · Einstrahlungsdaten',d:'Tatsächliche Globalstrahlungsdaten für die PLZ/Region.'}]},
+     h:[{c:'pvgis',l:'PVGIS / DWD · Einstrahlungsdaten',d:'Tatsächliche Globalstrahlungsdaten für die PLZ/Region.'}], dwdHint:true},
     {k:'statisticsExplanation',l:'Kennzahlenblock',      i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
      h:[{c:'dataforseo',l:'DataForSEO · Lokales Suchvolumen',d:'Regionale Suchvolumina als Kontext.'},
         {c:'sistrix',l:'Sistrix · Marktdaten',d:'Sichtbarkeitsindex und Keyword-Anzahl.'}]},
@@ -4394,7 +4452,9 @@ function pvRenderResults(d){
       (sPlace?`<div class="pv-placement-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg>${escHtml(sPlace)}</div>`:'')+
       `<div class="pv-sec-label">Micro / UI-Text</div><div class="pv-sec-micro">${escHtml(sMicro)}</div>`+
       (sFull?`<div class="pv-sec-label">Content / SEO-Text</div><div class="pv-sec-content">${escHtml(sFull)}</div>`:''),
-      hint(s.h||[])
+      (s.dwdHint && pvDwdData
+        ? activeHint([{c:'dwd',l:'DWD OpenData (aktiv)',d:'Globalstrahlung und Sonnenstunden sind als Echtwerte in den KI-Prompt eingeflossen.'}])
+        : hint(s.h||[]))  // solarPotential-Fallback (DWD nicht verfügbar)
     ));
   });
   // 11. FAQ
@@ -4470,7 +4530,7 @@ function pvRenderResults(d){
       `</div>`:'')+
     `</div>`;
 
-  document.getElementById('pv-results-list').innerHTML=cards.slice(0,12).join('')+benefitsHtml+ctaHtml;
+  document.getElementById('pv-results-list').innerHTML=cards.slice(0,13).join('')+benefitsHtml+ctaHtml;
 
   // ── Tab 2: Placement Map ──
   const pm=Array.isArray(d.placementMap)?d.placementMap:[];
