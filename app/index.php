@@ -654,6 +654,15 @@ button{font-family:inherit}
 .pv-solar-label{font-size:11px;color:var(--text2);margin-top:4px}
 .pv-solar-source{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text3)}
 .pv-data-active .pv-data-hint-label{color:var(--blue)}
+#pv-dwd-banner{margin-top:20px;background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:var(--radius);padding:14px 16px}
+.pv-dwd-banner-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.pv-dwd-banner-title{font-size:12px;font-weight:600;color:var(--text);letter-spacing:.2px}
+.pv-dwd-banner-metrics{display:flex;gap:24px;flex-wrap:wrap}
+.pv-dwd-bm{display:flex;flex-direction:column;gap:1px;min-width:110px}
+.pv-dwd-bm-val{font-size:22px;font-weight:700;color:var(--accent);font-family:'Geist Mono',monospace;line-height:1.1}
+.pv-dwd-bm-unit{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.pv-dwd-bm-label{font-size:11px;color:var(--text2);margin-top:2px}
+.pv-dwd-banner-meta{margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--text3)}
 @media(max-width:900px){.pv-input-grid,.pv-hero-grid{grid-template-columns:1fr}.pv-input-grid .full,.pv-hero-field.full{grid-column:1}}
 /* ── PV Tabs ── */
 .pv-tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-top:24px;margin-bottom:0}
@@ -1343,6 +1352,8 @@ button{font-family:inherit}
 
   <!-- Ergebnisbereich mit Tabs -->
   <div id="pv-results" style="display:none">
+    <!-- DWD Standort-Solardaten (persistent, oberhalb Tabs) -->
+    <div id="pv-dwd-banner" style="display:none"></div>
     <div class="pv-tabs">
       <button class="pv-tab-btn active" onclick="pvSwitchTab('content',this)">Content</button>
       <button class="pv-tab-btn" onclick="pvSwitchTab('placement',this)">Placement Map</button>
@@ -4358,6 +4369,34 @@ function pvRenderResults(d){
   const faq=Array.isArray(d.faq)?d.faq:[];
   const cards=[];
   const CI='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  // ── DWD-Banner befüllen (persistent, über Tabs) ───────────────────────
+  const dwdBanner = document.getElementById('pv-dwd-banner');
+  if(dwdBanner){
+    if(pvDwdData && pvDwdData.irradiance_kWhm2_year){
+      const est   = pvDwdData.estimated;
+      const yr    = pvDwdData.dataYear ? `Messjahr ${pvDwdData.dataYear}` : 'Schätzungsbasis';
+      const stNm  = pvDwdData.station?.name || '–';
+      const stDst = pvDwdData.station?.distance_km ? `${pvDwdData.station.distance_km} km` : '';
+      const geo   = pvDwdData.geocoded ? escHtml(pvDwdData.geocoded.split(',')[0]) : '';
+      const SunIco= '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+      dwdBanner.innerHTML =
+        `<div class="pv-dwd-banner-head">${SunIco}<span class="pv-dwd-banner-title">DWD Standort-Solardaten</span>`+
+        `<span class="pv-data-source-tag dwd">DWD OpenData${est?' (Schätzung)':''}</span></div>`+
+        `<div class="pv-dwd-banner-metrics">`+
+        `<div class="pv-dwd-bm"><div class="pv-dwd-bm-val">${pvDwdData.irradiance_kWhm2_year}</div><div class="pv-dwd-bm-unit">kWh/m²/Jahr</div><div class="pv-dwd-bm-label">Globalstrahlung</div></div>`+
+        (pvDwdData.sunshine_hours_year?`<div class="pv-dwd-bm"><div class="pv-dwd-bm-val">${pvDwdData.sunshine_hours_year}</div><div class="pv-dwd-bm-unit">h/Jahr</div><div class="pv-dwd-bm-label">Sonnenstunden</div></div>`:'')+
+        `</div>`+
+        `<div class="pv-dwd-banner-meta">`+
+        `<span>Station: <strong>${escHtml(stNm)}</strong>${stDst?` · ${escHtml(stDst)}`:''}</span>`+
+        `<span>· ${escHtml(yr)}</span>`+
+        (geo?`<span>· Geocodiert: ${geo}</span>`:'')+
+        `<span>· Lat ${pvDwdData.lat} / Lon ${pvDwdData.lon}</span>`+
+        `</div>`;
+      dwdBanner.style.display='block';
+    } else {
+      dwdBanner.style.display='none';
+    }
+  }
   function hint(sources){
     if(!sources||!sources.length)return '';
     return '<div class="pv-data-hint"><span class="pv-data-hint-label">Perspektivisch:</span>'+
@@ -4375,27 +4414,7 @@ function pvRenderResults(d){
       sources.map(s=>`<span class="pv-data-source-tag ${escHtml(s.c)}" title="${escHtml(s.d)}">${escHtml(s.l)}</span>`).join('')+
       '</div>';
   }
-  // 0. DWD Standort-Solardaten (wenn verfügbar)
-  if(pvDwdData && pvDwdData.irradiance_kWhm2_year){
-    const est=pvDwdData.estimated;
-    const yr=pvDwdData.dataYear?`Messjahr ${pvDwdData.dataYear}`:'Schätzungsbasis';
-    const stName=pvDwdData.station?.name||'–';
-    const stDist=pvDwdData.station?.distance_km?` · ${pvDwdData.station.distance_km} km`:'';
-    const sunHtml=pvDwdData.sunshine_hours_year
-      ?`<div class="pv-solar-metric"><div class="pv-solar-value">${pvDwdData.sunshine_hours_year}</div><div class="pv-solar-unit">h/Jahr</div><div class="pv-solar-label">Sonnenstunden</div></div>`
-      :'';
-    const SunIco='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
-    cards.push(
-      `<div class="pv-card"><div class="pv-card-label">${SunIco}Standort-Solardaten</div>`+
-      `<div class="pv-solar-card">`+
-      `<div class="pv-solar-grid">`+
-      `<div class="pv-solar-metric"><div class="pv-solar-value">${pvDwdData.irradiance_kWhm2_year}</div><div class="pv-solar-unit">kWh/m²/Jahr</div><div class="pv-solar-label">Globalstrahlung${est?' (Schätzung)':''}</div></div>`+
-      sunHtml+
-      `</div>`+
-      `<div class="pv-solar-source"><span class="pv-data-source-tag dwd">DWD OpenData</span>${escHtml(stName)}${escHtml(stDist)} · ${escHtml(yr)}</div>`+
-      `</div></div>`
-    );
-  }
+  // 0. DWD-Karte wurde in Banner verschoben — kein Card-Eintrag mehr
   // 1. Meta
   cards.push(card(
     '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="15" x2="12" y2="15"/></svg>',
@@ -4533,7 +4552,7 @@ function pvRenderResults(d){
       `</div>`:'')+
     `</div>`;
 
-  document.getElementById('pv-results-list').innerHTML=cards.slice(0,13).join('')+benefitsHtml+ctaHtml;
+  document.getElementById('pv-results-list').innerHTML=cards.slice(0,12).join('')+benefitsHtml+ctaHtml;
 
   // ── Tab 2: Placement Map ──
   const pm=Array.isArray(d.placementMap)?d.placementMap:[];
