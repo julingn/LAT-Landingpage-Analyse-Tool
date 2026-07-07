@@ -646,6 +646,14 @@ button{font-family:inherit}
 .pv-data-source-tag.dataforseo{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
 .pv-data-source-tag.pvgis{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-border)}
 .pv-data-source-tag.dwd{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border)}
+#pv-kw-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;padding:10px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm)}
+.pv-kw-pill{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:5px 11px;background:var(--bg3);border:1px solid var(--border2);border-radius:999px;cursor:pointer;font-family:inherit;transition:background .12s,border-color .12s;text-align:left}
+.pv-kw-pill:hover{background:var(--accent-bg);border-color:var(--accent-border)}
+.pv-kw-pill.selected{background:var(--accent-bg);border-color:var(--accent)}
+.pv-kw-pill-text{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap}
+.pv-kw-pill.selected .pv-kw-pill-text{color:var(--accent)}
+.pv-kw-pill-vol{font-size:10px;color:var(--text3);font-family:'Geist Mono',monospace}
+.pv-kw-pill-no-data{color:var(--text3)}
 .pv-solar-card{display:flex;flex-direction:column;gap:12px}
 .pv-solar-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .pv-solar-metric{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px}
@@ -1290,8 +1298,21 @@ button{font-family:inherit}
       </div>
       <div>
         <div class="settings-field" style="margin-top:0">
-          <label class="settings-label" for="pv-keyword">Hauptkeyword <span style="color:var(--text3);font-weight:400">(optional)</span></label>
+          <label class="settings-label" for="pv-product">Produkt <span style="color:var(--text3);font-weight:400">(optional)</span></label>
+          <input type="text" id="pv-product" class="settings-input" placeholder="z.B. Photovoltaikanlage" autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+      <div>
+        <div class="settings-field" style="margin-top:0">
+          <label class="settings-label" style="display:flex;align-items:center;justify-content:space-between" for="pv-keyword">
+            <span>Primäres Keyword <span style="color:var(--text3);font-weight:400">(optional)</span></span>
+            <button id="pv-kw-suggest-btn" onclick="pvSuggestKeywords()" style="font-size:11px;padding:3px 8px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);cursor:pointer;color:var(--text2);font-family:inherit;font-weight:500;display:flex;align-items:center;gap:4px">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Keywords vorschlagen
+            </button>
+          </label>
           <input type="text" id="pv-keyword" class="settings-input" placeholder="z.B. photovoltaik darmstadt" autocomplete="off" spellcheck="false">
+          <div id="pv-kw-pills" style="display:none"></div>
         </div>
       </div>
       <div>
@@ -4285,6 +4306,53 @@ async function pvConvert(){
   }
 }
 
+// ── Keyword-Vorschlag via DataForSEO ─────────────────────────────────────
+async function pvSuggestKeywords(){
+  const city = document.getElementById('pv-city').value.trim();
+  if(!city){
+    document.getElementById('pv-validation-msg').style.display='block';
+    document.getElementById('pv-city').focus();
+    return;
+  }
+  const product = document.getElementById('pv-product')?.value.trim()||'';
+  const btn  = document.getElementById('pv-kw-suggest-btn');
+  const pills= document.getElementById('pv-kw-pills');
+  const orig = btn.innerHTML;
+  btn.disabled=true;
+  btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Lade\u2026';
+  try{
+    const res=await fetch('dataforseo.php?action=keyword_volume',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},
+      body:JSON.stringify({product,city,csrf_token:CSRF_TOKEN}),
+    });
+    const data=await res.json();
+    if(!res.ok||data.error) throw new Error(data.error||`HTTP ${res.status}`);
+    const kws=(data.keywords||[]).filter(k=>k.keyword);
+    if(!kws.length){
+      pills.innerHTML='<span class="pv-kw-pill-no-data" style="font-size:12px">Keine Daten gefunden \u2014 DataForSEO API verf\u00fcgbar?</span>';
+    } else {
+      pills.innerHTML=kws.map(k=>{
+        const vol=k.search_volume!=null ? k.search_volume.toLocaleString('de-DE')+'\u202f/\u202fMo.' : 'k.\u00a0A.';
+        const ci=k.competition_index!=null ? ` \u00b7 Wettbewerb\u202f${k.competition_index}%` : '';
+        return `<button class="pv-kw-pill" onclick="pvSelectKeyword(${JSON.stringify(k.keyword)},this)"><span class="pv-kw-pill-text">${escHtml(k.keyword)}</span><span class="pv-kw-pill-vol">${vol}${ci}</span></button>`;
+      }).join('');
+    }
+    pills.style.display='flex';
+  }catch(e){
+    pills.innerHTML=`<span class="pv-kw-pill-no-data" style="font-size:12px;color:var(--red)">Fehler: ${escHtml(e.message)}</span>`;
+    pills.style.display='flex';
+  }finally{
+    btn.disabled=false;
+    btn.innerHTML=orig;
+  }
+}
+function pvSelectKeyword(kw,pillEl){
+  document.getElementById('pv-keyword').value=kw;
+  document.querySelectorAll('.pv-kw-pill').forEach(p=>p.classList.remove('selected'));
+  pillEl.classList.add('selected');
+}
+
 async function pvGenerate(){
   const city = document.getElementById('pv-city').value.trim();
   const validMsg = document.getElementById('pv-validation-msg');
@@ -4296,6 +4364,7 @@ async function pvGenerate(){
   validMsg.style.display='none';
 
   const keyword  = document.getElementById('pv-keyword').value.trim();
+  const product  = document.getElementById('pv-product')?.value.trim()||'';
   const url      = document.getElementById('pv-url').value.trim();
   const template = document.getElementById('pv-template').value.trim();
 
@@ -4342,7 +4411,8 @@ async function pvGenerate(){
 
   const body = {
     cityOrPostalCode: city,
-    primaryKeyword:   keyword,
+    primaryKeyword:   keyword || (product ? `${product} ${city}` : ''),
+    product:          product,
     landingPageUrl:   url,
     templateType:     template,
     csrf_token:       CSRF_TOKEN,

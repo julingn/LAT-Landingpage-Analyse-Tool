@@ -172,5 +172,59 @@ if ($action === 'page_intersection') {
     exit;
 }
 
+// ── action=keyword_volume — Suchvolumen für Keyword-Kandidaten (PV Keyword-Vorschlag) ──
+if ($action === 'keyword_volume') {
+    $body    = json_decode(file_get_contents('php://input'), true) ?? [];
+    $product = trim($body['product'] ?? '');
+    $city    = trim($body['city']    ?? '');
+
+    if (empty($city)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'city fehlt']);
+        exit;
+    }
+
+    // Keyword-Kandidaten aufbauen — Produkt + Stadt + generische PV-Varianten
+    $prod = $product ?: 'Photovoltaikanlage';
+    $candidates = array_unique(array_filter([
+        "{$prod} {$city}",
+        "Photovoltaik {$city}",
+        "Photovoltaikanlage {$city}",
+        "Solaranlage {$city}",
+        "PV Anlage {$city}",
+        "Photovoltaik installieren {$city}",
+        "Photovoltaik Kosten {$city}",
+        "Solar {$city}",
+        "Solarstrom {$city}",
+        "PV Anlage kaufen {$city}",
+    ]));
+
+    $result = dfsRequest('keywords_data/google_ads/search_volume/live', [[
+        'keywords'      => array_values($candidates),
+        'language_code' => 'de',
+        'location_code' => 2276, // Deutschland
+    ]], $dfsLogin, $dfsPassword);
+
+    if (!empty($result['_curl_error'])) {
+        echo json_encode(['error' => $result['_curl_error']]);
+        exit;
+    }
+
+    $items = $result['tasks'][0]['result'] ?? [];
+    // Sortieren nach Suchvolumen absteigend
+    usort($items, fn($a, $b) => ($b['search_volume'] ?? 0) <=> ($a['search_volume'] ?? 0));
+
+    echo json_encode([
+        'keywords' => array_map(fn($k) => [
+            'keyword'           => $k['keyword']           ?? '',
+            'search_volume'     => $k['search_volume']     ?? 0,
+            'competition'       => $k['competition']       ?? '',
+            'competition_index' => $k['competition_index'] ?? null,
+            'cpc'               => isset($k['cpc']) ? round((float)$k['cpc'], 2) : null,
+        ], $items),
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 http_response_code(400);
 echo json_encode(['error' => 'Unbekannte action: ' . htmlspecialchars($action, ENT_QUOTES, 'UTF-8')]);
