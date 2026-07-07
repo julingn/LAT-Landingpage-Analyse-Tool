@@ -314,7 +314,7 @@ function dwdEstimateSolarByLat(float $lat): array
 $geo = dwdGeocodeLocation($location);
 if ($geo === null) {
     http_response_code(404);
-    echo json_encode(['error' => "Ort oder PLZ „{$location}" konnte nicht geocodiert werden."]);
+    echo json_encode(['error' => "Ort oder PLZ '{$location}' konnte nicht geocodiert werden."]);
     exit;
 }
 
