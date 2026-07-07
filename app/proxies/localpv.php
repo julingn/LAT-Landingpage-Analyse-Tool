@@ -138,6 +138,25 @@ if (is_array($dwdSolarData) && !empty($dwdSolarData['irradiance_kWhm2_year'])) {
               . "- Sonnenstunden pro Jahr: {$sun} h\n"
               . "- Datenquelle: DWD-Station {$stName} ({$stDist} km Entfernung)\n"
               . "- Diese Werte sind " . ($est ? 'regionaltypische Schätzwerte' : 'gemessene DWD-Klimadaten') . " und sachlich korrekt.";
+    // Deutschland-Vergleich anfügen
+    $dwdGe = $dwdSolarData['germany_avg'] ?? null;
+    if (is_array($dwdGe)) {
+        $geIrr = (int)($dwdGe['irradiance_kWhm2_year'] ?? 0);
+        $geSun = (int)($dwdGe['sunshine_hours_year']   ?? 0);
+        $geYr  = $dwdGe['year'] ?? null;
+        $geKN  = (int)($dwdGe['klimanormal_1991_2020'] ?? 0);
+        if ($geIrr || $geSun) {
+            $dwdBlock .= "\n\nDeutschland-Vergleichswerte (für Einordnung im Content ERLAUBT):";
+            if ($geIrr) $dwdBlock .= "\n- Deutschland Ø Globalstrahlung: {$geIrr} kWh/m² (Klimanormal 1991–2020)";
+            if ($geSun) $dwdBlock .= "\n- Deutschland Ø Sonnenstunden: {$geSun} h/Jahr" . ($geYr ? " ({$geYr})" : '');
+            if ($geKN)  $dwdBlock .= "\n- Deutschland Klimanormal Sonnenstunden 1991–2020: {$geKN} h/Jahr";
+            if ($geSun > 0 && $sun > 0) {
+                $diff = round((($sun - $geSun) / $geSun) * 100, 1);
+                $sign = $diff >= 0 ? '+' : '';
+                $dwdBlock .= "\n- Standort-Einordnung: {$sign}{$diff}% gegenüber dem Deutschland-Jahresdurchschnitt";
+            }
+        }
+    }
 }
 
 $contextBlock = (!empty($contextLines)

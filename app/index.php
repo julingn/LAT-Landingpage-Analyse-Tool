@@ -663,6 +663,10 @@ button{font-family:inherit}
 .pv-dwd-bm-unit{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
 .pv-dwd-bm-label{font-size:11px;color:var(--text2);margin-top:2px}
 .pv-dwd-banner-meta{margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--text3)}
+.pv-dwd-compare{display:grid;grid-template-columns:1fr 1px 1fr;gap:0 16px;align-items:start;margin-top:4px}
+.pv-dwd-compare-div{background:var(--border);width:1px;align-self:stretch;margin-top:28px}
+.pv-dwd-compare-col{display:flex;flex-direction:column;gap:10px}
+.pv-dwd-compare-head{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:2px}
 @media(max-width:900px){.pv-input-grid,.pv-hero-grid{grid-template-columns:1fr}.pv-input-grid .full,.pv-hero-field.full{grid-column:1}}
 /* ── PV Tabs ── */
 .pv-tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-top:24px;margin-bottom:0}
@@ -4392,18 +4396,34 @@ function pvRenderResults(d){
       const stNm  = pvDwdData.station?.name || '–';
       const stDst = pvDwdData.station?.distance_km ? `${pvDwdData.station.distance_km} km` : '';
       const geo   = pvDwdData.geocoded ? escHtml(pvDwdData.geocoded.split(',')[0]) : '';
+      const ga    = pvDwdData.germany_avg;
       const SunIco= '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+      // Vergleichs-HTML (Standort vs. Deutschland)
+      const metricHtml = (localVal, deVal, unit, label, deLabel) =>
+        `<div class="pv-dwd-bm"><div class="pv-dwd-bm-val">${localVal}</div><div class="pv-dwd-bm-unit">${unit}</div><div class="pv-dwd-bm-label">${label}</div></div>`+
+        (deVal?`<div class="pv-dwd-bm" style="opacity:.75"><div class="pv-dwd-bm-val">${deVal}</div><div class="pv-dwd-bm-unit">${unit}</div><div class="pv-dwd-bm-label">${deLabel}</div></div>`:'');
+      const gaYr   = ga?.year ? ` (${ga.year})` : ga?.klimanormal_1991_2020 ? ' (Klimanormal)' : '';
+      const deIrr  = ga?.irradiance_kWhm2_year || null;
+      const deSun  = ga?.sunshine_hours_year   || null;
       dwdBanner.innerHTML =
         `<div class="pv-dwd-banner-head">${SunIco}<span class="pv-dwd-banner-title">DWD Standort-Solardaten</span>`+
         `<span class="pv-data-source-tag dwd">DWD OpenData${est?' (Schätzung)':''}</span></div>`+
-        `<div class="pv-dwd-banner-metrics">`+
-        `<div class="pv-dwd-bm"><div class="pv-dwd-bm-val">${pvDwdData.irradiance_kWhm2_year}</div><div class="pv-dwd-bm-unit">kWh/m²/Jahr</div><div class="pv-dwd-bm-label">Globalstrahlung</div></div>`+
-        (pvDwdData.sunshine_hours_year?`<div class="pv-dwd-bm"><div class="pv-dwd-bm-val">${pvDwdData.sunshine_hours_year}</div><div class="pv-dwd-bm-unit">h/Jahr</div><div class="pv-dwd-bm-label">Sonnenstunden</div></div>`:'')+
+        `<div class="pv-dwd-compare">`+
+          `<div class="pv-dwd-compare-col"><div class="pv-dwd-compare-head">Standort${geo?' · '+geo:''}</div>`+
+            `<div class="pv-dwd-bm"><div class="pv-dwd-bm-val">${pvDwdData.irradiance_kWhm2_year}</div><div class="pv-dwd-bm-unit">kWh/m²/Jahr</div><div class="pv-dwd-bm-label">Globalstrahlung${est?' (Schätzung)':''}</div></div>`+
+            (pvDwdData.sunshine_hours_year?`<div class="pv-dwd-bm"><div class="pv-dwd-bm-val">${pvDwdData.sunshine_hours_year}</div><div class="pv-dwd-bm-unit">h/Jahr</div><div class="pv-dwd-bm-label">Sonnenstunden</div></div>`:'')+
+          `</div>`+
+          `<div class="pv-dwd-compare-div"></div>`+
+          `<div class="pv-dwd-compare-col"><div class="pv-dwd-compare-head">Deutschland${ga?gaYr:''}</div>`+
+            (deIrr?`<div class="pv-dwd-bm" style="opacity:.8"><div class="pv-dwd-bm-val">${deIrr}</div><div class="pv-dwd-bm-unit">kWh/m²/Jahr</div><div class="pv-dwd-bm-label">Globalstrahlung Ø</div></div>`:'')+
+            (deSun?`<div class="pv-dwd-bm" style="opacity:.8"><div class="pv-dwd-bm-val">${deSun}</div><div class="pv-dwd-bm-unit">h/Jahr</div><div class="pv-dwd-bm-label">Sonnenstunden Ø</div></div>`:'')+
+            (!deIrr&&!deSun?`<div style="font-size:11px;color:var(--text3);padding-top:8px">Nicht verfügbar</div>`:'')+
+          `</div>`+
         `</div>`+
         `<div class="pv-dwd-banner-meta">`+
-        `<span>Station: <strong>${escHtml(stNm)}</strong>${stDst?` · ${escHtml(stDst)}`:''}</span>`+
+        `<span>Station: <strong>${escHtml(stNm)}</strong>${stDst?' · '+escHtml(stDst):''}</span>`+
         `<span>· ${escHtml(yr)}</span>`+
-        (geo?`<span>· Geocodiert: ${geo}</span>`:'')+
+        (ga?.klimanormal_1991_2020?`<span>· DE Klimanormal 1991–2020: ${ga.klimanormal_1991_2020} h/Jahr</span>`:'')+
         `<span>· Lat ${pvDwdData.lat} / Lon ${pvDwdData.lon}</span>`+
         `</div>`;
       dwdBanner.style.display='block';

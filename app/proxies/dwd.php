@@ -288,6 +288,74 @@ function dwdFetchSolarData(string $stationId): ?array
     return $result;
 }
 
+// ── 5. Deutschland-Durchschnitt (DWD Regionalmittel) ─────────────────────
+// Quelle: regional_averages_sd_year.txt — Zeitreihe 1951-aktuell
+// Spaltenreihenfolge: Jahr;year;BB/B;BB;BW;BY;HE;MV;NI;NI/HH/HB;NW;RP;SH;SL;SN;ST;TH/ST;TH;Deutschland
+function dwdFetchGermanyAvg(): ?array
+{
+    $cacheFile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'dwd_germany_avg.json';
+    if (is_file($cacheFile) && (time() - filemtime($cacheFile) < 86400)) {
+        $c = json_decode(file_get_contents($cacheFile), true);
+        if (is_array($c) && !empty($c['sunshine_hours_year'])) return $c;
+    }
+
+    $url = 'https://opendata.dwd.de/climate_environment/CDC/regional_averages_DE/annual/sunshine_duration/regional_averages_sd_year.txt';
+    $ctx = stream_context_create(['http' => [
+        'method'  => 'GET',
+        'timeout' => 10,
+        'header'  => 'User-Agent: LAT-Landingpage-Analyse-Tool/1.0',
+    ]]);
+    $raw = @file_get_contents($url, false, $ctx);
+    if (!$raw || strlen($raw) < 500) return null;
+
+    // Zeilen zusammenfügen: jede Jahresdatenreihe über mehrere Zeilen → zusammenkleben
+    $lines   = array_map('trim', explode("\n", str_replace("\r", '', $raw)));
+    $current = '';
+    $yearValues = [];
+
+    $processBlock = function(string $block) use (&$yearValues): void {
+        $parts = array_map('trim', explode(';', $block));
+        // Index 0 = Jahr, 1 = "year", 2-17 = Bundesländer, 18 = Deutschland
+        if (count($parts) >= 19 && is_numeric($parts[0]) && is_numeric($parts[18])) {
+            $yearValues[(int)$parts[0]] = (float)$parts[18];
+        }
+    };
+
+    foreach ($lines as $line) {
+        if ($line === '' || preg_match('/^[A-Za-zÄÖÜäöüß]/', $line)) continue; // Kopfzeilen
+        if (preg_match('/^\d{4};year/', $line)) {
+            if ($current !== '') $processBlock($current);
+            $current = $line;
+        } else {
+            $current .= $line; // Fortsetzungszeile
+        }
+    }
+    if ($current !== '') $processBlock($current);
+    if (empty($yearValues)) return null;
+
+    // Letztes verfügbares Jahr (bis max. aktuelles Jahr)
+    $lastYear = max(array_filter(array_keys($yearValues), fn($y) => $y <= (int)date('Y')));
+
+    // Klimanormal 1991–2020
+    $normalVals = [];
+    for ($y = 1991; $y <= 2020; $y++) {
+        if (isset($yearValues[$y])) $normalVals[] = $yearValues[$y];
+    }
+    $klimanormal = count($normalVals) >= 25
+        ? (int) round(array_sum($normalVals) / count($normalVals))
+        : null;
+
+    $result = [
+        'sunshine_hours_year'   => (int) round($yearValues[$lastYear]),
+        'year'                  => $lastYear,
+        'klimanormal_1991_2020' => $klimanormal,
+        'irradiance_kWhm2_year' => 1073, // DWD Klimanormal 1991–2020 (Globalstrahlung, fest)
+        'source'                => 'DWD Regionalmittel',
+    ];
+    @file_put_contents($cacheFile, json_encode($result));
+    return $result;
+}
+
 // ── 4. Geographische Schätzung als Fallback ───────────────────────────────
 // Basiert auf bekannten DWD-Klimanormalen für die Breitengradzone.
 function dwdEstimateSolarByLat(float $lat): array
@@ -322,9 +390,10 @@ $station = dwdFindNearestStation($geo['lat'], $geo['lon'], $DWD_STATIONS);
 
 $solarData = dwdFetchSolarData($station['id']);
 if ($solarData === null) {
-    // Fallback: Schätzung auf Basis der Breitengrad-Zone
     $solarData = dwdEstimateSolarByLat($geo['lat']);
 }
+
+$germanyAvg = dwdFetchGermanyAvg(); // Kann null sein wenn DWD nicht erreichbar
 
 echo json_encode([
     'location'              => $location,
@@ -341,5 +410,6 @@ echo json_encode([
     'dataYear'              => $solarData['dataYear'],
     'dataPoints'            => $solarData['dataPoints'],
     'estimated'             => $solarData['estimated'],
+    'germany_avg'           => $germanyAvg, // null wenn nicht verfügbar
     'source'                => 'DWD OpenData',
 ], JSON_UNESCAPED_UNICODE);
