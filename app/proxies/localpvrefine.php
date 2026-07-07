@@ -63,7 +63,31 @@ $currentJsonStr = is_string($body['currentJson'])
     ? $body['currentJson']
     : json_encode($body['currentJson'], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
-// ── Prompts ──────────────────────────────────────────────────────────────
+// DWD-Kontext für Refine-Pass (Zahlen schützen)
+$dwdRefineNote = '';
+$dwdSolarData  = $body['dwdSolarData'] ?? null;
+if (is_array($dwdSolarData) && !empty($dwdSolarData['irradiance_kWhm2_year'])) {
+    $irr = (int)$dwdSolarData['irradiance_kWhm2_year'];
+    $sun = (int)($dwdSolarData['sunshine_hours_year'] ?? 0);
+    $est = !empty($dwdSolarData['estimated']);
+    $dwdRefineNote = "\n\nWICHTIG — DWD-Klimamesswerte für diese Region:"
+        . "\n- Globalstrahlung: {$irr} kWh/m²/Jahr" . ($est ? ' (Schätzwert)' : ' (DWD-Messung)')
+        . ($sun > 0 ? "\n- Sonnenstunden: {$sun} h/Jahr" : '')
+        . "\nDiese Zahlen STAMMEN AUS ECHTEN DWD-DATEN. Falls sie im bestehenden Content vorkommen: BEHALTEN und gängig einbetten. NICHT entfernen, NICHT abrunden auf andere Werte.";
+}
+
+// DWD-Kontext für Refine-Pass (Zahlen schützen)
+$dwdRefineNote = '';
+$dwdSolarData  = $body['dwdSolarData'] ?? null;
+if (is_array($dwdSolarData) && !empty($dwdSolarData['irradiance_kWhm2_year'])) {
+    $irr = (int)$dwdSolarData['irradiance_kWhm2_year'];
+    $sun = (int)($dwdSolarData['sunshine_hours_year'] ?? 0);
+    $est = !empty($dwdSolarData['estimated']);
+    $dwdRefineNote = "\n\nWICHTIG — DWD-Klimamesswerte für diese Region:"
+        . "\n- Globalstrahlung: {$irr} kWh/m²/Jahr" . ($est ? ' (Schätzwert)' : ' (DWD-Messung)')
+        . ($sun > 0 ? "\n- Sonnenstunden: {$sun} h/Jahr" : '')
+        . "\nDiese Zahlen STAMMEN AUS ECHTEN DWD-DATEN. Falls sie im bestehenden Content vorkommen: BEHALTEN und gängig einbetten. NICHT entfernen, NICHT abrunden auf andere Werte.";
+}───
 $systemPrompt = <<<'SYSPROMPT'
 Du bist ein spezialisierter SEO- und CRO-Editor für lokale Photovoltaik-Landingpages in Deutschland.
 
@@ -146,7 +170,7 @@ AUSGABEFORMAT:
 - Antworte NUR mit dem validen JSON-Objekt — kein erklärender Text, kein Markdown-Codeblock
 SYSPROMPT;
 
-$userPrompt = "Schärfe den folgenden JSON-Output inhaltlich nach den oben genannten Regeln.\n\nAntworte NUR mit dem optimierten JSON-Objekt. Keine Erklärungen. Kein Markdown.\n\n{$currentJsonStr}";
+$userPrompt = "Schärfe den folgenden JSON-Output inhaltlich nach den oben genannten Regeln.{$dwdRefineNote}\n\nAntworte NUR mit dem optimierten JSON-Objekt. Keine Erklärungen. Kein Markdown.\n\n{$currentJsonStr}";
 
 // ── API-Call ──────────────────────────────────────────────────────────────
 $model = ($provider === 'openai') ? CFG_OPENAI_MODEL : CFG_AI_MODEL;

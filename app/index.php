@@ -4192,7 +4192,7 @@ async function pvRefine(){
     const res=await fetch('localpvrefine.php',{
       method:'POST',
       headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},
-      body:JSON.stringify({currentJson:pvData,csrf_token:CSRF_TOKEN}),
+      body:JSON.stringify({currentJson:pvData,dwdSolarData:pvDwdData,csrf_token:CSRF_TOKEN}),
     });
     let data;
     const rawText=await res.text();
@@ -4239,7 +4239,7 @@ async function pvConvert(){
     const res=await fetch('localpvconvert.php',{
       method:'POST',
       headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},
-      body:JSON.stringify({currentJson:pvVersions.sharpened,csrf_token:CSRF_TOKEN}),
+      body:JSON.stringify({currentJson:pvVersions.sharpened,dwdSolarData:pvDwdData,csrf_token:CSRF_TOKEN}),
     });
     let data;
     const rawText=await res.text();

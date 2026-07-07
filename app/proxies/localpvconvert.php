@@ -51,6 +51,19 @@ $currentJsonStr = is_string($body['currentJson'])
     ? $body['currentJson']
     : json_encode($body['currentJson'], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
+// DWD-Kontext für Convert-Pass (Zahlen schützen)
+$dwdConvertNote = '';
+$dwdSolarData   = $body['dwdSolarData'] ?? null;
+if (is_array($dwdSolarData) && !empty($dwdSolarData['irradiance_kWhm2_year'])) {
+    $irr = (int)$dwdSolarData['irradiance_kWhm2_year'];
+    $sun = (int)($dwdSolarData['sunshine_hours_year'] ?? 0);
+    $est = !empty($dwdSolarData['estimated']);
+    $dwdConvertNote = "\n\nWICHTIG — DWD-Klimamesswerte für diese Region:"
+        . "\n- Globalstrahlung: {$irr} kWh/m²/Jahr" . ($est ? ' (Schätzwert)' : ' (DWD-Messung)')
+        . ($sun > 0 ? "\n- Sonnenstunden: {$sun} h/Jahr" : '')
+        . "\nDiese Zahlen stammen aus echten DWD-Daten. Falls sie im Content erscheinen: BEHALTEN. NICHT entfernen oder auf andere Werte ändern.";
+}
+
 // ── Prompts ──────────────────────────────────────────────────────────────
 $systemPrompt = <<<'SYSPROMPT'
 Du bist ein spezialisierter Conversion-Editor für lokale Photovoltaik-Landingpages in Deutschland.
@@ -116,7 +129,7 @@ AUSGABEFORMAT:
 - Antworte NUR mit dem validen JSON-Objekt — kein Text, kein Markdown
 SYSPROMPT;
 
-$userPrompt = "Optimiere den folgenden Level-2-JSON-Output selektiv auf Conversion-Stärke.\n\nNur ändern, wo eine echte Verbesserung möglich ist. Antworte NUR mit dem optimierten JSON-Objekt.\n\n{$currentJsonStr}";
+$userPrompt = "Optimiere den folgenden Level-2-JSON-Output selektiv auf Conversion-Stärke.{$dwdConvertNote}\n\nNur ändern, wo eine echte Verbesserung möglich ist. Antworte NUR mit dem optimierten JSON-Objekt.\n\n{$currentJsonStr}";
 
 // ── API-Call ──────────────────────────────────────────────────────────────
 $model = ($provider === 'openai') ? CFG_OPENAI_MODEL : CFG_AI_MODEL;

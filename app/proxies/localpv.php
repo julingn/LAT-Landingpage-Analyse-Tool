@@ -144,6 +144,24 @@ $contextBlock = (!empty($contextLines)
     ? "\n\nVerfügbare Kontext-Daten:\n" . implode("\n", array_map(fn($l) => "- {$l}", $contextLines))
     : '') . $dwdBlock;
 
+// ── Dynamische Feldbeschreibungen (abhängig von verfügbaren Daten) ────────
+// solarPotential.content: wenn DWD-Werte vorliegen → explizit verwenden
+if (is_array($dwdSolarData) && !empty($dwdSolarData['irradiance_kWhm2_year'])) {
+    $irr = (int)$dwdSolarData['irradiance_kWhm2_year'];
+    $sun = (int)($dwdSolarData['sunshine_hours_year'] ?? 0);
+    $est = !empty($dwdSolarData['estimated']);
+    $irrNote = $est ? 'regionaltypischer Schätzwert' : 'gemessener DWD-Wert';
+    $solarPotentialDesc = "80–150 Wörter — VERWENDE die folgenden Messwerte konkret im Text: "
+        . "Globalstrahlung {$irr} kWh/m²/Jahr ({$irrNote})"
+        . ($sun > 0 ? ", Sonnenstunden {$sun} h/Jahr" : "")
+        . ". Erkläre was diese Zahlen für eine Dachanlage in dieser Region bedeuten "
+        . "(z.B. Vergleich mit deutschlandweitem Schnitt ~1.000–1.200 kWh/m², typische Anlage 10 kWp). "
+        . "Kein Tourismus-Content, kein erfundener Amortisationszeitraum.";
+} else {
+    $solarPotentialDesc = "80–150 Wörter — erklärt was der Nutzer in der Grafik erfährt, "
+        . "warum das Solarpotenzial in dieser Region relevant ist, ohne erfundene Einstrahlungswerte";
+}
+
 // ── Prompts ──────────────────────────────────────────────────────────────
 $systemPrompt = <<<'SYSPROMPT'
 Du bist ein spezialisierter SEO- und CRO-Assistent für lokale Photovoltaik-Landingpages in Deutschland.
@@ -253,7 +271,7 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
     },
     "solarPotential": {
       "micro": "1–2 Sätze Brückentext zur Solarpotenzial-Grafik",
-      "content": "80–150 Wörter — erklärt was der Nutzer in der Grafik erfährt, warum das Solarpotenzial in dieser Region relevant ist, ohne erfundene Einstrahlungswerte",
+      "content": "{$solarPotentialDesc}",
       "placement": "Vor oder unter der Solarpotenzial-Grafik"
     },
     "statisticsExplanation": {
