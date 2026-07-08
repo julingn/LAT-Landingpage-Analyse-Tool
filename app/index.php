@@ -1337,6 +1337,10 @@ button{font-family:inherit}
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
       Bausteine generieren
     </button>
+    <button class="pv-generate-btn" onclick="pvDemo()" style="background:var(--bg3);border-color:var(--border2);color:var(--text2);margin-top:8px" title="Demo-Daten laden ohne API-Call">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Demo
+    </button>
 
     <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px">
       <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:8px">Perspektivisch nutzbare Datenquellen</div>
@@ -4351,6 +4355,94 @@ function pvSelectKeyword(kw,pillEl){
   document.getElementById('pv-keyword').value=kw;
   document.querySelectorAll('.pv-kw-pill').forEach(p=>p.classList.remove('selected'));
   pillEl.classList.add('selected');
+}
+
+// ── PV Generator Demo ────────────────────────────────────────────────────
+function pvDemo(){
+  pvDwdData={location:'64283 Darmstadt',geocoded:'Darmstadt, Hessen, Deutschland',lat:49.8728,lon:8.6512,
+    station:{id:'01420',name:'Frankfurt/Main',distance_km:28.4},
+    irradiance_kWhm2_year:1102,sunshine_hours_year:1821,dataYear:2025,estimated:false,
+    germany_avg:{sunshine_hours_year:1914,year:2025,klimanormal_1991_2020:1665,irradiance_kWhm2_year:1073,source:'DWD Regionalmittel'},
+    source:'DWD OpenData'};
+  const d={
+    input:{cityOrPostalCode:'64283 Darmstadt',primaryKeyword:'Photovoltaik Darmstadt',pvCalculatorInHero:true},
+    meta:{title:'Photovoltaik Darmstadt – Solaranlage planen & Kosten berechnen',description:'Jetzt PV-Potenzial für Ihr Dach in Darmstadt berechnen. Individuelle Ertragsschätzung, transparente Kosten, regionaler Installateur.'},
+    hero:{h1:'Photovoltaik in Darmstadt – Ihr Solarpotenzial berechnen',subline:'Darmstadts Dächer gehören zu den sonnenreichsten in Hessen. Berechnen Sie jetzt Ihren individuellen Ertrag.',calculatorIntro:'Geben Sie Dachfläche und Stromverbrauch ein – der Rechner zeigt Ihnen in Sekunden, wie viel Strom Ihre Anlage erzeugen würde.',primaryCta:'Jetzt PV-Potenzial berechnen',secondaryCta:'Persönliche Beratung anfragen'},
+    benefits:[
+      {title:'Unabhängigkeit',text:'Mit einer Photovoltaikanlage auf Ihrem Darmstädter Dach reduzieren Sie Ihren Strombezug aus dem Netz dauerhaft. Steigende Strompreise treffen Sie weniger – ein Großteil Ihres Verbrauchs lässt sich durch selbst erzeugten Solarstrom decken.',placement:'Vorteile-Kachel'},
+      {title:'Wertsteigerung',text:'Immobilien mit Solaranlage erzielen in der Region Darmstadt nachweislich höhere Verkaufspreise. Eine dokumentierte Anlage mit Einspeisevergütung ist ein konkretes Argument beim Immobilienverkauf.',placement:'Vorteile-Kachel'},
+      {title:'Alles aus einer Hand',text:'Von der Dachprüfung über Planung und Montage bis zur Anmeldung beim Netzbetreiber: Regionale Installateure in Darmstadt koordinieren alle Schritte. Sie müssen sich um nichts kümmern.',placement:'Vorteile-Kachel'},
+      {title:'Zuverlässiger Partner',text:'Qualifizierte Fachbetriebe in der Region kennen die lokalen Anforderungen, Gebäudetypen und Netzbedingungen. Nach der Installation steht Ihnen ein Ansprechpartner für Wartung und Monitoring zur Verfügung.',placement:'Vorteile-Kachel'},
+    ],
+    sections:{
+      intro:{micro:'Darmstadt zählt mit über 1.820 Sonnenstunden pro Jahr zu den günstigsten PV-Standorten in Hessen.',content:'Photovoltaik in Darmstadt lohnt sich – nicht nur wegen des vergleichsweise sonnigen Klimas, sondern auch weil viele Gebäude in der Region gut geeignete Dachflächen bieten. Ob Einfamilienhaus im Martinsviertel, Gewerbebau im Norden oder Wohnanlage in Bessungen: Die Kombination aus Dachausrichtung, verfügbarer Fläche und lokalem Stromverbrauch entscheidet über den Ertrag. Unser PV-Rechner berechnet Ihr individuelles Potenzial – in wenigen Sekunden, kostenlos und ohne Verpflichtung.',placement:'Direkt unter dem Hero'},
+      solarPotential:{micro:'Mit 1.102 kWh/m² Globalstrahlung liegt Darmstadt rund 3 % über dem deutschen Klimanormal.',content:'Darmstadt verzeichnet laut Deutschem Wetterdienst eine Globalstrahlung von 1.102 kWh/m² pro Jahr und ca. 1.821 Sonnenstunden – das ist spürbar mehr als der deutsche Klimanormal von 1.665 Sonnenstunden. Für eine typische Dachanlage mit 10 kWp bedeutet das einen Jahresertrag von ca. 9.000–10.500 kWh, abhängig von Ausrichtung, Neigung und möglicher Verschattung. Die Grafik zeigt, wie sich das Solarpotenzial über die Monate verteilt – und warum besonders Frühjahr und Sommer für den Eigenverbrauch entscheidend sind.',placement:'Vor oder unter der Solarpotenzial-Grafik'},
+      statisticsExplanation:{micro:'Die Kennzahlen zeigen, was eine PV-Anlage in Darmstadt realistisch leisten kann.',content:'Die dargestellten Werte basieren auf typischen Anlagen in der Region Darmstadt: Dachneigungen zwischen 25–45°, Südausrichtung mit maximal 30° Abweichung, kein nennenswerter Schattenwurf. In der Praxis variieren Erträge je nach Gebäudetyp und Dachkonstruktion. Der wichtigste Hebel für Wirtschaftlichkeit ist der Eigenverbrauchsanteil: Je mehr erzeugter Strom direkt selbst verbraucht wird, desto schneller zahlt sich die Anlage aus.',placement:'Unter dem Kennzahlen-Block'},
+      processIntro:{micro:'In drei Schritten von der Idee zur laufenden Anlage.',content:'Der Weg zur Photovoltaikanlage ist in Darmstadt klar strukturiert. Zuerst berechnen Sie mit unserem Rechner das Grundpotenzial – das dauert unter einer Minute. Anschließend prüft ein Fachbetrieb Ihr Dach vor Ort: Tragfähigkeit, Ausrichtung, Anschluss. Nach der Planung folgt die Montage – je nach Anlagengröße in einem bis drei Tagen. Die Anmeldung beim Netzbetreiber und die Inbetriebnahme koordiniert Ihr Installateur.',placement:'Über dem 3-Schritte-Prozess'},
+      projectsIntro:{micro:'Referenzprojekte aus der Region zeigen, was in der Praxis umsetzbar ist.',content:'Installateure in der Region Darmstadt und dem Rhein-Main-Gebiet haben in den letzten Jahren zahlreiche Anlagen auf Bestandsgebäuden, Neubauten und Gewerbeobjekten realisiert. Jedes Projekt hat eigene Anforderungen – von der Denkmalschutzfrage bis zur Statikprüfung. Die Referenzen geben einen realistischen Einblick in Anlagengrößen, Installationsaufwand und erzielte Erträge.',placement:'Über den Referenzprojekt-Karten'},
+      economicsText:{micro:'Die Wirtschaftlichkeit einer PV-Anlage hängt vor allem vom Eigenverbrauch ab.',content:'Eine Photovoltaikanlage in Darmstadt ist vor allem dann wirtschaftlich, wenn ein Großteil des erzeugten Stroms direkt selbst verbraucht wird. Jede selbst verbrauchte Kilowattstunde spart den aktuellen Bezugspreis – jede eingespeiste Kilowattstunde bringt die gesetzliche Vergütung. Mit einem Heimspeicher lässt sich der Eigenverbrauchsanteil deutlich erhöhen. Konkrete Amortisationszeiträume hängen von Anlagengröße, Verbrauchsprofil und Finanzierung ab – der Rechner gibt eine erste Orientierung.',placement:'Vor der Wirtschaftlichkeitsgrafik'},
+      testimonialsIntro:{micro:'Was sagen Kunden aus Darmstadt und Umgebung?',content:'Kundenstimmen aus der Region Darmstadt zeigen, wie unterschiedlich die Ausgangssituationen sind – und was Eigentümer im Rückblick über ihre Entscheidung denken. Ob kompaktes Reihenhausdach oder größeres Flachdach: Echte Bewertungen von Betreibern lokaler Anlagen helfen einzuschätzen, was Sie von der Planung bis zum laufenden Betrieb erwarten können.',placement:'Über den Kundenstimmen'},
+      faqIntro:{micro:'Häufige Fragen zur Photovoltaik in Darmstadt.',content:'Wer sich in Darmstadt mit Photovoltaik beschäftigt, stellt ähnliche Fragen: Lohnt sich die Anlage auf meinem Dach? Welche Förderung gibt es aktuell? Was kostet eine 10-kWp-Anlage? Was passiert bei Stromausfall? Die folgenden FAQ beantworten die häufigsten Fragen von Eigentümern aus Darmstadt und dem Umland – sachlich, ohne Werbebotschaften.',placement:'Über dem FAQ-Accordion'},
+      formIntro:{micro:'Noch Fragen? Wir melden uns – unverbindlich und ohne Verkaufsdruck.',content:'Wenn Sie nach dem Ertragsrechner noch Fragen haben oder eine persönliche Einschätzung für Ihr Dach wünschen, können Sie hier unverbindlich Kontakt aufnehmen. Ein regionaler Fachbetrieb aus dem Raum Darmstadt wird sich bei Ihnen melden – für eine kostenlose Ersteinschätzung, ohne Verpflichtung.',placement:'Über dem Kontaktformular als Backup-CTA'},
+    },
+    ctaStrategy:{
+      primaryConversion:{element:'PV-Rechner im Hero',ctaExamples:['Jetzt PV-Potenzial berechnen','Ertrag für mein Dach prüfen','Solarpotenzial berechnen']},
+      secondaryConversion:{element:'Formular am Seitenende',ctaExamples:['Persönliche Beratung anfragen','Unverbindliches Angebot einholen','Rückruf zur PV-Beratung vereinbaren']},
+      microCtas:[
+        {placement:'Nach Solarpotenzial-Grafik',text:'Rechner nutzen – in 60 Sekunden zum Ergebnis'},
+        {placement:'Nach Kennzahlen-Block',text:'Ihr Dach berechnen'},
+        {placement:'Nach Wirtschaftlichkeit',text:'Individuellen Ertrag berechnen'},
+      ]
+    },
+    faq:[
+      {question:'Lohnt sich eine PV-Anlage auf meinem Dach in Darmstadt?',answer:'Das hängt von Dachfläche, Ausrichtung und Ihrem Stromverbrauch ab. Darmstadt hat mit rund 1.820 Sonnenstunden pro Jahr und 1.102 kWh/m² Globalstrahlung gute Voraussetzungen. Unser Rechner gibt Ihnen eine erste Einschätzung in unter einer Minute.'},
+      {question:'Welche Fördermöglichkeiten gibt es aktuell?',answer:'Die wichtigste Förderung ist die gesetzliche Einspeisevergütung nach EEG. Zusätzlich bieten KfW und einige Bundesländer zinsgünstige Kredite an. Die Stadt Darmstadt hat darüber hinaus eigene Förderprogramme, die je nach Haushaltsjahr variieren – aktuelle Informationen erhalten Sie beim Energiereferat der Stadt.'},
+      {question:'Was kostet eine Photovoltaikanlage in Darmstadt?',answer:'Für ein Einfamilienhaus mit 8–10 kWp Leistung liegen die Installationskosten je nach Dach und Aufwand typischerweise zwischen 12.000 und 18.000 Euro brutto. Ein Heimspeicher kommt mit 8.000–12.000 Euro hinzu. Konkrete Angebote hängen stark vom individuellen Projekt ab.'},
+      {question:'Was passiert mit meiner PV-Anlage bei Stromausfall?',answer:'Standardanlagen ohne Speicher schalten bei Netzausfall automatisch ab – aus Sicherheitsgründen, um einspeisende Anlagen zu schützen. Mit einem Notstrom-fähigen Wechselrichter und geeignetem Speicher ist eine Inselbetriebsfähigkeit möglich, was aber höhere Investitionskosten bedeutet.'},
+    ],
+    seoChecklist:[
+      {item:'H1 enthält Hauptkeyword "Photovoltaik Darmstadt"',status:'ok',note:''},
+      {item:'Meta-Title unter 60 Zeichen',status:'ok',note:''},
+      {item:'Meta-Description mit CTA und lokalem Keyword',status:'ok',note:''},
+      {item:'LocalBusiness Schema.org Markup',status:'warning',note:'Empfohlen für lokale Sichtbarkeit'},
+      {item:'FAQ Schema (FAQPage) für Accordion',status:'missing',note:'Kann Rich Snippets in SERP auslösen'},
+      {item:'Interne Verlinkung zu Standortseiten',status:'warning',note:'Weitere PLZ-Seiten könnten auf diese verlinken'},
+    ],
+    croChecklist:[
+      {item:'PV-Rechner prominent im Hero über the fold',status:'ok',note:''},
+      {item:'Primäre CTA eindeutig auf Rechner ausgerichtet',status:'ok',note:''},
+      {item:'Vertrauenssignale (Bewertungen, Zertifikate) sichtbar',status:'warning',note:'Social Proof muss mit echten Daten befüllt werden'},
+      {item:'Formulareinstieg niedrigschwellig (keine Pflichtfelder außer Kontakt)',status:'warning',note:'Maximal 3 Felder empfohlen'},
+      {item:'Ladezeit unter 3 Sekunden (PSI Mobile)',status:'missing',note:'Bildoptimierung und Lazy Loading prüfen'},
+    ],
+    recommendations:[
+      {module:'SEO',priority:'high',recommendation:'FAQ-Schema (FAQPage) implementieren – bei 4+ FAQs mit lokalem Bezug hohe Chance auf Rich Snippets bei "Photovoltaik Darmstadt"-Queries.'},
+      {module:'CRO',priority:'high',recommendation:'Vertrauenssignale direkt unter dem Hero platzieren – Bewertungsdurchschnitt, Anzahl Installationen oder Logos bekannter Zertifizierungen erhöhen die Rechner-Nutzungsrate.'},
+      {module:'SEO',priority:'medium',recommendation:'LocalBusiness Schema mit Adresse und Servicebereich Darmstadt ergänzen – verbessert lokale Pack-Sichtbarkeit.'},
+      {module:'Performance',priority:'medium',recommendation:'PSI Mobile Score prüfen – Hero-Bilder als WebP mit Lazy Loading können LCP verbessern.'},
+    ],
+    placementMap:[
+      {order:1,module:'Hero',visualType:'full-width-hero',contentNeeded:['H1','Subline','Rechner-Microcopy','CTA'],generatedFields:['hero.h1','hero.subline','hero.calculatorIntro','hero.primaryCta'],recommendation:'H1 prominent über dem Rechner, Subline darunter. primaryCta = Rechner-Button, secondaryCta als Textlink.'},
+      {order:2,module:'Einleitung',visualType:'text-section',contentNeeded:['Intro-Text'],generatedFields:['sections.intro.micro','sections.intro.content'],recommendation:'sections.intro.micro als Teaser-Satz über dem Fließtext einsetzen.'},
+      {order:3,module:'Vorteile',visualType:'4-column-grid',contentNeeded:['4 Kacheln'],generatedFields:['benefits[0-3]'],recommendation:'Je eine Kachel pro benefit-Eintrag. Icon + Title + Text.'},
+      {order:4,module:'Solarpotenzial-Grafik',visualType:'chart-section',contentNeeded:['Begleittext vor Grafik'],generatedFields:['sections.solarPotential.micro','sections.solarPotential.content'],recommendation:'solarPotential.micro als Intro-Satz über der Grafik, content darunter.'},
+      {order:5,module:'Kennzahlen-Block',visualType:'stat-grid',contentNeeded:['Erklärungstext unter Zahlen'],generatedFields:['sections.statisticsExplanation.micro','sections.statisticsExplanation.content'],recommendation:'statisticsExplanation.content unter den Zahlenblöcken als Kontextualisierung.'},
+      {order:6,module:'3-Schritte-Prozess',visualType:'step-by-step',contentNeeded:['Einleitung'],generatedFields:['sections.processIntro.micro','sections.processIntro.content'],recommendation:'processIntro.micro als Abschnittsüberschrift, content als Fließtext davor.'},
+      {order:7,module:'Referenzprojekte',visualType:'card-grid',contentNeeded:['Einleitungstext'],generatedFields:['sections.projectsIntro.micro','sections.projectsIntro.content'],recommendation:'projectsIntro.content als Vertrauenstext über den Projekt-Karten.'},
+      {order:8,module:'Wirtschaftlichkeit',visualType:'chart-section',contentNeeded:['Begleittext'],generatedFields:['sections.economicsText.micro','sections.economicsText.content'],recommendation:'economicsText.content vor der Grafik. Kein konkreter Amortisationszeitraum ohne individuelle Daten.'},
+      {order:9,module:'Kundenstimmen',visualType:'testimonial-slider',contentNeeded:['Einleitung'],generatedFields:['sections.testimonialsIntro.micro','sections.testimonialsIntro.content'],recommendation:'testimonialsIntro.micro als Überschrift, content als Einleitungstext.'},
+      {order:10,module:'FAQ',visualType:'accordion',contentNeeded:['FAQ-Einleitung','FAQ-Fragen'],generatedFields:['sections.faqIntro.micro','faq[0-3]'],recommendation:'faqIntro.micro als Sektionsüberschrift. Jeder faq-Eintrag als ein Accordion-Element.'},
+      {order:11,module:'Kontaktformular',visualType:'form-section',contentNeeded:['Formular-Einleitung'],generatedFields:['sections.formIntro.micro','sections.formIntro.content'],recommendation:'formIntro.content über dem Formular. Maximal 3 Pflichtfelder. Kein Verkaufsdruck.'},
+    ],
+    exportMarkdown:'# Photovoltaik Darmstadt – Content-Bausteine\n\n## Meta\n**Title:** Photovoltaik Darmstadt – Solaranlage planen & Kosten berechnen\n**Description:** Jetzt PV-Potenzial für Ihr Dach in Darmstadt berechnen.\n\n## Hero\n**H1:** Photovoltaik in Darmstadt – Ihr Solarpotenzial berechnen\n**Subline:** Darmstadts Dächer gehören zu den sonnenreichsten in Hessen.\n**CTA:** Jetzt PV-Potenzial berechnen\n\n*(Demo-Daten — kein echtes KI-Ergebnis)*',
+  };
+  pvData=d;
+  pvVersions={raw:d,sharpened:null,conversion:null};
+  pvRenderResults(d);
+  pvUpdateVersionUI('raw');
+  document.getElementById('pv-results').style.display='block';
+  document.getElementById('pv-loading').style.display='none';
+  document.getElementById('pv-error').style.display='none';
 }
 
 async function pvGenerate(){
