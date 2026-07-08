@@ -76,18 +76,7 @@ if (is_array($dwdSolarData) && !empty($dwdSolarData['irradiance_kWhm2_year'])) {
         . "\nDiese Zahlen STAMMEN AUS ECHTEN DWD-DATEN. Falls sie im bestehenden Content vorkommen: BEHALTEN und gängig einbetten. NICHT entfernen, NICHT abrunden auf andere Werte.";
 }
 
-// DWD-Kontext für Refine-Pass (Zahlen schützen)
-$dwdRefineNote = '';
-$dwdSolarData  = $body['dwdSolarData'] ?? null;
-if (is_array($dwdSolarData) && !empty($dwdSolarData['irradiance_kWhm2_year'])) {
-    $irr = (int)$dwdSolarData['irradiance_kWhm2_year'];
-    $sun = (int)($dwdSolarData['sunshine_hours_year'] ?? 0);
-    $est = !empty($dwdSolarData['estimated']);
-    $dwdRefineNote = "\n\nWICHTIG — DWD-Klimamesswerte für diese Region:"
-        . "\n- Globalstrahlung: {$irr} kWh/m²/Jahr" . ($est ? ' (Schätzwert)' : ' (DWD-Messung)')
-        . ($sun > 0 ? "\n- Sonnenstunden: {$sun} h/Jahr" : '')
-        . "\nDiese Zahlen STAMMEN AUS ECHTEN DWD-DATEN. Falls sie im bestehenden Content vorkommen: BEHALTEN und gängig einbetten. NICHT entfernen, NICHT abrunden auf andere Werte.";
-}───
+// ── Prompts ───────────────────────────────────────────────────────────────
 $systemPrompt = <<<'SYSPROMPT'
 Du bist ein spezialisierter SEO- und CRO-Editor für lokale Photovoltaik-Landingpages in Deutschland.
 
