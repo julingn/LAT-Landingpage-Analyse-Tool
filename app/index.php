@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 session_start();
 if (empty($_SESSION['logged_in'])) { header('Location: ../login.php'); exit; }
 if (empty($_SESSION['csrf_token'])) { $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); }
