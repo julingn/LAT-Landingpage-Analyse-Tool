@@ -4631,7 +4631,11 @@ function pvRenderResults(d){
     ''
   ));
 
-  // ── Tab 1: Content (Meta, Hero, Benefits, Sections, FAQ) ──
+  // ── Tab 1: Content — in LP-Reihenfolge (top → bottom) ──────────────────
+  // cards-Index: [0]=Meta [1]=Hero [2]=intro [3]=solarPotential
+  //              [4]=statisticsExplanation [5]=processIntro [6]=projectsIntro
+  //              [7]=economicsText [8]=testimonialsIntro [9]=faqIntro
+  //              [10]=formIntro [11]=FAQ-Q&A
   const benefits=Array.isArray(d.benefits)?d.benefits:[];
   const benefitsHtml=benefits.length?
     '<div class="pv-card"><div class="pv-card-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Vorteile (4 Kacheln)</div>'+
@@ -4658,7 +4662,23 @@ function pvRenderResults(d){
       `</div>`:'')+
     `</div>`;
 
-  document.getElementById('pv-results-list').innerHTML=cards.slice(0,12).join('')+benefitsHtml+ctaHtml;
+  // Explizite LP-Reihenfolge statt slice()
+  document.getElementById('pv-results-list').innerHTML=[
+    cards[0],    // Meta (SEO)
+    cards[1],    // Hero
+    cards[2],    // Intro / Einstiegstext
+    benefitsHtml,// Vorteile (4 Kacheln)
+    cards[3],    // Solarpotenzial
+    cards[4],    // Kennzahlenblock
+    cards[5],    // 3-Schritte-Prozess
+    cards[6],    // Referenzprojekte
+    cards[7],    // Wirtschaftlichkeitsgrafik
+    cards[8],    // Kundenstimmen
+    cards[9],    // FAQ-Einleitung
+    cards[11],   // FAQ Q&A (direkt nach FAQ-Einleitung)
+    cards[10],   // Formular / Backup-CTA (ganz unten = LP-Ende)
+    ctaHtml,     // CTA-Strategie (übergreifend)
+  ].join('');
 
   // ── Tab 2: Placement Map ──
   const pm=Array.isArray(d.placementMap)?d.placementMap:[];
