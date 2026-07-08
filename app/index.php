@@ -4335,7 +4335,7 @@ async function pvSuggestKeywords(){
       pills.innerHTML=kws.map(k=>{
         const vol=k.search_volume!=null ? k.search_volume.toLocaleString('de-DE')+'\u202f/\u202fMo.' : 'k.\u00a0A.';
         const ci=k.competition_index!=null ? ` \u00b7 Wettbewerb\u202f${k.competition_index}%` : '';
-        return `<button class="pv-kw-pill" onclick="pvSelectKeyword(${JSON.stringify(k.keyword)},this)"><span class="pv-kw-pill-text">${escHtml(k.keyword)}</span><span class="pv-kw-pill-vol">${vol}${ci}</span></button>`;
+        return `<button class="pv-kw-pill" data-kw="${escHtml(k.keyword)}" onclick="pvSelectKeyword(this.dataset.kw,this)"><span class="pv-kw-pill-text">${escHtml(k.keyword)}</span><span class="pv-kw-pill-vol">${vol}${ci}</span></button>`;
       }).join('');
     }
     pills.style.display='flex';
