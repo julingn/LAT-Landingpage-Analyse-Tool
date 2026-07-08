@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 if (empty($_SESSION['logged_in'])) { header('Location: ../login.php'); exit; }
 if (empty($_SESSION['csrf_token'])) { $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); }
@@ -4570,7 +4570,7 @@ function pvRenderResults(d){
       const deSunLbl  = ga?.klimanormal_1991_2020 ? 'Sonnenstunden Ø 1991–2020' : `Sonnenstunden Ø (${ga?.year||''})`;
       const deHead    = 'Deutschland Klimanormal';
       dwdBanner.innerHTML =
-        `<div class="pv-dwd-banner-head">${SunIco}<span class="pv-dwd-banner-title">DWD Standort-Solardaten</span>`+
+        `<div class="pv-data-hint pv-data-active" style="margin-top:0;border-top:none;padding-top:0"><span class="pv-data-hint-label">Datenquelle:</span><span class="pv-data-source-tag dwd">DWD OpenData${est?" (Schätzung)":""}</span><span style="font-size:11px;color:var(--text3)">Messwerte fließen in Solarpotenzial und KI-Prompt ein</span></div>`+
         `<span class="pv-data-source-tag dwd">DWD OpenData${est?' (Schätzung)':''}</span></div>`+
         `<div class="pv-dwd-compare">`+
           `<div class="pv-dwd-compare-col"><div class="pv-dwd-compare-head">Standort${geo?' · '+geo:''}</div>`+
@@ -4590,7 +4590,7 @@ function pvRenderResults(d){
         (ga?.klimanormal_1991_2020?`<span>· DE Klimanormal 1991–2020: ${ga.klimanormal_1991_2020} h/Jahr</span>`:'')+
         `<span>· Lat ${pvDwdData.lat} / Lon ${pvDwdData.lon}</span>`+
         `</div>`;
-      dwdBanner.style.display='block';
+      dwdBanner.style.display='none'; // Werte in Solarpotenzial-Karte (dwdActiveHint)
     } else {
       dwdBanner.style.display='none';
     }
@@ -4610,6 +4610,29 @@ function pvRenderResults(d){
     if(!sources||!sources.length)return '';
     return '<div class="pv-data-hint pv-data-active"><span class="pv-data-hint-label">Datenquelle:</span>'+
       sources.map(s=>`<span class="pv-data-source-tag ${escHtml(s.c)}" title="${escHtml(s.d)}">${escHtml(s.l)}</span>`).join('')+
+      '</div>';
+  }
+  function dwdActiveHint(){
+    // Vollständiger DWD-Footer für die Solarpotenzial-Karte
+    if(!pvDwdData||!pvDwdData.irradiance_kWhm2_year) return '';
+    const est  = pvDwdData.estimated;
+    const stNm = pvDwdData.station?.name||'–';
+    const stD  = pvDwdData.station?.distance_km?` · ${pvDwdData.station.distance_km} km`:'';
+    const yr   = pvDwdData.dataYear?`Messjahr ${pvDwdData.dataYear}`:'Schätzung';
+    const ga   = pvDwdData.germany_avg;
+    const kn   = ga?.klimanormal_1991_2020||null;
+    const sun  = pvDwdData.sunshine_hours_year||0;
+    const irr  = pvDwdData.irradiance_kWhm2_year||0;
+    const diff = kn&&sun ? ((sun-kn)/kn*100).toFixed(1) : null;
+    const sign = diff>=0?'+':'';
+    return '<div class="pv-data-hint pv-data-active">'+
+      '<span class="pv-data-hint-label">Datenquelle:</span>'+
+      `<span class="pv-data-source-tag dwd">DWD OpenData${est?' (Schätzung)':''}</span>`+
+      '<div class="pv-dwd-inline-vals">'+
+        `<span>${irr} kWh/m²/Jahr Globalstrahlung · ${sun} h/Jahr Sonnenstunden</span>`+
+        `<span>Station: ${escHtml(stNm)}${escHtml(stD)} · ${escHtml(yr)}</span>`+
+        (kn?`<span>DE Klimanormal: ${kn} h/Jahr · Standort <strong>${sign}${diff} %</strong> gegenüber Deutschland</span>`:'')+
+      '</div>'+
       '</div>';
   }
   // 0. DWD-Karte wurde in Banner verschoben — kein Card-Eintrag mehr
@@ -4671,8 +4694,8 @@ function pvRenderResults(d){
       (sFull?`<div class="pv-sec-label">Content / SEO-Text</div><div class="pv-sec-content">${escHtml(sFull)}</div>`:''),
       (s.dwdHint
         ? (pvDwdData
-            ? activeHint([{c:'dwd',l:'DWD OpenData (aktiv)',d:'Globalstrahlung und Sonnenstunden sind als Echtwerte in den KI-Prompt eingeflossen.'}])
-            : '<div class="pv-data-hint"><span class="pv-data-hint-label" style="color:var(--amber)">DWD:</span><span class="pv-data-source-tag" style="background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)" title="DWD-Datenabruf fehlgeschlagen — Schätzung auf Basis geografischer Lage verwendet.">nicht verfügbar (Schätzung aktiv)</span></div>'
+            ? dwdActiveHint()
+            : '<div class="pv-data-hint"><span class="pv-data-hint-label" style="color:var(--amber)">DWD:</span><span class="pv-data-source-tag" style="background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)" title="DWD-Datenabruf fehlgeschlagen">nicht verfügbar (Schätzung aktiv)</span></div>'
               + hint(s.h||[]))
         : hint(s.h||[]))
     ));
