@@ -646,6 +646,11 @@ button{font-family:inherit}
 .pv-data-source-tag.dataforseo{background:var(--green-bg);color:var(--green);border-color:var(--green-border)}
 .pv-data-source-tag.pvgis{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-border)}
 .pv-data-source-tag.dwd{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border)}
+#pv-dwd-banner{margin-top:20px;padding:12px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius)}
+#pv-dwd-banner .pv-data-hint{margin-top:0;padding-top:0;border-top:none}
+.pv-dwd-inline-vals{width:100%;margin-top:6px;display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--text2);padding-left:2px}
+.pv-dwd-inline-vals span{display:block}
+.pv-dwd-inline-vals strong{color:var(--accent);font-weight:700}
 #pv-kw-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;padding:10px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm)}
 .pv-kw-pill{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:5px 11px;background:var(--bg3);border:1px solid var(--border2);border-radius:999px;cursor:pointer;font-family:inherit;transition:background .12s,border-color .12s;text-align:left}
 .pv-kw-pill:hover{background:var(--accent-bg);border-color:var(--accent-border)}
@@ -4590,7 +4595,9 @@ function pvRenderResults(d){
         (ga?.klimanormal_1991_2020?`<span>· DE Klimanormal 1991–2020: ${ga.klimanormal_1991_2020} h/Jahr</span>`:'')+
         `<span>· Lat ${pvDwdData.lat} / Lon ${pvDwdData.lon}</span>`+
         `</div>`;
-      dwdBanner.style.display='none'; // Werte in Solarpotenzial-Karte (dwdActiveHint)
+      // Banner zeigt dieselbe DATENQUELLE-Ansicht wie Solarpotenzial-Karte
+      dwdBanner.innerHTML=dwdActiveHint();
+      dwdBanner.style.display='block';
     } else {
       dwdBanner.style.display='none';
     }
