@@ -4575,8 +4575,7 @@ function pvRenderResults(d){
       const deSunLbl  = ga?.klimanormal_1991_2020 ? 'Sonnenstunden Ø 1991–2020' : `Sonnenstunden Ø (${ga?.year||''})`;
       const deHead    = 'Deutschland Klimanormal';
       dwdBanner.innerHTML =
-        `<div class="pv-data-hint pv-data-active" style="margin-top:0;border-top:none;padding-top:0"><span class="pv-data-hint-label">Datenquelle:</span><span class="pv-data-source-tag dwd">DWD OpenData${est?" (Schätzung)":""}</span><span style="font-size:11px;color:var(--text3)">Messwerte fließen in Solarpotenzial und KI-Prompt ein</span></div>`+
-        `<span class="pv-data-source-tag dwd">DWD OpenData${est?' (Schätzung)':''}</span></div>`+
+        `<div class="pv-dwd-banner-head">${SunIco}<span class="pv-dwd-banner-title">DWD Standort-Solardaten</span></div>`+
         `<div class="pv-dwd-compare">`+
           `<div class="pv-dwd-compare-col"><div class="pv-dwd-compare-head">Standort${geo?' · '+geo:''}</div>`+
             `<div class="pv-dwd-bm"><div class="pv-dwd-bm-val">${pvDwdData.irradiance_kWhm2_year}</div><div class="pv-dwd-bm-unit">kWh/m²/Jahr</div><div class="pv-dwd-bm-label">Globalstrahlung${est?' (Schätzung)':''}</div></div>`+
@@ -4595,8 +4594,8 @@ function pvRenderResults(d){
         (ga?.klimanormal_1991_2020?`<span>· DE Klimanormal 1991–2020: ${ga.klimanormal_1991_2020} h/Jahr</span>`:'')+
         `<span>· Lat ${pvDwdData.lat} / Lon ${pvDwdData.lon}</span>`+
         `</div>`;
-      // Banner zeigt dieselbe DATENQUELLE-Ansicht wie Solarpotenzial-Karte
-      dwdBanner.innerHTML=dwdActiveHint();
+      // Banner: zwei Spalten + DATENQUELLE-Label unten
+      dwdBanner.innerHTML += '<div class="pv-data-hint pv-data-active"><span class="pv-data-hint-label">Datenquelle:</span><span class="pv-data-source-tag dwd">DWD OpenData'+(est?' (Schätzung)':'')+'</span></div>';
       dwdBanner.style.display='block';
     } else {
       dwdBanner.style.display='none';
