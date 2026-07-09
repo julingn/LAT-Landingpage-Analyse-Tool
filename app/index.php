@@ -5324,25 +5324,63 @@ async function cfStart() {
   if (cfUrls.length === 0) { alert('Bitte mindestens eine gültige URL (http/https) eingeben.'); return; }
   if (cfTerms.length === 0) { alert('Bitte mindestens einen Suchbegriff eingeben.'); return; }
 
+  const maxDepth = parseInt(document.getElementById('cf-depth')?.value ?? '0', 10);
+
   cfRunning = true;
   cfStopped = false;
   cfAllHits = [];
 
   // UI vorbereiten
-  document.getElementById('cf-run-btn').disabled  = true;
+  document.getElementById('cf-run-btn').disabled       = true;
   document.getElementById('cf-stop-btn').style.display = '';
-  document.getElementById('cf-empty-state').style.display  = 'none';
+  document.getElementById('cf-empty-state').style.display   = 'none';
   document.getElementById('cf-progress-card').style.display = '';
-  document.getElementById('cf-stat-grid').style.display    = 'none';
-  document.getElementById('cf-results-card').style.display = 'none';
+  document.getElementById('cf-stat-grid').style.display     = 'none';
+  document.getElementById('cf-results-card').style.display  = 'none';
+  document.getElementById('cf-crawl-list').innerHTML        = '';
 
-  // Crawl-Liste aufbauen
-  cfBuildCrawlList();
+  // BFS-Queue: [{url, depth}]
+  const visited = new Set(cfUrls.map(u => cfNormalizeUrl(u)));
+  const queue   = cfUrls.map(u => ({ url: u, depth: 0 }));
+  let totalKnown = queue.length; // wächst bei Link-Entdeckung
+  let doneCount  = 0;
 
-  // URLs nacheinander crawlen
-  for (let i = 0; i < cfUrls.length; i++) {
-    if (cfStopped) break;
-    await cfCrawlUrl(cfUrls[i], i);
+  // Seed-URLs sofort in die Crawl-Liste eintragen
+  queue.forEach((q, i) => cfAppendCrawlItem(q.url, i));
+
+  while (queue.length > 0 && !cfStopped) {
+    const { url, depth } = queue.shift();
+    const idx = doneCount;
+
+    // Fortschritt
+    const pct = totalKnown > 0 ? Math.round((doneCount / totalKnown) * 100) : 0;
+    cfSetProgress(pct, 'Analysiere ' + cfUrlShort(url) + ' …');
+    document.getElementById('cf-progress-text').textContent = doneCount + ' von ' + totalKnown + ' URLs';
+    document.getElementById('cf-progress-pct').textContent  = pct + ' %';
+
+    const result = await cfCrawlUrl(url, idx);
+    doneCount++;
+
+    // Bei Crawl-Tiefe > 0: entdeckte Links in Queue aufnehmen
+    if (depth < maxDepth && result && result.links && result.links.length > 0) {
+      const seedDomain = cfGetDomain(cfUrls[0]);
+      for (const link of result.links) {
+        const norm = cfNormalizeUrl(link);
+        if (!visited.has(norm) && cfGetDomain(link) === seedDomain) {
+          visited.add(norm);
+          queue.push({ url: link, depth: depth + 1 });
+          cfAppendCrawlItem(link, totalKnown);
+          totalKnown++;
+        }
+        if (totalKnown > 200) break; // Sicherheitslimit
+      }
+    }
+
+    // Fortschritt aktualisieren
+    const pct2 = Math.round((doneCount / Math.max(totalKnown, 1)) * 100);
+    cfSetProgress(pct2, doneCount + ' von ' + totalKnown + ' URLs analysiert');
+    document.getElementById('cf-progress-text').textContent = doneCount + ' von ' + totalKnown + ' URLs';
+    document.getElementById('cf-progress-pct').textContent  = pct2 + ' %';
   }
 
   cfFinish();
@@ -5352,37 +5390,42 @@ function cfStop() {
   cfStopped = true;
 }
 
-function cfBuildCrawlList() {
+// Fügt ein neues URL-Element zur Crawl-Liste hinzu (dynamisch bei Link-Entdeckung)
+function cfAppendCrawlItem(url, idx) {
   const list = document.getElementById('cf-crawl-list');
-  list.innerHTML = cfUrls.map((u, i) =>
-    `<div class="cf-crawl-item" id="cf-ci-${i}">
-      <div style="flex:1;min-width:0">
-        <div class="cf-crawl-url" title="${escHtml(u)}">${escHtml(cfUrlShort(u))}</div>
-        <div class="cf-substep-bar" id="cf-steps-${i}">
-          <span class="cf-substep" id="cf-s-${i}-fetch">Abruf</span>
-          <span class="cf-substep" id="cf-s-${i}-js">JS</span>
-          <span class="cf-substep" id="cf-s-${i}-ocr">OCR</span>
-          <span class="cf-substep" id="cf-s-${i}-search">Suche</span>
-        </div>
+  const div  = document.createElement('div');
+  div.className = 'cf-crawl-item';
+  div.id = 'cf-ci-' + idx;
+  div.innerHTML =
+    `<div style="flex:1;min-width:0">
+      <div class="cf-crawl-url" title="${escHtml(url)}">${escHtml(cfUrlShort(url))}</div>
+      <div class="cf-substep-bar" id="cf-steps-${idx}">
+        <span class="cf-substep" id="cf-s-${idx}-fetch">Abruf</span>
+        <span class="cf-substep" id="cf-s-${idx}-js">JS</span>
+        <span class="cf-substep" id="cf-s-${idx}-ocr">OCR</span>
+        <span class="cf-substep" id="cf-s-${idx}-search">Suche</span>
       </div>
-      <span class="cf-crawl-hits" id="cf-hits-${i}">–</span>
-    </div>`
-  ).join('');
+    </div>
+    <span class="cf-crawl-hits" id="cf-hits-${idx}">–</span>`;
+  list.appendChild(div);
+}
+
+function cfNormalizeUrl(u) {
+  try { return new URL(u).href.toLowerCase().replace(/\/$/, ''); } catch (_) { return u.toLowerCase(); }
+}
+
+function cfGetDomain(u) {
+  try { return new URL(u).hostname.toLowerCase(); } catch (_) { return ''; }
 }
 
 function cfUrlShort(u) {
   try { const p = new URL(u); return p.hostname + p.pathname; } catch (_) { return u; }
 }
 
+// Crawlt eine URL — gibt das Backend-Ergebnis zurück (inkl. links für BFS)
 async function cfCrawlUrl(url, idx) {
-  const pct = Math.round((idx / cfUrls.length) * 100);
-  cfSetProgress(pct, 'Analysiere ' + cfUrlShort(url) + ' …');
-
-  // Item als aktiv markieren
   const item = document.getElementById('cf-ci-' + idx);
   if (item) item.classList.add('active');
-
-  // Substep: Abruf
   cfSetSubstep(idx, 'fetch', 'active');
 
   try {
@@ -5398,46 +5441,39 @@ async function cfCrawlUrl(url, idx) {
     });
 
     cfSetSubstep(idx, 'fetch', 'done');
-    cfSetSubstep(idx, 'js', cfOptions.js ? 'done' : 'done');
-    cfSetSubstep(idx, 'ocr', cfOptions.ocr ? 'done' : 'done');
+    cfSetSubstep(idx, 'js',    'done');
+    cfSetSubstep(idx, 'ocr',   'done');
     cfSetSubstep(idx, 'search', 'active');
 
     if (!res.ok) {
       cfSetSubstep(idx, 'search', '');
       if (item) item.classList.remove('active');
-      return;
+      const hitsEl = document.getElementById('cf-hits-' + idx);
+      if (hitsEl) hitsEl.textContent = 'Fehler';
+      return null;
     }
 
     const d = await res.json();
     cfSetSubstep(idx, 'search', 'done');
     if (item) item.classList.remove('active');
 
+    const hitsEl = document.getElementById('cf-hits-' + idx);
     if (d.success && d.hits && d.hits.length > 0) {
       d.hits.forEach(h => cfAllHits.push({ url, ...h }));
-      const hitsEl = document.getElementById('cf-hits-' + idx);
-      if (hitsEl) {
-        hitsEl.textContent = d.hits.length + ' Treffer';
-        hitsEl.classList.add('has-hits');
-      }
+      if (hitsEl) { hitsEl.textContent = d.hits.length + ' Treffer'; hitsEl.classList.add('has-hits'); }
     } else {
-      const hitsEl = document.getElementById('cf-hits-' + idx);
       if (hitsEl) hitsEl.textContent = '0';
     }
+
+    return d; // enthält d.links für BFS
 
   } catch (_) {
     cfSetSubstep(idx, 'fetch', '');
     if (item) item.classList.remove('active');
     const hitsEl = document.getElementById('cf-hits-' + idx);
     if (hitsEl) hitsEl.textContent = 'Fehler';
+    return null;
   }
-
-  const done = idx + 1;
-  cfSetProgress(
-    Math.round((done / cfUrls.length) * 100),
-    done + ' von ' + cfUrls.length + ' URLs analysiert'
-  );
-  document.getElementById('cf-progress-text').textContent = done + ' von ' + cfUrls.length + ' URLs';
-  document.getElementById('cf-progress-pct').textContent = Math.round((done / cfUrls.length) * 100) + ' %';
 }
 
 function cfSetSubstep(idx, step, state) {

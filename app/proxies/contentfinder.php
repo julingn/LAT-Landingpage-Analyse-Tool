@@ -90,6 +90,7 @@ if ($action === 'crawl_url') {
 
     $blocks         = [];
     $imgOcrCandidates = [];
+    $discoveredLinks  = [];
     $crawlError     = null;
 
     if (file_exists($scriptPath) && file_exists($nodeCmd)) {
@@ -106,6 +107,7 @@ if ($action === 'crawl_url') {
             if (is_array($data)) {
                 $blocks           = $data['blocks'] ?? [];
                 $imgOcrCandidates = $data['img_ocr_candidates'] ?? [];
+                $discoveredLinks  = $data['internal_links'] ?? [];
             } else {
                 $crawlError = 'Ungültiger JSON-Output vom Extraktor';
             }
@@ -144,6 +146,7 @@ if ($action === 'crawl_url') {
         'success'      => true,
         'url'          => $url,
         'hits'         => $hits,
+        'links'        => $discoveredLinks,
         'blocks_count' => count($blocks),
         'warning'      => $crawlError,
         'stats'        => [

@@ -233,7 +233,28 @@ try {
       if (t && t.length >= 3) addBlock('Placeholder', t);
     });
 
-    return { blocks, imgCandidates, pageUrl: window.location.href };
+    return { blocks, imgCandidates, pageUrl: window.location.href, internal_links: [] };
+  });
+
+  // ── Interne Links extrahieren ─────────────────────────────────────────────
+  const internalLinks = await page.evaluate(() => {
+    const links = [];
+    const seen  = new Set();
+    document.querySelectorAll('a[href]').forEach(a => {
+      try {
+        const href = new URL(a.href);
+        // Nur gleiches Origin, keine Anker, keine Binärdateien
+        if (href.origin !== location.origin) return;
+        const ext = href.pathname.split('.').pop().toLowerCase();
+        if (['pdf','jpg','jpeg','png','gif','svg','webp','zip','exe','doc','xls'].includes(ext)) return;
+        const clean = href.origin + href.pathname.replace(/\/$/, '');
+        if (!seen.has(clean) && clean !== location.origin + location.pathname.replace(/\/$/, '')) {
+          seen.add(clean);
+          links.push(clean);
+        }
+      } catch (_) {}
+    });
+    return links.slice(0, 80); // Max 80 Links pro Seite
   });
 
   // ── OCR-Kandidaten: Screenshots der Bilder ────────────────────────────────
@@ -261,6 +282,7 @@ try {
     url: extracted.pageUrl,
     blocks: extracted.blocks,
     img_ocr_candidates: imgOcrFiles,
+    internal_links: internalLinks,
   };
 
   process.stdout.write(JSON.stringify(result));
