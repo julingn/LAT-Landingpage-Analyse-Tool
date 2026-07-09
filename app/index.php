@@ -1574,6 +1574,21 @@ button{font-family:inherit}
             <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:3px"></span>Synonym (KI)</span>
           </div>
         </div>
+
+        <!-- Ausschluss-Begriffe -->
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+          <label class="settings-label" style="display:flex;align-items:center;gap:6px">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            Ausschluss-Begriffe
+            <span style="font-weight:400;color:var(--text3)">(Treffer die dieses Wort enthalten, werden ausgeblendet)</span>
+          </label>
+          <div id="cf-exclude-chips" style="min-height:36px;padding:6px 8px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg3);display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px"></div>
+          <div class="cf-add-row">
+            <input type="text" id="cf-exclude-input" class="settings-input" placeholder="z.B. GewerBEGas, Vergabe …" autocomplete="off" spellcheck="false">
+            <button class="pv-generate-btn" onclick="cfAddExclude()" style="margin-top:0;padding:8px 14px;background:var(--red-bg);border:1px solid var(--red-border);color:var(--red)">＋</button>
+          </div>
+          <div style="font-size:11px;color:var(--text3);margin-top:5px">Treffer werden live gefiltert — kein Re-Crawl nötig.</div>
+        </div>
       </div>
 
       <!-- Schritt 3: Optionen -->
@@ -5186,6 +5201,7 @@ document.getElementById('pv-city').addEventListener('keydown',e=>{if(e.key==='En
 
 // ── State ────────────────────────────────────────────────────────────────────
 let cfTerms    = [];   // [{ term, variants:[{text,type}] }]
+let cfExcludeTerms = []; // string[] — Ausschluss-Begriffe
 let cfUrls     = [];   // string[]
 let cfAllHits  = [];   // alle Treffer aus allen URLs
 let cfRunning  = false;
@@ -5268,6 +5284,61 @@ function cfRemoveTerm(i) {
   cfRenderChips();
   if (cfTerms.length === 0) document.getElementById('cf-variant-box').style.display = 'none';
   else cfShowVariantPreview(cfTerms[Math.min(i, cfTerms.length - 1)].term);
+}
+
+// ── Ausschluss-Begriffe ───────────────────────────────────────────────────────
+function cfAddExclude() {
+  const inp = document.getElementById('cf-exclude-input');
+  const term = (inp.value || '').trim();
+  if (!term || cfExcludeTerms.some(t => t.toLowerCase() === term.toLowerCase())) { inp.value = ''; return; }
+  cfExcludeTerms.push(term);
+  inp.value = '';
+  cfRenderExcludeChips();
+  cfRenderTable(); // Tabelle sofort aktualisieren
+}
+
+function cfRemoveExclude(i) {
+  cfExcludeTerms.splice(i, 1);
+  cfRenderExcludeChips();
+  cfRenderTable();
+}
+
+function cfRenderExcludeChips() {
+  const container = document.getElementById('cf-exclude-chips');
+  if (!container) return;
+  container.innerHTML = cfExcludeTerms.map((t, i) =>
+    `<span class="cf-chip" style="background:var(--red-bg);border:1px solid var(--red-border);color:var(--red)">
+      ${escHtml(t)}
+      <button class="cf-chip-remove" onclick="cfRemoveExclude(${i})" style="background:rgba(220,38,38,.15);color:var(--red)">×</button>
+    </span>`
+  ).join('');
+}
+
+/**
+ * Prüft ob ein Treffer durch einen Ausschluss-Begriff unterdrückt werden soll.
+ * Logik: Das vollständige Wort, in dem der Treffer steckt (Zeichen links+rechts des Matches
+ * bis zum nächsten Leerzeichen/Satzzeichen), wird gegen alle Ausschluss-Begriffe geprüft.
+ */
+function cfIsExcluded(hit) {
+  if (cfExcludeTerms.length === 0) return false;
+  const ctx     = hit.context || '';
+  const matched = hit.matched || '';
+  if (!matched) return false;
+
+  // Position des Matches im Kontext finden (case-insensitive)
+  const ctxLower     = ctx.toLowerCase();
+  const matchedLower = matched.toLowerCase();
+  const pos = ctxLower.indexOf(matchedLower);
+  if (pos === -1) return false;
+
+  // Volles Wort um den Match herum extrahieren
+  const before   = ctx.substring(0, pos);
+  const after    = ctx.substring(pos + matched.length);
+  const wBefore  = (before.match(/\S+$/)  || [''])[0];
+  const wAfter   = (after.match(/^\S+/)   || [''])[0];
+  const fullWord = (wBefore + matched + wAfter).toLowerCase();
+
+  return cfExcludeTerms.some(ex => fullWord.includes(ex.toLowerCase()));
 }
 
 function cfShowVariantPreview(term) {
@@ -5555,6 +5626,7 @@ function cfRenderTable() {
       h.variant.toLowerCase().includes(filterText) ||
       h.context.toLowerCase().includes(filterText)
     )) return false;
+    if (cfIsExcluded(h)) return false; // Ausschluss-Begriffe
     return true;
   });
 
@@ -5626,6 +5698,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const termInput = document.getElementById('cf-term-input');
   if (termInput) {
     termInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); cfAddTermFromInput(); } });
+  }
+  const excludeInput = document.getElementById('cf-exclude-input');
+  if (excludeInput) {
+    excludeInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); cfAddExclude(); } });
   }
   const urlInput = document.getElementById('cf-url-input');
   if (urlInput) {
