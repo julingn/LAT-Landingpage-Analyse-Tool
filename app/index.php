@@ -5326,6 +5326,11 @@ async function cfStart() {
 
   const maxDepth = parseInt(document.getElementById('cf-depth')?.value ?? '0', 10);
 
+  // Erlaubte Pfad-Präfixe: nur Links unterhalb der eingegebenen Seed-Pfade
+  const allowedPaths = cfUrls.map(u => {
+    try { return new URL(u).pathname.replace(/\/$/, ''); } catch (_) { return '/'; }
+  });
+
   cfRunning = true;
   cfStopped = false;
   cfAllHits = [];
@@ -5366,7 +5371,7 @@ async function cfStart() {
       const seedDomain = cfGetDomain(cfUrls[0]);
       for (const link of result.links) {
         const norm = cfNormalizeUrl(link);
-        if (!visited.has(norm) && cfGetDomain(link) === seedDomain) {
+        if (!visited.has(norm) && cfGetDomain(link) === seedDomain && cfPathAllowed(link, allowedPaths)) {
           visited.add(norm);
           queue.push({ url: link, depth: depth + 1 });
           cfAppendCrawlItem(link, totalKnown);
@@ -5416,6 +5421,18 @@ function cfNormalizeUrl(u) {
 
 function cfGetDomain(u) {
   try { return new URL(u).hostname.toLowerCase(); } catch (_) { return ''; }
+}
+
+// Gibt true zurück wenn der Link unter einem der erlaubten Pfad-Präfixe liegt.
+// Beispiel: allowedPaths=['/strom'] → '/strom/oekostrom' ✓, '/kontakt' ✗
+function cfPathAllowed(link, allowedPaths) {
+  try {
+    const path = new URL(link).pathname;
+    return allowedPaths.some(allowed => {
+      if (!allowed || allowed === '/') return true; // Root → alles erlaubt
+      return path === allowed || path.startsWith(allowed + '/');
+    });
+  } catch (_) { return false; }
 }
 
 function cfUrlShort(u) {
