@@ -760,6 +760,67 @@ button{font-family:inherit}
 /* ── Section Placement Badge ── */
 .pv-placement-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:999px;color:var(--text3);margin-bottom:8px}
 @media(max-width:900px){.pv-benefits-grid,.pv-cta-strategy{grid-template-columns:1fr}}
+/* ══ Content Finder ══════════════════════════════════════════════════════════ */
+.cf-layout{display:grid;grid-template-columns:380px 1fr;gap:20px;align-items:start}
+.cf-chip-container{min-height:44px;padding:8px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg3);display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.cf-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;background:var(--accent);color:#fff}
+.cf-chip-remove{background:rgba(255,255,255,.25);border:none;color:#fff;width:14px;height:14px;border-radius:50%;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;font-family:inherit}
+.cf-add-row{display:flex;gap:8px;align-items:center}
+.cf-add-row input{flex:1}
+.cf-variant-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-top:12px}
+.cf-variant-box-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:8px}
+.cf-variant-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.cf-badge{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;color:#fff}
+.cf-badge-exact{background:var(--text)}
+.cf-badge-variant{background:var(--blue)}
+.cf-badge-synonym{background:var(--green)}
+.cf-variant-legend{display:flex;gap:12px;font-size:11px;color:var(--text3);flex-wrap:wrap;border-top:1px solid var(--border);padding-top:8px;margin-top:4px}
+.cf-opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.cf-opt{display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;font-size:12px;color:var(--text2);background:var(--bg2);transition:all .12s;user-select:none;line-height:1.3}
+.cf-opt.on{border-color:var(--green-border);background:var(--green-bg);color:var(--green);font-weight:600}
+.cf-toggle{width:30px;height:16px;border-radius:8px;background:var(--bg4);position:relative;flex-shrink:0;transition:background .15s}
+.cf-toggle::after{content:'';width:12px;height:12px;border-radius:50%;background:var(--bg2);position:absolute;top:2px;left:2px;transition:left .15s}
+.cf-opt.on .cf-toggle{background:var(--green)}
+.cf-opt.on .cf-toggle::after{left:16px}
+.cf-run-btn{width:100%;padding:12px;font-size:14px;font-weight:700;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;font-family:inherit;transition:all .12s;box-shadow:var(--shadow-sm);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px}
+.cf-run-btn:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.cf-run-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.cf-progress-outer{background:var(--bg4);border-radius:20px;height:8px;overflow:hidden;margin-bottom:4px}
+.cf-progress-inner{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--accent),var(--blue));width:0%;transition:width .3s}
+.cf-crawl-list{margin-top:14px;display:flex;flex-direction:column;gap:3px;max-height:280px;overflow-y:auto}
+.cf-crawl-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--radius-sm);font-size:12px;color:var(--text2)}
+.cf-crawl-item.active{background:var(--blue-bg);color:var(--blue)}
+.cf-crawl-url{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Geist Mono',monospace;font-size:11px}
+.cf-crawl-hits{font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;background:var(--bg4);color:var(--text3);flex-shrink:0}
+.cf-crawl-hits.has-hits{background:var(--green-bg);color:var(--green)}
+.cf-substep-bar{display:flex;gap:2px;margin-top:2px}
+.cf-substep{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.2px;padding:1px 5px;border-radius:3px;border:1px solid var(--border);color:var(--text3);background:var(--bg3)}
+.cf-substep.done{background:var(--green-bg);border-color:var(--green-border);color:var(--green)}
+.cf-substep.active{background:var(--blue-bg);border-color:var(--blue-border);color:var(--blue)}
+.cf-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.cf-stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;text-align:center}
+.cf-stat-val{font-size:28px;font-weight:700;line-height:1}
+.cf-stat-label{font-size:11px;color:var(--text3);margin-top:4px}
+.cf-filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.cf-filter-row input,.cf-filter-row select{font-size:12px;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);font-family:inherit}
+.cf-filter-row input{flex:1;min-width:140px}
+.cf-filter-row select{width:auto;min-width:120px}
+.cf-table{width:100%;border-collapse:collapse;font-size:12px}
+.cf-table th{background:var(--bg3);padding:9px 12px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap}
+.cf-table td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text2)}
+.cf-table tbody tr:hover td{background:var(--bg3)}
+.cf-url-mono{font-family:'Geist Mono',monospace;font-size:11px;color:var(--accent);display:block;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cf-ctx{max-width:260px;line-height:1.5}
+.cf-ctx mark{background:#FEF9C3;color:var(--text);font-weight:700;border-radius:2px;padding:0 2px}
+[data-theme="dark"] .cf-ctx mark{background:#422006;color:#FDE68A}
+.cf-loc{font-size:10px;font-weight:700;text-transform:uppercase;padding:2px 6px;border-radius:var(--radius-sm);background:var(--bg4);color:var(--text3)}
+.cf-loc.h1{background:var(--accent-bg);color:var(--accent)}
+.cf-loc.img{background:var(--amber-bg);color:var(--amber)}
+.cf-loc.meta{background:var(--blue-bg);color:var(--blue)}
+.cf-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.cf-empty{padding:48px 0;text-align:center;color:var(--text3);font-size:13px}
+@media(max-width:1100px){.cf-layout{grid-template-columns:1fr}}
+@media(max-width:600px){.cf-stat-grid{grid-template-columns:repeat(2,1fr)}.cf-opt-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -809,6 +870,10 @@ button{font-family:inherit}
     <button class="nav-item" data-view="localpv" onclick="showView('localpv')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       Local PV Generator
+    </button>
+    <button class="nav-item" data-view="content-finder" onclick="showView('content-finder')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="11" y1="8" x2="11" y2="14"/></svg>
+      Content Finder
     </button>
     <div class="nav-section-label" style="margin-top:auto">System</div>
     <button class="nav-item" data-view="settings" onclick="showView('settings')">
@@ -1423,6 +1488,225 @@ button{font-family:inherit}
   </div><!-- /#pv-results -->
 </div><!-- /view-localpv -->
 
+<!-- ══════════════════════════════════════════════════════════════════════════
+     VIEW: Content Finder
+══════════════════════════════════════════════════════════════════════════ -->
+<div class="view-panel" id="view-content-finder">
+  <div class="cf-layout">
+
+    <!-- ── Linke Spalte: Konfiguration ── -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+
+      <!-- Schritt 1: URL-Eingabe -->
+      <div class="input-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+          </div>
+          <div>
+            <div class="card-title">1 · URL-Eingabe</div>
+            <div class="card-sub">Manuell oder per CSV/Excel-Upload</div>
+          </div>
+        </div>
+        <!-- Tab-Leiste -->
+        <div style="display:flex;border-bottom:1px solid var(--border);margin-bottom:14px">
+          <button class="cf-tab-btn active" id="cf-tab-btn-manual" onclick="cfSwitchTab('manual')" style="padding:7px 16px;font-size:13px;font-weight:500;color:var(--text2);border:none;background:none;cursor:pointer;border-bottom:2px solid var(--accent);margin-bottom:-1px;color:var(--accent);font-family:inherit">Manuelle URLs</button>
+          <button class="cf-tab-btn" id="cf-tab-btn-file" onclick="cfSwitchTab('file')" style="padding:7px 16px;font-size:13px;font-weight:500;color:var(--text2);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit">CSV/Excel Upload</button>
+        </div>
+        <!-- Tab: Manuelle URLs -->
+        <div id="cf-tab-manual">
+          <div class="settings-field">
+            <label class="settings-label">URLs <span style="color:var(--text3);font-weight:400">(eine pro Zeile)</span></label>
+            <textarea id="cf-url-input" class="settings-input" rows="5" placeholder="https://www.beispiel.de/oekostrom&#10;https://www.beispiel.de/photovoltaik&#10;https://www.beispiel.de/beg-foerderung" style="resize:vertical;font-family:'Geist Mono',monospace;font-size:12px"></textarea>
+            <div style="font-size:11px;color:var(--text3);margin-top:4px">Unterseiten werden gemäß Crawl-Tiefe automatisch erfasst.</div>
+          </div>
+          <div class="settings-field" style="margin-top:12px">
+            <label class="settings-label">Crawl-Tiefe</label>
+            <select id="cf-depth" class="settings-input">
+              <option value="0">Nur diese URL (keine Links folgen)</option>
+              <option value="1" selected>1 Ebene tiefer (direkte Unterseiten)</option>
+              <option value="2">2 Ebenen tiefer</option>
+            </select>
+          </div>
+        </div>
+        <!-- Tab: Upload -->
+        <div id="cf-tab-file" style="display:none">
+          <div class="pv-upload-zone" id="cf-upload-zone" onclick="document.getElementById('cf-file-input').click()" style="border:1.5px dashed var(--border2);border-radius:var(--radius-lg);padding:28px 16px;text-align:center;background:var(--bg3);cursor:pointer;transition:border-color .12s">
+            <div style="font-size:28px">📊</div>
+            <div style="font-size:13px;font-weight:600;color:var(--text);margin-top:8px">CSV oder Excel hier ablegen</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:4px">.csv · .xlsx (als CSV gespeichert) &nbsp;|&nbsp; Spalte „URL" wird erkannt</div>
+            <input type="file" id="cf-file-input" accept=".csv,.txt" style="display:none" onchange="cfHandleFileUpload(this)">
+          </div>
+          <div id="cf-file-status" style="font-size:12px;color:var(--text2);margin-top:10px;display:none"></div>
+        </div>
+        <!-- URL-Zähler -->
+        <div id="cf-url-count" style="font-size:11px;color:var(--text3);margin-top:8px;display:none"></div>
+      </div>
+
+      <!-- Schritt 2: Suchbegriffe -->
+      <div class="input-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+          </div>
+          <div>
+            <div class="card-title">2 · Suchbegriffe</div>
+            <div class="card-sub">Varianten und Synonyme werden automatisch generiert</div>
+          </div>
+        </div>
+        <!-- Aktive Begriffe (Chips) -->
+        <div class="settings-field">
+          <label class="settings-label">Aktive Begriffe</label>
+          <div class="cf-chip-container" id="cf-chips"></div>
+        </div>
+        <!-- Neuen Begriff hinzufügen -->
+        <div class="cf-add-row">
+          <input type="text" id="cf-term-input" class="settings-input" placeholder="Begriff eingeben und Enter …" autocomplete="off" spellcheck="false">
+          <button class="pv-generate-btn" onclick="cfAddTermFromInput()" style="margin-top:0;padding:8px 14px">＋</button>
+        </div>
+        <!-- Varianten-Vorschau -->
+        <div class="cf-variant-box" id="cf-variant-box" style="display:none">
+          <div class="cf-variant-box-label" id="cf-variant-box-label">Varianten</div>
+          <div class="cf-variant-chips" id="cf-variant-chips"></div>
+          <div class="cf-variant-legend">
+            <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--text);margin-right:3px"></span>Exakt</span>
+            <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--blue);margin-right:3px"></span>Schreibvariante</span>
+            <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:3px"></span>Synonym (KI)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schritt 3: Optionen -->
+      <div class="input-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="9" cy="6" r="2" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="9" cy="18" r="2" fill="currentColor" stroke="none"/></svg>
+          </div>
+          <div>
+            <div class="card-title">3 · Erfassungsoptionen</div>
+          </div>
+        </div>
+        <div class="cf-opt-grid">
+          <div class="cf-opt on" id="cfopt-plural"      onclick="cfToggleOpt(this,'plural')">      <div class="cf-toggle"></div>Singular / Plural</div>
+          <div class="cf-opt on" id="cfopt-hyphen"      onclick="cfToggleOpt(this,'hyphen')">      <div class="cf-toggle"></div>Bindestrich-Varianten</div>
+          <div class="cf-opt on" id="cfopt-umlauts"     onclick="cfToggleOpt(this,'umlauts')">     <div class="cf-toggle"></div>oe ↔ ö / ae ↔ ä / ue ↔ ü</div>
+          <div class="cf-opt on" id="cfopt-ai_synonyms" onclick="cfToggleOpt(this,'ai_synonyms')"> <div class="cf-toggle"></div>KI-Synonyme (OpenAI)</div>
+          <div class="cf-opt on" id="cfopt-partial"     onclick="cfToggleOpt(this,'partial')">     <div class="cf-toggle"></div>Teilwort-Treffer</div>
+          <div class="cf-opt on" id="cfopt-js"          onclick="cfToggleOpt(this,'js')">          <div class="cf-toggle"></div>JS-Rendering (Puppeteer)</div>
+          <div class="cf-opt on" id="cfopt-ocr"         onclick="cfToggleOpt(this,'ocr')">         <div class="cf-toggle"></div>Bild-OCR (OpenAI Vision)</div>
+          <div class="cf-opt"    id="cfopt-case"        onclick="cfToggleOpt(this,'case')">        <div class="cf-toggle"></div>Groß-/Kleinschreibung</div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:10px;line-height:1.5">
+          Teilwort findet „Ökostromanbieter" bei Suche nach „Ökostrom". · Bild-OCR extrahiert Text aus Grafiken.
+        </div>
+      </div>
+
+      <!-- Start-Button -->
+      <button class="cf-run-btn" id="cf-run-btn" onclick="cfStart()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Content-Analyse starten
+      </button>
+      <button id="cf-stop-btn" onclick="cfStop()" style="display:none;width:100%;padding:9px;font-size:13px;font-weight:600;background:var(--bg3);color:var(--red);border:1px solid var(--red-border);border-radius:var(--radius);cursor:pointer;font-family:inherit;margin-top:8px">■ Analyse stoppen</button>
+
+    </div>
+    <!-- END linke Spalte -->
+
+    <!-- ── Rechte Spalte: Fortschritt + Ergebnisse ── -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+
+      <!-- Fortschritt -->
+      <div class="input-card" id="cf-progress-card" style="display:none">
+        <div class="card-header">
+          <div class="card-icon" style="background:var(--blue-bg)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.28-4.5"/></svg>
+          </div>
+          <div>
+            <div class="card-title">Analyse-Fortschritt</div>
+            <div class="card-sub" id="cf-progress-label">Wird gestartet …</div>
+          </div>
+        </div>
+        <div class="cf-progress-outer"><div class="cf-progress-inner" id="cf-progress-bar"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-top:4px">
+          <span id="cf-progress-text">0 von 0 URLs</span>
+          <span id="cf-progress-pct">0 %</span>
+        </div>
+        <div class="cf-crawl-list" id="cf-crawl-list"></div>
+      </div>
+
+      <!-- Stat-Grid (nach Abschluss) -->
+      <div class="cf-stat-grid" id="cf-stat-grid" style="display:none">
+        <div class="cf-stat-card"><div class="cf-stat-val" id="cf-stat-hits" style="color:var(--accent)">0</div><div class="cf-stat-label">Treffer gesamt</div></div>
+        <div class="cf-stat-card"><div class="cf-stat-val" id="cf-stat-pages">0</div><div class="cf-stat-label">Seiten mit Treffern</div></div>
+        <div class="cf-stat-card"><div class="cf-stat-val" id="cf-stat-ocr" style="color:var(--amber)">0</div><div class="cf-stat-label">Bild-OCR Treffer</div></div>
+        <div class="cf-stat-card"><div class="cf-stat-val" id="cf-stat-synonyms" style="color:var(--green)">0</div><div class="cf-stat-label">Synonym-Treffer</div></div>
+      </div>
+
+      <!-- Ergebnisse -->
+      <div class="input-card" id="cf-results-card" style="display:none">
+        <div class="card-header">
+          <div class="card-icon" style="background:var(--green-bg)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div style="flex:1">
+            <div class="card-title">Ergebnisse</div>
+            <div class="card-sub" id="cf-results-summary">–</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button onclick="cfExport('csv')"  style="padding:5px 10px;font-size:11px;font-weight:600;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);cursor:pointer;color:var(--text2);font-family:inherit">↓ CSV</button>
+            <button onclick="cfExport('json')" style="padding:5px 10px;font-size:11px;font-weight:600;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);cursor:pointer;color:var(--text2);font-family:inherit">↓ JSON</button>
+          </div>
+        </div>
+        <!-- Filter-Leiste -->
+        <div class="cf-filter-row">
+          <input type="text" id="cf-filter-text" placeholder="🔍 Ergebnisse filtern …" oninput="cfRenderTable()">
+          <select id="cf-filter-term" onchange="cfRenderTable()"><option value="">Alle Begriffe</option></select>
+          <select id="cf-filter-type" onchange="cfRenderTable()">
+            <option value="">Alle Typen</option>
+            <option value="exact">Exakt</option>
+            <option value="variant">Schreibvariante</option>
+            <option value="synonym">Synonym</option>
+          </select>
+          <select id="cf-filter-source" onchange="cfRenderTable()">
+            <option value="">Alle Quellen</option>
+            <option value="Bild-Alt">Bild (Alt)</option>
+            <option value="Bild-OCR">Bild-OCR</option>
+            <option value="Meta-Title">Meta-Title</option>
+            <option value="Meta-Description">Meta-Description</option>
+          </select>
+        </div>
+        <!-- Tabelle -->
+        <div style="overflow-x:auto">
+          <table class="cf-table">
+            <thead>
+              <tr>
+                <th>URL</th>
+                <th>Suchbegriff</th>
+                <th>Variante</th>
+                <th>Kontext</th>
+                <th>Position</th>
+              </tr>
+            </thead>
+            <tbody id="cf-table-body">
+              <tr><td colspan="5" class="cf-empty">Keine Ergebnisse vorhanden.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="cf-table-more" style="font-size:11px;color:var(--text3);margin-top:8px;text-align:right;display:none"></div>
+      </div>
+
+      <!-- Empty state (vor Analyse) -->
+      <div id="cf-empty-state" class="input-card" style="padding:48px 24px;text-align:center">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 16px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+        <div style="font-size:14px;font-weight:600;color:var(--text2)">Bereit für die Analyse</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:6px;max-width:280px;margin-left:auto;margin-right:auto;line-height:1.5">URLs eingeben, Suchbegriffe definieren und „Content-Analyse starten" klicken.</div>
+      </div>
+
+    </div>
+    <!-- END rechte Spalte -->
+
+  </div>
+</div><!-- /view-content-finder -->
+
 <div class="view-panel" id="view-settings">
   <div class="input-card">
     <div class="card-header">
@@ -1781,6 +2065,7 @@ const VIEW_META={
   geo:{title:'GEO / AEO',sub:'KI-Sichtbarkeit in AI-Suchmaschinen'},
   keywords:{title:'Keyword Fit',sub:'Intent-Analyse · Targeting · Potenzial'},
   localpv:{title:'Local PV Generator',sub:'SEO- & CRO-Bausteine für lokale Photovoltaik-Landingpages'},
+  'content-finder':{title:'Content Finder',sub:'Vollständige Seitenanalyse nach definierten Begriffen · JS-Rendering · Bild-OCR'},
   settings:{title:'Einstellungen',sub:'API-Keys · Modell · Passwort'},
 };
 
@@ -1797,7 +2082,7 @@ function showView(name){
   document.getElementById('view-subtitle').textContent=meta.sub;
   // Hide URL-input header for standalone tool views
   const hf=document.getElementById('header-form');
-  if(name==='localpv'||name==='settings'){hf.style.display='none';}
+  if(name==='localpv'||name==='settings'||name==='content-finder'){hf.style.display='none';}
   else{hf.style.display='';}
   if(name==='overview'){
     // Progress-Section zeigen wenn Analyse läuft ODER Log-Inhalt vorhanden
@@ -4894,6 +5179,413 @@ function pvCopySection(key){
 
 // Enter-Taste im Stadt-Feld
 document.getElementById('pv-city').addEventListener('keydown',e=>{if(e.key==='Enter')pvGenerate();});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// === CONTENT FINDER ===
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ── State ────────────────────────────────────────────────────────────────────
+let cfTerms    = [];   // [{ term, variants:[{text,type}] }]
+let cfUrls     = [];   // string[]
+let cfAllHits  = [];   // alle Treffer aus allen URLs
+let cfRunning  = false;
+let cfStopped  = false;
+let cfOptions  = { plural:true, hyphen:true, umlauts:true, ai_synonyms:true, partial:true, js:true, ocr:true, case:false };
+
+// ── Tab-Umschaltung ───────────────────────────────────────────────────────────
+function cfSwitchTab(tab) {
+  document.getElementById('cf-tab-manual').style.display = tab === 'manual' ? '' : 'none';
+  document.getElementById('cf-tab-file').style.display   = tab === 'file'   ? '' : 'none';
+  const btnManual = document.getElementById('cf-tab-btn-manual');
+  const btnFile   = document.getElementById('cf-tab-btn-file');
+  btnManual.style.borderBottomColor = tab === 'manual' ? 'var(--accent)' : 'transparent';
+  btnManual.style.color             = tab === 'manual' ? 'var(--accent)' : 'var(--text2)';
+  btnFile.style.borderBottomColor   = tab === 'file'   ? 'var(--accent)' : 'transparent';
+  btnFile.style.color               = tab === 'file'   ? 'var(--accent)' : 'var(--text2)';
+}
+
+// ── Optionen-Toggle ───────────────────────────────────────────────────────────
+function cfToggleOpt(el, key) {
+  el.classList.toggle('on');
+  cfOptions[key] = el.classList.contains('on');
+  // Varianten-Vorschau aktualisieren wenn Begriffe vorhanden
+  if (cfTerms.length > 0) cfShowVariantPreview(cfTerms[cfTerms.length - 1].term);
+}
+
+// ── Term-Chips ────────────────────────────────────────────────────────────────
+function cfRenderChips() {
+  const container = document.getElementById('cf-chips');
+  container.innerHTML = '';
+  cfTerms.forEach((t, i) => {
+    const chip = document.createElement('span');
+    chip.className = 'cf-chip';
+    chip.style.cursor = 'pointer';
+    chip.innerHTML = escHtml(t.term) +
+      `<button class="cf-chip-remove" onclick="cfRemoveTerm(${i});event.stopPropagation()" title="Entfernen">×</button>`;
+    chip.onclick = () => cfShowVariantPreview(t.term);
+    container.appendChild(chip);
+  });
+}
+
+function cfAddTermFromInput() {
+  const inp = document.getElementById('cf-term-input');
+  const term = (inp.value || '').trim();
+  if (!term) return;
+  cfAddTerm(term);
+  inp.value = '';
+  inp.focus();
+}
+
+async function cfAddTerm(term) {
+  if (!term || cfTerms.some(t => t.term.toLowerCase() === term.toLowerCase())) return;
+  // Sofort als Chip anzeigen (Varianten werden nachgeladen)
+  cfTerms.push({ term, variants: [{ text: term, type: 'exact' }] });
+  cfRenderChips();
+  cfShowVariantPreview(term);
+  // Varianten vom Server holen
+  await cfFetchVariants(term);
+}
+
+async function cfFetchVariants(term) {
+  try {
+    const res = await fetch('contentfinder.php?action=synonyms', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ term, options: cfOptions, csrf_token: CSRF_TOKEN }),
+    });
+    if (!res.ok) return;
+    const d = await res.json();
+    if (!d.success) return;
+    const entry = cfTerms.find(t => t.term === term);
+    if (!entry) return;
+    entry.variants = [...(d.variants || []), ...(d.synonyms || [])];
+    cfShowVariantPreview(term);
+  } catch (_) {}
+}
+
+function cfRemoveTerm(i) {
+  cfTerms.splice(i, 1);
+  cfRenderChips();
+  if (cfTerms.length === 0) document.getElementById('cf-variant-box').style.display = 'none';
+  else cfShowVariantPreview(cfTerms[Math.min(i, cfTerms.length - 1)].term);
+}
+
+function cfShowVariantPreview(term) {
+  const entry = cfTerms.find(t => t.term === term);
+  const box   = document.getElementById('cf-variant-box');
+  const label = document.getElementById('cf-variant-box-label');
+  const chips = document.getElementById('cf-variant-chips');
+  if (!entry) { box.style.display = 'none'; return; }
+  box.style.display = '';
+  label.textContent = 'Varianten-Vorschau · „' + entry.term + '"';
+  chips.innerHTML = entry.variants.slice(0, 20).map(v =>
+    `<span class="cf-badge cf-badge-${v.type}">${escHtml(v.text)}</span>`
+  ).join('');
+}
+
+// ── URL-Parsing ───────────────────────────────────────────────────────────────
+function cfParseUrls(text) {
+  return text.split('\n')
+    .map(l => l.trim())
+    .filter(l => l && /^https?:\/\//i.test(l));
+}
+
+function cfHandleFileUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text = e.target.result;
+    // CSV: jede Zeile die eine http-URL enthält
+    const urls = text.split('\n')
+      .map(l => l.replace(/[",]/g, ' ').trim())
+      .filter(l => /^https?:\/\//i.test(l));
+    cfUrls = urls;
+    const status = document.getElementById('cf-file-status');
+    status.style.display = '';
+    status.textContent = urls.length > 0
+      ? '✓ ' + urls.length + ' URLs erkannt aus ' + file.name
+      : '⚠ Keine URLs gefunden. Spalte mit URLs muss http/https-Links enthalten.';
+    status.style.color = urls.length > 0 ? 'var(--green)' : 'var(--amber)';
+  };
+  reader.readAsText(file);
+}
+
+// ── Analyse starten ───────────────────────────────────────────────────────────
+async function cfStart() {
+  if (cfRunning) return;
+
+  // URLs sammeln
+  const activeTab = document.getElementById('cf-tab-manual').style.display !== 'none' ? 'manual' : 'file';
+  if (activeTab === 'manual') {
+    cfUrls = cfParseUrls(document.getElementById('cf-url-input').value || '');
+  }
+
+  if (cfUrls.length === 0) { alert('Bitte mindestens eine gültige URL (http/https) eingeben.'); return; }
+  if (cfTerms.length === 0) { alert('Bitte mindestens einen Suchbegriff eingeben.'); return; }
+
+  cfRunning = true;
+  cfStopped = false;
+  cfAllHits = [];
+
+  // UI vorbereiten
+  document.getElementById('cf-run-btn').disabled  = true;
+  document.getElementById('cf-stop-btn').style.display = '';
+  document.getElementById('cf-empty-state').style.display  = 'none';
+  document.getElementById('cf-progress-card').style.display = '';
+  document.getElementById('cf-stat-grid').style.display    = 'none';
+  document.getElementById('cf-results-card').style.display = 'none';
+
+  // Crawl-Liste aufbauen
+  cfBuildCrawlList();
+
+  // URLs nacheinander crawlen
+  for (let i = 0; i < cfUrls.length; i++) {
+    if (cfStopped) break;
+    await cfCrawlUrl(cfUrls[i], i);
+  }
+
+  cfFinish();
+}
+
+function cfStop() {
+  cfStopped = true;
+}
+
+function cfBuildCrawlList() {
+  const list = document.getElementById('cf-crawl-list');
+  list.innerHTML = cfUrls.map((u, i) =>
+    `<div class="cf-crawl-item" id="cf-ci-${i}">
+      <div style="flex:1;min-width:0">
+        <div class="cf-crawl-url" title="${escHtml(u)}">${escHtml(cfUrlShort(u))}</div>
+        <div class="cf-substep-bar" id="cf-steps-${i}">
+          <span class="cf-substep" id="cf-s-${i}-fetch">Abruf</span>
+          <span class="cf-substep" id="cf-s-${i}-js">JS</span>
+          <span class="cf-substep" id="cf-s-${i}-ocr">OCR</span>
+          <span class="cf-substep" id="cf-s-${i}-search">Suche</span>
+        </div>
+      </div>
+      <span class="cf-crawl-hits" id="cf-hits-${i}">–</span>
+    </div>`
+  ).join('');
+}
+
+function cfUrlShort(u) {
+  try { const p = new URL(u); return p.hostname + p.pathname; } catch (_) { return u; }
+}
+
+async function cfCrawlUrl(url, idx) {
+  const pct = Math.round((idx / cfUrls.length) * 100);
+  cfSetProgress(pct, 'Analysiere ' + cfUrlShort(url) + ' …');
+
+  // Item als aktiv markieren
+  const item = document.getElementById('cf-ci-' + idx);
+  if (item) item.classList.add('active');
+
+  // Substep: Abruf
+  cfSetSubstep(idx, 'fetch', 'active');
+
+  try {
+    const res = await fetch('contentfinder.php?action=crawl_url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        url,
+        term_list: cfTerms,
+        options: cfOptions,
+        csrf_token: CSRF_TOKEN,
+      }),
+    });
+
+    cfSetSubstep(idx, 'fetch', 'done');
+    cfSetSubstep(idx, 'js', cfOptions.js ? 'done' : 'done');
+    cfSetSubstep(idx, 'ocr', cfOptions.ocr ? 'done' : 'done');
+    cfSetSubstep(idx, 'search', 'active');
+
+    if (!res.ok) {
+      cfSetSubstep(idx, 'search', '');
+      if (item) item.classList.remove('active');
+      return;
+    }
+
+    const d = await res.json();
+    cfSetSubstep(idx, 'search', 'done');
+    if (item) item.classList.remove('active');
+
+    if (d.success && d.hits && d.hits.length > 0) {
+      d.hits.forEach(h => cfAllHits.push({ url, ...h }));
+      const hitsEl = document.getElementById('cf-hits-' + idx);
+      if (hitsEl) {
+        hitsEl.textContent = d.hits.length + ' Treffer';
+        hitsEl.classList.add('has-hits');
+      }
+    } else {
+      const hitsEl = document.getElementById('cf-hits-' + idx);
+      if (hitsEl) hitsEl.textContent = '0';
+    }
+
+  } catch (_) {
+    cfSetSubstep(idx, 'fetch', '');
+    if (item) item.classList.remove('active');
+    const hitsEl = document.getElementById('cf-hits-' + idx);
+    if (hitsEl) hitsEl.textContent = 'Fehler';
+  }
+
+  const done = idx + 1;
+  cfSetProgress(
+    Math.round((done / cfUrls.length) * 100),
+    done + ' von ' + cfUrls.length + ' URLs analysiert'
+  );
+  document.getElementById('cf-progress-text').textContent = done + ' von ' + cfUrls.length + ' URLs';
+  document.getElementById('cf-progress-pct').textContent = Math.round((done / cfUrls.length) * 100) + ' %';
+}
+
+function cfSetSubstep(idx, step, state) {
+  const el = document.getElementById('cf-s-' + idx + '-' + step);
+  if (!el) return;
+  el.className = 'cf-substep' + (state ? ' ' + state : '');
+}
+
+function cfSetProgress(pct, label) {
+  document.getElementById('cf-progress-bar').style.width = pct + '%';
+  if (label) document.getElementById('cf-progress-label').textContent = label;
+}
+
+function cfFinish() {
+  cfRunning = false;
+  document.getElementById('cf-run-btn').disabled = false;
+  document.getElementById('cf-stop-btn').style.display = 'none';
+  cfSetProgress(100, 'Analyse abgeschlossen');
+
+  const ocrHits     = cfAllHits.filter(h => h.location === 'Bild-OCR' || h.location === 'Bild-Alt').length;
+  const synonymHits = cfAllHits.filter(h => h.type === 'synonym').length;
+  const pagesWithHits = [...new Set(cfAllHits.map(h => h.url))].length;
+
+  // Stats
+  document.getElementById('cf-stat-hits').textContent     = cfAllHits.length;
+  document.getElementById('cf-stat-pages').textContent    = pagesWithHits;
+  document.getElementById('cf-stat-ocr').textContent      = ocrHits;
+  document.getElementById('cf-stat-synonyms').textContent = synonymHits;
+  document.getElementById('cf-stat-grid').style.display   = '';
+
+  // Filter-Dropdowns füllen
+  const termSel = document.getElementById('cf-filter-term');
+  termSel.innerHTML = '<option value="">Alle Begriffe</option>';
+  [...new Set(cfAllHits.map(h => h.term))].forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t;
+    opt.textContent = t;
+    termSel.appendChild(opt);
+  });
+
+  // Ergebnisse zeigen
+  document.getElementById('cf-results-summary').textContent =
+    cfAllHits.length + ' Treffer auf ' + pagesWithHits + ' Seiten';
+  document.getElementById('cf-results-card').style.display = '';
+  cfRenderTable();
+}
+
+// ── Tabelle rendern ───────────────────────────────────────────────────────────
+function cfRenderTable() {
+  const filterText   = (document.getElementById('cf-filter-text')?.value || '').toLowerCase();
+  const filterTerm   = document.getElementById('cf-filter-term')?.value   || '';
+  const filterType   = document.getElementById('cf-filter-type')?.value   || '';
+  const filterSource = document.getElementById('cf-filter-source')?.value || '';
+
+  let hits = cfAllHits.filter(h => {
+    if (filterTerm   && h.term     !== filterTerm)   return false;
+    if (filterType   && h.type     !== filterType)   return false;
+    if (filterSource && h.location !== filterSource) return false;
+    if (filterText   && !(
+      h.url.toLowerCase().includes(filterText)     ||
+      h.term.toLowerCase().includes(filterText)    ||
+      h.variant.toLowerCase().includes(filterText) ||
+      h.context.toLowerCase().includes(filterText)
+    )) return false;
+    return true;
+  });
+
+  const MAX_ROWS = 100;
+  const moreEl = document.getElementById('cf-table-more');
+  if (hits.length > MAX_ROWS) {
+    if (moreEl) { moreEl.style.display = ''; moreEl.textContent = (hits.length - MAX_ROWS) + ' weitere Treffer — exportiere CSV für vollständige Liste.'; }
+    hits = hits.slice(0, MAX_ROWS);
+  } else {
+    if (moreEl) moreEl.style.display = 'none';
+  }
+
+  const tbody = document.getElementById('cf-table-body');
+  if (!hits.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="cf-empty">Keine Treffer für diese Filterauswahl.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = hits.map(h => {
+    const shortUrl = cfUrlShort(h.url);
+    const locClass = cfLocClass(h.location);
+    const ctx = escHtml(h.context).replace(
+      new RegExp(escHtml(h.matched).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'),
+      m => '<mark>' + m + '</mark>'
+    );
+    return `<tr>
+      <td><span class="cf-url-mono" title="${escHtml(h.url)}">${escHtml(shortUrl)}</span></td>
+      <td><span class="cf-badge cf-badge-${h.type}">${escHtml(h.term)}</span></td>
+      <td style="font-family:'Geist Mono',monospace;font-size:11px">${escHtml(h.variant)}</td>
+      <td class="cf-ctx">${ctx}</td>
+      <td><span class="cf-loc ${locClass}">${escHtml(h.location)}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function cfLocClass(loc) {
+  if (!loc) return '';
+  const l = loc.toLowerCase();
+  if (l === 'h1') return 'h1';
+  if (l.includes('bild') || l.includes('img') || l.includes('ocr') || l.includes('alt')) return 'img';
+  if (l.includes('meta') || l.includes('title')) return 'meta';
+  return '';
+}
+
+// ── Export ────────────────────────────────────────────────────────────────────
+function cfExport(format) {
+  if (!cfAllHits.length) return;
+  if (format === 'csv') {
+    const header = ['URL','Suchbegriff','Variante','Typ','Position','Kontext'].join(';');
+    const rows = cfAllHits.map(h => [h.url, h.term, h.variant, h.type, h.location, '"' + (h.context||'').replace(/"/g,'""') + '"'].join(';'));
+    const blob = new Blob(['\uFEFF' + header + '\n' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+    cfDownload(blob, 'content-finder-' + Date.now() + '.csv');
+  } else if (format === 'json') {
+    const blob = new Blob([JSON.stringify(cfAllHits, null, 2)], { type: 'application/json' });
+    cfDownload(blob, 'content-finder-' + Date.now() + '.json');
+  }
+}
+
+function cfDownload(blob, filename) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// ── Event-Listener für Term-Input ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const termInput = document.getElementById('cf-term-input');
+  if (termInput) {
+    termInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); cfAddTermFromInput(); } });
+  }
+  const urlInput = document.getElementById('cf-url-input');
+  if (urlInput) {
+    urlInput.addEventListener('input', () => {
+      const urls = cfParseUrls(urlInput.value);
+      const el = document.getElementById('cf-url-count');
+      if (el) {
+        el.style.display = urls.length > 0 ? '' : 'none';
+        el.textContent   = urls.length + ' URL' + (urls.length !== 1 ? 's' : '') + ' erkannt';
+      }
+    });
+  }
+});
 </script>
 
 <!-- Agent Modal -->
