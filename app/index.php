@@ -4754,7 +4754,6 @@ function pvDemo(){
         {h3:'Installation & Inbetriebnahme',text:'Nach Planung und Genehmigung erfolgt die Montage – üblicherweise in einem bis drei Tagen. Wir kümmern uns um die Anmeldung beim Netzbetreiber.'},
       ],placement:'2-Spalten: links H2 + Text + Button; rechts nummerierte Schritte'},
       projectsIntro:{micro:'Referenzprojekte aus der Region zeigen, was in der Praxis umsetzbar ist.',content:'Installateure in der Region Darmstadt und dem Rhein-Main-Gebiet haben in den letzten Jahren zahlreiche Anlagen auf Bestandsgebäuden, Neubauten und Gewerbeobjekten realisiert. Jedes Projekt hat eigene Anforderungen – von der Denkmalschutzfrage bis zur Statikprüfung. Die Referenzen geben einen realistischen Einblick in Anlagengrößen, Installationsaufwand und erzielte Erträge.',placement:'Über den Referenzprojekt-Karten'},
-      economicsText:{micro:'Die Wirtschaftlichkeit einer PV-Anlage hängt vor allem vom Eigenverbrauch ab.',content:'Eine Photovoltaikanlage in Darmstadt ist vor allem dann wirtschaftlich, wenn ein Großteil des erzeugten Stroms direkt selbst verbraucht wird. Jede selbst verbrauchte Kilowattstunde spart den aktuellen Bezugspreis – jede eingespeiste Kilowattstunde bringt die gesetzliche Vergütung. Mit einem Heimspeicher lässt sich der Eigenverbrauchsanteil deutlich erhöhen. Konkrete Amortisationszeiträume hängen von Anlagengröße, Verbrauchsprofil und Finanzierung ab – der Rechner gibt eine erste Orientierung.',placement:'Vor der Wirtschaftlichkeitsgrafik'},
       testimonialsIntro:{micro:'Was sagen Kunden aus Darmstadt und Umgebung?',content:'Kundenstimmen aus der Region Darmstadt zeigen, wie unterschiedlich die Ausgangssituationen sind – und was Eigentümer im Rückblick über ihre Entscheidung denken. Ob kompaktes Reihenhausdach oder größeres Flachdach: Echte Bewertungen von Betreibern lokaler Anlagen helfen einzuschätzen, was Sie von der Planung bis zum laufenden Betrieb erwarten können.',placement:'Über den Kundenstimmen'},
       faqIntro:{micro:'Häufige Fragen zur Photovoltaik in Darmstadt.',content:'Wer sich in Darmstadt mit Photovoltaik beschäftigt, stellt ähnliche Fragen: Lohnt sich die Anlage auf meinem Dach? Welche Förderung gibt es aktuell? Was kostet eine 10-kWp-Anlage? Was passiert bei Stromausfall? Die folgenden FAQ beantworten die häufigsten Fragen von Eigentümern aus Darmstadt und dem Umland – sachlich, ohne Werbebotschaften.',placement:'Über dem FAQ-Accordion'},
       formIntro:{micro:'Noch Fragen? Wir melden uns – unverbindlich und ohne Verkaufsdruck.',content:'Wenn Sie nach dem Ertragsrechner noch Fragen haben oder eine persönliche Einschätzung für Ihr Dach wünschen, können Sie hier unverbindlich Kontakt aufnehmen. Ein regionaler Fachbetrieb aus dem Raum Darmstadt wird sich bei Ihnen melden – für eine kostenlose Ersteinschätzung, ohne Verpflichtung.',placement:'Über dem Kontaktformular als Backup-CTA'},
@@ -4765,7 +4764,6 @@ function pvDemo(){
       microCtas:[
         {placement:'Nach Solarpotenzial-Grafik',text:'Rechner nutzen – in 60 Sekunden zum Ergebnis'},
         {placement:'Nach Kennzahlen-Block',text:'Ihr Dach berechnen'},
-        {placement:'Nach Wirtschaftlichkeit',text:'Individuellen Ertrag berechnen'},
       ]
     },
     faq:[
@@ -4803,8 +4801,7 @@ function pvDemo(){
       {order:5,module:'Kennzahlenblock',visualType:'gradient-stat-grid',contentNeeded:['H2','4 Labels'],generatedFields:['sections.statisticsExplanation.h2','sections.statisticsExplanation.items[0-3]'],recommendation:'Gradient-Block. H2 oben. 4 Spalten: Icon (fix) + CMS-Zahl + Label. Alle Labels gleich kurz.'},
       {order:6,module:'3-Schritte-Prozess',visualType:'two-column-steps',contentNeeded:['H2','Text','Button','Schritte'],generatedFields:['sections.processIntro.h2','sections.processIntro.text','sections.processIntro.button','sections.processIntro.steps[0-2]'],recommendation:'Links: H2 + Text + CTA-Button. Rechts: nummerierte Schritte (H3 + Text).'},
       {order:7,module:'Referenzprojekte',visualType:'card-grid',contentNeeded:['Einleitungstext'],generatedFields:['sections.projectsIntro.micro','sections.projectsIntro.content'],recommendation:'projectsIntro.content als Vertrauenstext über den Projekt-Karten.'},
-      {order:8,module:'Wirtschaftlichkeit',visualType:'chart-section',contentNeeded:['Begleittext'],generatedFields:['sections.economicsText.micro','sections.economicsText.content'],recommendation:'economicsText.content vor der Grafik. Kein konkreter Amortisationszeitraum ohne individuelle Daten.'},
-      {order:9,module:'Kundenstimmen',visualType:'testimonial-slider',contentNeeded:['Einleitung'],generatedFields:['sections.testimonialsIntro.micro','sections.testimonialsIntro.content'],recommendation:'testimonialsIntro.micro als Überschrift, content als Einleitungstext.'},
+      {order:8,module:'Kundenstimmen',visualType:'testimonial-slider',contentNeeded:['Einleitung'],generatedFields:['sections.testimonialsIntro.micro','sections.testimonialsIntro.content'],recommendation:'testimonialsIntro.micro als Überschrift, content als Einleitungstext.'},
       {order:10,module:'FAQ',visualType:'accordion',contentNeeded:['FAQ-Einleitung','FAQ-Fragen'],generatedFields:['sections.faqIntro.micro','faq[0-3]'],recommendation:'faqIntro.micro als Sektionsüberschrift. Jeder faq-Eintrag als ein Accordion-Element.'},
       {order:11,module:'Kontaktformular',visualType:'form-section',contentNeeded:['Formular-Einleitung'],generatedFields:['sections.formIntro.micro','sections.formIntro.content'],recommendation:'formIntro.content über dem Formular. Maximal 3 Pflichtfelder. Kein Verkaufsdruck.'},
     ],
@@ -5079,8 +5076,6 @@ function pvRenderResults(d){
      h:[]},
     {k:'projectsIntro',    l:'Referenzprojekte',          i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
      h:[{c:'gsc',l:'GSC · Seiten-Performance',d:'Klick- und Impressionsdaten zeigen regionale Performance.'}]},
-    {k:'economicsText',    l:'Wirtschaftlichkeitsgrafik', i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
-     h:[{c:'dataforseo',l:'DataForSEO · Wettbewerber-Angebote',d:'ROI-Versprechen der Wettbewerber als Benchmark.'}]},
     {k:'testimonialsIntro',l:'Kundenstimmen',             i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
      h:[]},
     {k:'faqIntro',         l:'FAQ-Einleitung',            i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
@@ -5180,8 +5175,7 @@ function pvRenderResults(d){
   // ── Tab 1: Content — in LP-Reihenfolge (top → bottom) ──────────────────
   // cards-Index: [0]=Meta [1]=Hero [2]=intro [3]=solarPotential
   //              [4]=statisticsExplanation [5]=processIntro [6]=projectsIntro
-  //              [7]=economicsText [8]=testimonialsIntro [9]=faqIntro
-  //              [10]=formIntro [11]=FAQ-Q&A
+  //              [7]=testimonialsIntro [8]=faqIntro [9]=formIntro [10]=FAQ-Q&A
   const benefitsRaw=d.benefits||{};
   const benefitsIsLegacy=Array.isArray(benefitsRaw); // Abwärtskompatibilität
   const benefitsH2=benefitsIsLegacy?'':(benefitsRaw.h2||'');
@@ -5220,17 +5214,16 @@ function pvRenderResults(d){
     cards[0],    // Meta (SEO)
     cards[1],    // Hero
     cards[2],    // Intro / Einstiegstext
-    benefitsHtml,// Vorteile (4 Kacheln)
+    benefitsHtml,// Vorteile
     cards[3],    // Solarpotenzial
     cards[4],    // Kennzahlenblock
     cards[5],    // 3-Schritte-Prozess
     cards[6],    // Referenzprojekte
-    cards[7],    // Wirtschaftlichkeitsgrafik
-    cards[8],    // Kundenstimmen
-    cards[9],    // FAQ-Einleitung
-    cards[11],   // FAQ Q&A (direkt nach FAQ-Einleitung)
-    cards[10],   // Formular / Backup-CTA (ganz unten = LP-Ende)
-    ctaHtml,     // CTA-Strategie (übergreifend)
+    cards[7],    // Kundenstimmen
+    cards[8],    // FAQ-Einleitung
+    cards[10],   // FAQ Q&A
+    cards[9],    // Formular / Backup-CTA
+    ctaHtml,     // CTA-Strategie
   ].join('');
 
   // ── Tab 2: Placement Map ──

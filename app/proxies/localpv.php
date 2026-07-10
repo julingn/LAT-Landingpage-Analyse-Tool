@@ -265,10 +265,9 @@ SEITENSTRUKTUR (LP-Reihenfolge):
 5. Kennzahlen — Statistik-Block
 6. 3-Schritte-Prozess — Ablauf-Erklärung
 7. Referenzprojekte — Trust ohne erfundene Projekte
-8. Wirtschaftlichkeit — ROI-Grafik-Begleitung
-9. Kundenstimmen — Trust-Einleitung
-10. FAQ — Accordion
-11. Formular — Backup-CTA (weich, kein Druck)
+8. Kundenstimmen — Trust-Einleitung
+9. FAQ — Accordion
+10. Formular — Backup-CTA (weich, kein Druck)
 
 JEDE SECTION HAT ZWEI PFLICHTEBENEN:
 1. "micro" — max. 1–2 Sätze, für UI/Teaser/Übergänge, kurz und klar, ohne Füllwörter
@@ -393,11 +392,7 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
       "content": "80–150 Wörter — Rahmentext der Vertrauen schafft, ohne konkrete Projekte zu erfinden; beschreibt Erfahrung und Expertise im lokalen Markt",
       "placement": "Über den Referenzprojekt-Karten"
     },
-    "economicsText": {
-      "micro": "1–2 Sätze Brückentext zur Wirtschaftlichkeitsgrafik",
-      "content": "80–150 Wörter — ROI-fokussiert, erklärt Amortisation und Eigenverbrauch realistisch ohne erfundene Zeiträume oder Renditeversprechen",
-      "placement": "Vor der Wirtschaftlichkeitsgrafik"
-    },
+    "economicsText": null,
     "testimonialsIntro": {
       "micro": "1–2 Sätze Trust-Einleitung über Kundenstimmen",
       "content": "80–150 Wörter — erklärt warum echte Kundenstimmen wichtig sind, leitet zur Bewertungssektion über, kein erfundener Social Proof",
@@ -445,10 +440,9 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
     {"order": 5, "module": "Kennzahlenblock", "visualType": "gradient-stat-grid", "contentNeeded": ["H2", "4 Labels"], "generatedFields": ["sections.statisticsExplanation.h2", "sections.statisticsExplanation.items[0-3].label"], "recommendation": "Gradient-Hintergrund (blau→grün). H2 oben links. 4 Spalten: Icon (fix) + große Zahl (CMS-dynamisch aus Rechner) + Label-Text (generiert). Alle Labels gleich kurz."},
     {"order": 6, "module": "3-Schritte-Prozess", "visualType": "two-column-steps", "contentNeeded": ["H2", "Text", "Button (opt.)", "3 Schritte"], "generatedFields": ["sections.processIntro.h2", "sections.processIntro.text", "sections.processIntro.button", "sections.processIntro.steps[0-2]"], "recommendation": "Links: H2 + kurzer Text + CTA-Button. Rechts: nummerierte Schritte (Zahl in Akzentfarbe + H3 + Text). 3 Schritte genügen."},
     {"order": 7, "module": "Referenzprojekte", "visualType": "project-cards", "contentNeeded": ["Einordnung der Projektkarten"], "generatedFields": ["sections.projectsIntro.micro", "sections.projectsIntro.content"], "recommendation": "Einbauhinweis"},
-    {"order": 8, "module": "Wirtschaftlichkeit", "visualType": "economics-chart", "contentNeeded": ["Eigenverbrauch", "Einspeisung", "Stromkosten"], "generatedFields": ["sections.economicsText.micro", "sections.economicsText.content"], "recommendation": "Einbauhinweis"},
-    {"order": 9, "module": "Kundenstimmen", "visualType": "testimonial-section", "contentNeeded": ["Trust-Einleitung"], "generatedFields": ["sections.testimonialsIntro.micro", "sections.testimonialsIntro.content"], "recommendation": "Einbauhinweis"},
-    {"order": 10, "module": "FAQ", "visualType": "accordion", "contentNeeded": ["FAQ Intro", "lokale FAQ-Fragen"], "generatedFields": ["sections.faqIntro.micro", "faq"], "recommendation": "Einbauhinweis"},
-    {"order": 11, "module": "Formular", "visualType": "form-section", "contentNeeded": ["Backup-CTA", "Beratungstext"], "generatedFields": ["sections.formIntro.micro", "sections.formIntro.content"], "recommendation": "Einbauhinweis"}
+    {"order": 8, "module": "Kundenstimmen", "visualType": "testimonial-section", "contentNeeded": ["Trust-Einleitung"], "generatedFields": ["sections.testimonialsIntro.micro", "sections.testimonialsIntro.content"], "recommendation": "Einbauhinweis"},
+    {"order": 9, "module": "FAQ", "visualType": "accordion", "contentNeeded": ["FAQ Intro", "lokale FAQ-Fragen"], "generatedFields": ["sections.faqIntro.micro", "faq"], "recommendation": "Einbauhinweis"},
+    {"order": 10, "module": "Formular", "visualType": "form-section", "contentNeeded": ["Backup-CTA", "Beratungstext"], "generatedFields": ["sections.formIntro.micro", "sections.formIntro.content"], "recommendation": "Einbauhinweis"}
   ],
   "faq": [
     {"question": "Häufige lokale PV-Frage 1", "answer": "80–120 Wörter, konkret, ohne generische Aussagen"},
