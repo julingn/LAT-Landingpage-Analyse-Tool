@@ -4728,6 +4728,8 @@ function pvDemo(){
   pvDwdData={location:'64283 Darmstadt',geocoded:'Darmstadt, Hessen, Deutschland',lat:49.8728,lon:8.6512,
     station:{id:'01420',name:'Frankfurt/Main',distance_km:28.4},
     irradiance_kWhm2_year:1102,sunshine_hours_year:1821,dataYear:2025,estimated:false,
+    monthly_avg_sunshine_hours:{1:1.3,2:2.9,3:4.2,4:6.4,5:7.3,6:7.9,7:7.5,8:6.8,9:5.0,10:2.8,11:1.4,12:0.9},
+    monthly_data_years:'1951–2024',
     germany_avg:{sunshine_hours_year:1914,year:2025,klimanormal_1991_2020:1665,irradiance_kWhm2_year:1073,source:'DWD Regionalmittel'},
     source:'DWD OpenData'};
   const d={
