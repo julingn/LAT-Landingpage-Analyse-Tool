@@ -5232,6 +5232,7 @@ function pvRenderResults(d){
     cards[8],    // FAQ-Einleitung
     cards[10],   // FAQ Q&A
     cards[9],    // Formular / Backup-CTA
+    pvFootnoteHtml(), // Quellenhinweis (Sternchen-Text)
     ctaHtml,     // CTA-Strategie
   ].join('');
 
@@ -5336,9 +5337,36 @@ function pvWidgetConfigHtml() {
     <pre style="font-family:'Geist Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;overflow-x:auto;line-height:1.6;color:var(--text2);margin:4px 0 8px">${escHtml(solarConfig)}</pre>
     <button class="pv-copy-btn" onclick="pvCopySectionText(${JSON.stringify(solarConfig)},this)">${CI} Kopieren</button>
 
-    <div class="pv-sec-label" style="margin-top:12px">Sternchen-Text (Quellenhinweis für die Seite)</div>
-    <div class="pv-sec-micro" style="font-size:11px;line-height:1.6">${escHtml(footnote)}</div>
+    <div class="pv-sec-label" style="margin-top:12px">Sternchen-Text <small style="font-weight:400;color:var(--text3)">(separates Karte am Seitenende)</small></div>
+    <div style="font-size:11px;color:var(--text3);margin:2px 0 4px">Wird auch als eigene Sektion am Ende des Content-Tabs angezeigt.</div>
     <button class="pv-copy-btn" style="margin-top:6px" onclick="pvCopySectionText(${JSON.stringify(footnote)},this)">${CI} Kopieren</button>
+  </div>`;
+}
+
+// ── Sternchen-Text als eigene Section-Karte ─────────────────────────────────
+function pvFootnoteHtml() {
+  if (!pvDwdData) return '';
+  const dwd    = pvDwdData;
+  const city   = pvData?.input?.cityOrPostalCode || dwd.location || '';
+  const stName = dwd.station?.name || '–';
+  const stDist = dwd.station?.distance_km || '?';
+  const yRange = dwd.monthly_data_years || dwd.dataYear || '–';
+  const localSun = dwd.sunshine_hours_year || '–';
+  const deKN     = dwd.germany_avg?.klimanormal_1991_2020 || dwd.germany_avg?.sunshine_hours_year || '–';
+  const footnote = `* Sonnenstunden: Mehrjährige Tagesmittelwerte je Monat aus gemessenen DWD-Klimadaten, `+
+    `Messstation ${stName} (${stDist} km vom Standort), Zeitraum ${yRange}. `+
+    `Jahreswert ${localSun} h/Jahr (Standort) vs. ${deKN} h/Jahr (Deutschland Klimanormal 1991–2020). `+
+    `Berechnung der elektrischen Leistung: Tägliche Sonnenstunden × 5 kWp Referenzanlage. `+
+    `Tatsächliche Stromerzeugung abhängig von Dachneigung, -ausrichtung, Verschattung und Systemwirkungsgrad.`;
+  const CI = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  return `<div class="pv-card">
+    <div class="pv-card-label">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Quellenhinweis (Sternchen-Text)
+    </div>
+    <button class="pv-copy-btn" onclick="pvCopySectionText(${JSON.stringify(footnote)},this)">${CI} Kopieren</button>
+    <div class="pv-placement-badge" style="margin-bottom:8px"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg>Fußzeile der Seite / unter den Widgets</div>
+    <div style="font-size:12px;line-height:1.7;color:var(--text2);background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px">${escHtml(footnote)}</div>
   </div>`;
 }
 
