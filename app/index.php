@@ -5080,6 +5080,7 @@ function pvRenderResults(d){
      h:[{c:'gsc',l:'GSC · CTR-Optimierung',d:'Niedrige CTR trotz guter Position deutet auf schwache CTAs hin.'}]},
   ];
   secDefs.forEach(s=>{
+    const sObj=sec[s.k]||{};
     const sH2=typeof sObj==='object'?(sObj.h2||''):''; // optionale H2-Überschrift
     const sMicro=typeof sObj==='object'?(sObj.micro||'–'):(sObj||'–');
     const sFull=typeof sObj==='object'?(sObj.content||''):(typeof sObj==='string'?sObj:'');
