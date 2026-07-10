@@ -4751,10 +4751,10 @@ function pvDemo(){
       intro:{h2:'Photovoltaik in Darmstadt — lohnt es sich für Ihr Dach?',micro:'Darmstadt zählt mit über 1.820 Sonnenstunden pro Jahr zu den günstigsten PV-Standorten in Hessen.',content:'Photovoltaik in Darmstadt lohnt sich – nicht nur wegen des vergleichsweise sonnigen Klimas, sondern auch weil viele Gebäude in der Region gut geeignete Dachflächen bieten. Ob Einfamilienhaus im Martinsviertel, Gewerbebau im Norden oder Wohnanlage in Bessungen: Die Kombination aus Dachausrichtung, verfügbarer Fläche und lokalem Stromverbrauch entscheidet über den Ertrag. Unser PV-Rechner berechnet Ihr individuelles Potenzial – in wenigen Sekunden, kostenlos und ohne Verpflichtung.',placement:'Direkt unter dem Hero'},
       solarPotential:{h2:'Lohnt sich eine Photovoltaikanlage in Darmstadt?',micro:'Mit 1.102 kWh/m² Globalstrahlung liegt Darmstadt rund 3 % über dem deutschen Klimanormal.',content:'Darmstadt verzeichnet laut Deutschem Wetterdienst eine Globalstrahlung von 1.102 kWh/m² pro Jahr und ca. 1.821 Sonnenstunden – das ist spürbar mehr als der deutsche Klimanormal von 1.665 Sonnenstunden. Für eine typische Dachanlage mit 10 kWp bedeutet das einen Jahresertrag von ca. 9.000–10.500 kWh, abhängig von Ausrichtung, Neigung und möglicher Verschattung. Die Grafik zeigt, wie sich das Solarpotenzial über die Monate verteilt – und warum besonders Frühjahr und Sommer für den Eigenverbrauch entscheidend sind.',statement:'Glückwunsch: Mit 1.821 Sonnenstunden liegt Darmstadt über dem deutschlandweiten Schnitt – hier lohnt sich eine Photovoltaikanlage also besonders.',placement:'H2 oben, Text darunter, Grafik-Element (Sonnenstunden lokal vs. DE), Statement'},
       statisticsExplanation:{h2:'Photovoltaik in Darmstadt, was haben Sie davon?',content:'Die aufgeführten Kennzahlen zeigen, wie viel Strom Sie mit einer PV-Anlage in Darmstadt realistisch erzeugen können. Unsere Auswertungen basieren auf regionalen Wetterdaten und Erfahrungen mit vergleichbaren Dächern im Umkreis.',items:[
-        {icon:'house',  label:'Süd-Dachfläche belegt mit 15 PV Modulen. Entspricht 5 kWp.*'},
-        {icon:'sun',    label:'Sonneneinstrahlung pro Jahr in Darmstadt.'},
-        {icon:'energy', label:'Produziert diese PV-Anlage. Das entspricht dem Durchschnittsverbrauch eines Einfamilienhauses.'},
-        {icon:'co2',    label:'Damit könnten Sie CO₂ einsparen.*'},
+        {icon:'house',  display_value:'[CMS-dynamisch: 25 m² · 15 Module · 5 kWp]', label:'Süd-Dachfläche belegt mit 15 PV Modulen. Entspricht 5 kWp.*'},
+        {icon:'sun',    display_value:'1.102 kWh/m²',                                   label:'Sonneneinstrahlung pro Jahr in Darmstadt.'},
+        {icon:'energy', display_value:'[CMS-dynamisch: Jahresertrag kWh/Jahr]',           label:'Produziert diese PV-Anlage. Das entspricht dem Durchschnittsverbrauch eines Einfamilienhauses.'},
+        {icon:'co2',    display_value:'[CMS-dynamisch: CO₂-Einsparung in t/Jahr]',        label:'Damit könnten Sie CO₂ einsparen.*'},
       ],placement:'Gradient-Block: H2 + Fließtext + 4 Kennzahlen (Icon + CMS-Zahl + Label)'},
       processIntro:{h2:'So einfach kommen Sie zur eigenen PV-Anlage in Darmstadt',text:'Von der Erstberatung bis zur betriebsfertigen Anlage begleiten wir Sie in drei klaren Schritten – unkompliziert, transparent und aus einer Hand.',button:'Jetzt Potenzial berechnen',steps:[
         {h3:'Potenzial berechnen',text:'Geben Sie Ihre Adresse ein und berechnen Sie in wenigen Sekunden, wie viel Solarertrag Ihr Dach in Darmstadt realistisch liefern kann.'},
@@ -5121,7 +5121,12 @@ function pvRenderResults(d){
         ?`<div class="pv-sec-label">Fließtext (unter H2)</div><div class="pv-sec-content">${escHtml(sFull||'–')}</div>`+
           `<div class="pv-sec-label">Labels (Icon + CMS-Zahl + Text)</div>`+
           `<div class="pv-benefits-grid">`+
-          sItems.map(it=>`<div class="pv-benefit-card"><div class="pv-benefit-title" style="font-size:10px;color:var(--text3);text-transform:uppercase">${escHtml(it.icon||'')}</div><div class="pv-benefit-text">${escHtml(it.label||'')}</div></div>`).join('')+
+          sItems.map(it=>`<div class="pv-benefit-card">`+
+            `<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">`+
+            `<div class="pv-benefit-title" style="font-size:10px;color:var(--text3);text-transform:uppercase;margin:0">${escHtml(it.icon||'')}</div>`+
+            (it.display_value?`<div style="font-size:12px;font-weight:700;font-family:'Geist Mono',monospace;color:${it.display_value.startsWith('[CMS')?'var(--amber)':'var(--accent)'}">${escHtml(it.display_value)}</div>`:'')+
+            `</div>`+
+            `<div class="pv-benefit-text">${escHtml(it.label||'')}</div></div>`).join('')+
           `</div>`
       :sSteps
         ?`<div class="pv-sec-label">Text (linke Spalte)</div><div class="pv-sec-micro">${escHtml(sFull||'–')}</div>`+
