@@ -257,7 +257,8 @@ Erzeuge strukturierte, modulare Content-Bausteine für eine lokale Photovoltaik-
 Du erzeugst KEINEN langen Fließtext. Du erzeugst modulare Inhalte pro Seitenabschnitt.
 
 SEITENSTRUKTUR (LP-Reihenfolge):
-1. Hero — H1 + Subline + Rechner-Microcopy + primärer CTA (→ Rechner) + sekundärer CTA
+1. Hero — Dachzeile (kurz, über H1) + H1 (max. 60 Zeichen) + 2–4 USP-Bullets ODER kurzer Absatz
+   → Direkt danach folgt der PV-Rechner (1. Frage: „Wie viele Personen leben in Ihrem Haushalt?“) — kein weiterer Text im Hero nötig
 2. Intro — lokaler Einstiegstext
 3. Vorteile — 4 Kacheln: Unabhängigkeit, Wertsteigerung, Alles aus einer Hand, Zuverlässiger Partner
 4. Solarpotenzial — Grafik-Begleitung
@@ -331,11 +332,14 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
     "description": "Meta-Description (max. 160 Zeichen, konkreter Nutzen + CTA)"
   },
   "hero": {
-    "h1": "Prägnante H1 mit lokalem Keyword (max. 70 Zeichen)",
-    "subline": "Vertrauensbildende Subline (max. 120 Zeichen, kein Buzzword-Bingo)",
-    "calculatorIntro": "1–2 Sätze Microcopy direkt über/neben dem PV-Rechner — erklärt kurz was der Nutzer berechnen kann, motiviert zur Interaktion",
-    "primaryCta": "CTA-Text für den PV-Rechner-Button (kurz, handlungsorientiert, z.B. Jetzt Potenzial berechnen)",
-    "secondaryCta": "Sekundärer CTA-Text für Beratungsanfrage (sanft, kein Druck)"
+    "dachzeile": "Kurze Dachzeile über dem H1 (2–5 Wörter, lokal oder vertrauensbildend, z.B. 'Ihr Photovoltaik-Experte in {$cityOrPostalCode}')",
+    "h1": "Prägnante H1 mit lokalem Keyword (max. 60 Zeichen, klar und nutzenorientiert)",
+    "usps": [
+      "USP 1 — kurz, konkret, Nutzen-fokussiert (max. 10 Wörter)",
+      "USP 2 — kurz, konkret (max. 10 Wörter)",
+      "USP 3 — kurz, konkret (max. 10 Wörter)"
+    ],
+    "absatz": "Alternative zu den USPs: 2–3 Sätze (max. 40 Wörter), falls kein Bullet-Format gewünscht. Konkret, kein Buzzword-Bingo."
   },
   "benefits": [
     {"title": "Unabhängigkeit", "text": "2–3 Sätze, konkret, lokal, kein Buzzword-Bingo", "placement": "Vorteile-Kachel"},
@@ -414,7 +418,7 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
     ]
   },
   "placementMap": [
-    {"order": 1, "module": "Hero", "visualType": "split-layout", "contentNeeded": ["H1", "Subline", "Calculator Intro", "Primary CTA"], "generatedFields": ["hero.h1", "hero.subline", "hero.calculatorIntro", "hero.primaryCta"], "recommendation": "Konkreter Einbauhinweis für Hero-Module"},
+    {"order": 1, "module": "Hero", "visualType": "hero-text-block", "contentNeeded": ["Dachzeile", "H1", "2–4 USP-Bullets oder Absatz"], "generatedFields": ["hero.dachzeile", "hero.h1", "hero.usps", "hero.absatz"], "recommendation": "Dachzeile über dem H1 platzieren, dann H1, dann USP-Liste als Bullets. PV-Rechner folgt direkt darunter — kein CTA-Button im Hero-Text nötig."},
     {"order": 2, "module": "Intro", "visualType": "text-block", "contentNeeded": ["Kurzer lokaler Einstieg"], "generatedFields": ["sections.intro.micro", "sections.intro.content"], "recommendation": "Einbauhinweis"},
     {"order": 3, "module": "Vorteile", "visualType": "four-card-grid", "contentNeeded": ["Unabhängigkeit", "Wertsteigerung", "Alles aus einer Hand", "Zuverlässiger Partner"], "generatedFields": ["benefits[0]", "benefits[1]", "benefits[2]", "benefits[3]"], "recommendation": "Einbauhinweis"},
     {"order": 4, "module": "Solarpotenzial-Grafik", "visualType": "chart-section", "contentNeeded": ["Einordnung vor Grafik"], "generatedFields": ["sections.solarPotential.micro", "sections.solarPotential.content"], "recommendation": "Einbauhinweis"},
@@ -436,7 +440,7 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
   "seoChecklist": [
     {"item": "Meta-Title enthält Haupt-Keyword + Stadt", "status": "ok", "note": "Realistisch bewerten basierend auf generiertem Title"},
     {"item": "Meta-Description mit klarem CTA und Nutzenversprechen", "status": "ok", "note": "..."},
-    {"item": "H1 mit lokalem Keyword", "status": "ok", "note": "..."},
+    {"item": "H1 mit lokalem Keyword (max. 60 Zeichen)", "status": "ok", "note": "..."},
     {"item": "Lokaler Breadcrumb vorhanden", "status": "warning", "note": "..."},
     {"item": "Strukturierte Daten (LocalBusiness-Schema)", "status": "missing", "note": "..."},
     {"item": "FAQ-Schema (FAQPage)", "status": "ok", "note": "..."},
@@ -447,7 +451,7 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
     {"item": "PV-Rechner als primäre CTA im Hero sichtbar und prominent", "status": "ok", "note": "..."},
     {"item": "Calculator Intro (Microcopy) über dem Rechner vorhanden", "status": "ok", "note": "..."},
     {"item": "Vertrauenssignale im Hero-Bereich (Siegel, Bewertungen, Zertifikate)", "status": "warning", "note": "..."},
-    {"item": "Klarer Nutzen in H1 und Subline erkennbar", "status": "ok", "note": "..."},
+    {"item": "Klarer Nutzen in H1 + Dachzeile erkennbar", "status": "ok", "note": "..."},
     {"item": "Micro-CTAs nach Abschnitten führen zurück zum Rechner", "status": "warning", "note": "..."},
     {"item": "Social Proof / Kundenstimmen vorhanden", "status": "missing", "note": "..."},
     {"item": "Mobile Hero-CTA ohne Scrollen sichtbar", "status": "warning", "note": "..."},

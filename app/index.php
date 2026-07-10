@@ -4732,7 +4732,7 @@ function pvDemo(){
   const d={
     input:{cityOrPostalCode:'64283 Darmstadt',primaryKeyword:'Photovoltaik Darmstadt',pvCalculatorInHero:true},
     meta:{title:'Photovoltaik Darmstadt – Solaranlage planen & Kosten berechnen',description:'Jetzt PV-Potenzial für Ihr Dach in Darmstadt berechnen. Individuelle Ertragsschätzung, transparente Kosten, regionaler Installateur.'},
-    hero:{h1:'Photovoltaik in Darmstadt – Ihr Solarpotenzial berechnen',subline:'Darmstadts Dächer gehören zu den sonnenreichsten in Hessen. Berechnen Sie jetzt Ihren individuellen Ertrag.',calculatorIntro:'Geben Sie Dachfläche und Stromverbrauch ein – der Rechner zeigt Ihnen in Sekunden, wie viel Strom Ihre Anlage erzeugen würde.',primaryCta:'Jetzt PV-Potenzial berechnen',secondaryCta:'Persönliche Beratung anfragen'},
+    hero:{dachzeile:'Ihr Photovoltaik-Experte in Darmstadt',h1:'Solarstrom für Ihr Dach in Darmstadt',usps:['Unabhängig von steigenden Strompreisen','Eigenen Strom produzieren — ab dem ersten Tag','Rundum-Betreuung von Planung bis Inbetriebnahme'],absatz:'Mit einer Photovoltaikanlage nutzen Sie das Sonnenpotenzial Ihres Dachs in Darmstadt direkt — für mehr Unabhängigkeit und sinkende Stromkosten.'},
     benefits:[
       {title:'Unabhängigkeit',text:'Mit einer Photovoltaikanlage auf Ihrem Darmstädter Dach reduzieren Sie Ihren Strombezug aus dem Netz dauerhaft. Steigende Strompreise treffen Sie weniger – ein Großteil Ihres Verbrauchs lässt sich durch selbst erzeugten Solarstrom decken.',placement:'Vorteile-Kachel'},
       {title:'Wertsteigerung',text:'Immobilien mit Solaranlage erzielen in der Region Darmstadt nachweislich höhere Verkaufspreise. Eine dokumentierte Anlage mit Einspeisevergütung ist ein konkretes Argument beim Immobilienverkauf.',placement:'Vorteile-Kachel'},
@@ -4787,7 +4787,7 @@ function pvDemo(){
       {module:'Performance',priority:'medium',recommendation:'PSI Mobile Score prüfen – Hero-Bilder als WebP mit Lazy Loading können LCP verbessern.'},
     ],
     placementMap:[
-      {order:1,module:'Hero',visualType:'full-width-hero',contentNeeded:['H1','Subline','Rechner-Microcopy','CTA'],generatedFields:['hero.h1','hero.subline','hero.calculatorIntro','hero.primaryCta'],recommendation:'H1 prominent über dem Rechner, Subline darunter. primaryCta = Rechner-Button, secondaryCta als Textlink.'},
+      {order:1,module:'Hero',visualType:'hero-text-block',contentNeeded:['Dachzeile','H1','2–4 USP-Bullets oder Absatz'],generatedFields:['hero.dachzeile','hero.h1','hero.usps','hero.absatz'],recommendation:'Dachzeile über dem H1, dann H1, dann USP-Liste. PV-Rechner folgt direkt darunter.'},
       {order:2,module:'Einleitung',visualType:'text-section',contentNeeded:['Intro-Text'],generatedFields:['sections.intro.micro','sections.intro.content'],recommendation:'sections.intro.micro als Teaser-Satz über dem Fließtext einsetzen.'},
       {order:3,module:'Vorteile',visualType:'4-column-grid',contentNeeded:['4 Kacheln'],generatedFields:['benefits[0-3]'],recommendation:'Je eine Kachel pro benefit-Eintrag. Icon + Title + Text.'},
       {order:4,module:'Solarpotenzial-Grafik',visualType:'chart-section',contentNeeded:['Begleittext vor Grafik'],generatedFields:['sections.solarPotential.micro','sections.solarPotential.content'],recommendation:'solarPotential.micro als Intro-Satz über der Grafik, content darunter.'},
@@ -5045,11 +5045,14 @@ function pvRenderResults(d){
     '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>',
     'Hero','hero',"pvCopySection('hero')",
     `<div class="pv-hero-grid">`+
-    `<div class="pv-hero-field full"><div class="pv-hero-field-label">H1</div><div class="pv-hero-value">${escHtml(h.h1||'–')}</div></div>`+
-    `<div class="pv-hero-field full"><div class="pv-hero-field-label">Subline</div><div class="pv-hero-value">${escHtml(h.subline||'–')}</div></div>`+
-    `<div class="pv-hero-field full"><div class="pv-hero-field-label">Calculator Intro (Rechner-Microcopy)</div><div class="pv-hero-value" style="border-color:var(--accent-border)">${escHtml(h.calculatorIntro||'–')}</div></div>`+
-    `<div class="pv-hero-field"><div class="pv-hero-field-label">Primärer CTA → Rechner</div><div class="pv-hero-value">${escHtml(h.primaryCta||'–')}</div></div>`+
-    `<div class="pv-hero-field"><div class="pv-hero-field-label">Sekundärer CTA → Formular</div><div class="pv-hero-value">${escHtml(h.secondaryCta||'–')}</div></div></div>`,
+    `<div class="pv-hero-field full"><div class="pv-hero-field-label">Dachzeile (Eyebrow)</div><div class="pv-hero-value" style="font-size:11px;color:var(--text3);border-style:dashed">${escHtml(h.dachzeile||'–')}</div></div>`+
+    `<div class="pv-hero-field full"><div class="pv-hero-field-label">H1</div><div class="pv-hero-value" style="font-size:17px;font-weight:700;color:var(--text)">${escHtml(h.h1||'–')}</div></div>`+
+    (Array.isArray(h.usps)&&h.usps.length
+      ? `<div class="pv-hero-field full"><div class="pv-hero-field-label">USPs / Bullets (2–4)</div><div class="pv-hero-value"><ul style="margin:0;padding-left:16px;display:flex;flex-direction:column;gap:4px">${h.usps.map(u=>`<li>${escHtml(u)}</li>`).join('')}</ul></div></div>`
+      : '')+
+    `<div class="pv-hero-field full"><div class="pv-hero-field-label">Absatz (Alternative zu USPs)</div><div class="pv-hero-value" style="color:var(--text2)">${escHtml(h.absatz||'–')}</div></div>`+
+    `<div class="pv-hero-field full" style="background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:var(--radius);padding:8px 12px;font-size:11px;color:var(--blue)">&#8595; Direkt darunter: PV-Rechner (1. Frage: „Wie viele Personen leben in Ihrem Haushalt?“)</div>`+
+    `</div>`,
     hint([{c:'gsc',l:'GSC · Top-Queries',d:'Die häufigsten Suchanfragen der bestehenden LP zeigen, welche Keywords Nutzer wirklich eingeben — ideal zur H1-Schärfung und CTA-Formulierung.'},
           {c:'dataforseo',l:'DataForSEO · Keyword-Varianten',d:'Lokale Varianten und Suchvolumina helfen, den stärksten Begriff für H1 und CTA auszuwählen.'}])
   ));
@@ -5247,7 +5250,7 @@ function pvCopySection(key){
     text=`Title: ${pvData.meta?.title||''}\nDescription: ${pvData.meta?.description||''}`;
   }else if(key==='hero'){
     const h=pvData.hero||{};
-    text=`H1: ${h.h1||''}\nSubline: ${h.subline||''}\nCalculator Intro: ${h.calculatorIntro||''}\nPrimärer CTA: ${h.primaryCta||''}\nSekundärer CTA: ${h.secondaryCta||''}`;
+    text=`Dachzeile: ${h.dachzeile||''}\nH1: ${h.h1||''}\nUSPs:\n${(h.usps||[]).map(u=>'- '+u).join('\n')}\nAbsatz: ${h.absatz||''}`;
   }else if(key==='benefits'){
     const bn=Array.isArray(pvData.benefits)?pvData.benefits:[];
     text=bn.map(b=>`${b.title||''}:\n${b.text||''}`).join('\n\n');
