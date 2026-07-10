@@ -379,6 +379,119 @@ if(serpData) body.dataforseoContext = { search_volume: serpData.searchVolume, se
 
 ---
 
+## Phase 8 — Content Finder: Vollständige Seitenanalyse nach Begriffen ✅ (09.–10.07.2026)
+
+> **Ziel:** Eigenständiges Tool (keine URL-Analyse) — sucht eine oder mehrere Seiten vollständig nach definierten Begriffen, inkl. JS-Rendering und Bild-OCR.  
+> **Commits:** `284c1dd` (Basis) · `a58d7f7` (BFS-Queue / Crawl-Tiefe) · `ba078e2` (Pfad-Filter) · `789b68d` (Ausschluss-Begriffe) · `9997e1c` (Tooltips)
+
+### Anforderungen
+
+| Anforderung | Umsetzung |
+|---|---|
+| Eine oder mehrere URLs | Manuelle Textarea (eine URL pro Zeile) + CSV-Datei-Upload |
+| 100 %-Erfassung | Puppeteer (JS-Rendering, Cookie-Banner-Dismiss, Scroll) + OpenAI Vision OCR |
+| Mehrere Suchbegriffe | Chip-UI, unbegrenzt viele Begriffe |
+| Synonyme / Varianten | Regelbasiert (Bindestrich, Umlaut, Plural) + KI-Synonyme (OpenAI, gecacht) |
+| Ausschluss-Begriffe | Wortkontext-Filter, live ohne Re-Crawl |
+| Crawl-Tiefe 1 / 2 | BFS-Queue, Pfad-Filter (nur Unterseiten des Seed-Pfads) |
+| Export | CSV (UTF-8-BOM) + JSON |
+
+### Architektur
+
+```
+Browser → app/contentfinder.php (thin include)
+           → app/proxies/contentfinder.php
+               ├── action=synonyms  → regelbasierte Varianten + OpenAI (gecacht)
+               └── action=crawl_url → contentfinder_extract.mjs (Puppeteer)
+                                       → OpenAI Vision (Bild-OCR, optional)
+                                       → PHP Regex-Suche in allen Blöcken
+                                       → {hits, links} zurück ans Frontend
+```
+
+### Dateien
+
+| Datei | Inhalt |
+|---|---|
+| `app/contentfinder_extract.mjs` | Node.js: Puppeteer-Extraktion — Text, Alt, ARIA, SVG, Tooltips, interne Links |
+| `app/proxies/contentfinder.php` | PHP: Auth, `synonyms`-Action, `crawl_url`-Action, OCR via Vision API, `buildVariants()`, `searchBlocks()` |
+| `app/contentfinder.php` | Thin include |
+| `app/index.php` | View `#view-content-finder` + CSS `.cf-*` + JS `cf*()` |
+
+### Content-Extraktion (vollständig)
+
+Puppeteer extrahiert nach JS-Rendering und Scroll:
+
+| Typ | Quelle |
+|---|---|
+| Meta-Title | `<title>` |
+| Meta-Description | `<meta name="description">` |
+| OG-Title | `<meta property="og:title">` |
+| Überschriften | `<h1>`–`<h6>` |
+| Fließtext | `<p>`, `<li>`, `<td>`, `<th>`, `<blockquote>` |
+| Interaktiv | `<button>`, `<a>`, `<label>` |
+| ARIA | `[aria-label]` |
+| Tooltips | `[title]` |
+| SVG | `<svg title>` |
+| Bilder (Text) | `alt`-Attribut + OpenAI Vision für Bilder ohne Alt |
+| Interne Links | Alle `<a href>` auf gleichem Origin (für BFS-Crawl) |
+
+### Varianten-Generierung
+
+Für jeden Suchbegriff werden automatisch generiert:
+
+| Typ | Beispiel |
+|---|---|
+| **Exakt** | `BEG Förderung` |
+| **Bindestrich** | `BEG-Förderung` |
+| **Umlaut** | `BEG Foerderung`, `BEG-Foerderung` |
+| **Plural** | `BEG Förderungen`, `BEG Förderunge`, … |
+| **Singular** | (Endung entfernen, wenn erkannt) |
+| **KI-Synonym** | `Bundesförderung effiziente Gebäude`, `BAFA Förderung`, `KfW Heizungsförderung` |
+
+### Crawl-Tiefe & Pfad-Filter
+
+- Tiefe 0: Nur die eingegebenen URLs
+- Tiefe 1: + alle Links, die auf der Seite gefunden werden und **denselben Pfad-Präfix** haben
+- Tiefe 2: + eine Ebene weiter
+- Pfad-Filter: `https://domain.de/strom` → folgt nur Links unter `/strom/`
+- Domain-Grenze: Nur Links auf derselben Domain wie die erste Seed-URL
+- Sicherheitslimit: max. 200 URLs pro Lauf
+
+### Ausschluss-Begriffe
+
+- Eingabe per Chip-UI (like Suchbegriffe, aber rot)
+- Logik: Das vollständige Wort rund um den Treffer wird gegen alle Ausschluss-Begriffe geprüft
+- Beispiel: Suche `BEG`, Ausschluss `GewerBEGas` → Treffer in „GewerBEGas" wird unterdrückt
+- Live-Filter: Kein Re-Crawl, wirkt sofort auf alle Ergebnisse
+- Export berücksichtigt Ausschluss-Filter
+
+### UI-Elemente
+
+- **Step 1:** URL-Eingabe (Textarea / CSV-Upload) + Crawl-Tiefe
+- **Step 2:** Suchbegriffe (Chips) + Varianten-Vorschau + Ausschluss-Begriffe
+- **Step 3:** Erfassungsoptionen (8 Toggles mit Tooltips)
+- **Fortschritt:** Sub-Schritte je URL (Abruf → JS → OCR → Suche) + dynamische Liste
+- **Ergebnisse:** Stat-Grid (4 Kacheln) + filterbare Tabelle + Export
+- **Tooltips:** Auf allen nicht-selbsterklärenden Elementen (`data-tip`)
+
+### JS-Funktionen
+
+| Funktion | Aufgabe |
+|---|---|
+| `cfAddTerm(term)` | Begriff als Chip hinzufügen, Varianten vom Backend holen |
+| `cfFetchVariants(term)` | `synonyms`-Action aufrufen, Ergebnis in `cfTerms` speichern |
+| `cfShowVariantPreview(term)` | Varianten-Vorschau-Box aktualisieren |
+| `cfAddExclude()` | Ausschluss-Begriff hinzufügen + Tabelle sofort neu rendern |
+| `cfIsExcluded(hit)` | Prüft ob Treffer durch Ausschluss unterdrückt werden soll |
+| `cfStart()` | BFS-Queue initialisieren, Analyse starten |
+| `cfCrawlUrl(url, idx)` | Eine URL crawlen, Ergebnis inkl. Links zurückgeben |
+| `cfAppendCrawlItem(url, idx)` | URL dynamisch zur Crawl-Liste hinzufügen |
+| `cfFinish()` | Stats berechnen, Filter-Dropdowns füllen, Tabelle rendern |
+| `cfRenderTable()` | Treffel-Tabelle mit allen aktiven Filtern + Ausschluss rendern |
+| `cfExport(format)` | CSV (UTF-8-BOM) oder JSON-Download |
+
+---
+
 ## Phase 8 — Agenten-System: transparente KI-Spezialisten
 
 > **Ziel:** Jeder KI-Modul-Call ist einem benannten Agenten zugeordnet. User kann Agenten anklicken, System-Prompt lesen, bearbeiten und dauerhaft in settings.json speichern.  

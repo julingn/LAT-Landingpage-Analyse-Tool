@@ -12,8 +12,8 @@
 | **Repo** | https://github.com/julingn/LAT-Landingpage-Analyse-Tool |
 | **Branch** | `main` → auto-deploy Railway |
 | **Stack** | PHP 8.3 CLI Alpine, kein Framework |
-| **Kern** | `app/index.php` (~2600 Zeilen — PHP + HTML + CSS + JS) |
-| **Letzter Deploy** | `107f4d8` — fix: sleep() fehlte (10.06.2026) |
+| **Kern** | `app/index.php` (~3200 Zeilen — PHP + HTML + CSS + JS) |
+| **Letzter Deploy** | `9997e1c` — Content Finder Tooltips (10.07.2026) |
 
 ---
 
@@ -62,6 +62,7 @@ Alle API-Calls laufen serverseitig — der Browser sieht nie einen API-Key.
 | `app/pagespeed.php` | PageSpeed Insights |
 | `app/sistrix.php` | URL-Sichtbarkeit + Keywords (DE) |
 | `app/keywords.php` | Keyword-Fit: Sistrix `keyword.seo.searchintent` (parallel cURL) |
+| `app/contentfinder.php` | Content Finder: Seitensuche nach Begriffen (JS-Rendering, OCR, Synonyme) |
 
 **Referenz-Template:** `app/dataforseo.php`
 
@@ -125,6 +126,8 @@ renderResults() → rendert alle Panels
 | GEO / AEO | `#view-geo` | Sistrix AI (entity.prompts + entity.sources) |
 | Keyword Fit | `#view-keywords` | Intent-Analyse (Sistrix searchintent) |
 | UX / CRO | `#view-ux` | Vision-LLM + Screenshot (Headless Chromium) |
+| Local PV Generator | `#view-localpv` | Standalone-Tool, kein URL-Header, `showView()` blendet header-form aus |
+| **Content Finder** | `#view-content-finder` | Standalone-Tool, kein URL-Header, `showView()` blendet header-form aus |
 | Einstellungen | `#view-settings` | API-Keys, Modell, Passwort |
 
 **Alle Views müssen innerhalb von `<div class="content-wrap">` liegen** — max-width:960px;margin:0 auto
@@ -150,13 +153,15 @@ Beim Hinzufügen eines neuen Moduls müssen **immer** alle 4 Reset-Stellen aktua
 
 Siehe `Documents/ROADMAP.md` für aktuelle Roadmap.
 
-**Stand 10.06.2026 — implementierte Module:**
+**Stand 10.07.2026 — implementierte Module & Tools:**
 - ✅ M1 SQEG (LLM, 42 Kriterien, 8 Cluster)
 - ✅ M2 Technical SEO (deterministisch, 11 Checks, `107f4d8`)
 - ✅ M3 Performance (GSC + Sistrix)
 - ✅ M4 GEO/AEO (Sistrix AI)
 - ✅ M5 UX/CRO (Vision-LLM + Screenshot)
 - ✅ M6 Keyword Fit (Sistrix searchintent)
+- ✅ **Local PV Generator** (Tools-Sektion, `cbf66c1`, 30.06.–01.07.2026)
+- ✅ **Content Finder** (Tools-Sektion, `9997e1c`, 09.–10.07.2026)
 
 ---
 
