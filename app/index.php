@@ -5225,10 +5225,10 @@ function pvRenderResults(d){
     benefitsHtml,// Vorteile
     cards[3],    // Solarpotenzial
     cards[4],    // Kennzahlenblock
-    pvWidgetConfigHtml(), // Widget-Konfiguration (Sonnenstunden + Solarpotenzial)
     cards[5],    // 3-Schritte-Prozess
     cards[6],    // Referenzprojekte
     cards[7],    // Kundenstimmen
+    pvWidgetConfigHtml(), // ☀ Sonnenstand-Widget (korrekte LP-Position: nach Kundenstimmen)
     cards[8],    // FAQ-Einleitung
     cards[10],   // FAQ Q&A
     cards[9],    // Formular / Backup-CTA
@@ -5291,55 +5291,71 @@ function pvWidgetConfigHtml() {
   const city   = pvData.input?.cityOrPostalCode || pvDwdData.location || '';
   const dwd    = pvDwdData;
   const months = dwd.monthly_avg_sunshine_hours || null;
-  const geo    = dwd.geocoded || city;
   const stName = dwd.station?.name || '–';
   const stDist = dwd.station?.distance_km || '?';
   const yRange = dwd.monthly_data_years || dwd.dataYear || '–';
   const deKN   = dwd.germany_avg?.klimanormal_1991_2020 || dwd.germany_avg?.sunshine_hours_year || null;
+  const localSun = dwd.sunshine_hours_year || '–';
+  const refSun   = deKN || '–';
 
-  if (!months) return ''; // Keine Monatsdaten = Karte nicht zeigen
+  if (!months) return '';
 
-  // HoursOfSunshineConfig
+  const MONATE = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
   const monthsJs = Object.entries(months)
     .map(([m, v]) => `\t\t${m}: ${v !== null ? v.toFixed(1) : 'null'},`)
     .join('\n');
   const hoursConfig = `var HoursOfSunshineConfig = {\n\tcity: ${JSON.stringify(city)},\n\tmonths: {\n${monthsJs}\n\t},\n};`;
-
-  // SolarPotentialConfig
-  const localSun = dwd.sunshine_hours_year || '–';
-  const refSun   = deKN || '–';
   const solarConfig = `var SolarPotentialConfig = {\n\tbuildings: {\n\t\tbig: {\n\t\t\tname: ${JSON.stringify(city)},\n\t\t\tvalue: ${localSun}\n\t\t},\n\t\tsmall: {\n\t\t\tname: "Deutschland",\n\t\t\tvalue: ${refSun}\n\t\t}\n\t}\n};`;
 
-  // Sternchen-Text für die Seite
-  const footnote = `* Sonnenstunden: Mehrjährige Tagesmittelwerte je Monat aus gemessenen DWD-Klimadaten, `+
-    `Messstation ${stName} (${stDist}\u00a0km vom Standort), Zeitraum ${yRange}. `+
-    `Jahreswert ${localSun}\u00a0h/Jahr (Standort) vs. ${refSun}\u00a0h/Jahr (Deutschland Klimanormal 1991–2020). `+
-    `Berechnung der elektrischen Leistung: Tägliche Sonnenstunden × 5\u00a0kWp Referenzanlage. `+
-    `Tatsächliche Stromerzeugung abhängig von Dachneigung, -ausrichtung, Verschattung und Systemwirkungsgrad.`;
-
   const CI = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+
+  // Monats-Übersichtstabelle
+  const monthRows = Object.entries(months).map(([m,v],i)=>{
+    const bar = v ? Math.round((v/10)*100) : 0;
+    return `<tr>
+      <td style="padding:3px 8px;font-size:11px;color:var(--text3);white-space:nowrap">${MONATE[i]}</td>
+      <td style="padding:3px 8px;font-size:11px;font-weight:700;color:var(--text);font-family:'Geist Mono',monospace;text-align:right">${v !== null ? v.toFixed(1) : '–'}</td>
+      <td style="padding:3px 8px;width:120px">
+        <div style="height:6px;border-radius:3px;background:var(--bg4);overflow:hidden">
+          <div style="height:100%;width:${bar}%;background:linear-gradient(90deg,var(--amber),#f97316);border-radius:3px"></div>
+        </div>
+      </td>
+      <td style="padding:3px 8px;font-size:10px;color:var(--text3)">h/Tag</td>
+    </tr>`;
+  }).join('');
 
   return `<div class="pv-card">
     <div class="pv-card-label">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
-      Widget-Konfiguration (Sonnenstand &amp; Solarpotenzial)
+      ☀ Sonnenstand-Widget (Konfiguration)
     </div>
+    <div class="pv-placement-badge" style="margin-bottom:10px"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg>Nach Kundenstimmen · CMS-Konfiguration</div>
     <div class="pv-data-hint" style="margin-bottom:12px">
       <span class="pv-data-hint-label">DWD:</span>
       <span class="pv-data-source-tag">Station ${escHtml(stName)} · ${stDist} km · ${escHtml(String(yRange))} · ${dwd.estimated?'Schätzung':'Messdaten'}</span>
     </div>
 
-    <div class="pv-sec-label">HoursOfSunshineConfig <small style="font-weight:400;color:var(--text3)">(Monatsmittel-Sonnenstunden je Tag)</small></div>
-    <pre style="font-family:'Geist Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;overflow-x:auto;line-height:1.6;color:var(--text2);margin:4px 0 8px">${escHtml(hoursConfig)}</pre>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+      <div>
+        <div class="pv-sec-label" style="margin-bottom:6px">Sonnenstunden je Monat (Tagesmittel)</div>
+        <table style="width:100%;border-collapse:collapse">${monthRows}</table>
+      </div>
+      <div>
+        <div class="pv-sec-label" style="margin-bottom:6px">Jahreswerte (Sonnenstunden/Jahr)</div>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-size:12px;line-height:2">
+          <div><strong>${escHtml(city)}</strong> &nbsp;<span style="font-family:'Geist Mono',monospace;font-size:13px;color:var(--accent)">${localSun} h</span></div>
+          <div style="color:var(--text3)">Deutschland &nbsp;<span style="font-family:'Geist Mono',monospace;font-size:13px;color:var(--text2)">${refSun} h</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pv-sec-label" style="margin-top:14px">HoursOfSunshineConfig <small style="font-weight:400">(in CMS einfügen, Werte oben pro Stadt austauschen)</small></div>
+    <pre style="font-family:'Geist Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;overflow-x:auto;line-height:1.6;color:var(--text2);margin:4px 0 4px">${escHtml(hoursConfig)}</pre>
     <button class="pv-copy-btn" onclick="pvCopySectionText(${JSON.stringify(hoursConfig)},this)">${CI} Kopieren</button>
 
-    <div class="pv-sec-label" style="margin-top:12px">SolarPotentialConfig <small style="font-weight:400;color:var(--text3)">(Jahresvergleich Standort vs. Deutschland)</small></div>
-    <pre style="font-family:'Geist Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;overflow-x:auto;line-height:1.6;color:var(--text2);margin:4px 0 8px">${escHtml(solarConfig)}</pre>
+    <div class="pv-sec-label" style="margin-top:12px">SolarPotentialConfig <small style="font-weight:400">(Hauskurven-Vergleich)</small></div>
+    <pre style="font-family:'Geist Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;overflow-x:auto;line-height:1.6;color:var(--text2);margin:4px 0 4px">${escHtml(solarConfig)}</pre>
     <button class="pv-copy-btn" onclick="pvCopySectionText(${JSON.stringify(solarConfig)},this)">${CI} Kopieren</button>
-
-    <div class="pv-sec-label" style="margin-top:12px">Sternchen-Text <small style="font-weight:400;color:var(--text3)">(separates Karte am Seitenende)</small></div>
-    <div style="font-size:11px;color:var(--text3);margin:2px 0 4px">Wird auch als eigene Sektion am Ende des Content-Tabs angezeigt.</div>
-    <button class="pv-copy-btn" style="margin-top:6px" onclick="pvCopySectionText(${JSON.stringify(footnote)},this)">${CI} Kopieren</button>
   </div>`;
 }
 
