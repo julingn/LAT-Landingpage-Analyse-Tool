@@ -43,14 +43,47 @@ session_write_close();
 $action   = trim($_GET['action']   ?? '');
 $location = trim($_GET['location'] ?? '');
 
-if ($action !== 'solar') {
+if ($action !== 'solar' && $action !== 'pvgis') {
     http_response_code(400);
-    echo json_encode(['error' => 'Unbekannte Action. Bitte action=solar verwenden.']);
+    echo json_encode(['error' => 'Unbekannte Action. Bitte action=solar oder action=pvgis verwenden.']);
     exit;
 }
-if ($location === '') {
+if ($location === '' && $action === 'solar') {
     http_response_code(400);
     echo json_encode(['error' => 'Parameter location fehlt.']);
+    exit;
+}
+
+// ── PVGIS Action: monatliche Globalstrahlung (Satellitendaten) ────────────────
+if ($action === 'pvgis') {
+    $lat = round((float)($_GET['lat'] ?? 0), 4);
+    $lon = round((float)($_GET['lon'] ?? 0), 4);
+    if (!$lat && !$lon) { http_response_code(400); echo json_encode(['error' => 'lat/lon fehlt']); exit; }
+
+    $ck = 'pvgis_'.ltrim(str_replace(['.', '-'], ['_', 'n'], (string)$lat), 'n').'_'.ltrim(str_replace(['.', '-'], ['_', 'n'], (string)$lon), 'n');
+    $cf = sys_get_temp_dir().DIRECTORY_SEPARATOR.$ck.'.json';
+    if (is_file($cf) && (time() - filemtime($cf) < 604800)) { // 7 Tage Cache
+        $c = json_decode(file_get_contents($cf), true);
+        if (is_array($c) && !empty($c['monthly'])) { echo json_encode($c, JSON_UNESCAPED_UNICODE); exit; }
+    }
+
+    $apiUrl = 'https://re.jrc.ec.europa.eu/api/v5_2/MRcalc?'.http_build_query(['lat'=>$lat,'lon'=>$lon,'outputformat'=>'json','browser'=>0]);
+    $ctx2 = stream_context_create(['http'=>['method'=>'GET','timeout'=>15,'header'=>'User-Agent: LAT-Landingpage-Analyse-Tool/1.0']]);
+    $raw2 = @file_get_contents($apiUrl, false, $ctx2);
+    if (!$raw2) { http_response_code(502); echo json_encode(['error' => 'PVGIS nicht erreichbar']); exit; }
+
+    $pvd  = json_decode($raw2, true);
+    $mon  = $pvd['outputs']['monthly'] ?? [];
+    $meta = $pvd['meta'] ?? [];
+    $monthly = [];
+    foreach ($mon as $m) {
+        $mo = (int)($m['month'] ?? 0);
+        $wh = (float)($m['H(h)_m'] ?? 0);
+        if ($mo >= 1 && $mo <= 12) $monthly[$mo] = ['irr_wh_day' => (int)round($wh), 'irr_kWh_day' => round($wh/1000,2), 'peak_sun_hours' => round($wh/1000,1)];
+    }
+    $res = ['lat'=>$lat,'lon'=>$lon,'monthly'=>$monthly,'db'=>$meta['radiation_db']??'PVGIS-SARAH3','year_min'=>$meta['year_min']??2005,'year_max'=>$meta['year_max']??2023,'source'=>'PVGIS (EU-Kommission, Copernicus)'];
+    @file_put_contents($cf, json_encode($res, JSON_UNESCAPED_UNICODE));
+    echo json_encode($res, JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -164,7 +197,7 @@ function dwdFetchSolarData(string $stationId): ?array
     $baseUrl = 'https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/daily/solar/';
 
     // ─ Cache prüfen (24h TTL) ─────────────────────────────────────────
-    $cacheFile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "dwd_solar_{$id5}.json";
+    $cacheFile = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "dwd_solar_{$id5}_v2.json"; // v2: enthält Monatsmittel
     if (is_file($cacheFile) && (time() - filemtime($cacheFile) < 86400)) {
         $cached = json_decode(file_get_contents($cacheFile), true);
         if (is_array($cached) && !empty($cached['irradiance_kWhm2_year'])) {
@@ -241,6 +274,10 @@ function dwdFetchSolarData(string $stationId): ?array
     $sumFG = 0.0;
     $sumSD = 0.0;
     $count = 0;
+    // Multi-Jahr Monatsmittel
+    $monthlySD    = array_fill(1, 12, 0.0);
+    $monthlyCount = array_fill(1, 12, 0);
+    $yearMin = 9999; $yearMax = 0;
 
     foreach ($lines as $line) {
         $line = trim($line);
@@ -250,36 +287,55 @@ function dwdFetchSolarData(string $stationId): ?array
         $maxIdx = max($fgIdx, $sdIdx, $dtIdx);
         if (count($cols) <= $maxIdx) continue;
 
-        $dt = (int) trim($cols[$dtIdx]);
-        if ($dt < $yearStart || $dt > $yearEnd) continue;
+        $dt   = (int) trim($cols[$dtIdx]);
+        $year = (int)($dt / 10000);
+
+        // Aktuelles (unvollständiges) Jahr ausschließen
+        if ($year < 1900 || $year >= (int)date('Y')) continue;
 
         $fg = trim($cols[$fgIdx]);
         $sd = trim($cols[$sdIdx]);
 
-        if ($fg !== '-999' && is_numeric($fg) && (float)$fg >= 0) {
-            $sumFG += (float) $fg;
+        // Jahressumme (letztes vollständiges Jahr)
+        if ($dt >= $yearStart && $dt <= $yearEnd) {
+            if ($fg !== '-999' && is_numeric($fg) && (float)$fg >= 0) $sumFG += (float)$fg;
+            if ($sd !== '-999' && is_numeric($sd) && (float)$sd >= 0) $sumSD += (float)$sd;
+            $count++;
         }
-        if ($sd !== '-999' && is_numeric($sd) && (float)$sd >= 0) {
-            $sumSD += (float) $sd;
+
+        // Monatsmittel (alle Jahre)
+        $month = (int)(($dt % 10000) / 100);
+        if ($month >= 1 && $month <= 12 && $sd !== '-999' && is_numeric($sd) && (float)$sd >= 0) {
+            $monthlySD[$month]    += (float)$sd;
+            $monthlyCount[$month]++;
+            $yearMin = min($yearMin, $year);
+            $yearMax = max($yearMax, $year);
         }
-        $count++;
     }
 
-    // Mindestens 300 Messtage erforderlich (aus 365)
     if ($count < 300) return null;
 
-    // Einheitenumrechnung:
+    // Monatsdurchschnitte (Sonnenstunden/Tag je Monat, Mehrjahresmittel)
+    $monthlyAvg = [];
+    for ($m = 1; $m <= 12; $m++) {
+        $monthlyAvg[$m] = $monthlyCount[$m] > 0
+            ? round($monthlySD[$m] / $monthlyCount[$m], 1)
+            : null;
+    }
+    $dataYearsStr = ($yearMin < 9999) ? "{$yearMin}–{$yearMax}" : null;
+
     // FG_LBERG: J/cm² → kWh/m²
-    //   1 J/cm² = 10.000 J/m² = 10.000/3.600.000 kWh/m² = 1/360 kWh/m²
     $irradiance = (int) round($sumFG / 360.0);
     $sunshine   = (int) round($sumSD);
 
     $result = [
-        'irradiance_kWhm2_year' => $irradiance,
-        'sunshine_hours_year'   => $sunshine,
-        'dataYear'              => $targetYear,
-        'dataPoints'            => $count,
-        'estimated'             => false,
+        'irradiance_kWhm2_year'      => $irradiance,
+        'sunshine_hours_year'        => $sunshine,
+        'dataYear'                   => $targetYear,
+        'dataPoints'                 => $count,
+        'estimated'                  => false,
+        'monthly_avg_sunshine_hours' => $monthlyAvg,
+        'monthly_data_years'         => $dataYearsStr,
     ];
 
     // Cache schreiben
@@ -410,6 +466,8 @@ echo json_encode([
     'dataYear'              => $solarData['dataYear'],
     'dataPoints'            => $solarData['dataPoints'],
     'estimated'             => $solarData['estimated'],
-    'germany_avg'           => $germanyAvg, // null wenn nicht verfügbar
-    'source'                => 'DWD OpenData',
+    'monthly_avg_sunshine_hours' => $solarData['monthly_avg_sunshine_hours'] ?? null,
+    'monthly_data_years'         => $solarData['monthly_data_years'] ?? null,
+    'germany_avg'                => $germanyAvg,
+    'source'                     => 'DWD OpenData',
 ], JSON_UNESCAPED_UNICODE);
