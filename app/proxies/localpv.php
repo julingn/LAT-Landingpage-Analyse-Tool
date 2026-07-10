@@ -281,8 +281,9 @@ CONVERSION-LOGIK:
 - ctaStrategy liefert 3 Beispiel-CTAs pro Conversion-Ebene + 3 Micro-CTAs mit Placement
 
 VORTEILE-BLOCK (benefits):
-Exakt 4 Kacheln mit festen Titeln: Unabhängigkeit, Wertsteigerung, Alles aus einer Hand, Zuverlässiger Partner.
-Jede Kachel: title (fix) + text (2–3 Sätze, konkret, lokal, kein Buzzword-Bingo).
+Ein Objekt mit H2 (Überschrift), einem Fließtext (intro) und exakt 4 Kacheln (items).
+Feste Kachel-Titel (H3): Unabhängigkeit, Wertsteigerung, Alles aus einer Hand, Zuverlässiger Partner.
+Alle 4 Beschreibungstexte müssen exakt gleich lang sein (je 2 Sätze, ca. 30–40 Wörter), konkret, lokal.
 
 PLACEMENT MAP:
 Erzeuge ein "placementMap"-Array mit 11 Einträgen (order 1–11).
@@ -341,12 +342,16 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
     ],
     "absatz": "Alternative zu den USPs: 2–3 Sätze (max. 40 Wörter), falls kein Bullet-Format gewünscht. Konkret, kein Buzzword-Bingo."
   },
-  "benefits": [
-    {"title": "Unabhängigkeit", "text": "2–3 Sätze, konkret, lokal, kein Buzzword-Bingo", "placement": "Vorteile-Kachel"},
-    {"title": "Wertsteigerung", "text": "2–3 Sätze, konkret, lokal", "placement": "Vorteile-Kachel"},
-    {"title": "Alles aus einer Hand", "text": "2–3 Sätze, konkret, lokal", "placement": "Vorteile-Kachel"},
-    {"title": "Zuverlässiger Partner", "text": "2–3 Sätze, konkret, lokal", "placement": "Vorteile-Kachel"}
-  ],
+  "benefits": {
+    "h2": "Überschrift für den Vorteile-Block (max. 50 Zeichen, aktivierend)",
+    "intro": "1–2 Sätze Fließtext unter der H2 (Einleitung in die 4 Vorteile, lokal, max. 40 Wörter)",
+    "items": [
+      {"h3": "Unabhängigkeit", "text": "Genau 2 Sätze, ca. 30–40 Wörter, konkret, lokal"},
+      {"h3": "Wertsteigerung",  "text": "Genau 2 Sätze, ca. 30–40 Wörter, konkret, lokal"},
+      {"h3": "Alles aus einer Hand", "text": "Genau 2 Sätze, ca. 30–40 Wörter, konkret, lokal"},
+      {"h3": "Zuverlässiger Partner", "text": "Genau 2 Sätze, ca. 30–40 Wörter, konkret, lokal"}
+    ]
+  },
   "sections": {
     "intro": {
       "h2": "Abschnittsüberschrift für den Einleitungsbereich (max. 50 Zeichen, lokal, nutzenorientiert)",
@@ -421,7 +426,7 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
   "placementMap": [
     {"order": 1, "module": "Hero", "visualType": "hero-text-block", "contentNeeded": ["Dachzeile", "H1", "2–4 USP-Bullets oder Absatz"], "generatedFields": ["hero.dachzeile", "hero.h1", "hero.usps", "hero.absatz"], "recommendation": "Dachzeile über dem H1 platzieren, dann H1, dann USP-Liste als Bullets. PV-Rechner folgt direkt darunter — kein CTA-Button im Hero-Text nötig."},
     {"order": 2, "module": "Einleitung", "visualType": "two-column-text-image", "contentNeeded": ["H2", "Einleitungstext"], "generatedFields": ["sections.intro.h2", "sections.intro.micro", "sections.intro.content"], "recommendation": "2-Spalten-Layout: links H2 über dem Text, rechts Stadtbild (CMS-Bild, kein generierter Inhalt). micro als kompakter Teaser-Satz optional."},
-    {"order": 3, "module": "Vorteile", "visualType": "four-card-grid", "contentNeeded": ["Unabhängigkeit", "Wertsteigerung", "Alles aus einer Hand", "Zuverlässiger Partner"], "generatedFields": ["benefits[0]", "benefits[1]", "benefits[2]", "benefits[3]"], "recommendation": "Einbauhinweis"},
+    {"order": 3, "module": "Vorteile", "visualType": "2x2-check-grid", "contentNeeded": ["H2", "Fließtext", "4 Kacheln H3+Text"], "generatedFields": ["benefits.h2", "benefits.intro", "benefits.items[0-3]"], "recommendation": "H2 oben, darunter Fließtext (intro), dann 2×2 Grid mit Checkmark-Icon + H3 + Text. Alle 4 Kacheln gleich lang."},
     {"order": 4, "module": "Solarpotenzial-Grafik", "visualType": "chart-section", "contentNeeded": ["Einordnung vor Grafik"], "generatedFields": ["sections.solarPotential.micro", "sections.solarPotential.content"], "recommendation": "Einbauhinweis"},
     {"order": 5, "module": "Kennzahlen-Block", "visualType": "statistics-gradient", "contentNeeded": ["Erklärung der Zahlen"], "generatedFields": ["sections.statisticsExplanation.micro", "sections.statisticsExplanation.content"], "recommendation": "Einbauhinweis"},
     {"order": 6, "module": "3-Schritte-Prozess", "visualType": "process-grid", "contentNeeded": ["Ablauf-Erklärung"], "generatedFields": ["sections.processIntro.micro", "sections.processIntro.content"], "recommendation": "Einbauhinweis"},

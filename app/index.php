@@ -4733,12 +4733,12 @@ function pvDemo(){
     input:{cityOrPostalCode:'64283 Darmstadt',primaryKeyword:'Photovoltaik Darmstadt',pvCalculatorInHero:true},
     meta:{title:'Photovoltaik Darmstadt – Solaranlage planen & Kosten berechnen',description:'Jetzt PV-Potenzial für Ihr Dach in Darmstadt berechnen. Individuelle Ertragsschätzung, transparente Kosten, regionaler Installateur.'},
     hero:{dachzeile:'Ihr Photovoltaik-Experte in Darmstadt',h1:'Solarstrom für Ihr Dach in Darmstadt',usps:['Unabhängig von steigenden Strompreisen','Eigenen Strom produzieren — ab dem ersten Tag','Rundum-Betreuung von Planung bis Inbetriebnahme'],absatz:'Mit einer Photovoltaikanlage nutzen Sie das Sonnenpotenzial Ihres Dachs in Darmstadt direkt — für mehr Unabhängigkeit und sinkende Stromkosten.'},
-    benefits:[
-      {title:'Unabhängigkeit',text:'Mit einer Photovoltaikanlage auf Ihrem Darmstädter Dach reduzieren Sie Ihren Strombezug aus dem Netz dauerhaft. Steigende Strompreise treffen Sie weniger – ein Großteil Ihres Verbrauchs lässt sich durch selbst erzeugten Solarstrom decken.',placement:'Vorteile-Kachel'},
-      {title:'Wertsteigerung',text:'Immobilien mit Solaranlage erzielen in der Region Darmstadt nachweislich höhere Verkaufspreise. Eine dokumentierte Anlage mit Einspeisevergütung ist ein konkretes Argument beim Immobilienverkauf.',placement:'Vorteile-Kachel'},
-      {title:'Alles aus einer Hand',text:'Von der Dachprüfung über Planung und Montage bis zur Anmeldung beim Netzbetreiber: Regionale Installateure in Darmstadt koordinieren alle Schritte. Sie müssen sich um nichts kümmern.',placement:'Vorteile-Kachel'},
-      {title:'Zuverlässiger Partner',text:'Qualifizierte Fachbetriebe in der Region kennen die lokalen Anforderungen, Gebäudetypen und Netzbedingungen. Nach der Installation steht Ihnen ein Ansprechpartner für Wartung und Monitoring zur Verfügung.',placement:'Vorteile-Kachel'},
-    ],
+    benefits:{h2:'Werden Sie jetzt Strom-Selbst-Versorger',intro:'Mit der eigenen Photovoltaik-Anlage klimafreundlichen Ökostrom zu produzieren ist nicht nur gut für die Umwelt. Erfahren Sie mehr über die Vorteile einer PV-Anlage und die MVV als Ihr persönlicher PV-Anbieter:',items:[
+      {h3:'Unabhängigkeit',text:'Mit einer Photovoltaikanlage auf Ihrem Darmstädter Dach reduzieren Sie Ihren Strombezug dauerhaft. Steigende Strompreise treffen Sie weniger – ein Großteil Ihres Verbrauchs lässt sich durch selbst erzeugten Solarstrom decken.'},
+      {h3:'Wertsteigerung',text:'Immobilien mit Solaranlage erzielen in der Region Darmstadt nachweislich höhere Verkaufspreise. Eine dokumentierte Anlage mit Einspeisevergütung ist ein konkretes Argument beim Immobilienverkauf.'},
+      {h3:'Alles aus einer Hand',text:'Von der Dachprüfung über Planung und Montage bis zur Anmeldung beim Netzbetreiber: Regionale Installateure koordinieren alle Schritte. Sie müssen sich um nichts kümmern.'},
+      {h3:'Zuverlässiger Partner',text:'Qualifizierte Fachbetriebe in der Region kennen die lokalen Anforderungen und Gebäudetypen. Nach der Installation steht Ihnen ein Ansprechpartner für Wartung und Monitoring zur Verfügung.'},
+    ]},
     sections:{
       intro:{h2:'Photovoltaik in Darmstadt — lohnt es sich für Ihr Dach?',micro:'Darmstadt zählt mit über 1.820 Sonnenstunden pro Jahr zu den günstigsten PV-Standorten in Hessen.',content:'Photovoltaik in Darmstadt lohnt sich – nicht nur wegen des vergleichsweise sonnigen Klimas, sondern auch weil viele Gebäude in der Region gut geeignete Dachflächen bieten. Ob Einfamilienhaus im Martinsviertel, Gewerbebau im Norden oder Wohnanlage in Bessungen: Die Kombination aus Dachausrichtung, verfügbarer Fläche und lokalem Stromverbrauch entscheidet über den Ertrag. Unser PV-Rechner berechnet Ihr individuelles Potenzial – in wenigen Sekunden, kostenlos und ohne Verpflichtung.',placement:'Direkt unter dem Hero'},
       solarPotential:{micro:'Mit 1.102 kWh/m² Globalstrahlung liegt Darmstadt rund 3 % über dem deutschen Klimanormal.',content:'Darmstadt verzeichnet laut Deutschem Wetterdienst eine Globalstrahlung von 1.102 kWh/m² pro Jahr und ca. 1.821 Sonnenstunden – das ist spürbar mehr als der deutsche Klimanormal von 1.665 Sonnenstunden. Für eine typische Dachanlage mit 10 kWp bedeutet das einen Jahresertrag von ca. 9.000–10.500 kWh, abhängig von Ausrichtung, Neigung und möglicher Verschattung. Die Grafik zeigt, wie sich das Solarpotenzial über die Monate verteilt – und warum besonders Frühjahr und Sommer für den Eigenverbrauch entscheidend sind.',placement:'Vor oder unter der Solarpotenzial-Grafik'},
@@ -4789,7 +4789,7 @@ function pvDemo(){
     placementMap:[
       {order:1,module:'Hero',visualType:'hero-text-block',contentNeeded:['Dachzeile','H1','2–4 USP-Bullets oder Absatz'],generatedFields:['hero.dachzeile','hero.h1','hero.usps','hero.absatz'],recommendation:'Dachzeile über dem H1, dann H1, dann USP-Liste. PV-Rechner folgt direkt darunter.'},
       {order:2,module:'Einleitung',visualType:'two-column-text-image',contentNeeded:['H2','Intro-Text'],generatedFields:['sections.intro.h2','sections.intro.micro','sections.intro.content'],recommendation:'2-Spalten: links H2 + Text, rechts Stadtbild (CMS-Bild). micro optional als Teaser.'},
-      {order:3,module:'Vorteile',visualType:'4-column-grid',contentNeeded:['4 Kacheln'],generatedFields:['benefits[0-3]'],recommendation:'Je eine Kachel pro benefit-Eintrag. Icon + Title + Text.'},
+      {order:3,module:'Vorteile',visualType:'2x2-check-grid',contentNeeded:['H2','Fließtext','4 Kacheln H3+Text'],generatedFields:['benefits.h2','benefits.intro','benefits.items[0-3]'],recommendation:'H2 oben, darunter Fließtext, dann 2×2 Grid mit Checkmark + H3 + Text. Alle 4 Kacheln gleich lang.'},
       {order:4,module:'Solarpotenzial-Grafik',visualType:'chart-section',contentNeeded:['Begleittext vor Grafik'],generatedFields:['sections.solarPotential.micro','sections.solarPotential.content'],recommendation:'solarPotential.micro als Intro-Satz über der Grafik, content darunter.'},
       {order:5,module:'Kennzahlen-Block',visualType:'stat-grid',contentNeeded:['Erklärungstext unter Zahlen'],generatedFields:['sections.statisticsExplanation.micro','sections.statisticsExplanation.content'],recommendation:'statisticsExplanation.content unter den Zahlenblöcken als Kontextualisierung.'},
       {order:6,module:'3-Schritte-Prozess',visualType:'step-by-step',contentNeeded:['Einleitung'],generatedFields:['sections.processIntro.micro','sections.processIntro.content'],recommendation:'processIntro.micro als Abschnittsüberschrift, content als Fließtext davor.'},
@@ -5150,12 +5150,19 @@ function pvRenderResults(d){
   //              [4]=statisticsExplanation [5]=processIntro [6]=projectsIntro
   //              [7]=economicsText [8]=testimonialsIntro [9]=faqIntro
   //              [10]=formIntro [11]=FAQ-Q&A
-  const benefits=Array.isArray(d.benefits)?d.benefits:[];
-  const benefitsHtml=benefits.length?
-    '<div class="pv-card"><div class="pv-card-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Vorteile (4 Kacheln)</div>'+
+  const benefitsRaw=d.benefits||{};
+  const benefitsIsLegacy=Array.isArray(benefitsRaw); // Abwärtskompatibilität
+  const benefitsH2=benefitsIsLegacy?'':(benefitsRaw.h2||'');
+  const benefitsIntro=benefitsIsLegacy?'':(benefitsRaw.intro||'');
+  const benefitsItems=benefitsIsLegacy?benefitsRaw:(benefitsRaw.items||[]);
+  const benefitsHtml=benefitsItems.length?
+    '<div class="pv-card"><div class="pv-card-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Vorteile (H2 + Fließtext + 4 Kacheln)</div>'+
     `<button class="pv-copy-btn" id="pv-copy-benefits" onclick="pvCopySection('benefits')">${CI} Kopieren</button>`+
+    (benefitsH2?`<div class="pv-sec-label">H2</div><div class="pv-hero-value" style="font-size:17px;font-weight:700;color:var(--text)">${escHtml(benefitsH2)}</div>`:'')+
+    (benefitsIntro?`<div class="pv-sec-label">Fließtext</div><div class="pv-sec-micro">${escHtml(benefitsIntro)}</div>`:'')+
+    '<div class="pv-sec-label">4 Kacheln (2×2 Grid)</div>'+
     '<div class="pv-benefits-grid">'+
-    benefits.map(b=>`<div class="pv-benefit-card"><div class="pv-benefit-title">${escHtml(b.title||'')}</div><div class="pv-benefit-text">${escHtml(b.text||'')}</div>${b.placement?`<div class="pv-benefit-placement">${escHtml(b.placement)}</div>`:''}</div>`).join('')+
+    benefitsItems.map(b=>`<div class="pv-benefit-card"><div class="pv-benefit-title">${escHtml(b.h3||b.title||'')}</div><div class="pv-benefit-text">${escHtml(b.text||'')}</div></div>`).join('')+
     '</div></div>':'';
 
   const cta=d.ctaStrategy||{};
@@ -5252,9 +5259,14 @@ function pvCopySection(key){
   }else if(key==='hero'){
     const h=pvData.hero||{};
     text=`Dachzeile: ${h.dachzeile||''}\nH1: ${h.h1||''}\nUSPs:\n${(h.usps||[]).map(u=>'- '+u).join('\n')}\nAbsatz: ${h.absatz||''}`;
-  }else if(key==='benefits'){
-    const bn=Array.isArray(pvData.benefits)?pvData.benefits:[];
-    text=bn.map(b=>`${b.title||''}:\n${b.text||''}`).join('\n\n');
+  } else if(key==='benefits'){
+    const b=pvData.benefits||{};
+    const items=Array.isArray(b)?b:(b.items||[]);
+    const h2=Array.isArray(b)?'':(b.h2||'');
+    const intro=Array.isArray(b)?'':(b.intro||'');
+    text=(h2?`H2: ${h2}\n\n`:'')+
+         (intro?`Fließtext: ${intro}\n\n`:'')+
+         items.map(i=>`${i.h3||i.title||''}:\n${i.text||''}`).join('\n\n');
   }else if(key==='ctaStrategy'){
     const cs=pvData.ctaStrategy||{};
     const p=(cs.primaryConversion?.ctaExamples||[]).join('\n');
