@@ -360,9 +360,11 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
       "placement": "2-Spalten-Layout: Links H2 + Text, rechts Stadtbild (wird vom CMS befüllt)"
     },
     "solarPotential": {
-      "micro": "1–2 Sätze Brückentext zur Solarpotenzial-Grafik",
+      "h2": "Frage-H2 für die Section (z.B. 'Lohnt sich eine Photovoltaikanlage in {$cityOrPostalCode}?', max. 60 Zeichen)",
+      "micro": "1–2 Sätze Brückentext über der Grafik (optional, kurz)",
       "content": "{$solarPotentialDesc}",
-      "placement": "Vor oder unter der Solarpotenzial-Grafik"
+      "statement": "Kurzes positives Fazit-Statement unter der Grafik (1 Satz, z.B. 'Glückwunsch: Hier lohnt sich eine PV-Anlage also besonders.' — DWD-Wert einsetzen wenn vorhanden)",
+      "placement": "H2 oben, Text darunter, dann mikroanimiertes Grafik-Element (Sonnenstunden lokal vs. DE), dann Statement"
     },
     "statisticsExplanation": {
       "micro": "1–2 Sätze Brückentext zum Kennzahlenblock",
@@ -427,7 +429,7 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
     {"order": 1, "module": "Hero", "visualType": "hero-text-block", "contentNeeded": ["Dachzeile", "H1", "2–4 USP-Bullets oder Absatz"], "generatedFields": ["hero.dachzeile", "hero.h1", "hero.usps", "hero.absatz"], "recommendation": "Dachzeile über dem H1 platzieren, dann H1, dann USP-Liste als Bullets. PV-Rechner folgt direkt darunter — kein CTA-Button im Hero-Text nötig."},
     {"order": 2, "module": "Einleitung", "visualType": "two-column-text-image", "contentNeeded": ["H2", "Einleitungstext"], "generatedFields": ["sections.intro.h2", "sections.intro.micro", "sections.intro.content"], "recommendation": "2-Spalten-Layout: links H2 über dem Text, rechts Stadtbild (CMS-Bild, kein generierter Inhalt). micro als kompakter Teaser-Satz optional."},
     {"order": 3, "module": "Vorteile", "visualType": "2x2-check-grid", "contentNeeded": ["H2", "Fließtext", "4 Kacheln H3+Text"], "generatedFields": ["benefits.h2", "benefits.intro", "benefits.items[0-3]"], "recommendation": "H2 oben, darunter Fließtext (intro), dann 2×2 Grid mit Checkmark-Icon + H3 + Text. Alle 4 Kacheln gleich lang."},
-    {"order": 4, "module": "Solarpotenzial-Grafik", "visualType": "chart-section", "contentNeeded": ["Einordnung vor Grafik"], "generatedFields": ["sections.solarPotential.micro", "sections.solarPotential.content"], "recommendation": "Einbauhinweis"},
+    {"order": 4, "module": "Solarpotenzial", "visualType": "text-animation-statement", "contentNeeded": ["H2", "Text", "Statement"], "generatedFields": ["sections.solarPotential.h2", "sections.solarPotential.content", "sections.solarPotential.statement"], "recommendation": "H2 zentriert, Text darunter. Animiertes Element zeigt Sonnenstunden lokal vs. DE (CMS-Daten, kein generierter Inhalt). Statement kurz und positiv danach."},
     {"order": 5, "module": "Kennzahlen-Block", "visualType": "statistics-gradient", "contentNeeded": ["Erklärung der Zahlen"], "generatedFields": ["sections.statisticsExplanation.micro", "sections.statisticsExplanation.content"], "recommendation": "Einbauhinweis"},
     {"order": 6, "module": "3-Schritte-Prozess", "visualType": "process-grid", "contentNeeded": ["Ablauf-Erklärung"], "generatedFields": ["sections.processIntro.micro", "sections.processIntro.content"], "recommendation": "Einbauhinweis"},
     {"order": 7, "module": "Referenzprojekte", "visualType": "project-cards", "contentNeeded": ["Einordnung der Projektkarten"], "generatedFields": ["sections.projectsIntro.micro", "sections.projectsIntro.content"], "recommendation": "Einbauhinweis"},
