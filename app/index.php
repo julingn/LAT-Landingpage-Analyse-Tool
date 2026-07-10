@@ -4732,6 +4732,11 @@ function pvDemo(){
     monthly_data_years:'1951–2024',
     germany_avg:{sunshine_hours_year:1914,year:2025,klimanormal_1991_2020:1665,irradiance_kWhm2_year:1073,source:'DWD Regionalmittel'},
     source:'DWD OpenData'};
+  // Demo: PVGIS-Daten simulieren (Peaksonnenstunden aus Globalstrahlung)
+  pvPvgisData={lat:49.8728,lon:8.6512,db:'PVGIS-SARAH3',year_min:2005,year_max:2023,source:'PVGIS (EU-Kommission, Copernicus)',
+    monthly:{1:{peak_sun_hours:0.7},2:{peak_sun_hours:1.4},3:{peak_sun_hours:2.8},4:{peak_sun_hours:4.1},
+             5:{peak_sun_hours:5.2},6:{peak_sun_hours:5.8},7:{peak_sun_hours:5.6},8:{peak_sun_hours:4.9},
+             9:{peak_sun_hours:3.4},10:{peak_sun_hours:1.9},11:{peak_sun_hours:0.8},12:{peak_sun_hours:0.5}}};
   const d={
     input:{cityOrPostalCode:'64283 Darmstadt',primaryKeyword:'Photovoltaik Darmstadt',pvCalculatorInHero:true},
     meta:{title:'Photovoltaik Darmstadt – Solaranlage planen & Kosten berechnen',description:'Jetzt PV-Potenzial für Ihr Dach in Darmstadt berechnen. Individuelle Ertragsschätzung, transparente Kosten, regionaler Installateur.'},
@@ -5292,7 +5297,6 @@ function pvWidgetConfigHtml() {
   if (!pvData || !pvDwdData) return '';
   const city   = pvData.input?.cityOrPostalCode || pvDwdData.location || '';
   const dwd    = pvDwdData;
-  const months = dwd.monthly_avg_sunshine_hours || null;
   const stName = dwd.station?.name || '–';
   const stDist = dwd.station?.distance_km || '?';
   const yRange = dwd.monthly_data_years || dwd.dataYear || '–';
@@ -5300,7 +5304,90 @@ function pvWidgetConfigHtml() {
   const localSun = dwd.sunshine_hours_year || '–';
   const refSun   = deKN || '–';
 
+  // ── Monatswerte: PVGIS (bevorzugt) oder DWD-Mehrjahresmittel (Fallback) ──
+  let months = null;
+  let monthsSource = '';
+  if (pvPvgisData && pvPvgisData.monthly && Object.keys(pvPvgisData.monthly).length === 12) {
+    months = {};
+    for (let m = 1; m <= 12; m++) {
+      months[m] = pvPvgisData.monthly[m]?.peak_sun_hours ?? null;
+    }
+    const db = pvPvgisData.db || 'PVGIS-SARAH3';
+    const y1 = pvPvgisData.year_min || '2005';
+    const y2 = pvPvgisData.year_max || '2023';
+    monthsSource = `PVGIS (EU-Kommission, ${db}, ${y1}–${y2}) · Koordinaten ${pvPvgisData.lat}, ${pvPvgisData.lon}`;
+  } else if (dwd.monthly_avg_sunshine_hours) {
+    months = dwd.monthly_avg_sunshine_hours;
+    monthsSource = `DWD Messstation ${stName} (${stDist}\u00a0km) · Mehrjährige Tagesmittel · Zeitraum ${yRange}`;
+  }
+
   if (!months) return '';
+
+  const MONATE = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+  const monthsJs = Object.entries(months)
+    .map(([m, v]) => `\t\t${m}: ${v !== null ? Number(v).toFixed(1) : 'null'},`)
+    .join('\n');
+  const hoursConfig = `var HoursOfSunshineConfig = {\n\tcity: ${JSON.stringify(city)},\n\tmonths: {\n${monthsJs}\n\t},\n};`;
+  const solarConfig = `var SolarPotentialConfig = {\n\tbuildings: {\n\t\tbig: {\n\t\t\tname: ${JSON.stringify(city)},\n\t\t\tvalue: ${localSun}\n\t\t},\n\t\tsmall: {\n\t\t\tname: "Deutschland",\n\t\t\tvalue: ${refSun}\n\t\t}\n\t}\n};`;
+
+  const CI = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  const isPvgis = !!pvPvgisData?.monthly;
+
+  const monthRows = Object.entries(months).map(([m,v],i)=>{
+    const val = v !== null ? Number(v) : null;
+    const bar = val ? Math.round((val/10)*100) : 0;
+    return `<tr>
+      <td style="padding:3px 8px;font-size:11px;color:var(--text3);white-space:nowrap">${MONATE[i]}</td>
+      <td style="padding:3px 8px;font-size:11px;font-weight:700;color:var(--text);font-family:'Geist Mono',monospace;text-align:right">${val !== null ? val.toFixed(1) : '–'}</td>
+      <td style="padding:3px 8px;width:120px">
+        <div style="height:6px;border-radius:3px;background:var(--bg4);overflow:hidden">
+          <div style="height:100%;width:${bar}%;background:linear-gradient(90deg,var(--amber),#f97316);border-radius:3px"></div>
+        </div>
+      </td>
+      <td style="padding:3px 8px;font-size:10px;color:var(--text3)">h/Tag</td>
+    </tr>`;
+  }).join('');
+
+  const srcBadge = isPvgis
+    ? `<span class="pv-data-source-tag" style="background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border)">PVGIS · EU-Kommission · Satellitendaten</span>`
+    : `<span class="pv-data-source-tag">DWD · Station ${escHtml(stName)} · ${escHtml(String(yRange))}</span>`;
+
+  return `<div class="pv-card">
+    <div class="pv-card-label">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+      ☀ Sonnenstand-Widget (Konfiguration)
+    </div>
+    <div class="pv-placement-badge" style="margin-bottom:10px"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg>Nach Kundenstimmen · CMS-Konfiguration</div>
+    <div class="pv-data-hint" style="margin-bottom:12px">
+      <span class="pv-data-hint-label">Monatswerte:</span>
+      ${srcBadge}
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+      <div>
+        <div class="pv-sec-label" style="margin-bottom:6px">Sonnenstunden je Monat (Tagesmittel)</div>
+        <table style="width:100%;border-collapse:collapse">${monthRows}</table>
+      </div>
+      <div>
+        <div class="pv-sec-label" style="margin-bottom:6px">Jahreswerte (Sonnenstunden/Jahr)</div>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-size:12px;line-height:2">
+          <div><strong>${escHtml(city)}</strong> &nbsp;<span style="font-family:'Geist Mono',monospace;font-size:13px;color:var(--accent)">${localSun} h</span></div>
+          <div style="color:var(--text3)">Deutschland &nbsp;<span style="font-family:'Geist Mono',monospace;font-size:13px;color:var(--text2)">${refSun} h</span></div>
+        </div>
+        <div style="font-size:10px;color:var(--text3);margin-top:6px">Datenquelle DWD OpenData · ${escHtml(city)} Jahreswert ${dwd.dataYear||'–'} · DE Klimanormal 1991–2020</div>
+      </div>
+    </div>
+
+    <div class="pv-sec-label" style="margin-top:14px">HoursOfSunshineConfig <small style="font-weight:400">(in CMS einfügen, Werte oben pro Stadt austauschen)</small></div>
+    <pre style="font-family:'Geist Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;overflow-x:auto;line-height:1.6;color:var(--text2);margin:4px 0 4px">${escHtml(hoursConfig)}</pre>
+    <div style="font-size:10px;color:var(--text3);margin:3px 0 4px">Datenquelle: ${escHtml(monthsSource)}</div>
+    <button class="pv-copy-btn" onclick="pvCopySectionText(${JSON.stringify(hoursConfig)},this)">${CI} Kopieren</button>
+
+    <div class="pv-sec-label" style="margin-top:12px">SolarPotentialConfig <small style="font-weight:400">(Hauskurven-Vergleich)</small></div>
+    <pre style="font-family:'Geist Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;overflow-x:auto;line-height:1.6;color:var(--text2);margin:4px 0 4px">${escHtml(solarConfig)}</pre>
+    <div style="font-size:10px;color:var(--text3);margin:3px 0 4px">Datenquelle: DWD OpenData · ${escHtml(city)} ${localSun}&thinsp;h/Jahr (Jahreswert ${dwd.dataYear||'–'}) · Deutschland ${refSun}&thinsp;h/Jahr (Klimanormal 1991–2020)</div>
+    <button class="pv-copy-btn" onclick="pvCopySectionText(${JSON.stringify(solarConfig)},this)">${CI} Kopieren</button>
+  </div>`;
 
   const MONATE = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
   const monthsJs = Object.entries(months)
