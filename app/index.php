@@ -1521,7 +1521,7 @@ button{font-family:inherit}
             <div style="font-size:11px;color:var(--text3);margin-top:4px">Unterseiten werden gemäß Crawl-Tiefe automatisch erfasst.</div>
           </div>
           <div class="settings-field" style="margin-top:12px">
-            <label class="settings-label">Crawl-Tiefe</label>
+            <label class="settings-label" data-tip="Wie viele Ebenen an Unterseiten sollen gecrawlt werden?&#10;&#10;Tiefe 0: Nur die eingegebenen URLs selbst.&#10;Tiefe 1: Diese URLs + alle direkten Unterseiten&#10;         (nur gleiche Domain & gleicher Pfad).&#10;Tiefe 2: Zusätzlich noch eine weitere Ebene darunter.">Crawl-Tiefe</label>
             <select id="cf-depth" class="settings-input">
               <option value="0">Nur diese URL (keine Links folgen)</option>
               <option value="1" selected>1 Ebene tiefer (direkte Unterseiten)</option>
@@ -1577,7 +1577,7 @@ button{font-family:inherit}
 
         <!-- Ausschluss-Begriffe -->
         <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
-          <label class="settings-label" style="display:flex;align-items:center;gap:6px">
+          <label class="settings-label" style="display:flex;align-items:center;gap:6px" data-tip="Treffer werden ausgeblendet, wenn das vollständige Wort&#10;rund um den Match einen Ausschluss-Begriff enthält.&#10;&#10;Beispiel: Suchbegriff ‚BEG', Ausschluss ‚GewerBEGas'&#10;→ Treffer in ‚GewerBEGas' wird unterdrückt.&#10;&#10;Kein Re-Crawl nötig — wirkt sofort auf alle Ergebnisse.">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
             Ausschluss-Begriffe
             <span style="font-weight:400;color:var(--text3)">(Treffer die dieses Wort enthalten, werden ausgeblendet)</span>
@@ -1602,14 +1602,14 @@ button{font-family:inherit}
           </div>
         </div>
         <div class="cf-opt-grid">
-          <div class="cf-opt on" id="cfopt-plural"      onclick="cfToggleOpt(this,'plural')">      <div class="cf-toggle"></div>Singular / Plural</div>
-          <div class="cf-opt on" id="cfopt-hyphen"      onclick="cfToggleOpt(this,'hyphen')">      <div class="cf-toggle"></div>Bindestrich-Varianten</div>
-          <div class="cf-opt on" id="cfopt-umlauts"     onclick="cfToggleOpt(this,'umlauts')">     <div class="cf-toggle"></div>oe ↔ ö / ae ↔ ä / ue ↔ ü</div>
-          <div class="cf-opt on" id="cfopt-ai_synonyms" onclick="cfToggleOpt(this,'ai_synonyms')"> <div class="cf-toggle"></div>KI-Synonyme (OpenAI)</div>
-          <div class="cf-opt on" id="cfopt-partial"     onclick="cfToggleOpt(this,'partial')">     <div class="cf-toggle"></div>Teilwort-Treffer</div>
-          <div class="cf-opt on" id="cfopt-js"          onclick="cfToggleOpt(this,'js')">          <div class="cf-toggle"></div>JS-Rendering (Puppeteer)</div>
-          <div class="cf-opt on" id="cfopt-ocr"         onclick="cfToggleOpt(this,'ocr')">         <div class="cf-toggle"></div>Bild-OCR (OpenAI Vision)</div>
-          <div class="cf-opt"    id="cfopt-case"        onclick="cfToggleOpt(this,'case')">        <div class="cf-toggle"></div>Groß-/Kleinschreibung</div>
+          <div class="cf-opt on" id="cfopt-plural"      onclick="cfToggleOpt(this,'plural')"      data-tip="Sucht nach weiteren deutschen Wortformen.&#10;Beispiel: ‚Förderung' → findet auch ‚Förderungen'&#10;         ‚Antrag' → findet auch ‚Anträge'">      <div class="cf-toggle"></div>Singular / Plural</div>
+          <div class="cf-opt on" id="cfopt-hyphen"      onclick="cfToggleOpt(this,'hyphen')"      data-tip="Findet Schreibweisen mit und ohne Bindestrich.&#10;Beispiel: ‚BEG Förderung' → findet auch ‚BEG-Förderung'&#10;         ‚Photovoltaik Anlage' → ‚Photovoltaik-Anlage'">      <div class="cf-toggle"></div>Bindestrich-Varianten</div>
+          <div class="cf-opt on" id="cfopt-umlauts"     onclick="cfToggleOpt(this,'umlauts')"     data-tip="Findet Umlaut-Umschreibungen automatisch.&#10;Beispiel: ‚Ökostrom' → findet auch ‚Oekostrom'&#10;         ‚Förderung' → findet auch ‚Foerderung'">     <div class="cf-toggle"></div>oe ↔ ö / ae ↔ ä / ue ↔ ü</div>
+          <div class="cf-opt on" id="cfopt-ai_synonyms" onclick="cfToggleOpt(this,'ai_synonyms')" data-tip="Generiert echte Synonyme via OpenAI (1× pro Begriff, gecacht).&#10;Beispiel: ‚Photovoltaik' → ‚Solar', ‚PV-Anlage', ‚Solarstrom'&#10;Erfordert konfigurierten OpenAI-API-Key."> <div class="cf-toggle"></div>KI-Synonyme (OpenAI)</div>
+          <div class="cf-opt on" id="cfopt-partial"     onclick="cfToggleOpt(this,'partial')"     data-tip="Findet den Begriff auch als Teil längerer Wörter.&#10;Beispiel: ‚Ökostrom' trifft auf ‚Ökostromanbieter'&#10;Deaktivieren wenn nur eigenständige Wörter gesucht werden.">     <div class="cf-toggle"></div>Teilwort-Treffer</div>
+          <div class="cf-opt on" id="cfopt-js"          onclick="cfToggleOpt(this,'js')"          data-tip="Lädt die Seite vollständig mit Headless-Browser (Puppeteer).&#10;Notwendig für React-, Angular- und andere JS-gerenderte Seiten.&#10;Langsamer, aber vollständig — empfohlen für moderne Websites.">          <div class="cf-toggle"></div>JS-Rendering (Puppeteer)</div>
+          <div class="cf-opt on" id="cfopt-ocr"         onclick="cfToggleOpt(this,'ocr')"         data-tip="Extrahiert Text aus Bildern ohne Alt-Text&#10;via OpenAI Vision API (gpt-4o).&#10;Nur für Bilder ≥ 100×80 px. Erfordert OpenAI-Key.">         <div class="cf-toggle"></div>Bild-OCR (OpenAI Vision)</div>
+          <div class="cf-opt"    id="cfopt-case"        onclick="cfToggleOpt(this,'case')"        data-tip="Standard aus: ‚BEG' findet auch ‚beg' und ‚Beg'.&#10;Einschalten wenn Groß-/Kleinschreibung unterschieden werden soll,&#10;z.B. Abkürzungen (‚BEG') von normalen Wörtern trennen.">        <div class="cf-toggle"></div>Groß-/Kleinschreibung</div>
         </div>
         <div style="font-size:11px;color:var(--text3);margin-top:10px;line-height:1.5">
           Teilwort findet „Ökostromanbieter" bei Suche nach „Ökostrom". · Bild-OCR extrahiert Text aus Grafiken.
@@ -1650,10 +1650,10 @@ button{font-family:inherit}
 
       <!-- Stat-Grid (nach Abschluss) -->
       <div class="cf-stat-grid" id="cf-stat-grid" style="display:none">
-        <div class="cf-stat-card"><div class="cf-stat-val" id="cf-stat-hits" style="color:var(--accent)">0</div><div class="cf-stat-label">Treffer gesamt</div></div>
-        <div class="cf-stat-card"><div class="cf-stat-val" id="cf-stat-pages">0</div><div class="cf-stat-label">Seiten mit Treffern</div></div>
-        <div class="cf-stat-card"><div class="cf-stat-val" id="cf-stat-ocr" style="color:var(--amber)">0</div><div class="cf-stat-label">Bild-OCR Treffer</div></div>
-        <div class="cf-stat-card"><div class="cf-stat-val" id="cf-stat-synonyms" style="color:var(--green)">0</div><div class="cf-stat-label">Synonym-Treffer</div></div>
+        <div class="cf-stat-card" data-tip="Alle gefundenen Treffer über alle URLs."><div class="cf-stat-val" id="cf-stat-hits" style="color:var(--accent)">0</div><div class="cf-stat-label">Treffer gesamt</div></div>
+        <div class="cf-stat-card" data-tip="Anzahl der gecrawlten Seiten, auf denen&#10;mindestens ein Begriff gefunden wurde."><div class="cf-stat-val" id="cf-stat-pages">0</div><div class="cf-stat-label">Seiten mit Treffern</div></div>
+        <div class="cf-stat-card" data-tip="Treffer, die in Bildern ohne Alt-Text&#10;per OpenAI Vision (OCR) gefunden wurden."><div class="cf-stat-val" id="cf-stat-ocr" style="color:var(--amber)">0</div><div class="cf-stat-label">Bild-OCR Treffer</div></div>
+        <div class="cf-stat-card" data-tip="Treffer auf KI-generierten Synonymen&#10;(nicht auf dem eingegebenen Begriff selbst)."><div class="cf-stat-val" id="cf-stat-synonyms" style="color:var(--green)">0</div><div class="cf-stat-label">Synonym-Treffer</div></div>
       </div>
 
       <!-- Ergebnisse -->
@@ -1695,10 +1695,10 @@ button{font-family:inherit}
             <thead>
               <tr>
                 <th>URL</th>
-                <th>Suchbegriff</th>
-                <th>Variante</th>
-                <th>Kontext</th>
-                <th>Position</th>
+                <th data-tip="Der eingegebene Suchbegriff, für den dieser Treffer gefunden wurde.">Suchbegriff</th>
+                <th data-tip="Das tatsächlich gefundene Wort.&#10;Schwarz = exakter Treffer&#10;Blau = Schreibvariante (Bindestrich, Umlaut, Plural)&#10;Grün = KI-Synonym">Variante</th>
+                <th data-tip="Textausschnitt rund um den Treffer (± 80 Zeichen).&#10;Der Treffer ist gelb hervorgehoben.">Kontext</th>
+                <th data-tip="Wo auf der Seite der Treffer gefunden wurde.&#10;H1–H6 = Überschrift&#10;Absatz / Liste / Tabelle = Fließtext&#10;Bild-Alt = Alt-Attribut eines Bildes&#10;Bild-OCR = Aus Bild extrahierter Text&#10;Meta-Title / Meta-Description = Seitenmeta">Position</th>
               </tr>
             </thead>
             <tbody id="cf-table-body">
