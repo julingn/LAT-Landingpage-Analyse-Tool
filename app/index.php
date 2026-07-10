@@ -4742,12 +4742,12 @@ function pvDemo(){
     sections:{
       intro:{h2:'Photovoltaik in Darmstadt — lohnt es sich für Ihr Dach?',micro:'Darmstadt zählt mit über 1.820 Sonnenstunden pro Jahr zu den günstigsten PV-Standorten in Hessen.',content:'Photovoltaik in Darmstadt lohnt sich – nicht nur wegen des vergleichsweise sonnigen Klimas, sondern auch weil viele Gebäude in der Region gut geeignete Dachflächen bieten. Ob Einfamilienhaus im Martinsviertel, Gewerbebau im Norden oder Wohnanlage in Bessungen: Die Kombination aus Dachausrichtung, verfügbarer Fläche und lokalem Stromverbrauch entscheidet über den Ertrag. Unser PV-Rechner berechnet Ihr individuelles Potenzial – in wenigen Sekunden, kostenlos und ohne Verpflichtung.',placement:'Direkt unter dem Hero'},
       solarPotential:{h2:'Lohnt sich eine Photovoltaikanlage in Darmstadt?',micro:'Mit 1.102 kWh/m² Globalstrahlung liegt Darmstadt rund 3 % über dem deutschen Klimanormal.',content:'Darmstadt verzeichnet laut Deutschem Wetterdienst eine Globalstrahlung von 1.102 kWh/m² pro Jahr und ca. 1.821 Sonnenstunden – das ist spürbar mehr als der deutsche Klimanormal von 1.665 Sonnenstunden. Für eine typische Dachanlage mit 10 kWp bedeutet das einen Jahresertrag von ca. 9.000–10.500 kWh, abhängig von Ausrichtung, Neigung und möglicher Verschattung. Die Grafik zeigt, wie sich das Solarpotenzial über die Monate verteilt – und warum besonders Frühjahr und Sommer für den Eigenverbrauch entscheidend sind.',statement:'Glückwunsch: Mit 1.821 Sonnenstunden liegt Darmstadt über dem deutschlandweiten Schnitt – hier lohnt sich eine Photovoltaikanlage also besonders.',placement:'H2 oben, Text darunter, Grafik-Element (Sonnenstunden lokal vs. DE), Statement'},
-      statisticsExplanation:{h2:'Photovoltaik in Darmstadt, was haben Sie davon?',items:[
+      statisticsExplanation:{h2:'Photovoltaik in Darmstadt, was haben Sie davon?',content:'Die aufgeführten Kennzahlen zeigen, wie viel Strom Sie mit einer PV-Anlage in Darmstadt realistisch erzeugen können. Unsere Auswertungen basieren auf regionalen Wetterdaten und Erfahrungen mit vergleichbaren Dächern im Umkreis.',items:[
         {icon:'house',  label:'Süd-Dachfläche belegt mit 15 PV Modulen. Entspricht 5 kWp.*'},
         {icon:'sun',    label:'Sonneneinstrahlung pro Jahr in Darmstadt.'},
         {icon:'energy', label:'Produziert diese PV-Anlage. Das entspricht dem Durchschnittsverbrauch eines Einfamilienhauses.'},
         {icon:'co2',    label:'Damit könnten Sie CO₂ einsparen.*'},
-      ],placement:'Gradient-Block: H2 + 4 Kennzahlen (Icon + CMS-Zahl + Label)'},
+      ],placement:'Gradient-Block: H2 + Fließtext + 4 Kennzahlen (Icon + CMS-Zahl + Label)'},
       processIntro:{micro:'In drei Schritten von der Idee zur laufenden Anlage.',content:'Der Weg zur Photovoltaikanlage ist in Darmstadt klar strukturiert. Zuerst berechnen Sie mit unserem Rechner das Grundpotenzial – das dauert unter einer Minute. Anschließend prüft ein Fachbetrieb Ihr Dach vor Ort: Tragfähigkeit, Ausrichtung, Anschluss. Nach der Planung folgt die Montage – je nach Anlagengröße in einem bis drei Tagen. Die Anmeldung beim Netzbetreiber und die Inbetriebnahme koordiniert Ihr Installateur.',placement:'Über dem 3-Schritte-Prozess'},
       projectsIntro:{micro:'Referenzprojekte aus der Region zeigen, was in der Praxis umsetzbar ist.',content:'Installateure in der Region Darmstadt und dem Rhein-Main-Gebiet haben in den letzten Jahren zahlreiche Anlagen auf Bestandsgebäuden, Neubauten und Gewerbeobjekten realisiert. Jedes Projekt hat eigene Anforderungen – von der Denkmalschutzfrage bis zur Statikprüfung. Die Referenzen geben einen realistischen Einblick in Anlagengrößen, Installationsaufwand und erzielte Erträge.',placement:'Über den Referenzprojekt-Karten'},
       economicsText:{micro:'Die Wirtschaftlichkeit einer PV-Anlage hängt vor allem vom Eigenverbrauch ab.',content:'Eine Photovoltaikanlage in Darmstadt ist vor allem dann wirtschaftlich, wenn ein Großteil des erzeugten Stroms direkt selbst verbraucht wird. Jede selbst verbrauchte Kilowattstunde spart den aktuellen Bezugspreis – jede eingespeiste Kilowattstunde bringt die gesetzliche Vergütung. Mit einem Heimspeicher lässt sich der Eigenverbrauchsanteil deutlich erhöhen. Konkrete Amortisationszeiträume hängen von Anlagengröße, Verbrauchsprofil und Finanzierung ab – der Rechner gibt eine erste Orientierung.',placement:'Vor der Wirtschaftlichkeitsgrafik'},
@@ -5093,14 +5093,15 @@ function pvRenderResults(d){
     const sFull=typeof sObj==='object'?(sObj.content||''):(typeof sObj==='string'?sObj:'');
     const sPlace=typeof sObj==='object'?(sObj.placement||''):'';
     const sCopy=(sH2?`H2: ${sH2}\n\n`:'')+
-      (sItems?sItems.map(it=>`[${it.icon||'–'}] ${it.label||''}`).join('\n'):(sFull?`Micro:\n${sMicro}\n\nContent:\n${sFull}`:sMicro))+
+      (sItems?(sFull?`Fließtext:\n${sFull}\n\n`:'')+sItems.map(it=>`[${it.icon||'–'}] ${it.label||''}`).join('\n'):(sFull?`Micro:\n${sMicro}\n\nContent:\n${sFull}`:sMicro))+
       (sStatement?`\n\nStatement: ${sStatement}`:'');
     cards.push(card(s.i,s.l,'sec-'+s.k,
       `pvCopySectionText(${JSON.stringify(sCopy)},this)`,
       (sPlace?`<div class="pv-placement-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg>${escHtml(sPlace)}</div>`:'')+
       (sH2?`<div class="pv-sec-label">H2 (Abschnittsüberschrift)</div><div class="pv-hero-value" style="font-weight:600;font-size:15px;color:var(--text)">${escHtml(sH2)}</div>`:'')+
       (sItems
-        ?`<div class="pv-sec-label">Labels (Icon + CMS-Zahl + Text)</div>`+
+        ?`<div class="pv-sec-label">Fließtext (unter H2)</div><div class="pv-sec-content">${escHtml(sFull||'–')}</div>`+
+          `<div class="pv-sec-label">Labels (Icon + CMS-Zahl + Text)</div>`+
           `<div class="pv-benefits-grid">`+
           sItems.map(it=>`<div class="pv-benefit-card"><div class="pv-benefit-title" style="font-size:10px;color:var(--text3);text-transform:uppercase">${escHtml(it.icon||'')}</div><div class="pv-benefit-text">${escHtml(it.label||'')}</div></div>`).join('')+
           `</div>`

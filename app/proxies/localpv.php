@@ -368,13 +368,14 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
     },
     "statisticsExplanation": {
       "h2": "H2 mit Stadtname, aktivierend (z.B. 'Photovoltaik in {$cityOrPostalCode}, was haben Sie davon?')",
+      "content": "2–3 Sätze Fließtext unter der H2 (kontextualisiert die Kennzahlen lokal, max. 50 Wörter, kein Zahlenpingpong)",
       "items": [
         {"icon": "house",  "label": "1–2 Sätze zum Dachflächen-Wert (CMS-dynamisch, lokal formulieren)"},
         {"icon": "sun",    "label": "Sonneneinstrahlung pro Jahr in {$cityOrPostalCode}. (VERWENDE DWD-Wert falls vorhanden)"},
         {"icon": "energy", "label": "1–2 Sätze zum Jahresertrag (CMS-dynamisch, Vergleich Einfamilienhaus erlaubt)"},
         {"icon": "co2",    "label": "1–2 Sätze zur CO₂-Einsparung (CMS-dynamisch, UBA-Emissionsfaktor 0,434 kg/kWh erlaubt)"}
       ],
-      "placement": "Gradient-Block: H2 oben, darunter 4 Kennzahlen mit Icon + großer Zahl (CMS) + Label (generiert). Alle Labels gleich kurz."
+      "placement": "Gradient-Block: H2 oben, Fließtext darunter, dann 4 Kennzahlen mit Icon + großer Zahl (CMS) + Label (generiert). Alle Labels gleich kurz."
     },
     "processIntro": {
       "micro": "1–2 Sätze Einleitung zum 3-Schritte-Prozess",
