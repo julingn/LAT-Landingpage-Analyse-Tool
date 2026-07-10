@@ -367,9 +367,14 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
       "placement": "H2 oben, Text darunter, dann mikroanimiertes Grafik-Element (Sonnenstunden lokal vs. DE), dann Statement"
     },
     "statisticsExplanation": {
-      "micro": "1–2 Sätze Brückentext zum Kennzahlenblock",
-      "content": "80–150 Wörter — kontextualisiert die Kennzahlen für den lokalen Markt, erklärt Bedeutung ohne die Zahlen selbst zu erfinden",
-      "placement": "Unter dem Kennzahlen-Block"
+      "h2": "H2 mit Stadtname, aktivierend (z.B. 'Photovoltaik in {$cityOrPostalCode}, was haben Sie davon?')",
+      "items": [
+        {"icon": "house",  "label": "1–2 Sätze zum Dachflächen-Wert (CMS-dynamisch, lokal formulieren)"},
+        {"icon": "sun",    "label": "Sonneneinstrahlung pro Jahr in {$cityOrPostalCode}. (VERWENDE DWD-Wert falls vorhanden)"},
+        {"icon": "energy", "label": "1–2 Sätze zum Jahresertrag (CMS-dynamisch, Vergleich Einfamilienhaus erlaubt)"},
+        {"icon": "co2",    "label": "1–2 Sätze zur CO₂-Einsparung (CMS-dynamisch, UBA-Emissionsfaktor 0,434 kg/kWh erlaubt)"}
+      ],
+      "placement": "Gradient-Block: H2 oben, darunter 4 Kennzahlen mit Icon + großer Zahl (CMS) + Label (generiert). Alle Labels gleich kurz."
     },
     "processIntro": {
       "micro": "1–2 Sätze Einleitung zum 3-Schritte-Prozess",
@@ -430,7 +435,7 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
     {"order": 2, "module": "Einleitung", "visualType": "two-column-text-image", "contentNeeded": ["H2", "Einleitungstext"], "generatedFields": ["sections.intro.h2", "sections.intro.micro", "sections.intro.content"], "recommendation": "2-Spalten-Layout: links H2 über dem Text, rechts Stadtbild (CMS-Bild, kein generierter Inhalt). micro als kompakter Teaser-Satz optional."},
     {"order": 3, "module": "Vorteile", "visualType": "2x2-check-grid", "contentNeeded": ["H2", "Fließtext", "4 Kacheln H3+Text"], "generatedFields": ["benefits.h2", "benefits.intro", "benefits.items[0-3]"], "recommendation": "H2 oben, darunter Fließtext (intro), dann 2×2 Grid mit Checkmark-Icon + H3 + Text. Alle 4 Kacheln gleich lang."},
     {"order": 4, "module": "Solarpotenzial", "visualType": "text-animation-statement", "contentNeeded": ["H2", "Text", "Statement"], "generatedFields": ["sections.solarPotential.h2", "sections.solarPotential.content", "sections.solarPotential.statement"], "recommendation": "H2 zentriert, Text darunter. Animiertes Element zeigt Sonnenstunden lokal vs. DE (CMS-Daten, kein generierter Inhalt). Statement kurz und positiv danach."},
-    {"order": 5, "module": "Kennzahlen-Block", "visualType": "statistics-gradient", "contentNeeded": ["Erklärung der Zahlen"], "generatedFields": ["sections.statisticsExplanation.micro", "sections.statisticsExplanation.content"], "recommendation": "Einbauhinweis"},
+    {"order": 5, "module": "Kennzahlenblock", "visualType": "gradient-stat-grid", "contentNeeded": ["H2", "4 Labels"], "generatedFields": ["sections.statisticsExplanation.h2", "sections.statisticsExplanation.items[0-3].label"], "recommendation": "Gradient-Hintergrund (blau→grün). H2 oben links. 4 Spalten: Icon (fix) + große Zahl (CMS-dynamisch aus Rechner) + Label-Text (generiert). Alle Labels gleich kurz."},
     {"order": 6, "module": "3-Schritte-Prozess", "visualType": "process-grid", "contentNeeded": ["Ablauf-Erklärung"], "generatedFields": ["sections.processIntro.micro", "sections.processIntro.content"], "recommendation": "Einbauhinweis"},
     {"order": 7, "module": "Referenzprojekte", "visualType": "project-cards", "contentNeeded": ["Einordnung der Projektkarten"], "generatedFields": ["sections.projectsIntro.micro", "sections.projectsIntro.content"], "recommendation": "Einbauhinweis"},
     {"order": 8, "module": "Wirtschaftlichkeit", "visualType": "economics-chart", "contentNeeded": ["Eigenverbrauch", "Einspeisung", "Stromkosten"], "generatedFields": ["sections.economicsText.micro", "sections.economicsText.content"], "recommendation": "Einbauhinweis"},
