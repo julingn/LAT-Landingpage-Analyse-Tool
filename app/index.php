@@ -5353,10 +5353,12 @@ function pvWidgetConfigHtml() {
 
     <div class="pv-sec-label" style="margin-top:14px">HoursOfSunshineConfig <small style="font-weight:400">(in CMS einfügen, Werte oben pro Stadt austauschen)</small></div>
     <pre style="font-family:'Geist Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;overflow-x:auto;line-height:1.6;color:var(--text2);margin:4px 0 4px">${escHtml(hoursConfig)}</pre>
+    <div style="font-size:10px;color:var(--text3);margin:3px 0 4px">Datenquelle: DWD Messstation ${escHtml(stName)} (${stDist}&thinsp;km) · Mehrjährige Tagesmittel je Monat · Zeitraum ${escHtml(String(yRange))}</div>
     <button class="pv-copy-btn" onclick="pvCopySectionText(${JSON.stringify(hoursConfig)},this)">${CI} Kopieren</button>
 
     <div class="pv-sec-label" style="margin-top:12px">SolarPotentialConfig <small style="font-weight:400">(Hauskurven-Vergleich)</small></div>
     <pre style="font-family:'Geist Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;overflow-x:auto;line-height:1.6;color:var(--text2);margin:4px 0 4px">${escHtml(solarConfig)}</pre>
+    <div style="font-size:10px;color:var(--text3);margin:3px 0 4px">Datenquelle: DWD OpenData · ${escHtml(city)} ${localSun}&thinsp;h/Jahr (Jahreswert ${dwd.dataYear||'–'}) · Deutschland ${refSun}&thinsp;h/Jahr (Klimanormal 1991–2020)</div>
     <button class="pv-copy-btn" onclick="pvCopySectionText(${JSON.stringify(solarConfig)},this)">${CI} Kopieren</button>
   </div>`;
 }
