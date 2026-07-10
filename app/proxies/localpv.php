@@ -378,9 +378,15 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
       "placement": "Gradient-Block: H2 oben, Fließtext darunter, dann 4 Kennzahlen mit Icon + großer Zahl (CMS) + Label (generiert). Alle Labels gleich kurz."
     },
     "processIntro": {
-      "micro": "1–2 Sätze Einleitung zum 3-Schritte-Prozess",
-      "content": "80–150 Wörter — erklärt den Ablauf von der Erstberatung bis zur Inbetriebnahme, schafft Vertrauen ohne konkrete Zeitversprechen",
-      "placement": "Über dem 3-Schritte-Prozess"
+      "h2": "Aktivierende H2 linke Spalte (z.B. 'So einfach kommen Sie zur eigenen PV-Anlage in {$cityOrPostalCode}')",
+      "text": "Optionaler Kurztext unter der H2, linke Spalte (2–3 Sätze, max. 40 Wörter, lokal, vertrauensbildend)",
+      "button": "Optionaler CTA-Text linke Spalte (kurz, z.B. 'Jetzt Potenzial berechnen')",
+      "steps": [
+        {"h3": "Schritt-Titel 1 (prägnant, max. 6 Wörter)", "text": "Beschreibung Schritt 1 (1–2 Sätze)"},
+        {"h3": "Schritt-Titel 2", "text": "Beschreibung Schritt 2 (1–2 Sätze)"},
+        {"h3": "Schritt-Titel 3", "text": "Beschreibung Schritt 3 (1–2 Sätze)"}
+      ],
+      "placement": "2-Spalten: links H2 + optionaler Text + optionaler Button; rechts nummerierte Schritte (Zahl groß in Akzentfarbe + H3 + Text)"
     },
     "projectsIntro": {
       "micro": "1–2 Sätze Einleitung zu Referenzprojekten (keine erfundenen Projekte)",
@@ -437,7 +443,7 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
     {"order": 3, "module": "Vorteile", "visualType": "2x2-check-grid", "contentNeeded": ["H2", "Fließtext", "4 Kacheln H3+Text"], "generatedFields": ["benefits.h2", "benefits.intro", "benefits.items[0-3]"], "recommendation": "H2 oben, darunter Fließtext (intro), dann 2×2 Grid mit Checkmark-Icon + H3 + Text. Alle 4 Kacheln gleich lang."},
     {"order": 4, "module": "Solarpotenzial", "visualType": "text-animation-statement", "contentNeeded": ["H2", "Text", "Statement"], "generatedFields": ["sections.solarPotential.h2", "sections.solarPotential.content", "sections.solarPotential.statement"], "recommendation": "H2 zentriert, Text darunter. Animiertes Element zeigt Sonnenstunden lokal vs. DE (CMS-Daten, kein generierter Inhalt). Statement kurz und positiv danach."},
     {"order": 5, "module": "Kennzahlenblock", "visualType": "gradient-stat-grid", "contentNeeded": ["H2", "4 Labels"], "generatedFields": ["sections.statisticsExplanation.h2", "sections.statisticsExplanation.items[0-3].label"], "recommendation": "Gradient-Hintergrund (blau→grün). H2 oben links. 4 Spalten: Icon (fix) + große Zahl (CMS-dynamisch aus Rechner) + Label-Text (generiert). Alle Labels gleich kurz."},
-    {"order": 6, "module": "3-Schritte-Prozess", "visualType": "process-grid", "contentNeeded": ["Ablauf-Erklärung"], "generatedFields": ["sections.processIntro.micro", "sections.processIntro.content"], "recommendation": "Einbauhinweis"},
+    {"order": 6, "module": "3-Schritte-Prozess", "visualType": "two-column-steps", "contentNeeded": ["H2", "Text", "Button (opt.)", "3 Schritte"], "generatedFields": ["sections.processIntro.h2", "sections.processIntro.text", "sections.processIntro.button", "sections.processIntro.steps[0-2]"], "recommendation": "Links: H2 + kurzer Text + CTA-Button. Rechts: nummerierte Schritte (Zahl in Akzentfarbe + H3 + Text). 3 Schritte genügen."},
     {"order": 7, "module": "Referenzprojekte", "visualType": "project-cards", "contentNeeded": ["Einordnung der Projektkarten"], "generatedFields": ["sections.projectsIntro.micro", "sections.projectsIntro.content"], "recommendation": "Einbauhinweis"},
     {"order": 8, "module": "Wirtschaftlichkeit", "visualType": "economics-chart", "contentNeeded": ["Eigenverbrauch", "Einspeisung", "Stromkosten"], "generatedFields": ["sections.economicsText.micro", "sections.economicsText.content"], "recommendation": "Einbauhinweis"},
     {"order": 9, "module": "Kundenstimmen", "visualType": "testimonial-section", "contentNeeded": ["Trust-Einleitung"], "generatedFields": ["sections.testimonialsIntro.micro", "sections.testimonialsIntro.content"], "recommendation": "Einbauhinweis"},

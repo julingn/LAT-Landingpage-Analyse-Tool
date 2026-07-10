@@ -4748,7 +4748,11 @@ function pvDemo(){
         {icon:'energy', label:'Produziert diese PV-Anlage. Das entspricht dem Durchschnittsverbrauch eines Einfamilienhauses.'},
         {icon:'co2',    label:'Damit könnten Sie CO₂ einsparen.*'},
       ],placement:'Gradient-Block: H2 + Fließtext + 4 Kennzahlen (Icon + CMS-Zahl + Label)'},
-      processIntro:{micro:'In drei Schritten von der Idee zur laufenden Anlage.',content:'Der Weg zur Photovoltaikanlage ist in Darmstadt klar strukturiert. Zuerst berechnen Sie mit unserem Rechner das Grundpotenzial – das dauert unter einer Minute. Anschließend prüft ein Fachbetrieb Ihr Dach vor Ort: Tragfähigkeit, Ausrichtung, Anschluss. Nach der Planung folgt die Montage – je nach Anlagengröße in einem bis drei Tagen. Die Anmeldung beim Netzbetreiber und die Inbetriebnahme koordiniert Ihr Installateur.',placement:'Über dem 3-Schritte-Prozess'},
+      processIntro:{h2:'So einfach kommen Sie zur eigenen PV-Anlage in Darmstadt',text:'Von der Erstberatung bis zur betriebsfertigen Anlage begleiten wir Sie in drei klaren Schritten – unkompliziert, transparent und aus einer Hand.',button:'Jetzt Potenzial berechnen',steps:[
+        {h3:'Potenzial berechnen',text:'Geben Sie Ihre Adresse ein und berechnen Sie in wenigen Sekunden, wie viel Solarertrag Ihr Dach in Darmstadt realistisch liefern kann.'},
+        {h3:'Persönliche Beratung',text:'Ein lokaler Fachbetrieb prüft Ihr Dach vor Ort: Tragfähigkeit, Ausrichtung, Anschluss – und erstellt ein konkretes Angebot.'},
+        {h3:'Installation & Inbetriebnahme',text:'Nach Planung und Genehmigung erfolgt die Montage – üblicherweise in einem bis drei Tagen. Wir kümmern uns um die Anmeldung beim Netzbetreiber.'},
+      ],placement:'2-Spalten: links H2 + Text + Button; rechts nummerierte Schritte'},
       projectsIntro:{micro:'Referenzprojekte aus der Region zeigen, was in der Praxis umsetzbar ist.',content:'Installateure in der Region Darmstadt und dem Rhein-Main-Gebiet haben in den letzten Jahren zahlreiche Anlagen auf Bestandsgebäuden, Neubauten und Gewerbeobjekten realisiert. Jedes Projekt hat eigene Anforderungen – von der Denkmalschutzfrage bis zur Statikprüfung. Die Referenzen geben einen realistischen Einblick in Anlagengrößen, Installationsaufwand und erzielte Erträge.',placement:'Über den Referenzprojekt-Karten'},
       economicsText:{micro:'Die Wirtschaftlichkeit einer PV-Anlage hängt vor allem vom Eigenverbrauch ab.',content:'Eine Photovoltaikanlage in Darmstadt ist vor allem dann wirtschaftlich, wenn ein Großteil des erzeugten Stroms direkt selbst verbraucht wird. Jede selbst verbrauchte Kilowattstunde spart den aktuellen Bezugspreis – jede eingespeiste Kilowattstunde bringt die gesetzliche Vergütung. Mit einem Heimspeicher lässt sich der Eigenverbrauchsanteil deutlich erhöhen. Konkrete Amortisationszeiträume hängen von Anlagengröße, Verbrauchsprofil und Finanzierung ab – der Rechner gibt eine erste Orientierung.',placement:'Vor der Wirtschaftlichkeitsgrafik'},
       testimonialsIntro:{micro:'Was sagen Kunden aus Darmstadt und Umgebung?',content:'Kundenstimmen aus der Region Darmstadt zeigen, wie unterschiedlich die Ausgangssituationen sind – und was Eigentümer im Rückblick über ihre Entscheidung denken. Ob kompaktes Reihenhausdach oder größeres Flachdach: Echte Bewertungen von Betreibern lokaler Anlagen helfen einzuschätzen, was Sie von der Planung bis zum laufenden Betrieb erwarten können.',placement:'Über den Kundenstimmen'},
@@ -4797,7 +4801,7 @@ function pvDemo(){
       {order:3,module:'Vorteile',visualType:'2x2-check-grid',contentNeeded:['H2','Fließtext','4 Kacheln H3+Text'],generatedFields:['benefits.h2','benefits.intro','benefits.items[0-3]'],recommendation:'H2 oben, darunter Fließtext, dann 2×2 Grid mit Checkmark + H3 + Text. Alle 4 Kacheln gleich lang.'},
       {order:4,module:'Solarpotenzial-Grafik',visualType:'chart-section',contentNeeded:['Begleittext vor Grafik'],generatedFields:['sections.solarPotential.micro','sections.solarPotential.content'],recommendation:'solarPotential.micro als Intro-Satz über der Grafik, content darunter.'},
       {order:5,module:'Kennzahlenblock',visualType:'gradient-stat-grid',contentNeeded:['H2','4 Labels'],generatedFields:['sections.statisticsExplanation.h2','sections.statisticsExplanation.items[0-3]'],recommendation:'Gradient-Block. H2 oben. 4 Spalten: Icon (fix) + CMS-Zahl + Label. Alle Labels gleich kurz.'},
-      {order:6,module:'3-Schritte-Prozess',visualType:'step-by-step',contentNeeded:['Einleitung'],generatedFields:['sections.processIntro.micro','sections.processIntro.content'],recommendation:'processIntro.micro als Abschnittsüberschrift, content als Fließtext davor.'},
+      {order:6,module:'3-Schritte-Prozess',visualType:'two-column-steps',contentNeeded:['H2','Text','Button','Schritte'],generatedFields:['sections.processIntro.h2','sections.processIntro.text','sections.processIntro.button','sections.processIntro.steps[0-2]'],recommendation:'Links: H2 + Text + CTA-Button. Rechts: nummerierte Schritte (H3 + Text).'},
       {order:7,module:'Referenzprojekte',visualType:'card-grid',contentNeeded:['Einleitungstext'],generatedFields:['sections.projectsIntro.micro','sections.projectsIntro.content'],recommendation:'projectsIntro.content als Vertrauenstext über den Projekt-Karten.'},
       {order:8,module:'Wirtschaftlichkeit',visualType:'chart-section',contentNeeded:['Begleittext'],generatedFields:['sections.economicsText.micro','sections.economicsText.content'],recommendation:'economicsText.content vor der Grafik. Kein konkreter Amortisationszeitraum ohne individuelle Daten.'},
       {order:9,module:'Kundenstimmen',visualType:'testimonial-slider',contentNeeded:['Einleitung'],generatedFields:['sections.testimonialsIntro.micro','sections.testimonialsIntro.content'],recommendation:'testimonialsIntro.micro als Überschrift, content als Einleitungstext.'},
@@ -5087,25 +5091,36 @@ function pvRenderResults(d){
   secDefs.forEach(s=>{
     const sObj=sec[s.k]||{};
     const sItems=typeof sObj==='object'&&Array.isArray(sObj.items)?sObj.items:null;
+    const sSteps=typeof sObj==='object'&&Array.isArray(sObj.steps)?sObj.steps:null;
+    const sButton=typeof sObj==='object'?(sObj.button||''):'';
     const sH2=typeof sObj==='object'?(sObj.h2||''):'';
     const sStatement=typeof sObj==='object'?(sObj.statement||''):'';
     const sMicro=typeof sObj==='object'?(sObj.micro||'–'):(sObj||'–');
-    const sFull=typeof sObj==='object'?(sObj.content||''):(typeof sObj==='string'?sObj:'');
+    const sFull=typeof sObj==='object'?(sObj.content||sObj.text||''):(typeof sObj==='string'?sObj:'');
     const sPlace=typeof sObj==='object'?(sObj.placement||''):'';
     const sCopy=(sH2?`H2: ${sH2}\n\n`:'')+
-      (sItems?(sFull?`Fließtext:\n${sFull}\n\n`:'')+sItems.map(it=>`[${it.icon||'–'}] ${it.label||''}`).join('\n'):(sFull?`Micro:\n${sMicro}\n\nContent:\n${sFull}`:sMicro))+
+      (sItems?(sFull?`Fließtext:\n${sFull}\n\n`:'')+sItems.map(it=>`[${it.icon||'–'}] ${it.label||''}`).join('\n')
+      :sSteps?(sFull?`Text:\n${sFull}\n\n`:'')+(sButton?`Button: ${sButton}\n\n`:'')+sSteps.map((st,i)=>`${i+1}. ${st.h3||''}: ${st.text||''}`).join('\n')
+      :(sFull?`Micro:\n${sMicro}\n\nContent:\n${sFull}`:sMicro))+
       (sStatement?`\n\nStatement: ${sStatement}`:'');
     cards.push(card(s.i,s.l,'sec-'+s.k,
       `pvCopySectionText(${JSON.stringify(sCopy)},this)`,
       (sPlace?`<div class="pv-placement-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg>${escHtml(sPlace)}</div>`:'')+
-      (sH2?`<div class="pv-sec-label">H2 (Abschnittsüberschrift)</div><div class="pv-hero-value" style="font-weight:600;font-size:15px;color:var(--text)">${escHtml(sH2)}</div>`:'')+
+      (sH2?`<div class="pv-sec-label">H2 (linke Spalte)</div><div class="pv-hero-value" style="font-weight:600;font-size:15px;color:var(--text)">${escHtml(sH2)}</div>`:'')+
       (sItems
         ?`<div class="pv-sec-label">Fließtext (unter H2)</div><div class="pv-sec-content">${escHtml(sFull||'–')}</div>`+
           `<div class="pv-sec-label">Labels (Icon + CMS-Zahl + Text)</div>`+
           `<div class="pv-benefits-grid">`+
           sItems.map(it=>`<div class="pv-benefit-card"><div class="pv-benefit-title" style="font-size:10px;color:var(--text3);text-transform:uppercase">${escHtml(it.icon||'')}</div><div class="pv-benefit-text">${escHtml(it.label||'')}</div></div>`).join('')+
           `</div>`
-        :`<div class="pv-sec-label">Micro / UI-Text</div><div class="pv-sec-micro">${escHtml(sMicro)}</div>`+
+      :sSteps
+        ?`<div class="pv-sec-label">Text (linke Spalte)</div><div class="pv-sec-micro">${escHtml(sFull||'–')}</div>`+
+          (sButton?`<div class="pv-sec-label">Button (optional)</div><div class="pv-hero-value" style="display:inline-block;background:var(--accent);color:#fff;border-radius:999px;padding:6px 16px;font-size:12px;font-weight:600">${escHtml(sButton)}</div>`:'')+
+          `<div class="pv-sec-label">Schritte (rechte Spalte)</div>`+
+          `<div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">`+
+          sSteps.map((st,i)=>`<div class="pv-benefit-card" style="display:flex;gap:10px;align-items:flex-start"><div style="font-size:22px;font-weight:700;color:var(--accent);line-height:1;flex-shrink:0">${i+1}</div><div><div class="pv-benefit-title">${escHtml(st.h3||'')}</div><div class="pv-benefit-text">${escHtml(st.text||'')}</div></div></div>`).join('')+
+          `</div>`
+      :`<div class="pv-sec-label">Micro / UI-Text</div><div class="pv-sec-micro">${escHtml(sMicro)}</div>`+
           (sFull?`<div class="pv-sec-label">Content / SEO-Text</div><div class="pv-sec-content">${escHtml(sFull)}</div>`:'')+
           (sStatement?`<div class="pv-sec-label">Statement (nach Grafik)</div><div class="pv-sec-micro" style="color:var(--green);font-style:italic">${escHtml(sStatement)}</div>`:'')),
       (s.dwdHint
