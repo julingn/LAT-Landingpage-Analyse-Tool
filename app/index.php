@@ -4740,7 +4740,7 @@ function pvDemo(){
       {title:'Zuverlässiger Partner',text:'Qualifizierte Fachbetriebe in der Region kennen die lokalen Anforderungen, Gebäudetypen und Netzbedingungen. Nach der Installation steht Ihnen ein Ansprechpartner für Wartung und Monitoring zur Verfügung.',placement:'Vorteile-Kachel'},
     ],
     sections:{
-      intro:{micro:'Darmstadt zählt mit über 1.820 Sonnenstunden pro Jahr zu den günstigsten PV-Standorten in Hessen.',content:'Photovoltaik in Darmstadt lohnt sich – nicht nur wegen des vergleichsweise sonnigen Klimas, sondern auch weil viele Gebäude in der Region gut geeignete Dachflächen bieten. Ob Einfamilienhaus im Martinsviertel, Gewerbebau im Norden oder Wohnanlage in Bessungen: Die Kombination aus Dachausrichtung, verfügbarer Fläche und lokalem Stromverbrauch entscheidet über den Ertrag. Unser PV-Rechner berechnet Ihr individuelles Potenzial – in wenigen Sekunden, kostenlos und ohne Verpflichtung.',placement:'Direkt unter dem Hero'},
+      intro:{h2:'Photovoltaik in Darmstadt — lohnt es sich für Ihr Dach?',micro:'Darmstadt zählt mit über 1.820 Sonnenstunden pro Jahr zu den günstigsten PV-Standorten in Hessen.',content:'Photovoltaik in Darmstadt lohnt sich – nicht nur wegen des vergleichsweise sonnigen Klimas, sondern auch weil viele Gebäude in der Region gut geeignete Dachflächen bieten. Ob Einfamilienhaus im Martinsviertel, Gewerbebau im Norden oder Wohnanlage in Bessungen: Die Kombination aus Dachausrichtung, verfügbarer Fläche und lokalem Stromverbrauch entscheidet über den Ertrag. Unser PV-Rechner berechnet Ihr individuelles Potenzial – in wenigen Sekunden, kostenlos und ohne Verpflichtung.',placement:'Direkt unter dem Hero'},
       solarPotential:{micro:'Mit 1.102 kWh/m² Globalstrahlung liegt Darmstadt rund 3 % über dem deutschen Klimanormal.',content:'Darmstadt verzeichnet laut Deutschem Wetterdienst eine Globalstrahlung von 1.102 kWh/m² pro Jahr und ca. 1.821 Sonnenstunden – das ist spürbar mehr als der deutsche Klimanormal von 1.665 Sonnenstunden. Für eine typische Dachanlage mit 10 kWp bedeutet das einen Jahresertrag von ca. 9.000–10.500 kWh, abhängig von Ausrichtung, Neigung und möglicher Verschattung. Die Grafik zeigt, wie sich das Solarpotenzial über die Monate verteilt – und warum besonders Frühjahr und Sommer für den Eigenverbrauch entscheidend sind.',placement:'Vor oder unter der Solarpotenzial-Grafik'},
       statisticsExplanation:{micro:'Die Kennzahlen zeigen, was eine PV-Anlage in Darmstadt realistisch leisten kann.',content:'Die dargestellten Werte basieren auf typischen Anlagen in der Region Darmstadt: Dachneigungen zwischen 25–45°, Südausrichtung mit maximal 30° Abweichung, kein nennenswerter Schattenwurf. In der Praxis variieren Erträge je nach Gebäudetyp und Dachkonstruktion. Der wichtigste Hebel für Wirtschaftlichkeit ist der Eigenverbrauchsanteil: Je mehr erzeugter Strom direkt selbst verbraucht wird, desto schneller zahlt sich die Anlage aus.',placement:'Unter dem Kennzahlen-Block'},
       processIntro:{micro:'In drei Schritten von der Idee zur laufenden Anlage.',content:'Der Weg zur Photovoltaikanlage ist in Darmstadt klar strukturiert. Zuerst berechnen Sie mit unserem Rechner das Grundpotenzial – das dauert unter einer Minute. Anschließend prüft ein Fachbetrieb Ihr Dach vor Ort: Tragfähigkeit, Ausrichtung, Anschluss. Nach der Planung folgt die Montage – je nach Anlagengröße in einem bis drei Tagen. Die Anmeldung beim Netzbetreiber und die Inbetriebnahme koordiniert Ihr Installateur.',placement:'Über dem 3-Schritte-Prozess'},
@@ -4788,7 +4788,7 @@ function pvDemo(){
     ],
     placementMap:[
       {order:1,module:'Hero',visualType:'hero-text-block',contentNeeded:['Dachzeile','H1','2–4 USP-Bullets oder Absatz'],generatedFields:['hero.dachzeile','hero.h1','hero.usps','hero.absatz'],recommendation:'Dachzeile über dem H1, dann H1, dann USP-Liste. PV-Rechner folgt direkt darunter.'},
-      {order:2,module:'Einleitung',visualType:'text-section',contentNeeded:['Intro-Text'],generatedFields:['sections.intro.micro','sections.intro.content'],recommendation:'sections.intro.micro als Teaser-Satz über dem Fließtext einsetzen.'},
+      {order:2,module:'Einleitung',visualType:'two-column-text-image',contentNeeded:['H2','Intro-Text'],generatedFields:['sections.intro.h2','sections.intro.micro','sections.intro.content'],recommendation:'2-Spalten: links H2 + Text, rechts Stadtbild (CMS-Bild). micro optional als Teaser.'},
       {order:3,module:'Vorteile',visualType:'4-column-grid',contentNeeded:['4 Kacheln'],generatedFields:['benefits[0-3]'],recommendation:'Je eine Kachel pro benefit-Eintrag. Icon + Title + Text.'},
       {order:4,module:'Solarpotenzial-Grafik',visualType:'chart-section',contentNeeded:['Begleittext vor Grafik'],generatedFields:['sections.solarPotential.micro','sections.solarPotential.content'],recommendation:'solarPotential.micro als Intro-Satz über der Grafik, content darunter.'},
       {order:5,module:'Kennzahlen-Block',visualType:'stat-grid',contentNeeded:['Erklärungstext unter Zahlen'],generatedFields:['sections.statisticsExplanation.micro','sections.statisticsExplanation.content'],recommendation:'statisticsExplanation.content unter den Zahlenblöcken als Kontextualisierung.'},
@@ -5080,14 +5080,15 @@ function pvRenderResults(d){
      h:[{c:'gsc',l:'GSC · CTR-Optimierung',d:'Niedrige CTR trotz guter Position deutet auf schwache CTAs hin.'}]},
   ];
   secDefs.forEach(s=>{
-    const sObj=sec[s.k]||{};
+    const sH2=typeof sObj==='object'?(sObj.h2||''):''; // optionale H2-Überschrift
     const sMicro=typeof sObj==='object'?(sObj.micro||'–'):(sObj||'–');
     const sFull=typeof sObj==='object'?(sObj.content||''):(typeof sObj==='string'?sObj:'');
     const sPlace=typeof sObj==='object'?(sObj.placement||''):'';
-    const sCopy=sFull?`Micro:\n${sMicro}\n\nContent:\n${sFull}`:sMicro;
+    const sCopy=(sH2?`H2: ${sH2}\n\n`:'')+( sFull?`Micro:\n${sMicro}\n\nContent:\n${sFull}`:sMicro);
     cards.push(card(s.i,s.l,'sec-'+s.k,
       `pvCopySectionText(${JSON.stringify(sCopy)},this)`,
       (sPlace?`<div class="pv-placement-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg>${escHtml(sPlace)}</div>`:'')+
+      (sH2?`<div class="pv-sec-label">H2 (Abschnittsüberschrift)</div><div class="pv-hero-value" style="font-weight:600;font-size:15px;color:var(--text)">${escHtml(sH2)}</div>`:'')+
       `<div class="pv-sec-label">Micro / UI-Text</div><div class="pv-sec-micro">${escHtml(sMicro)}</div>`+
       (sFull?`<div class="pv-sec-label">Content / SEO-Text</div><div class="pv-sec-content">${escHtml(sFull)}</div>`:''),
       (s.dwdHint

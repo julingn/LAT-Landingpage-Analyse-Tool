@@ -349,9 +349,10 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
   ],
   "sections": {
     "intro": {
+      "h2": "Abschnittsüberschrift für den Einleitungsbereich (max. 50 Zeichen, lokal, nutzenorientiert)",
       "micro": "1–2 Sätze für UI/Teaser (max. 30 Wörter, kein Fülltext, lokal)",
       "content": "80–150 Wörter — eigenständiger Einstiegstext, nutzenorientiert, lokal eingebunden, kein Tourismus-Content",
-      "placement": "Direkt unter dem Hero"
+      "placement": "2-Spalten-Layout: Links H2 + Text, rechts Stadtbild (wird vom CMS befüllt)"
     },
     "solarPotential": {
       "micro": "1–2 Sätze Brückentext zur Solarpotenzial-Grafik",
@@ -419,7 +420,7 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
   },
   "placementMap": [
     {"order": 1, "module": "Hero", "visualType": "hero-text-block", "contentNeeded": ["Dachzeile", "H1", "2–4 USP-Bullets oder Absatz"], "generatedFields": ["hero.dachzeile", "hero.h1", "hero.usps", "hero.absatz"], "recommendation": "Dachzeile über dem H1 platzieren, dann H1, dann USP-Liste als Bullets. PV-Rechner folgt direkt darunter — kein CTA-Button im Hero-Text nötig."},
-    {"order": 2, "module": "Intro", "visualType": "text-block", "contentNeeded": ["Kurzer lokaler Einstieg"], "generatedFields": ["sections.intro.micro", "sections.intro.content"], "recommendation": "Einbauhinweis"},
+    {"order": 2, "module": "Einleitung", "visualType": "two-column-text-image", "contentNeeded": ["H2", "Einleitungstext"], "generatedFields": ["sections.intro.h2", "sections.intro.micro", "sections.intro.content"], "recommendation": "2-Spalten-Layout: links H2 über dem Text, rechts Stadtbild (CMS-Bild, kein generierter Inhalt). micro als kompakter Teaser-Satz optional."},
     {"order": 3, "module": "Vorteile", "visualType": "four-card-grid", "contentNeeded": ["Unabhängigkeit", "Wertsteigerung", "Alles aus einer Hand", "Zuverlässiger Partner"], "generatedFields": ["benefits[0]", "benefits[1]", "benefits[2]", "benefits[3]"], "recommendation": "Einbauhinweis"},
     {"order": 4, "module": "Solarpotenzial-Grafik", "visualType": "chart-section", "contentNeeded": ["Einordnung vor Grafik"], "generatedFields": ["sections.solarPotential.micro", "sections.solarPotential.content"], "recommendation": "Einbauhinweis"},
     {"order": 5, "module": "Kennzahlen-Block", "visualType": "statistics-gradient", "contentNeeded": ["Erklärung der Zahlen"], "generatedFields": ["sections.statisticsExplanation.micro", "sections.statisticsExplanation.content"], "recommendation": "Einbauhinweis"},
