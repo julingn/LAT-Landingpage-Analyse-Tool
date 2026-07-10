@@ -36,6 +36,66 @@ if (empty($_SESSION['logged_in'])) {
 }
 session_write_close(); // Lock sofort freigeben
 
+// ── Body einmalig lesen (vor Config, damit Archive-Actions früh abgefangen werden) ──
+$_pvRaw  = file_get_contents('php://input');
+$_pvBody = json_decode($_pvRaw, true) ?? [];
+$_pvAction = trim($_pvBody['action'] ?? 'generate');
+
+// ── Archive-Actions (kein API-Key nötig) ─────────────────────────────────
+if (in_array($_pvAction, ['archive_list', 'archive_save', 'archive_delete', 'archive_check'], true)) {
+    $archivePath = __DIR__ . '/../localpv_archive.json';
+    $readEntries = function() use ($archivePath): array {
+        if (!file_exists($archivePath)) return [];
+        $data = json_decode(file_get_contents($archivePath), true);
+        return is_array($data) ? $data : [];
+    };
+
+    if ($_pvAction === 'archive_list') {
+        echo json_encode(['success' => true, 'entries' => $readEntries()]);
+        exit;
+    }
+
+    if ($_pvAction === 'archive_check') {
+        $location = mb_strtolower(trim($_pvBody['location'] ?? ''));
+        $found = null;
+        foreach ($readEntries() as $entry) {
+            if (mb_strtolower(trim($entry['location'] ?? '')) === $location) { $found = $entry; break; }
+        }
+        echo json_encode(['success' => true, 'duplicate' => $found]);
+        exit;
+    }
+
+    if ($_pvAction === 'archive_save') {
+        $entries = $readEntries();
+        $entry = [
+            'id'          => time(),
+            'location'    => trim($_pvBody['location']    ?? ''),
+            'keyword'     => trim($_pvBody['keyword']     ?? ''),
+            'url'         => trim($_pvBody['url']         ?? ''),
+            'title'       => trim($_pvBody['title']       ?? ''),
+            'date'        => date('Y-m-d'),
+            'irradiance'  => (int)($_pvBody['irradiance'] ?? 0),
+            'sunshine'    => (int)($_pvBody['sunshine']   ?? 0),
+            'dwd_station' => trim($_pvBody['dwd_station'] ?? ''),
+        ];
+        if (empty($entry['location'])) {
+            echo json_encode(['success' => false, 'error' => 'Kein Standort angegeben']); exit;
+        }
+        array_unshift($entries, $entry);
+        file_put_contents($archivePath, json_encode($entries, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        echo json_encode(['success' => true, 'entry' => $entry]);
+        exit;
+    }
+
+    if ($_pvAction === 'archive_delete') {
+        $id      = (int)($_pvBody['id'] ?? 0);
+        $entries = array_values(array_filter($readEntries(), fn($e) => (int)($e['id'] ?? 0) !== $id));
+        file_put_contents($archivePath, json_encode($entries, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        echo json_encode(['success' => true]);
+        exit;
+    }
+}
+
 // ── Config ───────────────────────────────────────────────────────────────
 require_once __DIR__ . '/../config.php';
 
@@ -65,8 +125,8 @@ if ($provider === 'openai') {
 }
 
 // ── Input parsen ─────────────────────────────────────────────────────────
-$raw  = file_get_contents('php://input');
-$body = json_decode($raw, true);
+$raw  = $_pvRaw;          // bereits gelesen
+$body = $_pvBody;         // bereits geparst
 
 if (!is_array($body)) {
     http_response_code(400);
@@ -511,6 +571,94 @@ if (!is_array($result)) {
         ],
     ]);
     exit;
+}
+
+// ── _dataFoundation injizieren (PHP-berechnet, nicht LLM-generiert) ───────
+if (is_array($dwdSolarData) && !empty($dwdSolarData['irradiance_kWhm2_year'])) {
+    $irr  = (int)$dwdSolarData['irradiance_kWhm2_year'];
+    $sun  = (int)($dwdSolarData['sunshine_hours_year'] ?? 0);
+    $est  = !empty($dwdSolarData['estimated']);
+    $deGe = $dwdSolarData['germany_avg'] ?? [];
+    $deIrr = (int)($deGe['irradiance_kWhm2_year'] ?? 0);
+    $deSun = (int)($deGe['sunshine_hours_year']   ?? 0);
+    $deKN  = (int)($deGe['klimanormal_1991_2020']  ?? 0);
+
+    $calcs = [];
+
+    // 1. Standort-Einordnung Sonnenstunden
+    if ($sun > 0 && $deKN > 0) {
+        $diff = round((($sun - $deKN) / $deKN) * 100, 1);
+        $sign = $diff >= 0 ? '+' : '';
+        $calcs[] = [
+            'label'   => 'Standort-Einordnung Sonnenstunden',
+            'formula' => "({$sun} h - {$deKN} h Klimanormal DE) ÷ {$deKN} h × 100",
+            'result'  => "{$sign}{$diff}% (" . ($diff >= 0 ? 'überdurchschnittlich' : 'unterdurchschnittlich') . ")",
+            'source'  => 'DWD Klimanormal 1991–2020',
+        ];
+    }
+
+    // 2. Spezifischer Jahresertrag
+    if ($irr > 0) {
+        $yieldPerkWp = (int)round($irr * 0.85);
+        $calcs[] = [
+            'label'   => 'Typischer Jahresertrag',
+            'formula' => "{$irr} kWh/m² × 0,85 (Systemwirkungsgrad)",
+            'result'  => "ca. {$yieldPerkWp} kWh/kWp/Jahr",
+            'source'  => 'DWD Globalstrahlung + Branchen-Richtwert Systemwirkungsgrad 85 %',
+            'note'    => 'Tatsächlicher Ertrag abhängig von Dachneigung, Ausrichtung, Verschattung und Anlagenqualität.',
+        ];
+
+        // 3. Amortisation (10 kWp Beispielanlage)
+        $yield10 = $yieldPerkWp * 10;
+        $ev = (int)round($yield10 * 0.30 * 0.34);  // 30% Eigenverbrauch @ Ø 34 ct/kWh
+        $es = (int)round($yield10 * 0.70 * 0.082); // 70% Einspeisung @ EEG 2024 8,2 ct/kWh
+        $jn = $ev + $es;
+        if ($jn > 0) {
+            $a1 = round(17000 / $jn, 1); // 1.700 €/kWp
+            $a2 = round(20000 / $jn, 1); // 2.000 €/kWp
+            $calcs[] = [
+                'label'   => 'Amortisationszeit (10 kWp Beispielanlage)',
+                'formula' => "Investition (17.000–20.000 €) ÷ Jahresnutzen\n"
+                    . "Jahresnutzen = {$ev} € Eigenverbrauch (30 % × 0,34 €/kWh) + {$es} € Einspeisung (70 % × 0,082 €/kWh) = {$jn} €/Jahr",
+                'result'  => "ca. {$a1}–{$a2} Jahre",
+                'source'  => 'DWD-Ertrag + Einspeisevergütung EEG 2024 (8,2 ct/kWh bis 10 kWp) + Bundesnetzagentur Stromøpreis 2024',
+                'note'    => 'Richtwert. Tatsächliche Amortisation variiert je nach Anlagengröße, Eigenverbrauchsanteil, Finanzierung und Steuervorteilen.',
+            ];
+        }
+
+        // 4. CO₂-Einsparung
+        $co2kg = round($yield10 * 0.434);  // UBA 2024: 434 g CO₂/kWh
+        $co2t  = round($co2kg / 1000, 1);
+        $calcs[] = [
+            'label'   => 'CO₂-Einsparung (10 kWp, 1 Jahr)',
+            'formula' => "{$yield10} kWh/Jahr × 0,434 kg CO₂/kWh",
+            'result'  => "ca. {$co2t} t CO₂/Jahr",
+            'source'  => 'Umweltbundesamt: Emissionsfaktor Strommix Deutschland 2024 (434 g CO₂/kWh)',
+        ];
+    }
+
+    $result['_dataFoundation'] = [
+        'location'   => $cityOrPostalCode,
+        'geocoded'   => $dwdSolarData['geocoded']   ?? null,
+        'lat'        => $dwdSolarData['lat']        ?? null,
+        'lon'        => $dwdSolarData['lon']        ?? null,
+        'dwd'        => [
+            'station'          => $dwdSolarData['station']['name']         ?? null,
+            'distance_km'      => $dwdSolarData['station']['distance_km']  ?? null,
+            'irradiance_kWhm2' => $irr,
+            'sunshine_hours'   => $sun,
+            'data_year'        => $dwdSolarData['dataYear'] ?? null,
+            'estimated'        => $est,
+            'source'           => 'DWD OpenData — Deutscher Wetterdienst',
+        ],
+        'germany_avg' => [
+            'irradiance_kWhm2' => $deIrr ?: null,
+            'sunshine_hours'   => $deSun ?: null,
+            'klimanormal'      => $deKN  ?: null,
+        ],
+        'calculations' => $calcs,
+        'note' => 'Alle Werte in diesem Tab wurden vom Backend anhand echter DWD-Messdaten berechnet — unabhängig vom KI-Modell. Zahlen im generierten Text ohne explizite Quellenangabe können vom KI-Modell stammen und sollten separat geprüft werden.',
+    ];
 }
 
 echo json_encode($result);

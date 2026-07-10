@@ -760,6 +760,30 @@ button{font-family:inherit}
 /* ── Section Placement Badge ── */
 .pv-placement-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:999px;color:var(--text3);margin-bottom:8px}
 @media(max-width:900px){.pv-benefits-grid,.pv-cta-strategy{grid-template-columns:1fr}}
+/* ── PV Datengrundlagen & Archiv ── */
+.pv-data-section{margin-bottom:20px}
+.pv-data-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.pv-data-row{display:grid;grid-template-columns:180px 1fr;gap:6px 16px;font-size:12px;line-height:1.5;margin-bottom:4px}
+.pv-data-label{color:var(--text3);font-weight:500}
+.pv-data-value{color:var(--text);font-family:'Geist Mono',monospace;font-size:11px}
+.pv-data-value.green{color:var(--green)}
+.pv-data-value.amber{color:var(--amber)}
+.pv-data-value.blue{color:var(--blue)}
+.pv-calc-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px}
+.pv-calc-label{font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px}
+.pv-calc-formula{font-family:'Geist Mono',monospace;font-size:11px;color:var(--text2);background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 10px;white-space:pre-wrap;margin-bottom:6px}
+.pv-calc-result{font-size:13px;font-weight:700;color:var(--accent)}
+.pv-calc-source{font-size:10px;color:var(--text3);margin-top:4px}
+.pv-calc-note{font-size:10px;color:var(--amber);margin-top:4px;background:var(--amber-bg);border-radius:var(--radius-sm);padding:3px 7px;display:inline-block}
+.pv-foundation-note{background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:var(--radius);padding:10px 14px;font-size:12px;color:var(--blue);line-height:1.5;margin-top:16px}
+.pv-archive-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.pv-archive-table th{background:var(--bg3);padding:8px 12px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;color:var(--text3);border-bottom:1px solid var(--border)}
+.pv-archive-table td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text2)}
+.pv-archive-table tr:hover td{background:var(--bg3)}
+.pv-archive-empty{padding:32px 0;text-align:center;color:var(--text3);font-size:13px}
+.pv-archive-url{color:var(--accent);font-family:'Geist Mono',monospace;font-size:11px;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.pv-duplicate-warn{background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:var(--radius);padding:10px 14px;font-size:12px;color:var(--amber);margin-bottom:12px;display:none}
+.pv-save-area{margin-top:12px;border-top:1px solid var(--border);padding-top:12px;display:none}
 /* ══ Content Finder ══════════════════════════════════════════════════════════ */
 .cf-layout{display:grid;grid-template-columns:380px 1fr;gap:20px;align-items:start}
 .cf-chip-container{min-height:44px;padding:8px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg3);display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
@@ -1403,6 +1427,9 @@ button{font-family:inherit}
       Bitte Stadt oder PLZ eingeben.
     </div>
 
+    <!-- Duplikat-Warnung -->
+    <div class="pv-duplicate-warn" id="pv-duplicate-warn"></div>
+
     <button class="pv-generate-btn" id="pv-btn-generate" onclick="pvGenerate()">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
       Bausteine generieren
@@ -1411,6 +1438,20 @@ button{font-family:inherit}
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
       Demo
     </button>
+
+    <!-- In Archiv speichern (erscheint nach erfolgreicher Generierung) -->
+    <div class="pv-save-area" id="pv-save-area">
+      <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Seite im Archiv speichern
+      </div>
+      <input type="url" id="pv-save-url" class="settings-input" placeholder="URL der fertigen Landingpage (optional)" style="margin-bottom:8px">
+      <button onclick="pvSaveToArchive()" class="pv-generate-btn" style="margin-top:0;background:var(--green-bg);border:1px solid var(--green-border);color:var(--green);padding:8px 16px;font-size:12px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/></svg>
+        Speichern
+      </button>
+      <div id="pv-save-confirm" style="display:none;font-size:11px;color:var(--green);margin-top:6px">✓ Im Archiv gespeichert.</div>
+    </div>
 
     <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px">
       <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:8px">Perspektivisch nutzbare Datenquellen</div>
@@ -1458,6 +1499,8 @@ button{font-family:inherit}
       <button class="pv-tab-btn" onclick="pvSwitchTab('placement',this)">Placement Map</button>
       <button class="pv-tab-btn" onclick="pvSwitchTab('checks',this)">SEO / CRO Checks</button>
       <button class="pv-tab-btn" onclick="pvSwitchTab('export',this)">Markdown Export</button>
+      <button class="pv-tab-btn" id="pv-tab-btn-data" onclick="pvSwitchTab('data',this)" style="display:none">📊 Datengrundlagen</button>
+      <button class="pv-tab-btn" onclick="pvSwitchTab('archive',this)">🗂 Archiv</button>
       <button class="pv-refine-btn" id="pv-btn-refine" onclick="pvRefine()" title="Content mit einem zweiten KI-Pass schärfen">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         Content schärfen
@@ -1484,6 +1527,12 @@ button{font-family:inherit}
     </div>
     <div id="pv-tab-export" class="pv-tab-panel" style="margin-bottom:48px">
       <div id="pv-export-content" style="margin-top:16px"></div>
+    </div>
+    <div id="pv-tab-data" class="pv-tab-panel" style="margin-bottom:48px">
+      <div id="pv-data-foundation-content" style="margin-top:16px"></div>
+    </div>
+    <div id="pv-tab-archive" class="pv-tab-panel" style="margin-bottom:48px">
+      <div id="pv-archive-list-content" style="margin-top:16px"></div>
     </div>
   </div><!-- /#pv-results -->
 </div><!-- /view-localpv -->
@@ -4760,6 +4809,17 @@ async function pvGenerate(){
   }
   validMsg.style.display='none';
 
+  // ── Duplikat-Check im Archiv ──────────────────────────────────────────
+  const warnEl = document.getElementById('pv-duplicate-warn');
+  if (warnEl) warnEl.style.display = 'none';
+  const dup = await pvCheckDuplicate(city);
+  if (dup) {
+    if (warnEl) {
+      warnEl.innerHTML = `<strong>⚠ Standort bereits im Archiv</strong> — ${escHtml(dup.location)} (${escHtml(dup.date)})${dup.url ? ` · <a href="${escHtml(dup.url)}" target="_blank" style="color:var(--amber)">${escHtml(dup.url)}</a>` : ''}<br><span style="font-size:11px">Du kannst trotzdem eine neue Version generieren.</span>`;
+      warnEl.style.display = 'block';
+    }
+  }
+
   const keyword  = document.getElementById('pv-keyword').value.trim();
   const product  = document.getElementById('pv-product')?.value.trim()||'';
   const url      = document.getElementById('pv-url').value.trim();
@@ -4840,6 +4900,24 @@ async function pvGenerate(){
     pvRenderResults(data);
     pvUpdateVersionUI('raw');
     document.getElementById('pv-results').style.display='block';
+    // Datengrundlagen-Tab aktivieren wenn DWD-Daten vorhanden
+    const df = data._dataFoundation;
+    const dataTabBtn = document.getElementById('pv-tab-btn-data');
+    if (df && dataTabBtn) {
+      dataTabBtn.style.display = '';
+      pvRenderDataFoundation(df);
+    } else if (dataTabBtn) {
+      dataTabBtn.style.display = 'none';
+    }
+    // Speichern-Bereich einblenden
+    const saveArea = document.getElementById('pv-save-area');
+    if (saveArea) {
+      saveArea.style.display = '';
+      const confirmEl = document.getElementById('pv-save-confirm');
+      if (confirmEl) confirmEl.style.display = 'none';
+      const urlInput = document.getElementById('pv-save-url');
+      if (urlInput) urlInput.value = document.getElementById('pv-url')?.value.trim() || '';
+    }
   }catch(e){
     document.getElementById('pv-error-msg').textContent = 'Fehler: '+e.message;
     document.getElementById('pv-error').style.display='block';
@@ -5194,6 +5272,181 @@ function pvCopySection(key){
 
 // Enter-Taste im Stadt-Feld
 document.getElementById('pv-city').addEventListener('keydown',e=>{if(e.key==='Enter')pvGenerate();});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// === PV DATENGRUNDLAGEN & ARCHIV ===
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ── Archiv ────────────────────────────────────────────────────────────────────
+let pvArchiveEntries = [];
+
+async function pvCheckDuplicate(location) {
+  try {
+    const res = await fetch('localpv.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN },
+      body: JSON.stringify({ action: 'archive_check', location, csrf_token: CSRF_TOKEN }),
+    });
+    const d = await res.json();
+    return d.duplicate || null;
+  } catch (_) { return null; }
+}
+
+async function pvSaveToArchive() {
+  const city = document.getElementById('pv-city')?.value.trim() || '';
+  if (!city) return;
+  const url  = document.getElementById('pv-save-url')?.value.trim()  || '';
+  const kw   = document.getElementById('pv-keyword')?.value.trim()   || '';
+  const title = pvData?.meta?.title || pvData?.hero?.h1 || city;
+  const dwd   = pvDwdData || null;
+
+  try {
+    const res = await fetch('localpv.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN },
+      body: JSON.stringify({
+        action: 'archive_save',
+        location: city, keyword: kw, url, title,
+        irradiance:  dwd?.irradiance_kWhm2_year || 0,
+        sunshine:    dwd?.sunshine_hours_year   || 0,
+        dwd_station: dwd?.station?.name         || '',
+        csrf_token:  CSRF_TOKEN,
+      }),
+    });
+    const d = await res.json();
+    if (d.success) {
+      const confirmEl = document.getElementById('pv-save-confirm');
+      if (confirmEl) { confirmEl.style.display = ''; setTimeout(() => confirmEl.style.display = 'none', 3000); }
+    }
+  } catch (_) {}
+}
+
+async function pvLoadArchive() {
+  const container = document.getElementById('pv-archive-list-content');
+  if (!container) return;
+  container.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:16px 0">Wird geladen …</div>';
+  try {
+    const res = await fetch('localpv.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN },
+      body: JSON.stringify({ action: 'archive_list', csrf_token: CSRF_TOKEN }),
+    });
+    const d = await res.json();
+    pvArchiveEntries = d.entries || [];
+    pvRenderArchive();
+  } catch (_) {
+    if (container) container.innerHTML = '<div style="color:var(--red);font-size:12px">Archiv konnte nicht geladen werden.</div>';
+  }
+}
+
+function pvRenderArchive() {
+  const container = document.getElementById('pv-archive-list-content');
+  if (!container) return;
+  if (!pvArchiveEntries.length) {
+    container.innerHTML = '<div class="pv-archive-empty">Noch keine Seiten gespeichert.<br><span style="font-size:11px">Nach dem Generieren auf "Seite speichern" klicken.</span></div>';
+    return;
+  }
+  container.innerHTML = `
+    <div style="font-size:12px;color:var(--text3);margin-bottom:12px">${pvArchiveEntries.length} gespeicherte Seite${pvArchiveEntries.length !== 1 ? 'n' : ''}</div>
+    <table class="pv-archive-table">
+      <thead><tr>
+        <th>Standort</th><th>Keyword</th><th>URL</th><th>DWD</th><th>Datum</th><th></th>
+      </tr></thead>
+      <tbody>
+        ${pvArchiveEntries.map(e => `
+          <tr>
+            <td><strong>${escHtml(e.location || '–')}</strong></td>
+            <td style="color:var(--text3)">${escHtml(e.keyword || '–')}</td>
+            <td>${e.url ? `<a href="${escHtml(e.url)}" target="_blank" class="pv-archive-url">${escHtml(e.url)}</a>` : '<span style="color:var(--text3)">–</span>'}</td>
+            <td style="font-size:11px;color:var(--text3)">${e.irradiance ? e.irradiance + ' kWh/m²' : '–'}</td>
+            <td style="font-size:11px;color:var(--text3);white-space:nowrap">${escHtml(e.date || '–')}</td>
+            <td><button onclick="pvDeleteArchive(${e.id})" style="font-size:11px;padding:3px 8px;background:var(--red-bg);border:1px solid var(--red-border);color:var(--red);border-radius:var(--radius-sm);cursor:pointer;font-family:inherit">Löschen</button></td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+async function pvDeleteArchive(id) {
+  if (!confirm('Eintrag löschen?')) return;
+  try {
+    await fetch('localpv.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': CSRF_TOKEN },
+      body: JSON.stringify({ action: 'archive_delete', id, csrf_token: CSRF_TOKEN }),
+    });
+    pvArchiveEntries = pvArchiveEntries.filter(e => e.id !== id);
+    pvRenderArchive();
+  } catch (_) {}
+}
+
+// ── Datengrundlagen-Tab rendern ───────────────────────────────────────────────
+function pvRenderDataFoundation(df) {
+  const container = document.getElementById('pv-data-foundation-content');
+  if (!container || !df) return;
+
+  const dwd = df.dwd || {};
+  const de  = df.germany_avg || {};
+  const calcs = df.calculations || [];
+
+  const sunDiff = (dwd.sunshine_hours && de.klimanormal)
+    ? Math.round(((dwd.sunshine_hours - de.klimanormal) / de.klimanormal) * 100 * 10) / 10 : null;
+  const sunDiffClass = sunDiff === null ? '' : sunDiff >= 0 ? 'green' : 'amber';
+  const sunDiffStr   = sunDiff === null ? '' : (sunDiff >= 0 ? '+' : '') + sunDiff + '%';
+
+  container.innerHTML = `
+    <div class="pv-data-section">
+      <div class="pv-data-section-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Standort
+      </div>
+      <div class="pv-data-row"><span class="pv-data-label">Eingabe</span><span class="pv-data-value">${escHtml(df.location || '–')}</span></div>
+      ${df.geocoded ? `<div class="pv-data-row"><span class="pv-data-label">Geocodiert</span><span class="pv-data-value">${escHtml(df.geocoded)}</span></div>` : ''}
+      ${df.lat ? `<div class="pv-data-row"><span class="pv-data-label">Koordinaten</span><span class="pv-data-value">${df.lat.toFixed(4)} N, ${df.lon.toFixed(4)} E</span></div>` : ''}
+    </div>
+
+    <div class="pv-data-section">
+      <div class="pv-data-section-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+        DWD-Klimadaten
+      </div>
+      <div class="pv-data-row"><span class="pv-data-label">Station</span><span class="pv-data-value">${escHtml(dwd.station || '–')} ${dwd.distance_km ? `(${dwd.distance_km} km)` : ''}</span></div>
+      <div class="pv-data-row"><span class="pv-data-label">Globalstrahlung</span><span class="pv-data-value blue">${dwd.irradiance_kWhm2 || '–'} kWh/m²/Jahr${dwd.data_year ? ` (${dwd.data_year})` : ''}</span></div>
+      <div class="pv-data-row"><span class="pv-data-label">Sonnenstunden</span><span class="pv-data-value blue">${dwd.sunshine_hours || '–'} h/Jahr</span></div>
+      <div class="pv-data-row"><span class="pv-data-label">Datentyp</span><span class="pv-data-value">${dwd.estimated ? '⚠ Regionaltypische Schätzung' : '✓ Gemessene DWD-Klimadaten'}</span></div>
+      <div class="pv-data-row"><span class="pv-data-label">Quelle</span><span class="pv-data-value">${escHtml(dwd.source || 'DWD OpenData')}</span></div>
+    </div>
+
+    ${(de.irradiance_kWhm2 || de.sunshine_hours) ? `
+    <div class="pv-data-section">
+      <div class="pv-data-section-title">Deutschland-Vergleich</div>
+      ${de.irradiance_kWhm2 ? `<div class="pv-data-row"><span class="pv-data-label">Ø Globalstrahlung DE</span><span class="pv-data-value">${de.irradiance_kWhm2} kWh/m²</span></div>` : ''}
+      ${de.sunshine_hours  ? `<div class="pv-data-row"><span class="pv-data-label">Ø Sonnenstunden DE</span><span class="pv-data-value">${de.sunshine_hours} h/Jahr</span></div>` : ''}
+      ${de.klimanormal     ? `<div class="pv-data-row"><span class="pv-data-label">Klimanormal 1991–2020</span><span class="pv-data-value">${de.klimanormal} h/Jahr</span></div>` : ''}
+      ${sunDiff !== null   ? `<div class="pv-data-row"><span class="pv-data-label">Abweichung Standort</span><span class="pv-data-value ${sunDiffClass}">${sunDiffStr} vs. Klimanormal</span></div>` : ''}
+    </div>` : ''}
+
+    ${calcs.length ? `
+    <div class="pv-data-section">
+      <div class="pv-data-section-title">Berechnungen</div>
+      ${calcs.map(c => `
+        <div class="pv-calc-card">
+          <div class="pv-calc-label">${escHtml(c.label)}</div>
+          <div class="pv-calc-formula">${escHtml(c.formula)}</div>
+          <div class="pv-calc-result">= ${escHtml(c.result)}</div>
+          ${c.source ? `<div class="pv-calc-source">Quelle: ${escHtml(c.source)}</div>` : ''}
+          ${c.note   ? `<div class="pv-calc-note">⚠ ${escHtml(c.note)}</div>` : ''}
+        </div>`).join('')}
+    </div>` : ''}
+
+    <div class="pv-foundation-note">${escHtml(df.note || '')}</div>`;
+}
+
+// ── pvSwitchTab: Archiv-Tab lädt Daten on demand ──────────────────────────────
+const _pvSwitchTabOrig = pvSwitchTab;
+pvSwitchTab = function(tab, btn) {
+  _pvSwitchTabOrig(tab, btn);
+  if (tab === 'archive') pvLoadArchive();
+};
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // === CONTENT FINDER ===
