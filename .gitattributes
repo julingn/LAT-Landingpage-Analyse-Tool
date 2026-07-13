@@ -1,0 +1,11 @@
+# Alle Textdateien mit LF ausliefern (verhindert CRLF auf Windows-Clients)
+* text=auto eol=lf
+
+# PHP und JS explizit als LF
+*.php text eol=lf
+*.mjs text eol=lf
+*.js  text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.md  text eol=lf
+*.json text eol=lf
