@@ -5323,22 +5323,26 @@ function pvWidgetConfigHtml() {
   const localSun = dwd.sunshine_hours_year || '–';
   const refSun   = deKN || '–';
 
-  // ── Monatswerte: PVGIS (bevorzugt) oder DWD-Mehrjahresmittel (Fallback) ──
+  // ── Monatswerte: DWD für Sonnenstunden-Anzeige (tatsächliche Sonnenscheindauer)
+  // Begründung: Das Widget zeigt "Mögliche Sonnenstunden" = gemessene Sonnenscheindauer.
+  // DWD misst Sonnenstunden direkt (Heliograph/Sensor, Schwelle 120 W/m²).
+  // PVGIS "Peak Sun Hours" = Globalstrahlung ÷ 1000 W/m² — ein Energieäquivalent,
+  // das NIEDRIGER ist (Sonne morgens/abends steht schräg, liefert weniger).
+  // Quelle DWD: https://opendata.dwd.de
   let months = null;
   let monthsSource = '';
-  if (pvPvgisData && pvPvgisData.monthly && Object.keys(pvPvgisData.monthly).length === 12) {
-    months = {};
-    for (let m = 1; m <= 12; m++) {
-      months[m] = pvPvgisData.monthly[m]?.peak_sun_hours ?? null;
-    }
-    const db = pvPvgisData.db || 'PVGIS-SARAH3';
-    const y1 = pvPvgisData.year_min || '2005';
-    const y2 = pvPvgisData.year_max || '2023';
-    monthsSource = `PVGIS (EU-Kommission, ${db}, ${y1}–${y2}) · Koordinaten ${pvPvgisData.lat}, ${pvPvgisData.lon}`;
-  } else if (dwd.monthly_avg_sunshine_hours) {
+  if (dwd.monthly_avg_sunshine_hours && Object.keys(dwd.monthly_avg_sunshine_hours).length >= 12) {
     months = dwd.monthly_avg_sunshine_hours;
-    monthsSource = `DWD Messstation ${stName} (${stDist}\u00a0km) · Mehrjährige Tagesmittel · Zeitraum ${yRange}`;
+    monthsSource = `DWD Messstation ${stName} (${stDist}\u00a0km) · Tatsächliche Sonnenscheindauer · Mehrjährige Tagesmittel · Zeitraum ${yRange} · Quelle: opendata.dwd.de`;
   }
+
+  // PVGIS: nur für Energieberechnung (kWh/Jahr), nicht für Stunden-Anzeige
+  const pvgis   = pvPvgisData || null;
+  const yieldKwhVal = pvgis?.annual_yield_5kwp_kwh || null;
+  const co2Val      = pvgis?.co2_savings_t         || null;
+  const pvgisSrc    = pvgis
+    ? `PVGIS (EU-Kommission, ${pvgis.db||'PVGIS-SARAH3'}, ${pvgis.year_min||2005}–${pvgis.year_max||2023}) · re.jrc.ec.europa.eu/pvg_tools · Koordinaten ${pvgis.lat}, ${pvgis.lon}`
+    : 'PVGIS nicht verfügbar';
 
   if (!months) return '';
 
@@ -5350,7 +5354,6 @@ function pvWidgetConfigHtml() {
   const solarConfig = `var SolarPotentialConfig = {\n\tbuildings: {\n\t\tbig: {\n\t\t\tname: ${JSON.stringify(city)},\n\t\t\tvalue: ${localSun}\n\t\t},\n\t\tsmall: {\n\t\t\tname: "Deutschland",\n\t\t\tvalue: ${refSun}\n\t\t}\n\t}\n};`;
 
   const CI = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
-  const isPvgis = !!pvPvgisData?.monthly;
 
   const monthRows = Object.entries(months).map(([m,v],i)=>{
     const val = v !== null ? Number(v) : null;
@@ -5367,42 +5370,49 @@ function pvWidgetConfigHtml() {
     </tr>`;
   }).join('');
 
-  const srcBadge = isPvgis
-    ? `<span class="pv-data-source-tag" style="background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border)">PVGIS · EU-Kommission · Satellitendaten</span>`
-    : `<span class="pv-data-source-tag">DWD · Station ${escHtml(stName)} · ${escHtml(String(yRange))}</span>`;
-
   return `<div class="pv-card">
     <div class="pv-card-label">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
       ☀ Sonnenstand-Widget (Konfiguration)
     </div>
     <div class="pv-placement-badge" style="margin-bottom:10px"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg>Nach Kundenstimmen · CMS-Konfiguration</div>
-    <div class="pv-data-hint" style="margin-bottom:12px">
-      <span class="pv-data-hint-label">Monatswerte:</span>
-      ${srcBadge}
+
+    <!-- Methodik-Erklärung -->
+    <div style="background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:var(--radius);padding:12px 14px;font-size:11px;line-height:1.7;color:var(--blue);margin-bottom:14px">
+      <strong>Zwei Quellen, zwei Zwecke:</strong><br>
+      <strong>Sonnenstunden-Anzeige (widget months):</strong> DWD-Messwerte — tatsächlich gemessene Sonnenscheindauer (Heliograph, Schwelle 120 W/m²). Entspricht dem natürlichen Nutzerverständnis von „Wie lange scheint die Sonne?". Quelle: Deutscher Wetterdienst, opendata.dwd.de<br>
+      <strong>kWh-Berechnung (Jahresertrag):</strong> PVGIS Peak-Sonnenstunden = Globalstrahlung ÷ 1.000 W/m². Korrekte Methode für Energieberechnungen, weil sie die tatsächliche Intensitätsverteilung über den Tag berücksichtigt (Sonne steht morgens/abends schräger). Quelle: EU-Kommission, re.jrc.ec.europa.eu/pvg_tools
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
       <div>
         <div class="pv-sec-label" style="margin-bottom:6px">Sonnenstunden je Monat (Tagesmittel)</div>
         <table style="width:100%;border-collapse:collapse">${monthRows}</table>
+        <div style="font-size:10px;color:var(--text3);margin-top:5px;line-height:1.4">
+          Quelle: ${escHtml(monthsSource)}
+        </div>
       </div>
       <div>
-        <div class="pv-sec-label" style="margin-bottom:6px">Jahreswerte (Sonnenstunden/Jahr)</div>
+        <div class="pv-sec-label" style="margin-bottom:6px">Jahreswerte</div>
         <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-size:12px;line-height:2">
-          <div><strong>${escHtml(city)}</strong> &nbsp;<span style="font-family:'Geist Mono',monospace;font-size:13px;color:var(--accent)">${localSun} h</span></div>
-          <div style="color:var(--text3)">Deutschland &nbsp;<span style="font-family:'Geist Mono',monospace;font-size:13px;color:var(--text2)">${refSun} h</span></div>
+          <div><strong>${escHtml(city)}</strong> &nbsp;<span style="font-family:'Geist Mono',monospace;font-size:13px;color:var(--accent)">${localSun} h/Jahr</span></div>
+          <div style="color:var(--text3)">Deutschland (Klimanormal) &nbsp;<span style="font-family:'Geist Mono',monospace;font-size:13px;color:var(--text2)">${refSun} h/Jahr</span></div>
+          ${yieldKwhVal ? `<div style="border-top:1px solid var(--border);margin-top:6px;padding-top:6px"><span style="color:var(--text3)">Jahresertrag 5 kWp:</span> <span style="font-family:'Geist Mono',monospace;font-size:13px;color:var(--blue)">${yieldKwhVal} kWh</span></div>` : ''}
+          ${co2Val ? `<div><span style="color:var(--text3)">CO₂-Einsparung:</span> <span style="font-family:'Geist Mono',monospace;font-size:13px;color:var(--green)">${co2Val} t/Jahr</span></div>` : ''}
         </div>
-        <div style="font-size:10px;color:var(--text3);margin-top:6px">Datenquelle DWD OpenData · ${escHtml(city)} Jahreswert ${dwd.dataYear||'–'} · DE Klimanormal 1991–2020</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:6px;line-height:1.4">
+          Sonnenstunden: DWD OpenData, Jahreswert ${dwd.dataYear||'–'}<br>
+          ${yieldKwhVal ? `Jahresertrag + CO₂: ${escHtml(pvgisSrc)}` : ''}
+        </div>
       </div>
     </div>
 
-    <div class="pv-sec-label" style="margin-top:14px">HoursOfSunshineConfig <small style="font-weight:400">(in CMS einfügen, Werte oben pro Stadt austauschen)</small></div>
+    <div class="pv-sec-label" style="margin-top:14px">HoursOfSunshineConfig <small style="font-weight:400">(months = DWD-Sonnenscheindauer für Widget-Anzeige)</small></div>
     <pre style="font-family:'Geist Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;overflow-x:auto;line-height:1.6;color:var(--text2);margin:4px 0 4px">${escHtml(hoursConfig)}</pre>
     <div style="font-size:10px;color:var(--text3);margin:3px 0 4px">Datenquelle: ${escHtml(monthsSource)}</div>
     <button class="pv-copy-btn" onclick="pvCopySectionText(${JSON.stringify(hoursConfig)},this)">${CI} Kopieren</button>
 
-    <div class="pv-sec-label" style="margin-top:12px">SolarPotentialConfig <small style="font-weight:400">(Hauskurven-Vergleich)</small></div>
+    <div class="pv-sec-label" style="margin-top:12px">SolarPotentialConfig <small style="font-weight:400">(Hauskurven-Vergleich, DWD-Jahreswerte)</small></div>
     <pre style="font-family:'Geist Mono',monospace;font-size:11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;overflow-x:auto;line-height:1.6;color:var(--text2);margin:4px 0 4px">${escHtml(solarConfig)}</pre>
     <div style="font-size:10px;color:var(--text3);margin:3px 0 4px">Datenquelle: DWD OpenData · ${escHtml(city)} ${localSun}&thinsp;h/Jahr (Jahreswert ${dwd.dataYear||'–'}) · Deutschland ${refSun}&thinsp;h/Jahr (Klimanormal 1991–2020)</div>
     <button class="pv-copy-btn" onclick="pvCopySectionText(${JSON.stringify(solarConfig)},this)">${CI} Kopieren</button>
@@ -5422,11 +5432,9 @@ function pvFootnoteHtml() {
   const pvgis2   = pvPvgisData || null;
   const yieldKwh = pvgis2?.annual_yield_5kwp_kwh ? `${pvgis2.annual_yield_5kwp_kwh} kWh/Jahr` : null;
   const co2t     = pvgis2?.co2_savings_t ? `${pvgis2.co2_savings_t} t CO2/Jahr` : null;
-  const footnote = `* Sonnenstunden: Mehrjaehrige Tagesmittelwerte je Monat aus gemessenen DWD-Klimadaten, `+
-    `Messstation ${stName} (${stDist} km vom Standort), Zeitraum ${yRange}. `+
-    `Jahreswert ${localSun} h/Jahr (Standort) vs. ${deKN} h/Jahr (Deutschland Klimanormal 1991-2020). `+
-    (yieldKwh ? `Jahresertrag (Wert 3): ${yieldKwh} - Berechnung ueber PVGIS (EU-Kommission, re.jrc.ec.europa.eu/pvg_tools/de/), Referenzanlage 5 kWp, Montage auf Dach, 14 % Systemverluste, ${pvgis2?.db||'PVGIS-SARAH3'} (${pvgis2?.year_min||2005}-${pvgis2?.year_max||2023}). ` : '') +
-    (co2t ? `CO2-Einsparung (Wert 4): ${co2t} - Emissionsfaktor 420 g CO2/kWh (Quelle: Umweltbundesamt, umweltbundesamt.de/themen/co2-emissionen-pro-kilowattstunde-strom). ` : '') +
+  const footnote = `* Sonnenstunden (Balken-Anzeige): Tatsaechliche Sonnenscheindauer, mehrjaehrige DWD-Tagesmittel je Monat, Messstation ${stName} (${stDist} km), Zeitraum ${yRange}. Standort ${localSun} h/Jahr vs. Deutschland ${deKN} h/Jahr (Klimanormal 1991-2020). Quelle: Deutscher Wetterdienst, opendata.dwd.de. `+
+    (yieldKwh ? `Jahresertrag (Wert 3, ${yieldKwh}): PVGIS Peak-Sonnenstunden x 5 kWp - PVGIS (EU-Kommission, re.jrc.ec.europa.eu/pvg_tools/de/), ${pvgis2?.db||'PVGIS-SARAH3'} (${pvgis2?.year_min||2005}-${pvgis2?.year_max||2023}), Montage auf Dach, 14 % Verluste. PVGIS-Werte sind niedriger als DWD-Sonnenstunden, weil Peak-Sonnenstunden die Intensitaetsverteilung ueber den Tag korrekt beruecksichtigen (Energieaequivalent). ` : '') +
+    (co2t ? `CO2-Einsparung (Wert 4, ${co2t}): Emissionsfaktor 420 g CO2/kWh (Quelle: Umweltbundesamt, umweltbundesamt.de/themen/co2-emissionen-pro-kilowattstunde-strom). ` : '') +
     `Alle Werte sind Richtwerte fuer eine Referenzanlage (5 kWp). Tatsaechliche Ertraege abhaengig von Dachneigung, -ausrichtung, Verschattung und Systemwirkungsgrad.`;
   const CI = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
   return `<div class="pv-card">
