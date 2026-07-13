@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 if (empty($_SESSION['logged_in'])) { header('Location: ../login.php'); exit; }
 if (empty($_SESSION['csrf_token'])) { $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); }
@@ -4734,6 +4734,8 @@ function pvDemo(){
     source:'DWD OpenData'};
   // Demo: PVGIS-Daten simulieren (Peaksonnenstunden aus Globalstrahlung)
   pvPvgisData={lat:49.8728,lon:8.6512,db:'PVGIS-SARAH3',year_min:2005,year_max:2023,source:'PVGIS (EU-Kommission, Copernicus)',
+    annual_yield_5kwp_kwh:4710, co2_savings_t:1.98, co2_factor_g_kwh:420,
+    pvcalc_params:{peakpower:5,loss:14,mountingplace:'building'},
     monthly:{1:{peak_sun_hours:0.7},2:{peak_sun_hours:1.4},3:{peak_sun_hours:2.8},4:{peak_sun_hours:4.1},
              5:{peak_sun_hours:5.2},6:{peak_sun_hours:5.8},7:{peak_sun_hours:5.6},8:{peak_sun_hours:4.9},
              9:{peak_sun_hours:3.4},10:{peak_sun_hours:1.9},11:{peak_sun_hours:0.8},12:{peak_sun_hours:0.5}}};
@@ -5121,12 +5123,24 @@ function pvRenderResults(d){
         ?`<div class="pv-sec-label">Fließtext (unter H2)</div><div class="pv-sec-content">${escHtml(sFull||'–')}</div>`+
           `<div class="pv-sec-label">Labels (Icon + CMS-Zahl + Text)</div>`+
           `<div class="pv-benefits-grid">`+
-          sItems.map(it=>`<div class="pv-benefit-card">`+
-            `<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">`+
-            `<div class="pv-benefit-title" style="font-size:10px;color:var(--text3);text-transform:uppercase;margin:0">${escHtml(it.icon||'')}</div>`+
-            (it.display_value?`<div style="font-size:12px;font-weight:700;font-family:'Geist Mono',monospace;color:${it.display_value.startsWith('[CMS')?'var(--amber)':'var(--accent)'}">${escHtml(it.display_value)}</div>`:'')+
-            `</div>`+
-            `<div class="pv-benefit-text">${escHtml(it.label||'')}</div></div>`).join('')+
+          sItems.map(it=>{
+            // Wert automatisch aus PVGIS/DWD befüllen wenn verfügbar
+            let dispVal = it.display_value || '';
+            let dispColor = dispVal.startsWith('[CMS') ? 'var(--amber)' : 'var(--accent)';
+            if (it.icon === 'sun' && pvDwdData?.irradiance_kWhm2_year) {
+              dispVal = `${pvDwdData.irradiance_kWhm2_year} kWh/m²`; dispColor = 'var(--accent)';
+            } else if (it.icon === 'energy' && pvPvgisData?.annual_yield_5kwp_kwh) {
+              dispVal = `${pvPvgisData.annual_yield_5kwp_kwh} kWh/Jahr`; dispColor = 'var(--blue)';
+            } else if (it.icon === 'co2' && pvPvgisData?.co2_savings_t) {
+              dispVal = `${pvPvgisData.co2_savings_t} t CO₂`; dispColor = 'var(--green)';
+            }
+            return `<div class="pv-benefit-card">`+
+              `<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">`+
+              `<div class="pv-benefit-title" style="font-size:10px;color:var(--text3);text-transform:uppercase;margin:0">${escHtml(it.icon||'')}</div>`+
+              (dispVal?`<div style="font-size:12px;font-weight:700;font-family:'Geist Mono',monospace;color:${dispColor}">${escHtml(dispVal)}</div>`:'')+
+              `</div>`+
+              `<div class="pv-benefit-text">${escHtml(it.label||'')}</div></div>`;
+          }).join('')+
           `</div>`
       :sSteps
         ?`<div class="pv-sec-label">Text (linke Spalte)</div><div class="pv-sec-micro">${escHtml(sFull||'–')}</div>`+
@@ -5465,11 +5479,15 @@ function pvFootnoteHtml() {
   const yRange = dwd.monthly_data_years || dwd.dataYear || '–';
   const localSun = dwd.sunshine_hours_year || '–';
   const deKN     = dwd.germany_avg?.klimanormal_1991_2020 || dwd.germany_avg?.sunshine_hours_year || '–';
-  const footnote = `* Sonnenstunden: Mehrjährige Tagesmittelwerte je Monat aus gemessenen DWD-Klimadaten, `+
-    `Messstation ${stName} (${stDist} km vom Standort), Zeitraum ${yRange}. `+
-    `Jahreswert ${localSun} h/Jahr (Standort) vs. ${deKN} h/Jahr (Deutschland Klimanormal 1991–2020). `+
-    `Berechnung der elektrischen Leistung: Tägliche Sonnenstunden × 5 kWp Referenzanlage. `+
-    `Tatsächliche Stromerzeugung abhängig von Dachneigung, -ausrichtung, Verschattung und Systemwirkungsgrad.`;
+  const pvgis2   = pvPvgisData || null;
+  const yieldKwh = pvgis2?.annual_yield_5kwp_kwh ? `${pvgis2.annual_yield_5kwp_kwh} kWh/Jahr` : null;
+  const co2t     = pvgis2?.co2_savings_t ? ` t CO2/Jahr` : null;
+  const footnote = `* Sonnenstunden: Mehrjaehrige Tagesmittelwerte je Monat aus gemessenen DWD-Klimadaten, `+
+    `Messstation ${stName} (${stDist} km vom Standort), Zeitraum ${yRange}. `+
+    `Jahreswert ${localSun} h/Jahr (Standort) vs. ${deKN} h/Jahr (Deutschland Klimanormal 1991-2020). `+
+    (yieldKwh ? `Jahresertrag (Wert 3): ${yieldKwh} - Berechnung ueber PVGIS (EU-Kommission, re.jrc.ec.europa.eu/pvg_tools/de/), Referenzanlage 5 kWp, Montage auf Dach, 14 % Systemverluste, ${pvgis2?.db||'PVGIS-SARAH3'} (${pvgis2?.year_min||2005}-${pvgis2?.year_max||2023}). ` : '') +
+    (co2t ? `CO2-Einsparung (Wert 4): ${co2t} - Emissionsfaktor 420 g CO2/kWh (Quelle: Umweltbundesamt, umweltbundesamt.de/themen/co2-emissionen-pro-kilowattstunde-strom). ` : '') +
+    `Alle Werte sind Richtwerte fuer eine Referenzanlage (5 kWp). Tatsaechliche Ertraege abhaengig von Dachneigung, -ausrichtung, Verschattung und Systemwirkungsgrad.`;
   const CI = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
   return `<div class="pv-card">
     <div class="pv-card-label">

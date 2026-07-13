@@ -81,7 +81,44 @@ if ($action === 'pvgis') {
         $wh = (float)($m['H(h)_m'] ?? 0);
         if ($mo >= 1 && $mo <= 12) $monthly[$mo] = ['irr_wh_day' => (int)round($wh), 'irr_kWh_day' => round($wh/1000,2), 'peak_sun_hours' => round($wh/1000,1)];
     }
-    $res = ['lat'=>$lat,'lon'=>$lon,'monthly'=>$monthly,'db'=>$meta['radiation_db']??'PVGIS-SARAH3','year_min'=>$meta['year_min']??2005,'year_max'=>$meta['year_max']??2023,'source'=>'PVGIS (EU-Kommission, Copernicus)'];
+
+    // ── PVcalc: Jahresertrag 5 kWp, Montage auf Dach ──────────────────────
+    // Entspricht PVGIS-Tool: https://re.jrc.ec.europa.eu/pvg_tools/de/
+    // Einstellungen: 5 kWp, "Auf Dach / Gebäudeintegriert", Standardverluste 14%
+    $annual_yield = null;
+    $co2_savings  = null;
+    $pvCalcUrl = 'https://re.jrc.ec.europa.eu/api/v5_2/PVcalc?'.http_build_query([
+        'lat' => $lat, 'lon' => $lon,
+        'peakpower'     => 5,
+        'loss'          => 14,          // 14% Systemverluste (PVGIS-Default)
+        'mountingplace' => 'building',  // Auf Dach / Gebäudeintegriert
+        'outputformat'  => 'json',
+        'browser'       => 0,
+    ]);
+    $rawPvc = @file_get_contents($pvCalcUrl, false, $ctx2);
+    if ($rawPvc) {
+        $pvc = json_decode($rawPvc, true);
+        $ey  = $pvc['outputs']['totals']['fixed']['E_y'] ?? null;
+        if ($ey && (float)$ey > 0) {
+            $annual_yield = (int)round((float)$ey);
+            // CO₂-Einsparung: UBA-Faktor 420 g/kWh (Strommix DE)
+            // Quelle: umweltbundesamt.de/themen/co2-emissionen-pro-kilowattstunde-strom
+            $co2_savings = round($annual_yield * 420 / 1_000_000, 2); // in Tonnen
+        }
+    }
+
+    $res = [
+        'lat' => $lat, 'lon' => $lon,
+        'monthly' => $monthly,
+        'db'      => $meta['radiation_db'] ?? 'PVGIS-SARAH3',
+        'year_min'=> $meta['year_min'] ?? 2005,
+        'year_max'=> $meta['year_max'] ?? 2023,
+        'source'  => 'PVGIS (EU-Kommission, Copernicus)',
+        'annual_yield_5kwp_kwh' => $annual_yield,
+        'co2_savings_t'         => $co2_savings,
+        'co2_factor_g_kwh'      => 420,
+        'pvcalc_params'         => ['peakpower' => 5, 'loss' => 14, 'mountingplace' => 'building'],
+    ];
     @file_put_contents($cf, json_encode($res, JSON_UNESCAPED_UNICODE));
     echo json_encode($res, JSON_UNESCAPED_UNICODE);
     exit;
