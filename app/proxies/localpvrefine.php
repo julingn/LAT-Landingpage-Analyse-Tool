@@ -161,8 +161,25 @@ SYSPROMPT;
 
 $userPrompt = "Schärfe den folgenden JSON-Output inhaltlich nach den oben genannten Regeln.{$dwdRefineNote}\n\nAntworte NUR mit dem optimierten JSON-Objekt. Keine Erklärungen. Kein Markdown.\n\n{$currentJsonStr}";
 
+// ── SSE: Headers + Heartbeat ────────────────────────────────────────────
+header('Content-Type: text/event-stream; charset=utf-8');
+header('Cache-Control: no-cache');
+header('X-Accel-Buffering: no');
+header('Connection: keep-alive');
+while (ob_get_level()) { ob_end_clean(); }
+ob_implicit_flush(true);
+
+function pvSseEventRefine(string $data): void { echo 'data: ' . $data . "\n\n"; @flush(); }
+
+pvSseEventRefine(json_encode(['status' => 'starting']));
+
 // ── API-Call ──────────────────────────────────────────────────────────────
 $model = ($provider === 'openai') ? CFG_OPENAI_MODEL : CFG_AI_MODEL;
+$_lastHbR = time();
+$_hbFnR   = function($r, $dlt, $dln, $ult, $uln) use (&$_lastHbR): int {
+    if (time() - $_lastHbR >= 8) { pvSseEventRefine(json_encode(['status' => 'thinking'])); $_lastHbR = time(); }
+    return 0;
+};
 
 if ($provider === 'openai') {
     $payload = [
@@ -178,7 +195,9 @@ if ($provider === 'openai') {
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST           => true,
         CURLOPT_POSTFIELDS     => json_encode($payload),
-        CURLOPT_TIMEOUT        => 120,
+        CURLOPT_TIMEOUT        => 300,
+        CURLOPT_NOPROGRESS     => false,
+        CURLOPT_PROGRESSFUNCTION => $_hbFnR,
         CURLOPT_HTTPHEADER     => [
             'Content-Type: application/json',
             'Authorization: Bearer ' . $apiKey,
@@ -196,7 +215,9 @@ if ($provider === 'openai') {
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST           => true,
         CURLOPT_POSTFIELDS     => json_encode($payload),
-        CURLOPT_TIMEOUT        => 120,
+        CURLOPT_TIMEOUT        => 300,
+        CURLOPT_NOPROGRESS     => false,
+        CURLOPT_PROGRESSFUNCTION => $_hbFnR,
         CURLOPT_HTTPHEADER     => [
             'Content-Type: application/json',
             'x-api-key: ' . $apiKey,
@@ -210,15 +231,10 @@ $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 $curlError = curl_error($ch);
 curl_close($ch);
 
-if ($curlError) {
-    http_response_code(502);
-    echo json_encode(['error' => ['type' => 'curl', 'message' => 'Netzwerkfehler: ' . $curlError]]);
-    exit;
-}
+if ($curlError) { pvSseEventRefine(json_encode(['status'=>'error','type'=>'curl','message'=>'Netzwerkfehler: '.$curlError])); exit; }
 if ($httpCode !== 200) {
     $errData = json_decode($response, true);
-    http_response_code(502);
-    echo json_encode(['error' => ['type' => 'api', 'message' => $errData['error']['message'] ?? ('HTTP ' . $httpCode)]]);
+    pvSseEventRefine(json_encode(['status'=>'error','type'=>'api','message'=>$errData['error']['message']??('HTTP '.$httpCode)]));
     exit;
 }
 
@@ -243,15 +259,8 @@ if (!str_starts_with($jsonStr, '{')) {
 
 $result = json_decode($jsonStr, true);
 if (!is_array($result)) {
-    http_response_code(502);
-    echo json_encode([
-        'error' => [
-            'type'    => 'parse',
-            'message' => 'KI-Antwort konnte nicht als JSON geparst werden.',
-            'raw'     => substr($rawText, 0, 500),
-        ],
-    ]);
+    pvSseEventRefine(json_encode(['status'=>'error','type'=>'parse','message'=>'KI-Antwort konnte nicht geparst werden.','raw'=>substr($rawText,0,500)]));
     exit;
 }
 
-echo json_encode($result);
+pvSseEventRefine(json_encode(['status' => 'complete', 'result' => $result]));

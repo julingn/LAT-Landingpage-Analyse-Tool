@@ -4613,15 +4613,15 @@ async function pvRefine(){
       headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},
       body:JSON.stringify({currentJson:pvData,dwdSolarData:pvDwdData,csrf_token:CSRF_TOKEN}),
     });
-    let data;
-    const rawText=await res.text();
-    try{ data=JSON.parse(rawText); }
-    catch(parseErr){ throw new Error(`HTTP ${res.status} — Server-Antwort kein JSON: ${rawText.substring(0,200)}`); }
-    if(!res.ok||data.error){
-      const err=data.error||{};
-      const msg=typeof err==='object'?(err.message||JSON.stringify(err)):(err||`HTTP ${res.status}`);
-      throw new Error(msg);
+    const reader=res.body.getReader(); const dec=new TextDecoder(); let buf=''; let data=null;
+    while(true){ const {done,value}=await reader.read(); if(done)break; buf+=dec.decode(value,{stream:true});
+      const parts=buf.split('\n\n'); buf=parts.pop()||'';
+      for(const p of parts){ if(!p.trim().startsWith('data: '))continue;
+        let e; try{e=JSON.parse(p.trim().slice(6));}catch(_){continue;}
+        if(e.status==='complete')data=e.result; else if(e.status==='error')throw new Error(e.message||'API-Fehler');
+      }
     }
+    if(!data) throw new Error('Keine Antwort empfangen.');
     pvData=data;
     pvVersions.sharpened=data;
     pvVersions.conversion=null;
@@ -4651,13 +4651,17 @@ async function pvConvert(){
       headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},
       body:JSON.stringify({currentJson:pvVersions.sharpened,dwdSolarData:pvDwdData,csrf_token:CSRF_TOKEN}),
     });
-    let data;
-    const rawText=await res.text();
-    try{data=JSON.parse(rawText);}
-    catch(parseErr){throw new Error(`HTTP ${res.status} — Server-Antwort kein JSON: ${rawText.substring(0,200)}`);}
-    if(!res.ok||data.error){
-      const err=data.error||{};
-      const msg=typeof err==='object'?(err.message||JSON.stringify(err)):(err||`HTTP ${res.status}`);
+    const reader2=res.body.getReader(); const dec2=new TextDecoder(); let buf2=''; let data=null;
+    while(true){ const {done,value}=await reader2.read(); if(done)break; buf2+=dec2.decode(value,{stream:true});
+      const parts=buf2.split('\n\n'); buf2=parts.pop()||'';
+      for(const p of parts){ if(!p.trim().startsWith('data: '))continue;
+        let e; try{e=JSON.parse(p.trim().slice(6));}catch(_){continue;}
+        if(e.status==='complete')data=e.result; else if(e.status==='error')throw new Error(e.message||'API-Fehler');
+      }
+    }
+    if(!data) throw new Error('Keine Antwort empfangen.');
+    const err=data.error||{}; if(data.error){
+      const msg=typeof err==='object'?(err.message||JSON.stringify(err)):(err||'Fehler');
       throw new Error(msg);
     }
     pvData=data;
@@ -4911,22 +4915,49 @@ async function pvGenerate(){
   };
 
   try{
+    // SSE-Stream: localpv.php sendet Heartbeats alle 8s + finales Ergebnis
     const res = await fetch('localpv.php',{
       method:'POST',
       headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},
       body:JSON.stringify(body),
     });
-    let data;
-    const rawText = await res.text();
-    try{ data = JSON.parse(rawText); }
-    catch(parseErr){
-      throw new Error(`HTTP ${res.status} — Server-Antwort kein JSON: ${rawText.substring(0,200)}`);
+    if(!res.ok && res.status !== 200) {
+      throw new Error(`HTTP ${res.status}`);
     }
-    if(!res.ok||data.error){
-      const err = data.error||{};
-      const msg = typeof err==='object' ? (err.message||JSON.stringify(err)) : (err||`HTTP ${res.status}`);
-      throw new Error(msg);
+
+    // ReadableStream: SSE-Events lesen bis 'complete' oder 'error'
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let data = null;
+
+    while(true) {
+      const {done, value} = await reader.read();
+      if(done) break;
+      buffer += decoder.decode(value, {stream: true});
+
+      // SSE-Events aus Buffer extrahieren (getrennt durch \n\n)
+      const parts = buffer.split('\n\n');
+      buffer = parts.pop() || '';
+
+      for(const part of parts) {
+        const trimmed = part.trim();
+        if(!trimmed.startsWith('data: ')) continue;
+        let evt;
+        try { evt = JSON.parse(trimmed.slice(6)); } catch(_) { continue; }
+
+        if(evt.status === 'generating' || evt.status === 'thinking') {
+          if(statusEl) statusEl.textContent = 'KI generiert Bausteine\u2026';
+        } else if(evt.status === 'complete') {
+          data = evt.result;
+        } else if(evt.status === 'error') {
+          throw new Error(evt.message || 'API-Fehler');
+        }
+      }
     }
+
+    if(!data) throw new Error('Keine Antwort vom Server empfangen.');
+
     pvData = data;
     pvVersions.raw = data;
     pvVersions.sharpened = null;

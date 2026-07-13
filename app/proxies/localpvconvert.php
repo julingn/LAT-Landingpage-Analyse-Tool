@@ -131,8 +131,22 @@ SYSPROMPT;
 
 $userPrompt = "Optimiere den folgenden Level-2-JSON-Output selektiv auf Conversion-Stärke.{$dwdConvertNote}\n\nNur ändern, wo eine echte Verbesserung möglich ist. Antworte NUR mit dem optimierten JSON-Objekt.\n\n{$currentJsonStr}";
 
+// ── SSE: Headers + Heartbeat ────────────────────────────────────────────
+header('Content-Type: text/event-stream; charset=utf-8');
+header('Cache-Control: no-cache');
+header('X-Accel-Buffering: no');
+header('Connection: keep-alive');
+while (ob_get_level()) { ob_end_clean(); }
+ob_implicit_flush(true);
+function pvSseEventConvert(string $data): void { echo 'data: ' . $data . "\n\n"; @flush(); }
+pvSseEventConvert(json_encode(['status' => 'starting']));
+
 // ── API-Call ──────────────────────────────────────────────────────────────
 $model = ($provider === 'openai') ? CFG_OPENAI_MODEL : CFG_AI_MODEL;
+$_lastHbC = time();
+$_hbFnC   = function($r,$dlt,$dln,$ult,$uln) use (&$_lastHbC): int {
+    if(time()-$_lastHbC>=8){pvSseEventConvert(json_encode(['status'=>'thinking']));$_lastHbC=time();}return 0;
+};
 
 if ($provider === 'openai') {
     $payload = ['model' => $model, 'max_tokens' => 8000, 'messages' => [
@@ -140,11 +154,11 @@ if ($provider === 'openai') {
         ['role' => 'user',   'content' => $userPrompt],
     ]];
     $ch = curl_init('https://api.openai.com/v1/chat/completions');
-    curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER=>true,CURLOPT_POST=>true,CURLOPT_POSTFIELDS=>json_encode($payload),CURLOPT_TIMEOUT=>120,CURLOPT_HTTPHEADER=>['Content-Type: application/json','Authorization: Bearer '.$apiKey]]);
+    curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER=>true,CURLOPT_POST=>true,CURLOPT_POSTFIELDS=>json_encode($payload),CURLOPT_TIMEOUT=>300,CURLOPT_NOPROGRESS=>false,CURLOPT_PROGRESSFUNCTION=>$_hbFnC,CURLOPT_HTTPHEADER=>['Content-Type: application/json','Authorization: Bearer '.$apiKey]]);
 } else {
     $payload = ['model' => $model, 'max_tokens' => 8000, 'system' => $systemPrompt, 'messages' => [['role'=>'user','content'=>$userPrompt]]];
     $ch = curl_init('https://api.anthropic.com/v1/messages');
-    curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER=>true,CURLOPT_POST=>true,CURLOPT_POSTFIELDS=>json_encode($payload),CURLOPT_TIMEOUT=>120,CURLOPT_HTTPHEADER=>['Content-Type: application/json','x-api-key: '.$apiKey,'anthropic-version: 2023-06-01']]);
+    curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER=>true,CURLOPT_POST=>true,CURLOPT_POSTFIELDS=>json_encode($payload),CURLOPT_TIMEOUT=>300,CURLOPT_NOPROGRESS=>false,CURLOPT_PROGRESSFUNCTION=>$_hbFnC,CURLOPT_HTTPHEADER=>['Content-Type: application/json','x-api-key: '.$apiKey,'anthropic-version: 2023-06-01']]);
 }
 
 $response  = curl_exec($ch);
@@ -152,11 +166,10 @@ $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 $curlError = curl_error($ch);
 curl_close($ch);
 
-if ($curlError) { http_response_code(502); echo json_encode(['error'=>['type'=>'curl','message'=>'Netzwerkfehler: '.$curlError]]); exit; }
+if ($curlError) { pvSseEventConvert(json_encode(['status'=>'error','type'=>'curl','message'=>'Netzwerkfehler: '.$curlError])); exit; }
 if ($httpCode !== 200) {
     $errData = json_decode($response, true);
-    http_response_code(502);
-    echo json_encode(['error'=>['type'=>'api','message'=>$errData['error']['message']??('HTTP '.$httpCode)]]);
+    pvSseEventConvert(json_encode(['status'=>'error','type'=>'api','message'=>$errData['error']['message']??('HTTP '.$httpCode)]));
     exit;
 }
 
@@ -173,9 +186,8 @@ if (!str_starts_with($jsonStr, '{')) {
 
 $result = json_decode($jsonStr, true);
 if (!is_array($result)) {
-    http_response_code(502);
-    echo json_encode(['error'=>['type'=>'parse','message'=>'KI-Antwort konnte nicht als JSON geparst werden.','raw'=>substr($rawText,0,500)]]);
+    pvSseEventConvert(json_encode(['status'=>'error','type'=>'parse','message'=>'KI-Antwort konnte nicht als JSON geparst werden.','raw'=>substr($rawText,0,500)]));
     exit;
 }
 
-echo json_encode($result);
+pvSseEventConvert(json_encode(['status' => 'complete', 'result' => $result]));

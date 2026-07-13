@@ -14,7 +14,7 @@
  */
 
 set_time_limit(180);
-header('Content-Type: application/json; charset=utf-8');
+header('Content-Type: application/json; charset=utf-8'); // Default; für generate-Action weiter unten überschrieben
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -133,6 +133,26 @@ if (!is_array($body)) {
     echo json_encode(['error' => ['type' => 'parse', 'message' => 'Ungültiger Request-Body (kein JSON).']]);
     exit;
 }
+
+// ── SSE für Generate-Action: Content-Type überschreiben, Heartbeat aktivieren ──
+// Verhindert Railway-Proxy-Timeout bei langen KI-Calls (>100s).
+// CURLOPT_PROGRESSFUNCTION sendet alle 8s einen Heartbeat-Event.
+header('Content-Type: text/event-stream; charset=utf-8');
+header('Cache-Control: no-cache');
+header('X-Accel-Buffering: no'); // Railway/Nginx: Buffering deaktivieren
+header('Connection: keep-alive');
+// Alle Output-Buffer leeren
+while (ob_get_level()) { ob_end_clean(); }
+ob_implicit_flush(true);
+
+// Hilfsfunktion: SSE-Event senden
+function pvSseEvent(string $data): void {
+    echo 'data: ' . $data . "\n\n";
+    @flush();
+}
+
+// Erstes Heartbeat-Signal senden (zeigt dem Client, dass die Verbindung steht)
+pvSseEvent(json_encode(['status' => 'starting']));
 
 $cityOrPostalCode = trim($body['cityOrPostalCode'] ?? '');
 $primaryKeyword   = trim($body['primaryKeyword']   ?? '');
@@ -486,6 +506,19 @@ Antworte NUR mit dem JSON-Objekt. Kein erklärender Text. Kein Markdown-Codebloc
 UPROMPT;
 
 
+pvSseEvent(json_encode(['status' => 'generating']));
+
+// ── CURLOPT_PROGRESSFUNCTION: Heartbeat alle 8s während KI-Call ──
+$_lastHb = time();
+$_hbFn   = function($r, $dlt, $dln, $ult, $uln) use (&$_lastHb): int {
+    $now = time();
+    if ($now - $_lastHb >= 8) {
+        pvSseEvent(json_encode(['status' => 'thinking']));
+        $_lastHb = $now;
+    }
+    return 0; // 0 = fortfahren
+};
+
 // ── API-Call ──────────────────────────────────────────────────────────────
 $model = ($provider === 'openai') ? CFG_OPENAI_MODEL : CFG_AI_MODEL;
 
@@ -505,7 +538,9 @@ if ($provider === 'openai') {
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST           => true,
         CURLOPT_POSTFIELDS     => json_encode($payload),
-        CURLOPT_TIMEOUT        => 120,
+        CURLOPT_TIMEOUT        => 300,
+        CURLOPT_NOPROGRESS     => false,
+        CURLOPT_PROGRESSFUNCTION => $_hbFn,
         CURLOPT_HTTPHEADER     => [
             'Content-Type: application/json',
             'Authorization: Bearer ' . $apiKey,
@@ -526,7 +561,9 @@ if ($provider === 'openai') {
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST           => true,
         CURLOPT_POSTFIELDS     => json_encode($payload),
-        CURLOPT_TIMEOUT        => 120,
+        CURLOPT_TIMEOUT        => 300,
+        CURLOPT_NOPROGRESS     => false,
+        CURLOPT_PROGRESSFUNCTION => $_hbFn,
         CURLOPT_HTTPHEADER     => [
             'Content-Type: application/json',
             'x-api-key: ' . $apiKey,
@@ -541,15 +578,13 @@ $curlError = curl_error($ch);
 curl_close($ch);
 
 if ($curlError) {
-    http_response_code(502);
-    echo json_encode(['error' => ['type' => 'curl', 'message' => 'Netzwerkfehler: ' . $curlError]]);
+    pvSseEvent(json_encode(['status' => 'error', 'type' => 'curl', 'message' => 'Netzwerkfehler: ' . $curlError]));
     exit;
 }
 
 if ($httpCode !== 200) {
     $errData = json_decode($response, true);
-    http_response_code(502);
-    echo json_encode(['error' => ['type' => 'api', 'message' => $errData['error']['message'] ?? ('HTTP ' . $httpCode)]]);
+    pvSseEvent(json_encode(['status' => 'error', 'type' => 'api', 'message' => $errData['error']['message'] ?? ('HTTP ' . $httpCode)]));
     exit;
 }
 
@@ -580,14 +615,12 @@ if (!str_starts_with($jsonStr, '{')) {
 
 $result = json_decode($jsonStr, true);
 if (!is_array($result)) {
-    http_response_code(502);
-    echo json_encode([
-        'error' => [
-            'type'    => 'parse',
-            'message' => 'KI-Antwort konnte nicht als JSON geparst werden. Bitte erneut versuchen.',
-            'raw'     => substr($rawText, 0, 500),
-        ],
-    ]);
+    pvSseEvent(json_encode([
+        'status'  => 'error',
+        'type'    => 'parse',
+        'message' => 'KI-Antwort konnte nicht als JSON geparst werden. Bitte erneut versuchen.',
+        'raw'     => substr($rawText, 0, 500),
+    ]));
     exit;
 }
 
@@ -679,4 +712,4 @@ if (is_array($dwdSolarData) && !empty($dwdSolarData['irradiance_kWhm2_year'])) {
     ];
 }
 
-echo json_encode($result);
+pvSseEvent(json_encode(['status' => 'complete', 'result' => $result]));
