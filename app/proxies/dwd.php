@@ -60,11 +60,12 @@ if ($action === 'pvgis') {
     $lon = round((float)($_GET['lon'] ?? 0), 4);
     if (!$lat && !$lon) { http_response_code(400); echo json_encode(['error' => 'lat/lon fehlt']); exit; }
 
-    $ck = 'pvgis_'.ltrim(str_replace(['.', '-'], ['_', 'n'], (string)$lat), 'n').'_'.ltrim(str_replace(['.', '-'], ['_', 'n'], (string)$lon), 'n');
+    $ck = 'pvgis2_'.ltrim(str_replace(['.', '-'], ['_', 'n'], (string)$lat), 'n').'_'.ltrim(str_replace(['.', '-'], ['_', 'n'], (string)$lon), 'n');
     $cf = sys_get_temp_dir().DIRECTORY_SEPARATOR.$ck.'.json';
     if (is_file($cf) && (time() - filemtime($cf) < 604800)) { // 7 Tage Cache
         $c = json_decode(file_get_contents($cf), true);
-        if (is_array($c) && !empty($c['monthly'])) { echo json_encode($c, JSON_UNESCAPED_UNICODE); exit; }
+        // Cache-Validierung: muss monthly + annual_yield enthalten (v2-Format mit PVcalc)
+        if (is_array($c) && !empty($c['monthly']) && isset($c['annual_yield_5kwp_kwh'])) { echo json_encode($c, JSON_UNESCAPED_UNICODE); exit; }
     }
 
     $apiUrl = 'https://re.jrc.ec.europa.eu/api/v5_2/MRcalc?'.http_build_query(['lat'=>$lat,'lon'=>$lon,'outputformat'=>'json','browser'=>0]);
