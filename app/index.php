@@ -900,6 +900,10 @@ button{font-family:inherit}
       Content Finder
     </button>
     <div class="nav-section-label" style="margin-top:auto">System</div>
+    <button class="nav-item" data-view="agents" onclick="showView('agents')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+      KI-Agenten
+    </button>
     <button class="nav-item" data-view="settings" onclick="showView('settings')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M21 12h-2M19.07 19.07l-1.41-1.41M12 21v-2M4.93 19.07l1.41-1.41M3 12h2M4.93 4.93l1.41 1.41"/></svg>
       Einstellungen
@@ -1733,6 +1737,24 @@ button{font-family:inherit}
   </div>
 </div><!-- /view-content-finder -->
 
+<div class="view-panel" id="view-agents">
+  <div class="input-card">
+    <div class="card-header">
+      <div class="card-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+      </div>
+      <div>
+        <div class="card-title">KI-Agenten</div>
+        <div class="card-sub">System-Prompts der Tools anzeigen &amp; anpassen</div>
+      </div>
+    </div>
+    <div class="settings-section" style="margin-top:16px">
+      <div class="settings-section-desc">Jeder Agent nutzt einen System-Prompt. Anpassungen werden gespeichert; ein leeres Feld beim Speichern setzt auf den Standard zurück.</div>
+      <div id="agent-mgmt-list" style="margin-top:14px;display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+  </div>
+</div><!-- /view-agents -->
+
 <div class="view-panel" id="view-settings">
   <div class="input-card">
     <div class="card-header">
@@ -1974,12 +1996,6 @@ button{font-family:inherit}
     </div>
     <div style="height:1px;background:var(--border);margin:24px 0"></div>
     <div class="settings-section">
-      <div class="settings-section-title">KI-Agenten</div>
-      <div class="settings-section-desc">System-Prompts der einzelnen KI-Agenten anzeigen und anpassen. Leeres Feld beim Speichern = Standard-Prompt.</div>
-      <div id="agent-mgmt-list" style="margin-top:14px;display:flex;flex-direction:column;gap:10px"></div>
-    </div>
-    <div style="height:1px;background:var(--border);margin:24px 0"></div>
-    <div class="settings-section">
       <div class="settings-section-title">Entwickler-Optionen</div>
       <div class="settings-section-desc">Optionen für Design-Tests und Entwicklung.</div>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:14px">
@@ -2136,7 +2152,7 @@ Object.keys(AGENTS).forEach(id=>{
   if(chip && AGENT_CUSTOM_PROMPTS[id]) chip.style.display = 'inline-flex';
 });
 
-// Zentrale Agenten-Verwaltung (Einstellungen → KI-Agenten)
+// Zentrale Agenten-Verwaltung (System → KI-Agenten)
 function renderAgentMgmtList(){
   const el = document.getElementById('agent-mgmt-list');
   if(!el) return;
@@ -2163,6 +2179,7 @@ const VIEW_META={
   keywords:{title:'Keyword Fit',sub:'Intent-Analyse · Targeting · Potenzial'},
   localpv:{title:'Local PV Generator',sub:'SEO- & CRO-Bausteine für lokale Photovoltaik-Landingpages'},
   'content-finder':{title:'Content Finder',sub:'Vollständige Seitenanalyse nach definierten Begriffen · JS-Rendering · Bild-OCR'},
+  agents:{title:'KI-Agenten',sub:'System-Prompts der Tools anzeigen & anpassen'},
   settings:{title:'Einstellungen',sub:'API-Keys · Modell · Passwort'},
 };
 
@@ -2179,7 +2196,7 @@ function showView(name){
   document.getElementById('view-subtitle').textContent=meta.sub;
   // Hide URL-input header for standalone tool views
   const hf=document.getElementById('header-form');
-  if(name==='localpv'||name==='settings'||name==='content-finder'){hf.style.display='none';}
+  if(name==='localpv'||name==='settings'||name==='content-finder'||name==='agents'){hf.style.display='none';}
   else{hf.style.display='';}
   if(name==='overview'){
     // Progress-Section zeigen wenn Analyse läuft ODER Log-Inhalt vorhanden
@@ -2190,6 +2207,7 @@ function showView(name){
     }
   }
   if(name==='settings'){loadCredentialStatus();loadGscDomains();}
+  if(name==='agents'){renderAgentMgmtList();}
 }
 // Legacy alias
 function showTool(n){showView(n==='sqeg'?'overview':n);}
