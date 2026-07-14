@@ -164,6 +164,7 @@ $gscContext        = $body['gscContext']       ?? null; // GSC-Daten: queries, c
 $sistrixContext    = $body['sistrixContext']   ?? null; // Sistrix: visibility, keywords, competitors
 $dataforseoContext = $body['dataforseoContext'] ?? null; // DataForSEO: search_volume, serp_features
 $dwdSolarData      = $body['dwdSolarData']     ?? null; // DWD OpenData: Globalstrahlung, Sonnenstunden
+$resolvedCity      = trim($body['resolvedCity'] ?? ''); // Aufgelöster Stadtname bei PLZ-Eingabe
 
 if (empty($cityOrPostalCode)) {
     http_response_code(400);
@@ -172,8 +173,9 @@ if (empty($cityOrPostalCode)) {
 }
 
 // ── Kontext-String aufbauen ──────────────────────────────────────────────
-$contextLines = [];
-if (!empty($primaryKeyword))   $contextLines[] = "Hauptkeyword: {$primaryKeyword}";
+$contextLines = [];if (!empty($resolvedCity) && strtolower($resolvedCity) !== strtolower($cityOrPostalCode)) {
+    $contextLines[] = "Aufgelöster Stadtname: {$resolvedCity} (verwende diesen Stadtnamen für alle lokalen Textbezüge, Keywords, H1/H2-Formulierungen und Meta-Daten statt der PLZ)";
+}if (!empty($primaryKeyword))   $contextLines[] = "Hauptkeyword: {$primaryKeyword}";
 if (!empty($landingPageUrl))   $contextLines[] = "Bestehende LP-URL: {$landingPageUrl}";
 if (!empty($templateType))     $contextLines[] = "Seitentyp/Template: {$templateType}";
 
@@ -308,11 +310,6 @@ VORTEILE-BLOCK (benefits):
 Ein Objekt mit H2 (Überschrift), einem Fließtext (intro) und exakt 4 Kacheln (items).
 Feste Kachel-Titel (H3): Unabhängigkeit, Wertsteigerung, Alles aus einer Hand, Zuverlässiger Partner.
 Alle 4 Beschreibungstexte müssen exakt gleich lang sein (je 2 Sätze, ca. 30–40 Wörter), konkret, lokal.
-
-PLACEMENT MAP:
-Erzeuge ein "placementMap"-Array mit 11 Einträgen (order 1–11).
-Jeder Eintrag beschreibt genau ein Seitenmodul: order, module, visualType, contentNeeded, generatedFields, recommendation.
-Die recommendation ist ein konkreter Einbauhinweis (1–2 Sätze).
 
 ZAHLEN-GRUNDSATZ (höchste Priorität):
 Im Output dürfen NUR Zahlen verwendet werden, die entweder (a) explizit im Kontext-Block bereitgestellt wurden (DWD-Messwerte, EEG-Vergütungssatz, UBA-Emissionsfaktor) oder (b) direkt aus diesen Werten berechnet werden (z.B. prozentuale Abweichung vom DE-Klimanormal anhand der gelieferten Werte).
@@ -463,18 +460,6 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
       {"placement": "Nach Referenzprojekten", "text": "Kurzer Micro-CTA zum Rechner oder zur Anfrage"}
     ]
   },
-  "placementMap": [
-    {"order": 1, "module": "Hero", "visualType": "hero-text-block", "contentNeeded": ["Dachzeile", "H1", "2–4 USP-Bullets oder Absatz"], "generatedFields": ["hero.dachzeile", "hero.h1", "hero.usps", "hero.absatz"], "recommendation": "Dachzeile über dem H1 platzieren, dann H1, dann USP-Liste als Bullets. PV-Rechner folgt direkt darunter — kein CTA-Button im Hero-Text nötig."},
-    {"order": 2, "module": "Einleitung", "visualType": "two-column-text-image", "contentNeeded": ["H2", "Einleitungstext"], "generatedFields": ["sections.intro.h2", "sections.intro.micro", "sections.intro.content"], "recommendation": "2-Spalten-Layout: links H2 über dem Text, rechts Stadtbild (CMS-Bild, kein generierter Inhalt). micro als kompakter Teaser-Satz optional."},
-    {"order": 3, "module": "Vorteile", "visualType": "2x2-check-grid", "contentNeeded": ["H2", "Fließtext", "4 Kacheln H3+Text"], "generatedFields": ["benefits.h2", "benefits.intro", "benefits.items[0-3]"], "recommendation": "H2 oben, darunter Fließtext (intro), dann 2×2 Grid mit Checkmark-Icon + H3 + Text. Alle 4 Kacheln gleich lang."},
-    {"order": 4, "module": "Solarpotenzial", "visualType": "text-animation-statement", "contentNeeded": ["H2", "Text", "Statement"], "generatedFields": ["sections.solarPotential.h2", "sections.solarPotential.content", "sections.solarPotential.statement"], "recommendation": "H2 zentriert, Text darunter. Animiertes Element zeigt Sonnenstunden lokal vs. DE (CMS-Daten, kein generierter Inhalt). Statement kurz und positiv danach."},
-    {"order": 5, "module": "Kennzahlenblock", "visualType": "gradient-stat-grid", "contentNeeded": ["H2", "4 Labels"], "generatedFields": ["sections.statisticsExplanation.h2", "sections.statisticsExplanation.items[0-3].label"], "recommendation": "Gradient-Hintergrund (blau→grün). H2 oben links. 4 Spalten: Icon (fix) + große Zahl (CMS-dynamisch aus Rechner) + Label-Text (generiert). Alle Labels gleich kurz."},
-    {"order": 6, "module": "3-Schritte-Prozess", "visualType": "two-column-steps", "contentNeeded": ["H2", "Text", "Button (opt.)", "3 Schritte"], "generatedFields": ["sections.processIntro.h2", "sections.processIntro.text", "sections.processIntro.button", "sections.processIntro.steps[0-2]"], "recommendation": "Links: H2 + kurzer Text + CTA-Button. Rechts: nummerierte Schritte (Zahl in Akzentfarbe + H3 + Text). 3 Schritte genügen."},
-    {"order": 7, "module": "Referenzprojekte", "visualType": "project-cards", "contentNeeded": ["Einordnung der Projektkarten"], "generatedFields": ["sections.projectsIntro.micro", "sections.projectsIntro.content"], "recommendation": "Einbauhinweis"},
-    {"order": 8, "module": "Kundenstimmen", "visualType": "testimonial-section", "contentNeeded": ["Trust-Einleitung"], "generatedFields": ["sections.testimonialsIntro.micro", "sections.testimonialsIntro.content"], "recommendation": "Einbauhinweis"},
-    {"order": 9, "module": "FAQ", "visualType": "accordion", "contentNeeded": ["FAQ Intro", "lokale FAQ-Fragen"], "generatedFields": ["sections.faqIntro.micro", "faq"], "recommendation": "Einbauhinweis"},
-    {"order": 10, "module": "Formular", "visualType": "form-section", "contentNeeded": ["Backup-CTA", "Beratungstext"], "generatedFields": ["sections.formIntro.micro", "sections.formIntro.content"], "recommendation": "Einbauhinweis"}
-  ],
   "faq": [
     {"question": "Häufige lokale PV-Frage 1", "answer": "80–120 Wörter, konkret, ohne generische Aussagen"},
     {"question": "Häufige technische PV-Frage 2", "answer": "80–120 Wörter, konkret"},

@@ -753,18 +753,6 @@ button{font-family:inherit}
 .pv-micro-cta-inline-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--accent);flex-shrink:0}
 .pv-micro-cta-inline-text{font-size:12px;font-weight:600;color:var(--accent);flex:1}
 .pv-micro-cta-inline .pv-copy-btn{margin-left:auto;flex-shrink:0}
-/* ── Placement Map ── */
-.pv-placement-map{display:flex;flex-direction:column;gap:8px;margin-top:4px}
-.pv-placement-item{display:flex;gap:12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;position:relative}
-.pv-placement-num{flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--accent-bg);border:1px solid var(--accent-border);color:var(--accent);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
-.pv-placement-body{flex:1;min-width:0}
-.pv-placement-module{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
-.pv-placement-visual{font-size:11px;color:var(--text3);margin-bottom:6px}
-.pv-placement-fields{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
-.pv-placement-field-tag{font-size:10px;font-family:'Geist Mono',monospace;padding:2px 7px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text2)}
-.pv-placement-rec{font-size:12px;color:var(--text2);line-height:1.5;border-top:1px solid var(--border);padding-top:6px;margin-top:4px}
-.pv-placement-jump{flex-shrink:0;padding:4px 10px;font-size:11px;font-weight:500;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text2);cursor:pointer;font-family:inherit;transition:background .12s,color .12s;align-self:flex-start}
-.pv-placement-jump:hover{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-border)}
 /* ── Section Placement Badge ── */
 .pv-placement-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:999px;color:var(--text3);margin-bottom:8px}
 @media(max-width:900px){.pv-benefits-grid,.pv-cta-strategy{grid-template-columns:1fr}}
@@ -1396,6 +1384,7 @@ button{font-family:inherit}
         <div class="settings-field">
           <label class="settings-label" for="pv-city">Stadt oder PLZ <span style="color:var(--red)">*</span></label>
           <input type="text" id="pv-city" class="settings-input" placeholder="z.B. Darmstadt oder 64283" autocomplete="off" spellcheck="false">
+          <div id="pv-city-resolved" style="display:none;font-size:11px;color:var(--text3);margin-top:4px"></div>
         </div>
       </div>
       <div>
@@ -1504,7 +1493,6 @@ button{font-family:inherit}
     <div id="pv-dwd-banner" style="display:none"></div>
     <div class="pv-tabs">
       <button class="pv-tab-btn active" onclick="pvSwitchTab('content',this)">Content</button>
-      <button class="pv-tab-btn" onclick="pvSwitchTab('placement',this)">Placement Map</button>
       <button class="pv-tab-btn" onclick="pvSwitchTab('checks',this)">SEO / CRO Checks</button>
       <button class="pv-tab-btn" onclick="pvSwitchTab('export',this)">Markdown Export</button>
       <button class="pv-tab-btn" id="pv-tab-btn-data" onclick="pvSwitchTab('data',this)" style="display:none">📊 Datengrundlagen</button>
@@ -1518,9 +1506,6 @@ button{font-family:inherit}
     </div>
     <div id="pv-tab-content" class="pv-tab-panel active" style="margin-bottom:48px">
       <div id="pv-results-list" style="margin-top:16px"></div>
-    </div>
-    <div id="pv-tab-placement" class="pv-tab-panel" style="margin-bottom:48px">
-      <div id="pv-placement-list" style="margin-top:16px"></div>
     </div>
     <div id="pv-tab-checks" class="pv-tab-panel" style="margin-bottom:48px">
       <div id="pv-checks-list" style="margin-top:16px"></div>
@@ -4543,6 +4528,7 @@ let pvData = null;
 let pvDwdData  = null;
 let pvPvgisData = null;
 let pvVersions = { raw: null, sharpened: null, conversion: null };
+let pvResolvedCity = null; // aufgelöster Stadtname bei PLZ-Eingabe
 
 function pvUpdateVersionUI(activeKey){
   const bar=document.getElementById('pv-version-bar');
@@ -4574,8 +4560,8 @@ function pvUpdateVersionUI(activeKey){
       c.classList.remove('cta'); c.disabled=false;
       c.classList.toggle('active',activeKey==='conversion');
     } else {
-      c.textContent='Conversion optimieren';
-      c.classList.add('cta'); c.classList.remove('active'); c.disabled=!pvVersions.sharpened;
+      c.textContent='Conversion optimieren'+(pvVersions.sharpened?'':' (Rohfassung)');
+      c.classList.add('cta'); c.classList.remove('active'); c.disabled=!pvVersions.raw;
     }
   }
 }
@@ -4644,7 +4630,8 @@ async function pvRefine(){
 }
 
 async function pvConvert(){
-  if(!pvVersions.sharpened){return;}
+  if(!pvVersions.raw){return;}
+  const base = pvVersions.sharpened ?? pvVersions.raw;
   const btn=document.getElementById('pvv-conversion');
   if(btn){ btn.textContent='⧗ Wird optimiert…'; btn.classList.add('loading'); btn.disabled=true; }
   const old=document.getElementById('pv-refine-notice');
@@ -4653,7 +4640,7 @@ async function pvConvert(){
     const res=await fetch('localpvconvert.php',{
       method:'POST',
       headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},
-      body:JSON.stringify({currentJson:pvVersions.sharpened,dwdSolarData:pvDwdData,csrf_token:CSRF_TOKEN}),
+      body:JSON.stringify({currentJson:base,dwdSolarData:pvDwdData,csrf_token:CSRF_TOKEN}),
     });
     const reader2=res.body.getReader(); const dec2=new TextDecoder(); let buf2=''; let data=null;
     while(true){ const {done,value}=await reader2.read(); if(done)break; buf2+=dec2.decode(value,{stream:true});
@@ -4692,6 +4679,19 @@ async function pvSuggestKeywords(){
     document.getElementById('pv-city').focus();
     return;
   }
+  // PLZ → Stadtname auflösen
+  let effectiveCity = city;
+  if (/^\d{5}$/.test(city)) {
+    if (!pvResolvedCity) {
+      const resolved = await pvResolvePLZ(city);
+      if (resolved) {
+        pvResolvedCity = resolved;
+        const hint = document.getElementById('pv-city-resolved');
+        if (hint) { hint.textContent = `→ Erkannter Ort: ${resolved}`; hint.style.display='block'; }
+      }
+    }
+    if (pvResolvedCity) effectiveCity = pvResolvedCity;
+  }
   const product = document.getElementById('pv-product')?.value.trim()||'';
   const btn  = document.getElementById('pv-kw-suggest-btn');
   const pills= document.getElementById('pv-kw-pills');
@@ -4702,7 +4702,7 @@ async function pvSuggestKeywords(){
     const res=await fetch('dataforseo.php?action=keyword_volume',{
       method:'POST',
       headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},
-      body:JSON.stringify({product,city,csrf_token:CSRF_TOKEN}),
+      body:JSON.stringify({product,city:effectiveCity,csrf_token:CSRF_TOKEN}),
     });
     const data=await res.json();
     if(!res.ok||data.error) throw new Error(data.error||`HTTP ${res.status}`);
@@ -4945,6 +4945,8 @@ async function pvGenerate(){
       body.dataforseoContext = { search_volume: _sv, serp_features: _ft };
     }
   }
+
+  if (pvResolvedCity && pvResolvedCity !== city) body.resolvedCity = pvResolvedCity;
 
   try{
     // SSE-Stream: localpv.php sendet Heartbeats alle 8s + finales Ergebnis
@@ -5354,26 +5356,7 @@ function pvRenderResults(d){
     ctaHtml,     // CTA-Strategie
   ].join('');
 
-  // ── Tab 2: Placement Map ──
-  const pm=Array.isArray(d.placementMap)?d.placementMap:[];
-  const pmHtml=pm.length?
-    '<div class="pv-placement-map">'+pm.map(p=>{
-      const anchor='pv-copy-sec-'+(p.generatedFields&&p.generatedFields[0]?p.generatedFields[0].replace(/[^a-zA-Z0-9]/g,'-'):'');
-      return `<div class="pv-placement-item">`+
-        `<div class="pv-placement-num">${p.order||''}</div>`+
-        `<div class="pv-placement-body">`+
-        `<div class="pv-placement-module">${escHtml(p.module||'')}</div>`+
-        `<div class="pv-placement-visual">${escHtml(p.visualType||'')}</div>`+
-        `<div class="pv-placement-fields">${(p.generatedFields||[]).map(f=>`<span class="pv-placement-field-tag">${escHtml(f)}</span>`).join('')}</div>`+
-        (p.recommendation?`<div class="pv-placement-rec">${escHtml(p.recommendation)}</div>`:'')+
-        `</div>`+
-        `<button class="pv-placement-jump" onclick="pvSwitchTab('content',document.querySelector('.pv-tab-btn'));document.getElementById('pv-tab-content').scrollIntoView({behavior:'smooth'})">→ Content</button>`+
-        `</div>`;
-    }).join('')+'</div>':
-    '<div style="color:var(--text3);font-size:13px;padding:24px 0">Keine Placement Map im letzten Ergebnis.</div>';
-  document.getElementById('pv-placement-list').innerHTML=pmHtml;
-
-  // ── Tab 3: SEO / CRO Checks + Empfehlungen ──
+  // ── Tab 2: SEO / CRO Checks + Empfehlungen ──
   document.getElementById('pv-checks-list').innerHTML=cards.slice(12,15).join('');
 
   // ── Tab 4: Markdown Export ──
@@ -5603,6 +5586,27 @@ function pvCopySection(key){
 
 // Enter-Taste im Stadt-Feld
 document.getElementById('pv-city').addEventListener('keydown',e=>{if(e.key==='Enter')pvGenerate();});
+document.getElementById('pv-city').addEventListener('input',()=>{
+  pvResolvedCity=null;
+  const h=document.getElementById('pv-city-resolved');if(h)h.style.display='none';
+});
+document.getElementById('pv-city').addEventListener('blur',async e=>{
+  const v=e.target.value.trim();
+  if(!/^\d{5}$/.test(v))return;
+  if(pvResolvedCity){const h=document.getElementById('pv-city-resolved');if(h){h.textContent=`→ Erkannter Ort: ${pvResolvedCity}`;h.style.display='block';}return;}
+  const city=await pvResolvePLZ(v);
+  if(city){pvResolvedCity=city;const h=document.getElementById('pv-city-resolved');if(h){h.textContent=`→ Erkannter Ort: ${city}`;h.style.display='block';}}
+});
+
+async function pvResolvePLZ(plz){
+  if(pvDwdData?.geocoded){const m=pvDwdData.geocoded.match(/^([^,]+)/);if(m)return m[1].trim();}
+  try{
+    const r=await fetch(`https://api.zippopotam.us/de/${plz}`);
+    if(!r.ok)return null;
+    const d=await r.json();
+    return d.places?.[0]?.['place name']||null;
+  }catch{return null;}
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // === PV DATENGRUNDLAGEN & ARCHIV ===
