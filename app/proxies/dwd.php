@@ -463,12 +463,27 @@ function dwdEstimateSolarByLat(float $lat): array
     elseif ($lat >= 48.5)  $irr = 1130;  // Bayern/BW-Nord
     else                   $irr = 1160;  // Bayern-Süd/Oberrhein
 
+    $sunYear = (int) round($irr * 1.72); // DWD-Richtwert: ~1.72 h/(kWh/m²)
+
+    // Typische saisonale Verteilung Deutschland (h/Tag, Klimanormal-Muster),
+    // skaliert auf den geschätzten Jahreswert
+    $basePattern = [1=>1.3, 2=>2.9, 3=>4.2, 4=>6.4, 5=>7.3, 6=>7.9,
+                    7=>7.5, 8=>6.8, 9=>5.0, 10=>2.8, 11=>1.4, 12=>0.9];
+    $daysPerMonth = [1=>31,2=>28,3=>31,4=>30,5=>31,6=>30,7=>31,8=>31,9=>30,10=>31,11=>30,12=>31];
+    $baseTotal = 0.0;
+    foreach ($basePattern as $m => $hd) $baseTotal += $hd * $daysPerMonth[$m];
+    $scale = $baseTotal > 0 ? $sunYear / $baseTotal : 1.0;
+    $monthlyAvg = [];
+    foreach ($basePattern as $m => $hd) $monthlyAvg[$m] = round($hd * $scale, 1);
+
     return [
-        'irradiance_kWhm2_year' => $irr,
-        'sunshine_hours_year'   => (int) round($irr * 1.72), // DWD-Richtwert: ~1.72 h/(kWh/m²)
-        'dataYear'              => null,
-        'dataPoints'            => 0,
-        'estimated'             => true,
+        'irradiance_kWhm2_year'      => $irr,
+        'sunshine_hours_year'        => $sunYear,
+        'dataYear'                   => null,
+        'dataPoints'                 => 0,
+        'estimated'                  => true,
+        'monthly_avg_sunshine_hours' => $monthlyAvg,
+        'monthly_data_years'         => 'Schätzung (saisonale Verteilung DE)',
     ];
 }
 
