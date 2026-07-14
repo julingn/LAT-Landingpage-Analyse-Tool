@@ -5180,11 +5180,11 @@ function pvRenderResults(d){
     const sMicro=typeof sObj==='object'?(sObj.micro||'–'):(sObj||'–');
     const sFull=typeof sObj==='object'?(sObj.content||sObj.text||''):(typeof sObj==='string'?sObj:'');
     const sPlace=typeof sObj==='object'?(sObj.placement||''):'';
-    const sCopy=(sH2?`H2: ${sH2}\n\n`:'')+
-      (sItems?(sFull?`Fließtext:\n${sFull}\n\n`:'')+sItems.map(it=>`[${it.icon||'–'}] ${it.label||''}`).join('\n')
-      :sSteps?(sFull?`Text:\n${sFull}\n\n`:'')+(sButton?`Button: ${sButton}\n\n`:'')+sSteps.map((st,i)=>`${i+1}. ${st.h3||''}: ${st.text||''}`).join('\n')
-      :(sFull?`Micro:\n${sMicro}\n\nContent:\n${sFull}`:sMicro))+
-      (sStatement?`\n\nStatement: ${sStatement}`:'');
+    const sCopy=(sH2?`${sH2}\n\n`:'')+
+      (sItems?(sFull?`${sFull}\n\n`:'')+sItems.map(it=>it.label||'').join('\n')
+      :sSteps?(sFull?`${sFull}\n\n`:'')+(sButton?`${sButton}\n\n`:'')+sSteps.map((st,i)=>`${i+1}. ${st.h3||''}\n${st.text||''}`).join('\n\n')
+      :(sMicro+(sFull?`\n\n${sFull}`:'')))+
+      (sStatement?`\n\n${sStatement}`:'');
     cards.push(card(s.i,s.l,'sec-'+s.k,
       `pvCopySectionText(${JSON.stringify(sCopy)},this)`,
       (sPlace?`<div class="pv-placement-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg>${escHtml(sPlace)}</div>`:'')+
@@ -5523,18 +5523,16 @@ function pvCopySection(key){
   const btn=document.getElementById('pv-copy-'+key);
   let text='';
   if(key==='meta'){
-    text=`Title: ${pvData.meta?.title||''}\nDescription: ${pvData.meta?.description||''}`;
+    text=`${pvData.meta?.title||''}\n${pvData.meta?.description||''}`;
   }else if(key==='hero'){
     const h=pvData.hero||{};
-    text=`Dachzeile: ${h.dachzeile||''}\nH1: ${h.h1||''}\nUSPs:\n${(h.usps||[]).map(u=>'- '+u).join('\n')}\nAbsatz: ${h.absatz||''}`;
+    text=[h.dachzeile,h.h1,...(h.usps||[]),h.absatz].filter(Boolean).join('\n');
   } else if(key==='benefits'){
     const b=pvData.benefits||{};
     const items=Array.isArray(b)?b:(b.items||[]);
     const h2=Array.isArray(b)?'':(b.h2||'');
     const intro=Array.isArray(b)?'':(b.intro||'');
-    text=(h2?`H2: ${h2}\n\n`:'')+
-         (intro?`Fließtext: ${intro}\n\n`:'')+
-         items.map(i=>`${i.h3||i.title||''}:\n${i.text||''}`).join('\n\n');
+    text=[h2,intro,...items.map(i=>`${i.h3||i.title||''}\n${i.text||''}`)].filter(Boolean).join('\n\n');
   }else if(key==='ctaStrategy'){
     const cs=pvData.ctaStrategy||{};
     const p=(cs.primaryConversion?.ctaExamples||[]).join('\n');
