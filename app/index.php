@@ -4730,7 +4730,7 @@ function pvDemo(){
     source:'DWD OpenData'};
   // Demo: PVGIS-Daten simulieren (Peaksonnenstunden aus Globalstrahlung)
   pvPvgisData={lat:49.8728,lon:8.6512,db:'PVGIS-SARAH3',year_min:2005,year_max:2023,source:'PVGIS (EU-Kommission, Copernicus)',
-    annual_yield_5kwp_kwh:4710, co2_savings_t:1.98, co2_factor_g_kwh:420,
+    annual_yield_9kwp_kwh:8478, co2_savings_t:3.68, co2_factor_g_kwh:434,
     pvcalc_params:{peakpower:5,loss:14,mountingplace:'building'},
     monthly:{1:{peak_sun_hours:0.7},2:{peak_sun_hours:1.4},3:{peak_sun_hours:2.8},4:{peak_sun_hours:4.1},
              5:{peak_sun_hours:5.2},6:{peak_sun_hours:5.8},7:{peak_sun_hours:5.6},8:{peak_sun_hours:4.9},
@@ -5206,8 +5206,8 @@ function pvRenderResults(d){
             let dispColor = dispVal.startsWith('[CMS') ? 'var(--amber)' : 'var(--accent)';
             if (it.icon === 'sun' && pvDwdData?.irradiance_kWhm2_year) {
               dispVal = `${pvDwdData.irradiance_kWhm2_year} kWh/m²`; dispColor = 'var(--accent)';
-            } else if (it.icon === 'energy' && pvPvgisData?.annual_yield_5kwp_kwh) {
-              dispVal = `${pvPvgisData.annual_yield_5kwp_kwh} kWh/Jahr`; dispColor = 'var(--blue)';
+            } else if (it.icon === 'energy' && pvPvgisData?.annual_yield_9kwp_kwh) {
+              dispVal = `${pvPvgisData.annual_yield_9kwp_kwh} kWh/Jahr`; dispColor = 'var(--blue)';
             } else if (it.icon === 'co2' && pvPvgisData?.co2_savings_t) {
               dispVal = `${pvPvgisData.co2_savings_t} t CO₂`; dispColor = 'var(--green)';
             }
@@ -5414,7 +5414,7 @@ function pvWidgetConfigHtml() {
 
   // PVGIS: nur für Energieberechnung (kWh/Jahr), nicht für Stunden-Anzeige
   const pvgis   = pvPvgisData || null;
-  const yieldKwhVal = pvgis?.annual_yield_5kwp_kwh || null;
+  const yieldKwhVal = pvgis?.annual_yield_9kwp_kwh || null;
   const co2Val      = pvgis?.co2_savings_t         || null;
   const pvgisSrc    = pvgis
     ? `PVGIS (EU-Kommission, ${pvgis.db||'PVGIS-SARAH3'}, ${pvgis.year_min||2005}–${pvgis.year_max||2023}) · re.jrc.ec.europa.eu/pvg_tools · Koordinaten ${pvgis.lat}, ${pvgis.lon}`
@@ -5474,7 +5474,7 @@ function pvWidgetConfigHtml() {
         <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-size:12px;line-height:2">
           <div><strong>${escHtml(city)}</strong> &nbsp;<span style="font-family:'Geist Mono',monospace;font-size:13px;color:var(--accent)">${localSun} h/Jahr</span></div>
           <div style="color:var(--text3)">Deutschland (Klimanormal) &nbsp;<span style="font-family:'Geist Mono',monospace;font-size:13px;color:var(--text2)">${refSun} h/Jahr</span></div>
-          ${yieldKwhVal ? `<div style="border-top:1px solid var(--border);margin-top:6px;padding-top:6px"><span style="color:var(--text3)">Jahresertrag 5 kWp:</span> <span style="font-family:'Geist Mono',monospace;font-size:13px;color:var(--blue)">${yieldKwhVal} kWh</span></div>` : ''}
+          ${yieldKwhVal ? `<div style="border-top:1px solid var(--border);margin-top:6px;padding-top:6px"><span style="color:var(--text3)">Jahresertrag 9 kWp:</span> <span style="font-family:'Geist Mono',monospace;font-size:13px;color:var(--blue)">${yieldKwhVal} kWh</span></div>` : ''}
           ${co2Val ? `<div><span style="color:var(--text3)">CO₂-Einsparung:</span> <span style="font-family:'Geist Mono',monospace;font-size:13px;color:var(--green)">${co2Val} t/Jahr</span></div>` : ''}
         </div>
         <div style="font-size:10px;color:var(--text3);margin-top:6px;line-height:1.4">
@@ -5507,12 +5507,12 @@ function pvFootnoteHtml() {
   const localSun = dwd.sunshine_hours_year || '–';
   const deKN     = dwd.germany_avg?.klimanormal_1991_2020 || dwd.germany_avg?.sunshine_hours_year || '–';
   const pvgis2   = pvPvgisData || null;
-  const yieldKwh = pvgis2?.annual_yield_5kwp_kwh ? `${pvgis2.annual_yield_5kwp_kwh} kWh/Jahr` : null;
+  const yieldKwh = pvgis2?.annual_yield_9kwp_kwh ? `${pvgis2.annual_yield_9kwp_kwh} kWh/Jahr` : null;
   const co2t     = pvgis2?.co2_savings_t ? `${pvgis2.co2_savings_t} t CO2/Jahr` : null;
   const footnote = `* Sonnenstunden (Balken-Anzeige): Tatsaechliche Sonnenscheindauer, mehrjaehrige DWD-Tagesmittel je Monat, Messstation ${stName} (${stDist} km), Zeitraum ${yRange}. Standort ${localSun} h/Jahr vs. Deutschland ${deKN} h/Jahr (Klimanormal 1991-2020). Quelle: Deutscher Wetterdienst, opendata.dwd.de. `+
-    (yieldKwh ? `Jahresertrag (Wert 3, ${yieldKwh}): PVGIS Peak-Sonnenstunden x 5 kWp - PVGIS (EU-Kommission, re.jrc.ec.europa.eu/pvg_tools/de/), ${pvgis2?.db||'PVGIS-SARAH3'} (${pvgis2?.year_min||2005}-${pvgis2?.year_max||2023}), Montage auf Dach, 14 % Verluste. PVGIS-Werte sind niedriger als DWD-Sonnenstunden, weil Peak-Sonnenstunden die Intensitaetsverteilung ueber den Tag korrekt beruecksichtigen (Energieaequivalent). ` : '') +
-    (co2t ? `CO2-Einsparung (Wert 4, ${co2t}): Emissionsfaktor 420 g CO2/kWh (Quelle: Umweltbundesamt, umweltbundesamt.de/themen/co2-emissionen-pro-kilowattstunde-strom). ` : '') +
-    `Alle Werte sind Richtwerte fuer eine Referenzanlage (5 kWp). Tatsaechliche Ertraege abhaengig von Dachneigung, -ausrichtung, Verschattung und Systemwirkungsgrad.`;
+    (yieldKwh ? `Jahresertrag (Wert 3, ${yieldKwh}): PVGIS Peak-Sonnenstunden x 9 kWp - PVGIS (EU-Kommission, re.jrc.ec.europa.eu/pvg_tools/de/), ${pvgis2?.db||'PVGIS-SARAH3'} (${pvgis2?.year_min||2005}-${pvgis2?.year_max||2023}), Montage auf Dach, 14 % Verluste. PVGIS-Werte sind niedriger als DWD-Sonnenstunden, weil Peak-Sonnenstunden die Intensitaetsverteilung ueber den Tag korrekt beruecksichtigen (Energieaequivalent). ` : '') +
+    (co2t ? `CO2-Einsparung (Wert 4, ${co2t}): Emissionsfaktor 434 g CO2/kWh (Quelle: Umweltbundesamt, umweltbundesamt.de/themen/co2-emissionen-pro-kilowattstunde-strom). ` : '') +
+    `Alle Werte sind Richtwerte fuer eine Referenzanlage (9 kWp). Tatsaechliche Ertraege abhaengig von Dachneigung, -ausrichtung, Verschattung und Systemwirkungsgrad.`;
   const CI = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
   return `<div class="pv-card">
     <div class="pv-card-label">

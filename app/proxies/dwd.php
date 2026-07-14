@@ -60,12 +60,12 @@ if ($action === 'pvgis') {
     $lon = round((float)($_GET['lon'] ?? 0), 4);
     if (!$lat && !$lon) { http_response_code(400); echo json_encode(['error' => 'lat/lon fehlt']); exit; }
 
-    $ck = 'pvgis2_'.ltrim(str_replace(['.', '-'], ['_', 'n'], (string)$lat), 'n').'_'.ltrim(str_replace(['.', '-'], ['_', 'n'], (string)$lon), 'n');
+    $ck = 'pvgis3_'.ltrim(str_replace(['.', '-'], ['_', 'n'], (string)$lat), 'n').'_'.ltrim(str_replace(['.', '-'], ['_', 'n'], (string)$lon), 'n');
     $cf = sys_get_temp_dir().DIRECTORY_SEPARATOR.$ck.'.json';
     if (is_file($cf) && (time() - filemtime($cf) < 604800)) { // 7 Tage Cache
         $c = json_decode(file_get_contents($cf), true);
         // Cache-Validierung: muss monthly + annual_yield enthalten (v2-Format mit PVcalc)
-        if (is_array($c) && !empty($c['monthly']) && isset($c['annual_yield_5kwp_kwh'])) { echo json_encode($c, JSON_UNESCAPED_UNICODE); exit; }
+        if (is_array($c) && !empty($c['monthly']) && isset($c['annual_yield_9kwp_kwh'])) { echo json_encode($c, JSON_UNESCAPED_UNICODE); exit; }
     }
 
     $apiUrl = 'https://re.jrc.ec.europa.eu/api/v5_2/MRcalc?'.http_build_query(['lat'=>$lat,'lon'=>$lon,'outputformat'=>'json','browser'=>0]);
@@ -90,7 +90,7 @@ if ($action === 'pvgis') {
     $co2_savings  = null;
     $pvCalcUrl = 'https://re.jrc.ec.europa.eu/api/v5_2/PVcalc?'.http_build_query([
         'lat' => $lat, 'lon' => $lon,
-        'peakpower'     => 5,
+        'peakpower'     => 9,
         'loss'          => 14,          // 14% Systemverluste (PVGIS-Default)
         'mountingplace' => 'building',  // Auf Dach / Gebäudeintegriert
         'outputformat'  => 'json',
@@ -115,10 +115,10 @@ if ($action === 'pvgis') {
         'year_min'=> $meta['year_min'] ?? 2005,
         'year_max'=> $meta['year_max'] ?? 2023,
         'source'  => 'PVGIS (EU-Kommission, Copernicus)',
-        'annual_yield_5kwp_kwh' => $annual_yield,
+        'annual_yield_9kwp_kwh' => $annual_yield,
         'co2_savings_t'         => $co2_savings,
         'co2_factor_g_kwh'      => 420,
-        'pvcalc_params'         => ['peakpower' => 5, 'loss' => 14, 'mountingplace' => 'building'],
+        'pvcalc_params'         => ['peakpower' => 9, 'loss' => 14, 'mountingplace' => 'building'],
     ];
     @file_put_contents($cf, json_encode($res, JSON_UNESCAPED_UNICODE));
     echo json_encode($res, JSON_UNESCAPED_UNICODE);
