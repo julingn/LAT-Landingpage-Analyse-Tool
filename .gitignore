@@ -14,3 +14,6 @@ Thumbs.db
 
 # Editor-Dateien
 .vscode/
+
+# Große Referenz-Binaries (lokal erhalten, nicht ins Repo committen)
+Documents/*.pdf
