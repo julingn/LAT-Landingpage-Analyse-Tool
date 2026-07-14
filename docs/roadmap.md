@@ -12,6 +12,7 @@
 
 | Datum | Titel | Beschreibung | Bereich | Ref |
 |---|---|---|---|---|
+| 2026-07-14 | Agent-Registry Schritt 2 | `ymyl` + `execSummary` in `AGENTS`-Registry aufgenommen, Call-Sites auf `getPrompt()` umgestellt (Verhalten unverändert, Smoke-getestet) | KI/index.php | — |
 | 2026-07-14 | Governance-Dokumentation | `docs/`-Ordner mit Projektleitlinien, Designsystem-Nutzung, Component Inventory, Known-Issues, Roadmap, Checklist | Doku/Governance | — |
 | 2026-07-14 | Phase B — Doku-Abgleich | MUST_READ (Zeilenzahl/Anker), ROADMAP (Status 2.2 / 7.4–7.6) mit Realität abgeglichen | Doku | `48488b2` |
 | 2026-07-14 | Phase A — Repo-Hygiene | Legacy-Tool, Junk-Screenshots, redundante `.env.example`, leeres `modules/` entfernt; großes PDF untracked; README als schlanker Einstieg | Repo/Struktur | `9c09638` |
@@ -24,7 +25,7 @@
 
 | Titel | Ziel | Status | Offene Punkte |
 |---|---|---|---|
-| Agent-Registry vereinheitlichen | Alle 9 KI-Prompts als konfigurierbare Agenten | Spezifikation fertig (`docs/agent-registry.md`) | Schritt 2–5 offen; Code-Refactor braucht lokale JS/PHP-Validierung (aktuell weder `node` noch `php` lokal) oder Railway-Preview |
+| Agent-Registry vereinheitlichen | Alle 9 KI-Prompts als konfigurierbare Agenten | Schritt 2 umgesetzt (`ymyl`+`execSummary` registriert, Smoke-getestet) | Schritt 3–5 offen: Multi-Agent-Modal, Backend-Prompts nach `app/prompts/` zentralisieren, `runAgent()` |
 
 ## Geplant / To-do
 

@@ -93,13 +93,16 @@ gelöst
 ## Problem
 Lokaler Smoke-Test von PHP nicht möglich.
 ## Ursache
-Auf der Entwicklungsmaschine ist kein PHP installiert (`php` nicht im PATH).
+Auf der Entwicklungsmaschine war kein PHP installiert (`php` nicht im PATH).
 ## Lösung
-Test über Railway-Preview-Deploy statt lokal. Bei kritischen Änderungen lokal PHP installieren
-oder Preview-Deploy nutzen; Railway hält den vorherigen Deploy für 1-Klick-Rollback bereit.
+PHP 8.3 lokal installiert (`winget install PHP.PHP.8.3`) → passend zur Production (PHP 8.3 Alpine).
+Smoke-Test-Harness: `php -l` für Syntax + `php -S 127.0.0.1:8099 -t . router.php` + Browser-Login
+(Default-Passwort) + Demo-Modus validiert den kompletten JS-Block ohne externe APIs.
+Hinweis: Die winget-PHP-Build hat **curl nicht aktiviert** → echte API-Analysen lokal nur mit
+aktivierter curl-Extension; Demo-Modus genügt für JS-Integritätstests.
 ## Betroffene Dateien
 Entwicklungsumgebung (kein Repo-Code).
 ## Datum
 2026-07-14
 ## Status
-workaround
+gelöst

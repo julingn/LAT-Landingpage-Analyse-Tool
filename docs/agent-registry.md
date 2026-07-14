@@ -5,7 +5,7 @@
 > Implementierung. Sie ermöglicht, den späteren Code-Refactor risikoarm und schrittweise
 > umzusetzen (siehe „Migrationsplan").
 >
-> **Status:** Spezifikation vollständig · Implementierung offen (siehe `docs/roadmap.md`).
+> **Status:** Spezifikation vollständig · Schritt 2 umgesetzt (3 Frontend-Agenten registriert) · Schritt 3–5 offen (siehe `docs/roadmap.md`).
 
 ## Ausgangslage
 
@@ -71,9 +71,9 @@ Ziel: **eine** Quelle statt Prompts verstreut in JS + PHP.
 > `php -l`) und einen Smoke-Test (lokal oder Railway-Preview). Kein Big-Bang.
 
 1. **Spezifikation** (diese Datei) — ✅ fertig.
-2. **Frontend-Registry erweitern:** `ymyl` und `execSummary` als Agenten registrieren
-   (defaultPrompt = exakt aktuelle Strings), Call-Sites auf `AGENTS.<id>.getPrompt()` umstellen.
-   Muster existiert bereits bei `sqeg`. → Validieren + Smoke-Test.
+2. **Frontend-Registry erweitern:** `ymyl` und `execSummary` als Agenten registriert
+   (defaultPrompt = exakt bisherige Strings), Call-Sites auf `AGENTS.<id>.getPrompt()` umgestellt.
+   Muster wie `sqeg`. → ✅ umgesetzt & Smoke-getestet (14.07.2026). Jetzt 3 Frontend-Agenten registriert.
 3. **Multi-Agent-Modal:** bestehendes Agent-Modal von 1 auf N Agenten ausbauen
    (Liste, Editieren, Zurücksetzen, Custom-Prompt speichern).
 4. **Prompts zentralisieren:** Backend-Prompts (PV L1–L3, UX, Synonyme, OCR) nach `app/prompts/`

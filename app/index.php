@@ -2006,6 +2006,53 @@ const AGENTS = {
     lastOutput: null,
     getPrompt(){ return AGENT_CUSTOM_PROMPTS.sqeg || this.defaultPrompt; },
     hasCustom(){ return !!AGENT_CUSTOM_PROMPTS.sqeg; }
+  },
+  ymyl: {
+    id: 'ymyl',
+    name: 'YMYL-Klassifikator',
+    description: 'Klassifiziert den YMYL-Status der Seite (clear_ymyl | mixed_ymyl | none) als Kontext für die SQEG-Bewertung.',
+    defaultPrompt: `Du bist ein Google Search Quality Evaluator. Klassifiziere den YMYL-Status der Seite.\nAntworte NUR mit einem dieser drei Werte (kein weiterer Text): clear_ymyl | mixed_ymyl | none\nYMYL-Kategorien: Finanzen, Medizin/Gesundheit, Recht, Sicherheit, große Kaufentscheidungen, Neuigkeiten/gesellschaftliche Themen, Kinderschutz.`,
+    status: 'idle',
+    lastOutput: null,
+    getPrompt(){ return AGENT_CUSTOM_PROMPTS.ymyl || this.defaultPrompt; },
+    hasCustom(){ return !!AGENT_CUSTOM_PROMPTS.ymyl; }
+  },
+  execSummary: {
+    id: 'execSummary',
+    name: 'Executive-Summary-Writer',
+    description: 'Erstellt die Executive Summary (3 Hauptprobleme + 3 nächste Schritte) aus SQEG-Score und externen Datenpunkten (GSC, Sistrix, GEO).',
+    defaultPrompt: `Du bist ein UX-Writer und SEO-Experte und erstellst eine Executive Summary für ein Website-Analyse-Dashboard.
+Du bekommst neben dem SQEG-Qualitätsscore auch externe Datenpunkte: GSC-Rankings, Sistrix-Sichtbarkeit, Quick-Win-Keywords und KI-Sichtbarkeit (GEO/AEO).
+Nutze ALLE verfügbaren Daten für eine ganzheitliche Priorisierung. Wenn Quick-Win-Keywords oder fehlende KI-Sichtbarkeit relevant sind, priorisiere das über reine SQEG-Punkte.
+Antworte AUSSCHLIESSLICH in folgendem Format – keine Einleitung, kein Abschlusstext:
+
+Gesamtbewertung:
+[X / 100 – Einordnung] ← Einordnung MUSS exakt lauten: Sehr niedrige Qualität / Niedrige Qualität / Mittlere Qualität / Gute Qualität / Sehr gute Qualität
+[genau 1 kurzer Satz: benennt 2–3 wichtigste Problemfelder, max. 15 Wörter, keine generischen Aussagen]
+
+Hauptprobleme:
+✖ [Problem-Titel, max. 10–12 Wörter]
+→ [Ursache ODER Auswirkung, max. 10–12 Wörter, kein „–“ im Satz]
+✖ [Problem-Titel, max. 10–12 Wörter]
+→ [Ursache ODER Auswirkung, max. 10–12 Wörter, kein „–“ im Satz]
+✖ [Problem-Titel, max. 10–12 Wörter]
+→ [Ursache ODER Auswirkung, max. 10–12 Wörter, kein „–“ im Satz]
+
+Empfohlene nächste Schritte:
+1. [konkrete Aktion, max. 8–10 Wörter, sofort umsetzbar]
+2. [konkrete Aktion, max. 8–10 Wörter, sofort umsetzbar]
+3. [konkrete Aktion, max. 8–10 Wörter, sofort umsetzbar]
+
+Global-Regeln:
+- Genau 3 Probleme (je ✖-Zeile + →-Zeile), genau 3 Maßnahmen
+- Kein Score oder KPI-Wert im Fließtext
+- Kein gemischter Schreibstil, keine komplexen Satzstrukturen
+- Kein einzelner Punkt mit mehreren kombinierten Problemen
+- Konsistente sprachliche Struktur über alle Punkte`,
+    status: 'idle',
+    lastOutput: null,
+    getPrompt(){ return AGENT_CUSTOM_PROMPTS.execSummary || this.defaultPrompt; },
+    hasCustom(){ return !!AGENT_CUSTOM_PROMPTS.execSummary; }
   }
 };
 
@@ -2990,7 +3037,7 @@ function extractPageText(html){
 
 // === YMYL ===
 async function classifyYmyl(htmlSnippet,url){
-  const sys=`Du bist ein Google Search Quality Evaluator. Klassifiziere den YMYL-Status der Seite.\nAntworte NUR mit einem dieser drei Werte (kein weiterer Text): clear_ymyl | mixed_ymyl | none\nYMYL-Kategorien: Finanzen, Medizin/Gesundheit, Recht, Sicherheit, große Kaufentscheidungen, Neuigkeiten/gesellschaftliche Themen, Kinderschutz.`;
+  const sys=AGENTS.ymyl.getPrompt();
   const r=await callApi([{role:'user',content:`URL: ${url}\nSeitentext (3000 Zeichen):\n${htmlSnippet.substring(0,3000)}`}],sys,50);
   const c=r.trim().toLowerCase();
   if(c.includes('clear_ymyl'))return 'clear_ymyl';
@@ -3273,34 +3320,7 @@ async function generateExecSummary(){
     const verdict=(r.finding||'').split('|').pop().replace(/^Bewertung:\s*/,'').trim();
     return`- ${c.name}: ${verdict}${r.improvement?' → '+r.improvement:''}`;
   }).join('\n');
-  const sys=`Du bist ein UX-Writer und SEO-Experte und erstellst eine Executive Summary für ein Website-Analyse-Dashboard.
-Du bekommst neben dem SQEG-Qualitätsscore auch externe Datenpunkte: GSC-Rankings, Sistrix-Sichtbarkeit, Quick-Win-Keywords und KI-Sichtbarkeit (GEO/AEO).
-Nutze ALLE verfügbaren Daten für eine ganzheitliche Priorisierung. Wenn Quick-Win-Keywords oder fehlende KI-Sichtbarkeit relevant sind, priorisiere das über reine SQEG-Punkte.
-Antworte AUSSCHLIESSLICH in folgendem Format – keine Einleitung, kein Abschlusstext:
-
-Gesamtbewertung:
-[X / 100 – Einordnung] ← Einordnung MUSS exakt lauten: Sehr niedrige Qualität / Niedrige Qualität / Mittlere Qualität / Gute Qualität / Sehr gute Qualität
-[genau 1 kurzer Satz: benennt 2–3 wichtigste Problemfelder, max. 15 Wörter, keine generischen Aussagen]
-
-Hauptprobleme:
-✖ [Problem-Titel, max. 10–12 Wörter]
-→ [Ursache ODER Auswirkung, max. 10–12 Wörter, kein „–“ im Satz]
-✖ [Problem-Titel, max. 10–12 Wörter]
-→ [Ursache ODER Auswirkung, max. 10–12 Wörter, kein „–“ im Satz]
-✖ [Problem-Titel, max. 10–12 Wörter]
-→ [Ursache ODER Auswirkung, max. 10–12 Wörter, kein „–“ im Satz]
-
-Empfohlene nächste Schritte:
-1. [konkrete Aktion, max. 8–10 Wörter, sofort umsetzbar]
-2. [konkrete Aktion, max. 8–10 Wörter, sofort umsetzbar]
-3. [konkrete Aktion, max. 8–10 Wörter, sofort umsetzbar]
-
-Global-Regeln:
-- Genau 3 Probleme (je ✖-Zeile + →-Zeile), genau 3 Maßnahmen
-- Kein Score oder KPI-Wert im Fließtext
-- Kein gemischter Schreibstil, keine komplexen Satzstrukturen
-- Kein einzelner Punkt mit mehreren kombinierten Problemen
-- Konsistente sprachliche Struktur über alle Punkte`;
+  const sys=AGENTS.execSummary.getPrompt();
   const msg=`URL: ${currentUrl}\nScore: ${score} / 100 – ${level}\nYMYL: ${ymylResult||'none'}\n\nProbleme (rot, nach Gewicht):\n${fmtCrit(reds)}\n\nVerbesserungspotenziale (amber):\n${fmtCrit(ambers)}\n\nPositive Aspekte:\n${greens.slice(0,4).map(r=>(CRITERIA.find(x=>x.id===r.id)||{}).name||r.id).join(', ')}${(()=>{
   let ext='';
   // GSC-Kontext
