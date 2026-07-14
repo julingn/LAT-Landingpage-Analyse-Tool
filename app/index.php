@@ -1389,6 +1389,13 @@ button{font-family:inherit}
           <div id="pv-city-resolved" style="display:none;font-size:11px;color:var(--text3);margin-top:4px"></div>
         </div>
       </div>
+      <div class="full">
+        <div class="settings-field" style="margin-top:0">
+          <label class="settings-label" for="pv-url">Bestehende Landingpage-URL <span style="color:var(--text3);font-weight:400">(optional)</span></label>
+          <input type="url" id="pv-url" class="settings-input" placeholder="https://example.com/pv/darmstadt" autocomplete="off">
+          <div id="pv-url-hint" style="display:none;font-size:11px;color:var(--text3);margin-top:4px"></div>
+        </div>
+      </div>
       <div>
         <div class="settings-field" style="margin-top:0">
           <label class="settings-label" for="pv-product">Produkt <span style="color:var(--text3);font-weight:400">(optional)</span></label>
@@ -1406,12 +1413,6 @@ button{font-family:inherit}
           </label>
           <input type="text" id="pv-keyword" class="settings-input" placeholder="z.B. photovoltaik darmstadt" autocomplete="off" spellcheck="false">
           <div id="pv-kw-pills" style="display:none"></div>
-        </div>
-      </div>
-      <div>
-        <div class="settings-field" style="margin-top:0">
-          <label class="settings-label" for="pv-url">Bestehende Landingpage-URL <span style="color:var(--text3);font-weight:400">(optional)</span></label>
-          <input type="url" id="pv-url" class="settings-input" placeholder="https://example.com/pv/darmstadt" autocomplete="off">
         </div>
       </div>
     </div>
@@ -5567,6 +5568,16 @@ function pvCopySection(key){
 
 // Enter-Taste im Stadt-Feld
 document.getElementById('pv-city').addEventListener('keydown',e=>{if(e.key==='Enter')pvGenerate();});
+document.getElementById('pv-url').addEventListener('blur',e=>{
+  const v=e.target.value.trim();
+  if(!v)return;
+  const mainInput=document.getElementById('url-input');
+  if(mainInput&&!mainInput.value.trim()){
+    mainInput.value=v;
+    const hint=document.getElementById('pv-url-hint');
+    if(hint){hint.textContent='→ URL auch als Analyse-URL vorausgefüllt';hint.style.display='block';}
+  }
+});
 document.getElementById('pv-city').addEventListener('input',()=>{
   pvResolvedCity=null;
   const h=document.getElementById('pv-city-resolved');if(h)h.style.display='none';
