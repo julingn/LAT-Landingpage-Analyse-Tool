@@ -397,10 +397,10 @@ Erstelle ein JSON-Objekt mit exakt dieser Struktur (alle Felder befüllen):
       "h2": "H2 mit Stadtname, aktivierend (z.B. 'Photovoltaik in {$cityOrPostalCode}, was haben Sie davon?')",
       "content": "2–3 Sätze Fließtext unter der H2 (kontextualisiert die Kennzahlen lokal, max. 50 Wörter, kein Zahlenpingpong)",
       "items": [
-        {"icon": "house",  "display_value": "[CMS-dynamisch: ~40 m² · ~20 Module · 9 kWp]", "label": "1–2 Sätze zur Dachfläche (Richtwert: ~40 m² / ~20 Module / 9 kWp Anlage, lokal formulieren)"},
-        {"icon": "sun",    "display_value": "{$irr} kWh/m²", "label": "Sonneneinstrahlung pro Jahr in {$cityOrPostalCode}. (VERWENDE DWD-Wert falls vorhanden)"},
-        {"icon": "energy", "display_value": "[CMS-dynamisch: Jahresertrag kWh/Jahr aus Rechner]", "label": "1–2 Sätze zum Jahresertrag einer 9-kWp-Anlage (CMS-dynamisch, Vergleich Einfamilienhaushalt erlaubt)"},
-        {"icon": "co2",    "display_value": "[CMS-dynamisch: CO₂-Einsparung in t/Jahr]", "label": "1–2 Sätze zur CO₂-Einsparung einer 9-kWp-Anlage (CMS-dynamisch, UBA-Emissionsfaktor 0,434 kg/kWh erlaubt)"}
+        {"icon": "house",  "display_value": "[CMS-dynamisch: ~40 m² · ~20 Module · 9 kWp]", "label": "Süd-Dachfläche belegt mit ca. 20 PV Modulen. Entspricht 9 kWp.*"},
+        {"icon": "sun",    "display_value": "{$irr} kWh/m²", "label": "Sonneneinstrahlung pro Jahr in {$cityOrPostalCode}."},
+        {"icon": "energy", "display_value": "[CMS-dynamisch: Jahresertrag kWh/Jahr aus Rechner]", "label": "Produziert diese PV-Anlage. Das entspricht dem Durchschnittsverbrauch eines Einfamilienhauses."},
+        {"icon": "co2",    "display_value": "[CMS-dynamisch: CO₂-Einsparung in t/Jahr]", "label": "Damit könnten Sie CO₂ einsparen.*"}
       ],
       "placement": "Gradient-Block: H2 oben, Fließtext darunter, dann 4 Kennzahlen mit Icon + großer Zahl (CMS) + Label (generiert). Alle Labels gleich kurz."
     },
