@@ -599,9 +599,9 @@ button{font-family:inherit}
 .pv-sec-label:first-child{margin-top:0}
 .pv-sec-micro{font-size:13px;line-height:1.6;color:var(--accent);background:var(--accent-bg);padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--accent-border)}
 .pv-sec-content{font-size:13px;line-height:1.75;color:var(--text)}
-.pv-copy-btn{position:absolute;top:12px;right:12px;display:flex;align-items:center;gap:5px;padding:4px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:11px;font-weight:500;color:var(--text2);cursor:pointer;transition:background .12s,color .12s;font-family:inherit}
+.pv-copy-btn{position:absolute;top:12px;right:12px;display:flex;align-items:center;gap:5px;padding:4px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:11px;font-weight:500;color:var(--text2);cursor:pointer;transition:background .15s,color .15s,border-color .15s;font-family:inherit}
 .pv-copy-btn:hover{background:var(--bg4);color:var(--text)}
-.pv-copy-btn.copied{background:var(--green-bg);border-color:var(--green-border);color:var(--green)}
+.pv-copy-btn.copied{background:var(--green);border-color:var(--green);color:#fff;font-weight:600}
 .pv-checklist{display:flex;flex-direction:column;gap:6px;margin-top:4px}
 .pv-checklist-item{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:var(--radius-sm);background:var(--bg3)}
 .pv-checklist-status{flex-shrink:0;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:1px}
@@ -5395,12 +5395,20 @@ function pvChecklistHtml(items){
 }
 
 function pvCopySectionText(text,btn){
-  navigator.clipboard.writeText(text||'').then(()=>{
+  const CHECK='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Kopiert';
+  const doCopy = () => {
     const orig=btn.innerHTML;
-    btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Kopiert';
+    btn.innerHTML=CHECK;
     btn.classList.add('copied');
-    setTimeout(()=>{btn.innerHTML=orig;btn.classList.remove('copied');},2000);
-  });
+    setTimeout(()=>{btn.innerHTML=orig;btn.classList.remove('copied');},2500);
+  };
+  if(navigator.clipboard?.writeText){
+    navigator.clipboard.writeText(text||'').then(doCopy).catch(()=>{
+      try{const ta=document.createElement('textarea');ta.value=text||'';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);doCopy();}catch(_){}
+    });
+  }else{
+    try{const ta=document.createElement('textarea');ta.value=text||'';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);doCopy();}catch(_){}
+  }
 }
 
 // ── Widget-Konfiguration (HoursOfSunshineConfig + SolarPotentialConfig) ──────
@@ -5576,12 +5584,20 @@ function pvCopySection(key){
   }else if(key==='exportMarkdown'){
     text=pvData.exportMarkdown||'';
   }
+  const CHECK='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Kopiert';
   navigator.clipboard.writeText(text).then(()=>{
     if(!btn)return;
     const orig=btn.innerHTML;
-    btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Kopiert';
+    btn.innerHTML=CHECK;
     btn.classList.add('copied');
-    setTimeout(()=>{btn.innerHTML=orig;btn.classList.remove('copied');},2000);
+    setTimeout(()=>{btn.innerHTML=orig;btn.classList.remove('copied');},2500);
+  }).catch(()=>{
+    try{
+      const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+      if(!btn)return;
+      const orig=btn.innerHTML;btn.innerHTML=CHECK;btn.classList.add('copied');
+      setTimeout(()=>{btn.innerHTML=orig;btn.classList.remove('copied');},2500);
+    }catch(_){}
   });
 }
 
