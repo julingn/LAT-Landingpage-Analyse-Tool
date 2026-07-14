@@ -5401,9 +5401,15 @@ function pvWidgetConfigHtml() {
   // Quelle DWD: https://opendata.dwd.de
   let months = null;
   let monthsSource = '';
+  let monthsEstimated = false;
   if (dwd.monthly_avg_sunshine_hours && Object.keys(dwd.monthly_avg_sunshine_hours).length >= 12) {
     months = dwd.monthly_avg_sunshine_hours;
-    monthsSource = `DWD Messstation ${stName} (${stDist}\u00a0km) · Tatsächliche Sonnenscheindauer · Mehrjährige Tagesmittel · Zeitraum ${yRange} · Quelle: opendata.dwd.de`;
+    if (dwd.estimated) {
+      monthsEstimated = true;
+      monthsSource = `Schätzung · Saisonale Verteilung nach DWD-Klimanormal-Profil (Deutschland) · Jahreswert ${localSun} h skaliert auf Monatsmittel · Keine Stationsmessung für diesen Standort verfügbar`;
+    } else {
+      monthsSource = `DWD Messstation ${stName} (${stDist}\u00a0km) · Tatsächliche Sonnenscheindauer · Mehrjährige Tagesmittel · Zeitraum ${yRange} · Quelle: opendata.dwd.de`;
+    }
   }
 
   // PVGIS: nur für Energieberechnung (kWh/Jahr), nicht für Stunden-Anzeige
@@ -5453,6 +5459,7 @@ function pvWidgetConfigHtml() {
       <strong>Sonnenstunden-Anzeige (widget months):</strong> DWD-Messwerte — tatsächlich gemessene Sonnenscheindauer (Heliograph, Schwelle 120 W/m²). Entspricht dem natürlichen Nutzerverständnis von „Wie lange scheint die Sonne?". Quelle: Deutscher Wetterdienst, opendata.dwd.de<br>
       <strong>kWh-Berechnung (Jahresertrag):</strong> PVGIS Peak-Sonnenstunden = Globalstrahlung ÷ 1.000 W/m². Korrekte Methode für Energieberechnungen, weil sie die tatsächliche Intensitätsverteilung über den Tag berücksichtigt (Sonne steht morgens/abends schräger). Quelle: EU-Kommission, re.jrc.ec.europa.eu/pvg_tools
     </div>
+    ${monthsEstimated ? `<div style="background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:var(--radius);padding:10px 14px;font-size:11px;line-height:1.6;color:var(--amber);margin-bottom:14px"><strong>⚠ Monatswerte: Schätzung (keine Stationsmessung)</strong><br>Für diesen Standort liegen keine direkt gemessenen DWD-Stationsdaten vor. Die Monatswerte wurden deterministisch berechnet: geschätzter Jahreswert (${localSun}\u202fh/Jahr) × typisches Saisonmuster des DWD-Klimanormals. Keine KI-Beteiligung — rein rechnerische Ableitung.</div>` : ''}
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
       <div>
