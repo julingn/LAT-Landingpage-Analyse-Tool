@@ -4846,7 +4846,6 @@ async function pvGenerate(){
   const keyword  = document.getElementById('pv-keyword').value.trim();
   const product  = document.getElementById('pv-product')?.value.trim()||'';
   const url      = document.getElementById('pv-url').value.trim();
-  const template = document.getElementById('pv-template').value.trim();
 
   // UI: loading state
   document.getElementById('pv-btn-generate').disabled=true;
