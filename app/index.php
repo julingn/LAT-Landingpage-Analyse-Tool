@@ -4690,9 +4690,15 @@ async function pvSuggestKeywords(){
         const gscKws=gscData.keywords.slice(0,8);
         gscHtml=`<div class="pv-kw-group-label">GSC \u00b7 Echte Suchanfragen (90 Tage)</div>`+
           gscKws.map(k=>`<button class="pv-kw-pill gsc" data-kw="${escHtml(k.query)}" onclick="pvSelectKeyword(this.dataset.kw,this)"><span class="pv-kw-pill-text">${escHtml(k.query)}</span><span class="pv-kw-pill-vol">${k.clicks}\u202fKlicks\u202f\u00b7\u202fPos.\u202f${k.position}</span></button>`).join('');
-        if(kws.length) gscHtml+=`<div class="pv-kw-group-label" style="margin-top:8px">DataForSEO \u00b7 Keyword-Varianten</div>`;
       }
-      pills.innerHTML=gscHtml+kws.map(k=>{
+      let sistrixHtml='';
+      if(sistrixData?.success && !sistrixData.no_data && sistrixData.keywords?.length){
+        const sKws=sistrixData.keywords.slice(0,8);
+        sistrixHtml=`<div class="pv-kw-group-label"${gscHtml?' style="margin-top:8px"':''}>Sistrix \u00b7 Ranking-Keywords</div>`+
+          sKws.map(k=>`<button class="pv-kw-pill gsc" data-kw="${escHtml(k.keyword)}" onclick="pvSelectKeyword(this.dataset.kw,this)"><span class="pv-kw-pill-text">${escHtml(k.keyword)}</span><span class="pv-kw-pill-vol">Pos.\u202f${k.position}${k.volume!=null?'\u202f\u00b7\u202f'+k.volume.toLocaleString('de-DE')+'\u202f/\u202fMo.':''}</span></button>`).join('');
+      }
+      const dfsLabel=`<div class="pv-kw-group-label"${(gscHtml||sistrixHtml)?' style="margin-top:8px"':''}>DataForSEO \u00b7 Keyword-Varianten</div>`;
+      pills.innerHTML=gscHtml+sistrixHtml+dfsLabel+kws.map(k=>{
         const vol=k.search_volume!=null ? k.search_volume.toLocaleString('de-DE')+'\u202f/\u202fMo.' : 'k.\u00a0A.';
         const ci=k.competition_index!=null ? ` \u00b7 Wettbewerb\u202f${k.competition_index}%` : '';
         return `<button class="pv-kw-pill" data-kw="${escHtml(k.keyword)}" onclick="pvSelectKeyword(this.dataset.kw,this)"><span class="pv-kw-pill-text">${escHtml(k.keyword)}</span><span class="pv-kw-pill-vol">${vol}${ci}</span></button>`;
