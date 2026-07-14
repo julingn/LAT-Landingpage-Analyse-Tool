@@ -359,23 +359,17 @@ Jede Section-Karte zeigt:
 - JS-Funktionen: `pvConvert()`, `pvSwitchVersion()`, `pvUpdateVersionUI()`
 - Pipeline: Raw → (Level 2) Content geschärft → (Level 3) Conversion optimiert — jederzeit rückwärts navigierbar
 
-### Nächster Schritt — Phase 7.3: Echtdaten-Kontext aus aktiver Analyse ❌
+### Phase 7.3: Echtdaten-Kontext aus aktiver Analyse ✅ (14.07.2026)
 
-> **Status:** Noch nicht implementiert — Proxy ist vorbereitet, Frontend sendet die Daten noch nicht.
+> **Status:** Implementiert — `pvGenerate()` schickt nun `gscContext`, `sistrixContext`, `dataforseoContext` mit.
 
-**Ziel:** Wenn vor dem PV-Generator-Aufruf eine URL analysiert wurde, fließen die echten GSC-/Sistrix-/DataForSEO-Daten automatisch in den Prompt ein.
-
-**Was fehlt:** In `pvGenerate()` (`app/index.php`) die globalen Analyse-Variablen auslesen und im POST-Body mitschicken:
-
-```js
-if(gscData) body.gscContext = { queries: gscData.queries?.slice(0,10), clicks: gscData.totalClicks, impressions: gscData.totalImpressions, avgPosition: gscData.avgPosition };
-if(sistrixData) body.sistrixContext = { visibility: sistrixData.visibility, kw_count: sistrixData.kwCount, keywords: sistrixData.keywords?.slice(0,10) };
-if(serpData) body.dataforseoContext = { search_volume: serpData.searchVolume, serp_features: serpData.serpFeatures };
-```
-
-**Backend:** `app/proxies/localpv.php` ist vollständig vorbereitet.
-
-**Auswirkung:** Die „Perspektivisch"-Badges werden dann zu echten Kontextquellen.
+**Umgesetzt:**
+- `pvGenerate()` liest globale Analyse-Vars (`gscData`, `sistrixData`, `serpData`) aus und schickt sie im POST-Body mit
+- `gscContext`: `queries` (Top 10), aggregierte `clicks`/`impressions`/`avgPosition`
+- `sistrixContext`: `visibility`, `kw_count`, `keywords` (Top 10)
+- `dataforseoContext`: `search_volume` aus `keyword_info`, `serp_features` aus `item_types`
+- `smartHint()` in `pvRenderResults()` — zeigt echte Quellen als grüne „Datenquelle:"-Badges, prospektive als graue „Perspektivisch:"-Badges
+- DWD-Badge in Sidebar: „PVGIS / DWD (geplant)" → „DWD OpenData"
 
 ---
 

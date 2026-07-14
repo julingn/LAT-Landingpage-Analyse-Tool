@@ -1474,7 +1474,7 @@ button{font-family:inherit}
         </div>
         <div class="pv-source-badge">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-          PVGIS / DWD (geplant)
+          DWD OpenData
         </div>
       </div>
     </div>
@@ -4914,6 +4914,34 @@ async function pvGenerate(){
     dwdSolarData:     pvDwdData,
   };
 
+  // ── Phase 7.3: Echtdaten-Kontext aus aktiver Analyse ─────────────────
+  if (gscData?.keywords?.length) {
+    const _tc = gscData.keywords.reduce((s,k)=>s+k.clicks,0);
+    const _ti = gscData.keywords.reduce((s,k)=>s+k.impressions,0);
+    const _ap = gscData.keywords.reduce((s,k)=>s+k.position,0) / gscData.keywords.length;
+    body.gscContext = {
+      queries:     gscData.keywords.slice(0,10),
+      clicks:      _tc,
+      impressions: _ti,
+      avgPosition: Math.round(_ap*10)/10,
+    };
+  }
+  if (sistrixData?.success && !sistrixData.no_data) {
+    body.sistrixContext = {
+      visibility: sistrixData.visibility,
+      kw_count:   sistrixData.kw_count,
+      keywords:   (sistrixData.keywords||[]).slice(0,10),
+    };
+  }
+  if (serpData?.tasks?.[0]?.result?.[0]) {
+    const _r  = serpData.tasks[0].result[0];
+    const _sv = _r.keyword_info?.search_volume ?? null;
+    const _ft = (_r.item_types||[]).filter(t=>t!=='organic');
+    if (_sv !== null || _ft.length) {
+      body.dataforseoContext = { search_volume: _sv, serp_features: _ft };
+    }
+  }
+
   try{
     // SSE-Stream: localpv.php sendet Heartbeats alle 8s + finales Ergebnis
     const res = await fetch('localpv.php',{
@@ -5061,6 +5089,17 @@ function pvRenderResults(d){
       sources.map(s=>`<span class="pv-data-source-tag ${escHtml(s.c)}" title="${escHtml(s.d)}">${escHtml(s.l)}</span>`).join('')+
       '</div>';
   }
+  function smartHint(sources){
+    if(!sources||!sources.length)return '';
+    const active=[],prospect=[];
+    sources.forEach(s=>{
+      if      (s.c==='gsc'        && gscData?.keywords?.length)                   active.push(s);
+      else if (s.c==='sistrix'    && sistrixData?.success && !sistrixData.no_data) active.push(s);
+      else if (s.c==='dataforseo' && serpData?.tasks?.[0]?.result?.[0])            active.push(s);
+      else if (s.c!=='pvgis'&&s.c!=='dwd')                                         prospect.push(s);
+    });
+    return (active.length?activeHint(active):'')+(prospect.length?hint(prospect):'');
+  }
   function dwdActiveHint(){
     // Vollständiger DWD-Footer für die Solarpotenzial-Karte
     if(!pvDwdData||!pvDwdData.irradiance_kWhm2_year) return '';
@@ -5091,8 +5130,8 @@ function pvRenderResults(d){
     'Meta','meta',"pvCopySection('meta')",
     `<div class="pv-meta-row"><div class="pv-meta-field"><div class="pv-meta-field-label">Title (${(m.title||'').length} Zeichen)</div><div class="pv-meta-value">${escHtml(m.title||'–')}</div></div>`+
     `<div class="pv-meta-field" style="margin-top:8px"><div class="pv-meta-field-label">Description (${(m.description||'').length} Zeichen)</div><div class="pv-meta-value">${escHtml(m.description||'–')}</div></div></div>`,
-    hint([{c:'gsc',l:'GSC · CTR & Ø-Position',d:'Aktuelle CTR und Ranking-Position zeigen, ob Title & Description Klicks generieren. Direkte Vorlage für datenbasierte Titeloptimierung.'},
-          {c:'dataforseo',l:'DataForSEO · Suchvolumen & SERP-Preview',d:'Keyword-Suchvolumen zur Priorisierung des Haupt-Keywords im Title; SERP-Vorschau prüft Snippet-Darstellung in Google.'}])
+    smartHint([{c:'gsc',l:'GSC · CTR & Ø-Position',d:'Aktuelle CTR und Ranking-Position zeigen, ob Title & Description Klicks generieren. Direkte Vorlage für datenbasierte Titeloptimierung.'},
+               {c:'dataforseo',l:'DataForSEO · Suchvolumen & SERP-Preview',d:'Keyword-Suchvolumen zur Priorisierung des Haupt-Keywords im Title; SERP-Vorschau prüft Snippet-Darstellung in Google.'}])
   ));
   // 2. Hero
   cards.push(card(
@@ -5107,8 +5146,8 @@ function pvRenderResults(d){
     `<div class="pv-hero-field full"><div class="pv-hero-field-label">Absatz (Alternative zu USPs)</div><div class="pv-hero-value" style="color:var(--text2)">${escHtml(h.absatz||'–')}</div></div>`+
     `<div class="pv-hero-field full" style="background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:var(--radius);padding:8px 12px;font-size:11px;color:var(--blue)">&#8595; Direkt darunter: PV-Rechner (1. Frage: „Wie viele Personen leben in Ihrem Haushalt?“)</div>`+
     `</div>`,
-    hint([{c:'gsc',l:'GSC · Top-Queries',d:'Die häufigsten Suchanfragen der bestehenden LP zeigen, welche Keywords Nutzer wirklich eingeben — ideal zur H1-Schärfung und CTA-Formulierung.'},
-          {c:'dataforseo',l:'DataForSEO · Keyword-Varianten',d:'Lokale Varianten und Suchvolumina helfen, den stärksten Begriff für H1 und CTA auszuwählen.'}])
+    smartHint([{c:'gsc',l:'GSC · Top-Queries',d:'Die häufigsten Suchanfragen der bestehenden LP zeigen, welche Keywords Nutzer wirklich eingeben — ideal zur H1-Schärfung und CTA-Formulierung.'},
+               {c:'dataforseo',l:'DataForSEO · Keyword-Varianten',d:'Lokale Varianten und Suchvolumina helfen, den stärksten Begriff für H1 und CTA auszuwählen.'}])
   ));
   // 3–10. Content Sections in LP-Reihenfolge
   const secDefs=[
@@ -5187,8 +5226,8 @@ function pvRenderResults(d){
         ? (pvDwdData
             ? dwdActiveHint()
             : '<div class="pv-data-hint"><span class="pv-data-hint-label" style="color:var(--amber)">DWD:</span><span class="pv-data-source-tag" style="background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)" title="DWD-Datenabruf fehlgeschlagen">nicht verfügbar (Schätzung aktiv)</span></div>'
-              + hint(s.h||[]))
-        : hint(s.h||[]))
+              + smartHint(s.h||[]))
+        : smartHint(s.h||[]))
     ));
   });
   // 11. FAQ
@@ -5196,25 +5235,25 @@ function pvRenderResults(d){
     '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
     'FAQ','faq',"pvCopySection('faq')",
     '<div class="pv-faq-list">'+faq.map((f,i)=>`<div class="pv-faq-item"${i>0?' style="margin-top:10px"':''}><div class="pv-faq-q">${i+1}. ${escHtml(f.question||'')}</div><div class="pv-faq-a">${escHtml(f.answer||'')}</div></div>`).join('')+'</div>',
-    hint([{c:'dataforseo',l:'DataForSEO · People Also Ask',d:'Direkte Übernahme echter Nutzerfragen aus der Google SERP — stärkere Relevanzsignale als rein KI-generierte FAQ-Fragen.'},
-          {c:'gsc',l:'GSC · W-Fragen aus Queries',d:'Queries mit "wie", "was", "warum", "kosten" sind direkte FAQ-Kandidaten mit belegtem Suchvolumen.'}])
+    smartHint([{c:'dataforseo',l:'DataForSEO · People Also Ask',d:'Direkte Übernahme echter Nutzerfragen aus der Google SERP — stärkere Relevanzsignale als rein KI-generierte FAQ-Fragen.'},
+               {c:'gsc',l:'GSC · W-Fragen aus Queries',d:'Queries mit "wie", "was", "warum", "kosten" sind direkte FAQ-Kandidaten mit belegtem Suchvolumen.'}])
   ));
   // 12. SEO-Checkliste
   cards.push(card(
     '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
     'SEO-Checkliste','seoChecklist',"pvCopySection('seoChecklist')",
     '<div class="pv-checklist">'+pvChecklistHtml(d.seoChecklist||[])+'</div>',
-    hint([{c:'gsc',l:'GSC · Ø-Position & Klicks',d:'Ranking-Position und CTR pro Keyword zeigen, welche SEO-Maßnahmen wirken und wo der größte Handlungsbedarf besteht.'},
-          {c:'sistrix',l:'Sistrix · Sichtbarkeitsindex',d:'Langzeit-Verlauf zeigt Penaltys, Ranking-Gewinne und saisonale Schwankungen — Basis für technische Priorisierung.'},
-          {c:'dataforseo',l:'DataForSEO · SERP-Features',d:'Welche Features (Snippets, Local Pack, FAQs) erscheinen für Ziel-Keywords? Direkte Handlungsempfehlungen für strukturierte Daten.'}])
+    smartHint([{c:'gsc',l:'GSC · Ø-Position & Klicks',d:'Ranking-Position und CTR pro Keyword zeigen, welche SEO-Maßnahmen wirken und wo der größte Handlungsbedarf besteht.'},
+               {c:'sistrix',l:'Sistrix · Sichtbarkeitsindex',d:'Langzeit-Verlauf zeigt Penaltys, Ranking-Gewinne und saisonale Schwankungen — Basis für technische Priorisierung.'},
+               {c:'dataforseo',l:'DataForSEO · SERP-Features',d:'Welche Features (Snippets, Local Pack, FAQs) erscheinen für Ziel-Keywords? Direkte Handlungsempfehlungen für strukturierte Daten.'}])
   ));
   // 13. CRO-Checkliste
   cards.push(card(
     '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
     'CRO-Checkliste','croChecklist',"pvCopySection('croChecklist')",
     '<div class="pv-checklist">'+pvChecklistHtml(d.croChecklist||[])+'</div>',
-    hint([{c:'gsc',l:'GSC · CTR-Analyse',d:'Niedrige CTR trotz guter Position = schwache Meta/Hero. Direkter Feedback-Loop zwischen SERP-CTR und CRO-Optimierungen.'},
-          {c:'sistrix',l:'Sistrix · Wettbewerber-Snippets',d:'Trust-Signale, Bewertungen und CTAs in Konkurrenz-Ergebnissen als CRO-Benchmark für die eigene LP.'}])
+    smartHint([{c:'gsc',l:'GSC · CTR-Analyse',d:'Niedrige CTR trotz guter Position = schwache Meta/Hero. Direkter Feedback-Loop zwischen SERP-CTR und CRO-Optimierungen.'},
+               {c:'sistrix',l:'Sistrix · Wettbewerber-Snippets',d:'Trust-Signale, Bewertungen und CTAs in Konkurrenz-Ergebnissen als CRO-Benchmark für die eigene LP.'}])
   ));
   // 14. Empfehlungen
   const recsHtml=(Array.isArray(d.recommendations)?d.recommendations:[]).map(r=>
@@ -5225,9 +5264,9 @@ function pvRenderResults(d){
     '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
     'Empfehlungen','recommendations',"pvCopySection('recommendations')",
     `<div class="pv-rec-list">${recsHtml}</div>`,
-    hint([{c:'gsc',l:'GSC',d:'Rankings, CTR und Top-Queries als Grundlage für priorisierte Maßnahmen.'},
-          {c:'sistrix',l:'Sistrix',d:'Sichtbarkeit und Wettbewerbervergleich zur Gewichtung der Empfehlungen.'},
-          {c:'dataforseo',l:'DataForSEO',d:'Suchvolumen und SERP-Features zur ROI-Einschätzung der empfohlenen Maßnahmen.'}])
+    smartHint([{c:'gsc',l:'GSC',d:'Rankings, CTR und Top-Queries als Grundlage für priorisierte Maßnahmen.'},
+               {c:'sistrix',l:'Sistrix',d:'Sichtbarkeit und Wettbewerbervergleich zur Gewichtung der Empfehlungen.'},
+               {c:'dataforseo',l:'DataForSEO',d:'Suchvolumen und SERP-Features zur ROI-Einschätzung der empfohlenen Maßnahmen.'}])
   ));
   // 15. Markdown-Export
   cards.push(card(

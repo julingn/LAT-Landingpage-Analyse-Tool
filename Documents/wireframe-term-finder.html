@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wireframe – LAT Content Finder</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    /* ── Wireframe annotation style ── */
+    .wf-note {
+      font-size: 10px;
+      font-style: italic;
+      color: #888;
+      background: #fffbcc;
+      border: 1px dashed #ccc;
+      padding: 2px 6px;
+      border-radius: 3px;
+      display: inline-block;
+      margin-top: 4px;
+    }
+
+    /* ── Layout ── */
+    header {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    header .logo {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    header .badge {
+      background: #e63946;
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .page-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 24px;
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      border: 1.5px solid #dde1ea;
+      overflow: hidden;
+    }
+    .card-header {
+      background: #f7f8fa;
+      border-bottom: 1.5px solid #dde1ea;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-header .step-badge {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: #1a1a2e;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .card-header h2 {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .card-body {
+      padding: 20px;
+    }
+
+    /* ── Tabs ── */
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      border: 1.5px solid #dde1ea;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .tab {
+      flex: 1;
+      padding: 9px 12px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      background: #f7f8fa;
+      color: #555;
+      border: none;
+      transition: all .15s;
+    }
+    .tab.active {
+      background: #1a1a2e;
+      color: #fff;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Form elements ── */
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 5px;
+    }
+    textarea, input[type="text"], input[type="file"], select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid #dde1ea;
+      border-radius: 7px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #1a1a2e;
+      background: #fafbfc;
+      resize: vertical;
+    }
+    textarea:focus, input[type="text"]:focus {
+      outline: none;
+      border-color: #4a90e2;
+    }
+    .input-hint {
+      font-size: 11px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .upload-zone {
+      border: 2px dashed #c0c8d8;
+      border-radius: 8px;
+      padding: 28px 16px;
+      text-align: center;
+      background: #f7f9fc;
+      cursor: pointer;
+    }
+    .upload-zone .upload-icon { font-size: 28px; }
+    .upload-zone p { font-size: 13px; color: #555; margin-top: 8px; }
+    .upload-zone small { font-size: 11px; color: #aaa; }
+
+    .form-row { margin-bottom: 16px; }
+
+    /* ── Term chips ── */
+    .term-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-height: 36px;
+      padding: 8px;
+      border: 1.5px dashed #c0c8d8;
+      border-radius: 7px;
+      background: #f7f9fc;
+      margin-bottom: 10px;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #1a1a2e;
+      color: #fff;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    .chip .remove {
+      background: rgba(255,255,255,.2);
+      border: none;
+      color: #fff;
+      border-radius: 50%;
+      width: 14px; height: 14px;
+      font-size: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .chip.variant {
+      background: #4a90e2;
+      font-size: 10px;
+      padding: 3px 8px;
+    }
+    .chip.synonym {
+      background: #2a9d5c;
+      font-size: 10px;
+      padding: 3px 8px;
+    }
+
+    .add-term-row {
+      display: flex;
+      gap: 6px;
+    }
+    .add-term-row input { flex: 1; }
+    .btn {
+      padding: 9px 16px;
+      border-radius: 7px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-primary { background: #1a1a2e; color: #fff; }
+    .btn-secondary { background: #f0f2f5; color: #333; border: 1.5px solid #dde1ea; }
+    .btn-accent { background: #e63946; color: #fff; }
+    .btn-green { background: #2a9d5c; color: #fff; }
+
+    /* ── Options toggles ── */
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .option-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border: 1.5px solid #dde1ea;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .option-toggle.on {
+      border-color: #2a9d5c;
+      background: #f0faf5;
+      color: #1a6b3e;
+      font-weight: 600;
+    }
+    .toggle-dot {
+      width: 32px; height: 18px;
+      border-radius: 9px;
+      background: #c0c8d8;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .toggle-dot::after {
+      content: '';
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      position: absolute;
+      top: 2px; left: 2px;
+      transition: left .2s;
+    }
+    .option-toggle.on .toggle-dot {
+      background: #2a9d5c;
+    }
+    .option-toggle.on .toggle-dot::after {
+      left: 16px;
+    }
+
+    /* ── Run button area ── */
+    .run-area {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1.5px solid #eee;
+    }
+    .run-btn {
+      width: 100%;
+      padding: 13px;
+      font-size: 15px;
+      font-weight: 700;
+      background: #e63946;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      letter-spacing: .3px;
+    }
+
+    /* ── Right column ── */
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ── Progress ── */
+    .progress-bar-wrap {
+      background: #eee;
+      border-radius: 20px;
+      height: 10px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      border-radius: 20px;
+      background: linear-gradient(90deg, #4a90e2, #2a9d5c);
+      width: 62%;
+      transition: width .4s;
+    }
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #666;
+      margin-top: 6px;
+    }
+    .status-list {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .status-item {
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .status-item .dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .dot-done { background: #2a9d5c; }
+    .dot-active { background: #4a90e2; animation: pulse .8s infinite alternate; }
+    .dot-wait { background: #c0c8d8; }
+    @keyframes pulse { to { opacity: .4; } }
+
+    /* ── Results table ── */
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .results-count {
+      font-size: 13px;
+      color: #555;
+    }
+    .results-count strong { color: #1a1a2e; }
+    .export-btns { display: flex; gap: 6px; }
+
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      margin: 12px 0;
+      flex-wrap: wrap;
+    }
+    .filter-bar input {
+      flex: 1;
+      min-width: 160px;
+      padding: 7px 10px;
+      font-size: 12px;
+    }
+    .filter-bar select {
+      width: auto;
+      font-size: 12px;
+      padding: 7px 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    th {
+      background: #f7f8fa;
+      padding: 9px 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #444;
+      border-bottom: 1.5px solid #dde1ea;
+      white-space: nowrap;
+    }
+    td {
+      padding: 9px 12px;
+      border-bottom: 1px solid #f0f2f5;
+      vertical-align: top;
+    }
+    tr:hover td { background: #fafbfc; }
+
+    .url-cell {
+      color: #4a90e2;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .match-highlight {
+      background: #fff3cd;
+      border-radius: 3px;
+      padding: 1px 3px;
+      font-weight: 700;
+    }
+    .context-cell {
+      max-width: 320px;
+      line-height: 1.5;
+      color: #555;
+    }
+    .location-cell { color: #888; font-size: 11px; }
+    .term-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .tb-exact { background: #1a1a2e; }
+    .tb-variant { background: #4a90e2; }
+    .tb-synonym { background: #2a9d5c; }
+
+    /* ── Legend ── */
+    .legend {
+      display: flex;
+      gap: 14px;
+      font-size: 11px;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: #555;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .page-wrap { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Content Term Finder</div>
+  <div class="badge">Wireframe</div>
+</header>
+
+<div class="page-wrap">
+
+  <!-- ══ LEFT COLUMN: Config ══ -->
+  <div style="display:flex;flex-direction:column;gap:20px;">
+
+    <!-- STEP 1: URL Input -->
+    <div class="card">
+      <div class="card-header">
+        <div class="step-badge">1</div>
+        <h2>URL-Eingabe</h2>
+      </div>
+      <div class="card-body">
+
+        <div class="tab-bar">
+          <button class="tab active" onclick="switchTab('url')">Manuelle URLs</button>
+          <button class="tab" onclick="switchTab('excel')">Excel-Upload</button>
+        </div>
+
+        <!-- TAB A: Manual URLs -->
+        <div class="tab-panel active" id="tab-url">
+          <div class="form-row">
+            <label>URLs eingeben (eine pro Zeile)</label>
+            <textarea rows="6" placeholder="https://www.beispiel.de/strom&#10;https://www.beispiel.de/gas&#10;https://www.beispiel.de/oekostrom"></textarea>
+            <div class="input-hint">Mehrere URLs = eine pro Zeile &nbsp;·&nbsp; Subseiten werden automatisch gecrawlt</div>
+          </div>
+          <div class="form-row">
+            <label>Crawl-Tiefe</label>
+            <select>
+              <option>Nur diese URL (keine Links folgen)</option>
+              <option selected>1 Ebene tiefer (direkte Links)</option>
+              <option>2 Ebenen tiefer</option>
+              <option>Gesamte Domain</option>
+            </select>
+            <div class="wf-note">Tiefe bestimmt wie viele Unterseiten gecrawlt werden</div>
+          </div>
+        </div>
+
+        <!-- TAB B: Excel Upload -->
+        <div class="tab-panel" id="tab-excel">
+          <div class="upload-zone" onclick="document.getElementById('xls-input').click()">
+            <div class="upload-icon">📊</div>
+            <p>Excel-Datei hier ablegen oder klicken</p>
+            <small>.xlsx · .xls · .csv &nbsp;|&nbsp; Spalte "URL" wird automatisch erkannt</small>
+            <input type="file" id="xls-input" accept=".xlsx,.xls,.csv" style="display:none" />
+          </div>
+          <div class="wf-note" style="margin-top:8px">Nach Upload: Spaltenauswahl per Dropdown → "URL"-Spalte zuweisen</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- STEP 2: Search Terms -->
+    <div class="card">
+      <div class="card-header">
+        <div class="step-badge">2</div>
+        <h2>Suchbegriffe</h2>
+      </div>
+      <div class="card-body">
+
+        <div class="form-row">
+          <label>Aktive Begriffe</label>
+          <div class="term-list" id="term-chips">
+            <span class="chip">Ökostrom <button class="remove">×</button></span>
+            <span class="chip">Erneuerbare Energie <button class="remove">×</button></span>
+            <span class="chip">Photovoltaik <button class="remove">×</button></span>
+          </div>
+          <div class="wf-note">Chips = eingegebene Suchbegriffe. Je Begriff werden Varianten automatisch generiert.</div>
+        </div>
+
+        <div class="form-row">
+          <div class="add-term-row">
+            <input type="text" placeholder="Begriff hinzufügen …" />
+            <button class="btn btn-primary">+</button>
+          </div>
+        </div>
+
+        <!-- Variant Preview für einen Begriff -->
+        <div style="background:#f7f9fc;border:1.5px solid #dde1ea;border-radius:8px;padding:12px;margin-top:4px;">
+          <div style="font-size:11px;font-weight:700;color:#444;margin-bottom:8px;">Automatisch erkannte Varianten für „Ökostrom":</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;">
+            <span class="chip tb-exact" style="font-size:10px;padding:3px 8px;">Ökostrom</span>
+            <span class="chip tb-variant" style="font-size:10px;padding:3px 8px;">Oekostrom</span>
+            <span class="chip tb-variant" style="font-size:10px;padding:3px 8px;">Öko-Strom</span>
+            <span class="chip tb-variant" style="font-size:10px;padding:3px 8px;">ökostrom</span>
+            <span class="chip tb-synonym" style="font-size:10px;padding:3px 8px;">Grünstrom</span>
+            <span class="chip tb-synonym" style="font-size:10px;padding:3px 8px;">Naturstrom</span>
+            <span class="chip tb-synonym" style="font-size:10px;padding:3px 8px;">Regenerativstrom</span>
+          </div>
+          <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+            <div class="legend">
+              <div class="legend-item"><span class="term-badge tb-exact">■</span> Exakt</div>
+              <div class="legend-item"><span class="term-badge tb-variant">■</span> Schreibvariante (Bindestrich, oe/ö …)</div>
+              <div class="legend-item"><span class="term-badge tb-synonym">■</span> Synonym (KI-generiert)</div>
+            </div>
+          </div>
+          <div class="wf-note" style="margin-top:6px">Synonyme können manuell ergänzt oder entfernt werden</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- STEP 3: Options -->
+    <div class="card">
+      <div class="card-header">
+        <div class="step-badge">3</div>
+        <h2>Erkennungsoptionen</h2>
+      </div>
+      <div class="card-body">
+        <div class="options-grid">
+          <div class="option-toggle on">
+            <div class="toggle-dot"></div>
+            Singular / Plural
+          </div>
+          <div class="option-toggle on">
+            <div class="toggle-dot"></div>
+            Bindestrich-Varianten
+          </div>
+          <div class="option-toggle on">
+            <div class="toggle-dot"></div>
+            oe ↔ ö / ae ↔ ä …
+          </div>
+          <div class="option-toggle on">
+            <div class="toggle-dot"></div>
+            KI-Synonyme (GPT)
+          </div>
+          <div class="option-toggle">
+            <div class="toggle-dot"></div>
+            Groß-/Kleinschreibung
+          </div>
+          <div class="option-toggle on">
+            <div class="toggle-dot"></div>
+            Teilwort-Treffer
+          </div>
+        </div>
+        <div class="wf-note" style="margin-top:10px">
+          Teilwort-Treffer: findet „Ökostromanbieter" wenn nach „Ökostrom" gesucht wird
+        </div>
+      </div>
+    </div>
+
+    <!-- RUN -->
+    <div>
+      <button class="run-btn">▶ &nbsp; Analyse starten</button>
+      <div class="wf-note" style="margin-top:8px;display:block;">
+        Schaltfläche erst aktiv wenn ≥1 URL + ≥1 Begriff eingegeben
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ RIGHT COLUMN: Progress + Results ══ -->
+  <div class="right-col">
+
+    <!-- Progress Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="step-badge" style="background:#4a90e2;">↻</div>
+        <h2>Analyse-Fortschritt</h2>
+      </div>
+      <div class="card-body">
+        <div class="progress-bar-wrap">
+          <div class="progress-bar"></div>
+        </div>
+        <div class="progress-meta">
+          <span>5 von 8 Seiten analysiert</span>
+          <span>62 % &nbsp;·&nbsp; ca. 40 Sek. verbleibend</span>
+        </div>
+        <div class="status-list">
+          <div class="status-item"><div class="dot dot-done"></div> https://beispiel.de/strom — 3 Treffer</div>
+          <div class="status-item"><div class="dot dot-done"></div> https://beispiel.de/gas — 0 Treffer</div>
+          <div class="status-item"><div class="dot dot-done"></div> https://beispiel.de/oekostrom — 7 Treffer</div>
+          <div class="status-item"><div class="dot dot-done"></div> https://beispiel.de/energie — 2 Treffer</div>
+          <div class="status-item"><div class="dot dot-done"></div> https://beispiel.de/solar — 5 Treffer</div>
+          <div class="status-item"><div class="dot dot-active"></div> https://beispiel.de/photovoltaik — wird gecrawlt …</div>
+          <div class="status-item"><div class="dot dot-wait"></div> https://beispiel.de/waermepumpe — wartend</div>
+          <div class="status-item"><div class="dot dot-wait"></div> https://beispiel.de/speicher — wartend</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="step-badge" style="background:#2a9d5c;">✓</div>
+        <h2>Ergebnisse</h2>
+      </div>
+      <div class="card-body">
+
+        <div class="results-header">
+          <div class="results-count"><strong>17</strong> Treffer auf <strong>5</strong> Seiten</div>
+          <div class="export-btns">
+            <button class="btn btn-secondary" style="font-size:12px;padding:6px 12px;">↓ Excel</button>
+            <button class="btn btn-secondary" style="font-size:12px;padding:6px 12px;">↓ CSV</button>
+            <button class="btn btn-secondary" style="font-size:12px;padding:6px 12px;">↓ JSON</button>
+          </div>
+        </div>
+
+        <div class="filter-bar">
+          <input type="text" placeholder="🔍 Ergebnisse filtern …" />
+          <select>
+            <option>Alle Begriffe</option>
+            <option>Ökostrom</option>
+            <option>Erneuerbare Energie</option>
+            <option>Photovoltaik</option>
+          </select>
+          <select>
+            <option>Alle Typen</option>
+            <option>Exakt</option>
+            <option>Schreibvariante</option>
+            <option>Synonym</option>
+          </select>
+          <select>
+            <option>Alle Seiten</option>
+            <option>beispiel.de/strom</option>
+            <option>beispiel.de/oekostrom</option>
+          </select>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>URL</th>
+              <th>Suchbegriff</th>
+              <th>Gefundene Variante</th>
+              <th>Kontext (Fundstelle)</th>
+              <th>Position</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="url-cell" title="https://beispiel.de/strom">beispiel.de/strom</td>
+              <td><span class="term-badge tb-exact">Ökostrom</span></td>
+              <td><strong>Ökostrom</strong></td>
+              <td class="context-cell">„… tarif für <span class="match-highlight">Ökostrom</span> ab 24,99 €/Monat direkt …"</td>
+              <td class="location-cell">H2 · Abschnitt 1</td>
+            </tr>
+            <tr>
+              <td class="url-cell" title="https://beispiel.de/strom">beispiel.de/strom</td>
+              <td><span class="term-badge tb-variant">Ökostrom</span></td>
+              <td><strong>Oekostrom</strong></td>
+              <td class="context-cell">„… zertifizierter <span class="match-highlight">Oekostrom</span> aus 100% …"</td>
+              <td class="location-cell">Fließtext · §3</td>
+            </tr>
+            <tr>
+              <td class="url-cell" title="https://beispiel.de/oekostrom">beispiel.de/oekostrom</td>
+              <td><span class="term-badge tb-synonym">Ökostrom</span></td>
+              <td><strong>Grünstrom</strong></td>
+              <td class="context-cell">„… Anbieter von <span class="match-highlight">Grünstrom</span> in Deutschland …"</td>
+              <td class="location-cell">Meta-Title</td>
+            </tr>
+            <tr>
+              <td class="url-cell" title="https://beispiel.de/energie">beispiel.de/energie</td>
+              <td><span class="term-badge tb-exact">Erneuerbare Energie</span></td>
+              <td><strong>Erneuerbare Energie</strong></td>
+              <td class="context-cell">„… Wechsel zu <span class="match-highlight">Erneuerbarer Energie</span> lohnt sich …"</td>
+              <td class="location-cell">H1</td>
+            </tr>
+            <tr>
+              <td class="url-cell" title="https://beispiel.de/solar">beispiel.de/solar</td>
+              <td><span class="term-badge tb-variant">Photovoltaik</span></td>
+              <td><strong>Photovoltaik-Anlage</strong></td>
+              <td class="context-cell">„… komplette <span class="match-highlight">Photovoltaik-Anlage</span> inkl. Speicher …"</td>
+              <td class="location-cell">Fließtext · §1</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="wf-note" style="margin-top:8px">Tabelle zeigt max. 50 Zeilen; Pagination oder Scroll für weitere Ergebnisse</div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function switchTab(tab) {
+    document.getElementById('tab-url').classList.remove('active');
+    document.getElementById('tab-excel').classList.remove('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', (tab === 'url' && i === 0) || (tab === 'excel' && i === 1));
+    });
+  }
+</script>
+
+</body>
+</html>

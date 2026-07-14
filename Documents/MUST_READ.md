@@ -149,6 +149,22 @@ Beim Hinzufügen eines neuen Moduls müssen **immer** alle 4 Reset-Stellen aktua
 
 ---
 
+## Bekannte Bugs & Fixes
+
+- **PHP Session-Lock**: IMMER `session_write_close()` direkt nach Auth-Check in JEDEM Proxy. Sonst 401 bei concurrent Batch-Calls.
+- **JSON-Truncation** (`runMiniCall`): max_tokens=2500 + Fallback-Regex. Nicht auf 2000 senken.
+- **`sleep` nicht definiert**: Muss als erste Zeile nach `<script>`: `const sleep=ms=>new Promise(r=>setTimeout(r,ms));`. Fehlt → startDemo() friert silent ein. Fix: `107f4d8`
+- **Stray `}` in JS**: Ein überschüssiges `}` nach einer Funktion bricht den ganzen `<script>`-Block (alle Funktionen undefined). Symptom: Demo/Analyse tut nichts. Fix immer: stray `}` entfernen. Commits: `4da0d25`.
+- **Doppelte `</div>` im HTML**: Bricht content-wrap — alle nachfolgenden Views landen außerhalb. Fix: `6eafea2`.
+- **`startDemo()` hat kein try/catch**: Fehler brechen silent ab → immer Browser-Konsole (F12) prüfen.
+- **⚠ UTF-8 BOM in index.php**: Falls ein externer Editor die Datei speichert, kann er ein UTF-8 BOM (Bytes `EF BB BF`) vorne einfügen. PHP gibt das BOM als Output aus → `session_start()` schlägt mit "headers already sent" fehl. Fix: `$b=[System.IO.File]::ReadAllBytes("app\index.php"); if($b[0] -eq 0xEF){$nb=$b[3..($b.Length-1)];[System.IO.File]::WriteAllBytes("app\index.php",$nb)}`
+- **⚠ CRLF + BOM durch PowerShell-Writes**: `[System.Text.Encoding]::UTF8` (ohne Parameter) schreibt **mit BOM** und **CRLF**. Beides bricht die App auf dem Linux-Server. Einzig sichere Variante: `[System.Text.UTF8Encoding]::new($false)` für den Encoding-Parameter. Danach immer prüfen: `$b=[System.IO.File]::ReadAllBytes("f"); "BOM: $(($b[0..2]|%{$_.ToString('X2')})-join' ')"; "CRs: $(($b|?{$_-eq 0x0D}).Count)"` — beide müssen 0 sein.
+- **⚠ NIEMALS PowerShell für Datei-Writes nutzen wenn `replace_string_in_file` reicht** — PowerShell-Writes (WriteAllLines, WriteAllText mit falschem Encoding) führen zu BOM + CRLF + versehentlichen Code-Duplikaten/Löschungen. `replace_string_in_file` ändert nichts am Encoding.
+- **⚠ Duplikat-Code nach `return` in Funktion**: PowerShell-Writes können Code-Blöcke duplizieren. Ein `const X` das zweimal in derselben Funktion deklariert wird, erzeugt einen JavaScript SyntaxError → der gesamte `<script>`-Block wird nicht ausgeführt → Sidebar und alle JS-Funktionen broken (13.07.2026, `pvWidgetConfigHtml`).
+- **⚠ Beim Löschen von Duplikat-Blöcken**: Immer prüfen ob die Grenzen korrekt sind. Das "Duplikat" kann echte Funktionen enthalten die danach definiert sind (`pvFootnoteHtml` war Teil des Duplikat-Blocks und wurde mitgelöscht).
+
+---
+
 ## Roadmap
 
 Siehe `Documents/ROADMAP.md` für aktuelle Roadmap.
