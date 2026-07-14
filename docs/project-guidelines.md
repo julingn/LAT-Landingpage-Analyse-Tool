@@ -23,6 +23,7 @@
 | `docs/known-issues-and-solutions.md` | Problem/Ursache/Lösung-Log |
 | `docs/roadmap.md` | Lebende Roadmap (Abgeschlossen / In Arbeit / Geplant / Backlog) |
 | `docs/development-checklist.md` | Checkliste vor/nach jeder Änderung |
+| `docs/agent-registry.md` | Spezifikation zur Vereinheitlichung aller KI-Prompts als Agenten |
 | `Documents/LAT-Design-System.md` | **Source of Truth** für Design-Tokens (Farben, Typo, Spacing, Shadows) |
 | `Documents/MUST_READ.md` | Betriebswissen: API-Regeln, Proxy-Muster, Daten-Flow, Bug-Historie |
 | `Documents/ROADMAP.md` | Historisches Feature-Roadmap-Archiv (Detailhistorie) |

@@ -24,7 +24,7 @@
 
 | Titel | Ziel | Status | Offene Punkte |
 |---|---|---|---|
-| — | — | — | — |
+| Agent-Registry vereinheitlichen | Alle 9 KI-Prompts als konfigurierbare Agenten | Spezifikation fertig (`docs/agent-registry.md`) | Schritt 2–5 offen; Code-Refactor braucht lokale JS/PHP-Validierung (aktuell weder `node` noch `php` lokal) oder Railway-Preview |
 
 ## Geplant / To-do
 
@@ -33,6 +33,7 @@
 | Phase C — Monolith entflechten | `app/index.php` (~6060 Z.) ist schwer wartbar; CSS/JS nicht cachebar | high | Struktur/Performance | CSS (Z. 29–846) → `app/assets/lat.css`, JS (Z. 1993–6313) → `app/assets/lat.js`, `?v=<hash>`-Cache-Busting; in kleinen, verifizierbaren Schritten mit Smoke-Test |
 | Phase D — Lint-Gate | Syntaxfehler vor Deploy abfangen | high | QS | `php -l` über Proxies + `node --check` auf ausgelagertes JS als Pre-Deploy-Check |
 | `app/synthesis.php` (Cross-Modul-KI-Synthese) | Roadmap 3.2 offen; aktuell nur Interim in Exec-Summary | medium | Analyse | Eigener LLM-Call mit strukturiertem Gesamt-Input oder als „verworfen" dokumentieren |
+| Agent-Registry vereinheitlichen | Aktuell nur `AGENTS.sqeg` registriert; 8 weitere Prompts (YMYL, Exec-Summary, PV L1–L3, UX-Vision, Synonyme, OCR) sind inline hardcodiert. Eine zentrale Registry macht Prompts editierbar, testbar und wiederverwendbar | medium | KI/Architektur | **Spezifikation fertig** (`docs/agent-registry.md`). Offen: Frontend-Registry erweitern (ymyl, execSummary), Multi-Agent-Modal, Prompts nach `app/prompts/` zentralisieren, `runAgent()`. **Refactor mit App-Risiko → schrittweise mit Smoke-Test** |
 | Gewichteter Gesamtscore | Übergreifender Score aus gewichteten Modul-Scores | low | Analyse | Gewichtungsschema definieren, Score-Hero erweitern |
 
 ## Später / Backlog
