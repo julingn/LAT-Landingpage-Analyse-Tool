@@ -5128,6 +5128,8 @@ function pvRenderResults(d){
       '</div>';
   }
   // 0. DWD-Karte wurde in Banner verschoben — kein Card-Eintrag mehr
+  // Micro-CTA-Daten vorab laden (wird in secDefs.forEach verwendet)
+  const mCtAs=Array.isArray(d.ctaStrategy?.microCtas)?d.ctaStrategy.microCtas:[];
   // 1. Meta
   cards.push(card(
     '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="15" x2="12" y2="15"/></svg>',
@@ -5317,7 +5319,7 @@ function pvRenderResults(d){
   const cta=d.ctaStrategy||{};
   const prim=cta.primaryConversion||{};
   const sec2=cta.secondaryConversion||{};
-  const mCtAs=Array.isArray(cta.microCtas)?cta.microCtas:[];
+  // mCtAs bereits oben definiert
   const ctaHtml=`<div class="pv-card"><div class="pv-card-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>CTA-Strategie</div>`+
     `<button class="pv-copy-btn" id="pv-copy-ctaStrategy" onclick="pvCopySection('ctaStrategy')">${CI} Kopieren</button>`+
     `<div class="pv-cta-strategy">`+
