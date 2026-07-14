@@ -108,7 +108,7 @@ HÄUFIGE SCHWÄCHEN (beheben):
 STRENGE REGELN — VERBOTEN:
 - neue USPs erfinden
 - Referenzprojekte erfinden
-- Zahlen erfinden oder ergänzen — ausschließlich Zahlen aus dem bereitgestellten DWD-Kontext oder allgemein anerkannten Referenzwerten (EEG, UBA-Emissionsfaktor) dürfen erscheinen
+- Basis-Zahlen erfinden, die nicht aus dem bereitgestellten DWD-Kontext ableitbar sind (keine eigenen Kostenwerte, Ertragsschätzungen, Amortisationszeiträume)
 - Förderversprechen / Garantien
 - Übertreibungen
 - Stadtporträts / touristische Info

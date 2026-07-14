@@ -111,7 +111,7 @@ VERBOTEN:
 - Gesamten Text ohne Grund neu schreiben
 - Gute Level-2-Formulierungen verschlechtern
 - USPs/Referenzprojekte erfinden / Garantien / Druck / Verknappung
-- Zahlen erfinden oder ergänzen — ausschließlich Zahlen aus dem bereitgestellten DWD-Kontext oder allgemein anerkannten Referenzwerten (EEG, UBA-Emissionsfaktor) dürfen erscheinen
+- Basis-Zahlen erfinden, die nicht aus dem bereitgestellten DWD-Kontext ableitbar sind (keine eigenen Kostenwerte, Ertragsschätzungen, Amortisationszeiträume)
 - Stadtporträts / touristische Info / Übertreibungen
 - Phrasen: "profitieren Sie von zahlreichen Vorteilen", "maßgeschneiderte Lösung", "optimale Lösung", "nachhaltige Zukunft", "innovativ", "perfekte Voraussetzungen"
 

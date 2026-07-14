@@ -314,14 +314,14 @@ Erzeuge ein "placementMap"-Array mit 11 Einträgen (order 1–11).
 Jeder Eintrag beschreibt genau ein Seitenmodul: order, module, visualType, contentNeeded, generatedFields, recommendation.
 Die recommendation ist ein konkreter Einbauhinweis (1–2 Sätze).
 
-ZAHLEN-GRUNDSATZ (strikt — höchste Priorität):
-Im gesamten Output dürfen AUSSCHLIESSLICH Zahlen verwendet werden, die explizit im Kontext-Block bereitgestellt wurden (DWD-Messwerte, EEG-Vergütungssatz, UBA-Emissionsfaktor).
-Keine eigenen Schätzungen, Richtwerte, Kostenangaben oder Ertragsberechnungen ergänzen — auch nicht als "typisch" oder "ungefähr" deklariert.
-Wenn keine verifizierten Zahlen für eine Aussage vorliegen, qualitative Formulierung wählen (z.B. "abhängig von Dachfläche, Ausrichtung und Verbrauch").
+ZAHLEN-GRUNDSATZ (höchste Priorität):
+Im Output dürfen NUR Zahlen verwendet werden, die entweder (a) explizit im Kontext-Block bereitgestellt wurden (DWD-Messwerte, EEG-Vergütungssatz, UBA-Emissionsfaktor) oder (b) direkt aus diesen Werten berechnet werden (z.B. prozentuale Abweichung vom DE-Klimanormal anhand der gelieferten Werte).
+Keine Basis-Zahlen erfinden, die nicht aus dem Kontext-Block ableitbar sind: keine eigenen Kostenwerte, Ertragsschätzungen, Amortisationszeiträume oder willkürlichen Vergleichswerte.
+Wenn keine verifizierten Zahlen für eine Aussage vorliegen, qualitative Formulierung wählen (z.B. „abhängig von Dachfläche, Ausrichtung und Verbrauch“).
 
 SCHREIBREGELN (strikt):
 VERBOTEN:
-- jegliche selbst erfundene Zahlen: kWh-Werte, Prozentwerte, Kostenschätzungen, Ertragsangaben, Amortisationszeiträume — außer sie wurden explizit im Kontext-Block bereitgestellt
+- Basis-Zahlen erfinden, die nicht aus dem Kontext-Block ableitbar sind: eigene Kostenwerte, Ertragsschätzungen, Amortisationszeiträume
 - erfundene Referenzprojekte
 - Einstrahlungswerte, die nicht aus dem bereitgestellten DWD-Kontext stammen
 - lange Stadtbeschreibungen, Tourismus-Content
