@@ -5603,7 +5603,10 @@ document.getElementById('pv-city').addEventListener('blur',async e=>{
 });
 
 async function pvResolvePLZ(plz){
-  if(pvDwdData?.geocoded){const m=pvDwdData.geocoded.match(/^([^,]+)/);if(m)return m[1].trim();}
+  // pvDwdData nur nutzen wenn es zur aktuellen PLZ/Stadt gehört
+  if(pvDwdData?.geocoded && (pvDwdData.location===plz || pvDwdData.geocoded.toLowerCase().startsWith(plz.toLowerCase()))){
+    const m=pvDwdData.geocoded.match(/^([^,]+)/);if(m)return m[1].trim();
+  }
   try{
     const r=await fetch(`https://api.zippopotam.us/de/${plz}`);
     if(!r.ok)return null;
