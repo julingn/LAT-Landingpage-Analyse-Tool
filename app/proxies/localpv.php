@@ -250,16 +250,21 @@ if (is_array($dwdSolarData) && !empty($dwdSolarData['irradiance_kWhm2_year'])) {
     $irr = (int)$dwdSolarData['irradiance_kWhm2_year'];
     $sun = (int)($dwdSolarData['sunshine_hours_year'] ?? 0);
     $est = !empty($dwdSolarData['estimated']);
-    $irrNote = $est ? 'regionaltypischer Schätzwert' : 'gemessener DWD-Wert';
-    $solarPotentialDesc = "80–150 Wörter — VERWENDE die folgenden Messwerte konkret im Text: "
-        . "Globalstrahlung {$irr} kWh/m²/Jahr ({$irrNote})"
+    $irrNote    = $est ? 'regionaltypischer Schätzwert' : 'gemessener DWD-Wert';
+    $deIrrComp  = (int)(($dwdSolarData['germany_avg']['irradiance_kWhm2_year'] ?? 0));
+    $deCompNote = $deIrrComp > 0
+        ? " Vergleich Deutschland-Durchschnitt: {$deIrrComp} kWh/m²/Jahr (DWD-Klimanormal)."
+        : '';
+    $solarPotentialDesc = "80–150 Wörter — VERWENDE AUSSCHLIESSLICH die folgenden verifizierten Messwerte, füge KEINE eigenen Zahlen hinzu: "
+        . "Globalstrahlung Standort {$irr} kWh/m²/Jahr ({$irrNote})"
         . ($sun > 0 ? ", Sonnenstunden {$sun} h/Jahr" : "")
-        . ". Erkläre was diese Zahlen für eine Dachanlage in dieser Region bedeuten "
-        . "(z.B. Vergleich mit deutschlandweitem Schnitt ~1.000–1.200 kWh/m², typische Anlage 10 kWp). "
-        . "Kein Tourismus-Content, kein erfundener Amortisationszeitraum.";
+        . $deCompNote
+        . " Erkläre was diese Zahlen für eine Dachanlage in dieser Region bedeuten."
+        . " Keine eigenen Zahlenwerte ergänzen. Kein Tourismus-Content.";
 } else {
-    $solarPotentialDesc = "80–150 Wörter — erklärt was der Nutzer in der Grafik erfährt, "
-        . "warum das Solarpotenzial in dieser Region relevant ist, ohne erfundene Einstrahlungswerte";
+    $solarPotentialDesc = "80–150 Wörter — erklärt was der Nutzer in der Grafik erfährt "
+        . "und warum das Solarpotenzial in dieser Region relevant ist. "
+        . "Keine eigenen Einstrahlungswerte oder Ertragsschätzungen erfinden.";
 }
 
 // ── Prompts ──────────────────────────────────────────────────────────────
@@ -309,18 +314,24 @@ Erzeuge ein "placementMap"-Array mit 11 Einträgen (order 1–11).
 Jeder Eintrag beschreibt genau ein Seitenmodul: order, module, visualType, contentNeeded, generatedFields, recommendation.
 Die recommendation ist ein konkreter Einbauhinweis (1–2 Sätze).
 
+ZAHLEN-GRUNDSATZ (strikt — höchste Priorität):
+Im gesamten Output dürfen AUSSCHLIESSLICH Zahlen verwendet werden, die explizit im Kontext-Block bereitgestellt wurden (DWD-Messwerte, EEG-Vergütungssatz, UBA-Emissionsfaktor).
+Keine eigenen Schätzungen, Richtwerte, Kostenangaben oder Ertragsberechnungen ergänzen — auch nicht als "typisch" oder "ungefähr" deklariert.
+Wenn keine verifizierten Zahlen für eine Aussage vorliegen, qualitative Formulierung wählen (z.B. "abhängig von Dachfläche, Ausrichtung und Verbrauch").
+
 SCHREIBREGELN (strikt):
 VERBOTEN:
-- erfundene Referenzprojekte, konkrete erfundene Zahlen
-- erfundene Einstrahlungswerte (ausgenommen: explizit als DWD-Messwerte gelieferte Werte — diese sind echte Daten und DÜRFEN verwendet werden)
+- jegliche selbst erfundene Zahlen: kWh-Werte, Prozentwerte, Kostenschätzungen, Ertragsangaben, Amortisationszeiträume — außer sie wurden explizit im Kontext-Block bereitgestellt
+- erfundene Referenzprojekte
+- Einstrahlungswerte, die nicht aus dem bereitgestellten DWD-Kontext stammen
 - lange Stadtbeschreibungen, Tourismus-Content
 - Floskeln wie "die Stadt hat sich entwickelt", generische KI-Phrasen
-- Renditeversprechen oder konkrete Amortisationszeiträume ohne Datenbasis
+- Renditeversprechen
 
 ERLAUBT UND ERWÜNSCHT:
-- konkrete Aussagen zu Dachflächen, Eigenverbrauch, Stromkosten, typischen Gebäudetypen
+- qualitative Aussagen zu Dachflächen, Eigenverbrauch, Ausrichtung, Gebäudetypen — ohne eigene Zahlenwerte
 - lokale Einbindung mit Stadtname/PLZ (natürlich, kein Keyword-Stuffing)
-- realistische Aussagen ohne exakte erfundene Zahlen
+- Zahlen NUR aus dem bereitgestellten Kontext-Block verwenden
 - sachliche, direkt nutzbare Texte ohne Nachbearbeitung
 
 QUALITÄTSZIEL:
@@ -708,7 +719,7 @@ if (is_array($dwdSolarData) && !empty($dwdSolarData['irradiance_kWhm2_year'])) {
             'klimanormal'      => $deKN  ?: null,
         ],
         'calculations' => $calcs,
-        'note' => 'Alle Werte in diesem Tab wurden vom Backend anhand echter DWD-Messdaten berechnet — unabhängig vom KI-Modell. Zahlen im generierten Text ohne explizite Quellenangabe können vom KI-Modell stammen und sollten separat geprüft werden.',
+        'note' => 'Alle in diesem Tab dargestellten Werte wurden vom Backend auf Basis verifizierter DWD-Messdaten berechnet. Zahlen im generierten Content stammen ausschließlich aus diesen Messwerten oder allgemein anerkannten Referenzwerten (EEG 2024, UBA-Emissionsfaktor 2024) — keine KI-generierten Zahlenwerte.',
     ];
 }
 

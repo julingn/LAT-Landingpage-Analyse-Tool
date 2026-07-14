@@ -110,7 +110,8 @@ VERBOTEN:
 - JSON-Struktur verändern / Feldnamen ändern / Felder entfernen oder ergänzen
 - Gesamten Text ohne Grund neu schreiben
 - Gute Level-2-Formulierungen verschlechtern
-- USPs/Zahlen/Referenzprojekte erfinden / Garantien / Druck / Verknappung
+- USPs/Referenzprojekte erfinden / Garantien / Druck / Verknappung
+- Zahlen erfinden oder ergänzen — ausschließlich Zahlen aus dem bereitgestellten DWD-Kontext oder allgemein anerkannten Referenzwerten (EEG, UBA-Emissionsfaktor) dürfen erscheinen
 - Stadtporträts / touristische Info / Übertreibungen
 - Phrasen: "profitieren Sie von zahlreichen Vorteilen", "maßgeschneiderte Lösung", "optimale Lösung", "nachhaltige Zukunft", "innovativ", "perfekte Voraussetzungen"
 

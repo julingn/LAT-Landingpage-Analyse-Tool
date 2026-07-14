@@ -373,6 +373,98 @@ Jede Section-Karte zeigt:
 
 ---
 
+## Phase 7.4 — PV-Generator: PLZ → Stadtname-Auflösung für Keyword-Vorschläge ❌
+
+> **Problem:** Gibt der Nutzer eine PLZ wie `61440` ein, generiert `pvSuggestKeywords()` nur Keywords mit der PLZ (z.B. „Photovoltaik 61440") — die praktisch null Suchvolumen haben. Der Stadtname „Oberursel" wird nie berücksichtigt.  
+> **Erwartung:** Das Tool soll PLZs automatisch in Stadtnamen auflösen und Keywords mit dem echten Ortsnamen prüfen und vorschlagen.
+
+### Lösungsarchitektur
+
+| Schritt | Umsetzung |
+|---|---|
+| PLZ-Erkennung | Regex `^\d{5}$` im Frontend vor dem Keyword-Suggest-Call |
+| Auflösung Quelle 1 | DWD-Response: `pvDwdData.station?.name` wird beim Generieren ohnehin abgerufen — Stadtname ggf. daraus ableiten |
+| Auflösung Quelle 2 | `zippopotam.us/de/{PLZ}` (kostenlose, CORS-freie REST-API) → `places[0].place name` |
+| Auflösung Quelle 3 | Fallback: eigenes PHP-Endpoint oder `openplzapi.org` (deutsche PLZ-Datenbank) |
+| Integration | Erkannter Stadtname wird in `pv-city-resolved`-Hinweis unter dem Eingabefeld angezeigt und in `pvSuggestKeywords()` für die Keyword-Kombinationen verwendet |
+
+### Keyword-Generierung nach Auflösung
+
+**Vorher (PLZ):**  
+→ „Photovoltaik 61440" (0 Suchvolumen), „PV Anlage 61440" (0 Suchvolumen)
+
+**Nachher (PLZ + aufgelöster Stadtname):**  
+→ „Photovoltaik Oberursel" · „PV Anlage Oberursel" · „Solaranlage Oberursel" · „Photovoltaik 61440" (als Ergänzung, mit Hinweis)
+
+### UI-Ergänzungen
+
+- Unter dem Stadtfeld: kleiner Hinweis `→ Erkannter Ort: Oberursel (Taunus)` wenn PLZ aufgelöst
+- `pvGenerate()` nutzt den aufgelösten Stadtnamen intern als `resolvedCity` im Body (zusätzlich zu `cityOrPostalCode`)
+- Backend `localpv.php`: `resolvedCity` im Prompt verwenden wenn vorhanden (konkreterer Stadtname statt PLZ)
+- Keyword-Vorschläge: Kombinationen mit `{Produkt} {resolvedCity}` priorisiert, PLZ-Kombis als Zusatz
+
+### Betroffene Dateien
+
+| Datei | Änderung |
+|---|---|
+| `app/index.php` | PLZ-Erkennung + Auflösungs-Call + UI-Hinweis + `pvSuggestKeywords()` anpassen |
+| `app/proxies/localpv.php` | `resolvedCity`-Feld im Prompt-Context verarbeiten |
+
+---
+
+## Phase 7.5 — PV-Generator: „Conversion optimieren" direkt auf Rohfassung ❌
+
+> **Problem:** Der Conversion-Pass (Level 3) setzt aktuell voraus, dass Level 2 („Content schärfen") bereits durchgeführt wurde — `pvConvert()` prüft `pvVersions.sharpened` und tut nichts wenn null.  
+> **Erwartung:** „Conversion optimieren" soll auch direkt auf der Rohfassung (Level 1) funktionieren — der Nutzer soll nicht erst schärfen müssen.
+
+### Aktueller Zustand
+
+```
+Raw → [Content schärfen] → [Conversion optimieren]   ← Conversion blockiert wenn kein sharpened
+```
+
+### Ziel-Zustand
+
+```
+Raw → [Content schärfen] → [Conversion optimieren]   ← weiterhin möglich
+Raw →                      [Conversion optimieren]   ← NEU: auch direkt
+```
+
+### Umsetzung
+
+| Was | Wie |
+|---|---|
+| `pvConvert()` | Basis-JSON: `pvVersions.sharpened ?? pvVersions.raw` statt `pvVersions.sharpened` — falls kein sharpened vorhanden, Raw als Input |
+| Version-Switcher | „Conversion optimiert"-Button auch aktiv wenn nur `pvVersions.raw` vorhanden (nicht erst nach Level 2) |
+| Version-Label | Wenn Conversion direkt auf Raw basiert: Pill-Label z.B. „Conversion (auf Rohfassung)" statt „Conversion optimiert" — damit Nutzer die Basis kennt |
+| `pvConvert()` Guard | Statt `if(!pvVersions.sharpened)return;` → `if(!pvVersions.raw)return;` |
+
+### Betroffene Dateien
+
+| Datei | Änderung |
+|---|---|
+| `app/index.php` | `pvConvert()` Guard + Basis-JSON + Version-Label-Logik + Button-Aktivierung |
+
+---
+
+## Phase 7.6 — PV-Generator: Placement Map Tab entfernen ❌
+
+> **Begründung:** Der Content-Tab zeigt alle Kacheln bereits in LP-Reihenfolge (Meta → Hero → Intro → Solarpotenzial → Kennzahlen → Prozess → Referenzen → Kundenstimmen → FAQ → Formular). Jede Kachel hat zudem einen inline Placement-Hinweis (`.pv-placement-badge`). Die separate Placement Map ist damit redundant.
+
+### Umsetzung
+
+| Was | Wie |
+|---|---|
+| Tab-Button entfernen | `<button onclick="pvSwitchTab('placement',this)">Placement Map</button>` löschen |
+| Tab-Panel entfernen | `<div id="pv-tab-placement">` + Inhalt löschen |
+| Render-Code entfernen | `// ── Tab 2: Placement Map ──`-Block in `pvRenderResults()` löschen |
+| Prompt-Feld entfernen | `placementMap`-Feld aus dem User-Prompt in `localpv.php` und `localpvrefine.php` entfernen → Tokens sparen, kürzere Generierungszeit |
+| CSS bereinigen | `.pv-placement-*`-Klassen entfernen |
+
+> **Hinweis:** `placement`-Felder auf einzelnen Section-Karten (`.pv-placement-badge`) können bleiben — die sind nützlich und gehören zu den Content-Karten.
+
+---
+
 ## Phase 8 — Content Finder: Vollständige Seitenanalyse nach Begriffen ✅ (09.–10.07.2026)
 
 > **Ziel:** Eigenständiges Tool (keine URL-Analyse) — sucht eine oder mehrere Seiten vollständig nach definierten Begriffen, inkl. JS-Rendering und Bild-OCR.  
