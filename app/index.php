@@ -577,7 +577,7 @@ button{font-family:inherit}
 .page-preview-footer{font-size:11px;color:var(--text3);padding:6px 12px;background:var(--bg3);border-top:1px solid var(--border);display:flex;align-items:center;gap:6px}
 @media(max-width:900px){.module-grid{grid-template-columns:1fr 1fr}}
 /* ── Local PV Generator ──────────────────────────────────────────────── */
-.pv-input-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.pv-input-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;align-items:end}
 .pv-input-grid .full{grid-column:1/-1}
 .pv-generate-btn{display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;font-family:inherit;margin-top:16px}
 .pv-generate-btn:hover{background:var(--accent2)}
