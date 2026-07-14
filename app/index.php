@@ -749,6 +749,10 @@ button{font-family:inherit}
 .pv-micro-cta-item{display:flex;align-items:center;gap:8px;padding:5px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:4px}
 .pv-micro-cta-placement{font-size:10px;color:var(--text3);min-width:120px;flex-shrink:0}
 .pv-micro-cta-text{font-size:12px;color:var(--text)}
+.pv-micro-cta-inline{display:flex;align-items:center;gap:8px;margin-top:12px;padding:8px 12px;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:var(--radius-sm)}
+.pv-micro-cta-inline-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--accent);flex-shrink:0}
+.pv-micro-cta-inline-text{font-size:12px;font-weight:600;color:var(--accent);flex:1}
+.pv-micro-cta-inline .pv-copy-btn{margin-left:auto;flex-shrink:0}
 /* ── Placement Map ── */
 .pv-placement-map{display:flex;flex-direction:column;gap:8px;margin-top:4px}
 .pv-placement-item{display:flex;gap:12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;position:relative}
@@ -5170,6 +5174,18 @@ function pvRenderResults(d){
     {k:'formIntro',        l:'Formular / Backup-CTA',     i:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>',
      h:[{c:'gsc',l:'GSC · CTR-Optimierung',d:'Niedrige CTR trotz guter Position deutet auf schwache CTAs hin.'}]},
   ];
+  // Micro-CTA-Lookup: placement-Text → sectionKey
+  const microCtaBySection = {};
+  mCtAs.forEach(mc => {
+    const p = (mc.placement||'').toLowerCase();
+    if      (p.includes('solar'))    microCtaBySection['solarPotential']       = mc.text;
+    else if (p.includes('kennzahl')) microCtaBySection['statisticsExplanation']= mc.text;
+    else if (p.includes('referenz')) microCtaBySection['projectsIntro']        = mc.text;
+    else if (p.includes('kunden'))   microCtaBySection['testimonialsIntro']    = mc.text;
+    else if (p.includes('prozess'))  microCtaBySection['processIntro']         = mc.text;
+    else if (p.includes('faq'))      microCtaBySection['faqIntro']             = mc.text;
+    else if (p.includes('intro'))    microCtaBySection['intro']                = mc.text;
+  });
   secDefs.forEach(s=>{
     const sObj=sec[s.k]||{};
     const sItems=typeof sObj==='object'&&Array.isArray(sObj.items)?sObj.items:null;
@@ -5227,7 +5243,10 @@ function pvRenderResults(d){
             ? dwdActiveHint()
             : '<div class="pv-data-hint"><span class="pv-data-hint-label" style="color:var(--amber)">DWD:</span><span class="pv-data-source-tag" style="background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)" title="DWD-Datenabruf fehlgeschlagen">nicht verfügbar (Schätzung aktiv)</span></div>'
               + smartHint(s.h||[]))
-        : smartHint(s.h||[]))
+        : smartHint(s.h||[]))+
+      (microCtaBySection[s.k]
+        ? `<div class="pv-micro-cta-inline"><span class="pv-micro-cta-inline-label">Micro-CTA</span><span class="pv-micro-cta-inline-text">${escHtml(microCtaBySection[s.k])}</span><button class="pv-copy-btn" onclick="pvCopySectionText(${JSON.stringify(microCtaBySection[s.k])},this)">${CI} Kopieren</button></div>`
+        : '')
     ));
   });
   // 11. FAQ
@@ -5308,8 +5327,9 @@ function pvRenderResults(d){
     `<div class="pv-cta-block"><div class="pv-cta-block-label secondary">Sekundär → ${escHtml(sec2.element||'Formular')}</div>`+
     (Array.isArray(sec2.ctaExamples)?sec2.ctaExamples.map(t=>`<div class="pv-cta-example" title="Kopieren" onclick="pvCopySectionText(${JSON.stringify(t)},this)">${escHtml(t)}</div>`).join(''):'')+
     `</div></div>`+
-    (mCtAs.length?`<div class="pv-micro-ctas"><div class="pv-micro-cta-label">Micro-CTAs (Zwischenabschnitte)</div>`+
+    (mCtAs.length?`<div class="pv-micro-ctas"><div class="pv-micro-cta-label">Micro-CTAs — Übersicht</div>`+
       mCtAs.map(mc=>`<div class="pv-micro-cta-item"><span class="pv-micro-cta-placement">${escHtml(mc.placement||'')}</span><span class="pv-micro-cta-text">${escHtml(mc.text||'')}</span></div>`).join('')+
+      `<div style="font-size:10px;color:var(--text3);margin-top:6px">Button-Texte stehen direkt im jeweiligen Content-Block.</div>`+
       `</div>`:'')+
     `</div>`;
 
