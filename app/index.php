@@ -653,6 +653,8 @@ button{font-family:inherit}
 .pv-dwd-inline-vals strong{color:var(--accent);font-weight:700}
 #pv-kw-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;padding:10px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm)}
 .pv-kw-pill{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:5px 11px;background:var(--bg3);border:1px solid var(--border2);border-radius:999px;cursor:pointer;font-family:inherit;transition:background .12s,border-color .12s;text-align:left}
+.pv-kw-pill.gsc{background:var(--accent-bg);border-color:var(--accent-border)}
+.pv-kw-group-label{width:100%;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);padding:6px 2px 2px;margin-top:2px}
 .pv-kw-pill:hover{background:var(--accent-bg);border-color:var(--accent-border)}
 .pv-kw-pill.selected{background:var(--accent-bg);border-color:var(--accent)}
 .pv-kw-pill-text{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap}
@@ -1410,12 +1412,6 @@ button{font-family:inherit}
         <div class="settings-field" style="margin-top:0">
           <label class="settings-label" for="pv-url">Bestehende Landingpage-URL <span style="color:var(--text3);font-weight:400">(optional)</span></label>
           <input type="url" id="pv-url" class="settings-input" placeholder="https://example.com/pv/darmstadt" autocomplete="off">
-        </div>
-      </div>
-      <div class="full">
-        <div class="settings-field" style="margin-top:0">
-          <label class="settings-label" for="pv-template">Seitentyp / Template <span style="color:var(--text3);font-weight:400">(optional)</span></label>
-          <input type="text" id="pv-template" class="settings-input" placeholder="z.B. Stadtlandingpage, PLZ-Seite, Produktseite" autocomplete="off" spellcheck="false">
         </div>
       </div>
     </div>
@@ -4685,10 +4681,17 @@ async function pvSuggestKeywords(){
     const data=await res.json();
     if(!res.ok||data.error) throw new Error(data.error||`HTTP ${res.status}`);
     const kws=(data.keywords||[]).filter(k=>k.keyword);
-    if(!kws.length){
+    if(!kws.length && !gscData?.keywords?.length){
       pills.innerHTML='<span class="pv-kw-pill-no-data" style="font-size:12px">Keine Daten gefunden \u2014 DataForSEO API verf\u00fcgbar?</span>';
     } else {
-      pills.innerHTML=kws.map(k=>{
+      let gscHtml='';
+      if(gscData?.keywords?.length){
+        const gscKws=gscData.keywords.slice(0,8);
+        gscHtml=`<div class="pv-kw-group-label">GSC \u00b7 Echte Suchanfragen (90 Tage)</div>`+
+          gscKws.map(k=>`<button class="pv-kw-pill gsc" data-kw="${escHtml(k.query)}" onclick="pvSelectKeyword(this.dataset.kw,this)"><span class="pv-kw-pill-text">${escHtml(k.query)}</span><span class="pv-kw-pill-vol">${k.clicks}\u202fKlicks\u202f\u00b7\u202fPos.\u202f${k.position}</span></button>`).join('');
+        if(kws.length) gscHtml+=`<div class="pv-kw-group-label" style="margin-top:8px">DataForSEO \u00b7 Keyword-Varianten</div>`;
+      }
+      pills.innerHTML=gscHtml+kws.map(k=>{
         const vol=k.search_volume!=null ? k.search_volume.toLocaleString('de-DE')+'\u202f/\u202fMo.' : 'k.\u00a0A.';
         const ci=k.competition_index!=null ? ` \u00b7 Wettbewerb\u202f${k.competition_index}%` : '';
         return `<button class="pv-kw-pill" data-kw="${escHtml(k.keyword)}" onclick="pvSelectKeyword(this.dataset.kw,this)"><span class="pv-kw-pill-text">${escHtml(k.keyword)}</span><span class="pv-kw-pill-vol">${vol}${ci}</span></button>`;
@@ -4891,7 +4894,7 @@ async function pvGenerate(){
     primaryKeyword:   keyword || (product ? `${product} ${city}` : ''),
     product:          product,
     landingPageUrl:   url,
-    templateType:     template,
+    templateType:     undefined,
     csrf_token:       CSRF_TOKEN,
     dwdSolarData:     pvDwdData,
   };

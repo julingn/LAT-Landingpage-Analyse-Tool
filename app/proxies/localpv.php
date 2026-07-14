@@ -157,7 +157,7 @@ pvSseEvent(json_encode(['status' => 'starting']));
 $cityOrPostalCode = trim($body['cityOrPostalCode'] ?? '');
 $primaryKeyword   = trim($body['primaryKeyword']   ?? '');
 $landingPageUrl   = trim($body['landingPageUrl']   ?? '');
-$templateType     = trim($body['templateType']     ?? '');
+$templateType = ''; // Feld entfernt
 
 // Optionale Datenquellen-Kontexte
 $gscContext        = $body['gscContext']       ?? null; // GSC-Daten: queries, clicks, impressions, ctr, position
