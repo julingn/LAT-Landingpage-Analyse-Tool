@@ -32,6 +32,36 @@
 
 ## Geplant / To-do
 
+### 🎯 Fokus morgen (15.07.2026) — PV Generator: Echtdaten-Integration fertigstellen
+
+**Ziel:** Der PV Generator soll auch **standalone** (ohne vorherige URL-Analyse) mit echten
+Marktdaten arbeiten. Feste Domain für alle domainbezogenen Abfragen: **`https://www.mvv.de`**
+(das Tool wird ausschließlich für mvv.de genutzt).
+
+**Ausgangslage (Audit 14.07.2026):**
+- ✅ DWD (Globalstrahlung/Sonnenstunden) wird pro Stadt frisch geholt und fließt in die Generierung.
+- ⚠️ DataForSEO-Suchvolumen wird von `pvSuggestKeywords()` bereits standalone geholt, landet aber
+  **nur in den Vorschlags-Pills**, nicht in der Generierung.
+- ❌ GSC/Sistrix-Kontext kommt nur aus `gscData`/`sistrixData` einer vorherigen URL-Analyse → standalone leer.
+
+**Aufgaben:**
+1. **DataForSEO-Suchvolumen in die Generierung einspeisen** (high) — beim Generieren Ortskeywords +
+   Suchvolumen/Wettbewerb als `dataforseoContext` mitschicken; wenn keine Vorschläge geklickt wurden,
+   `keyword_volume` automatisch holen. Dateien: `app/index.php` (`pvGenerate()`), `app/proxies/localpv.php` (Kontext nutzen).
+2. **Prompt nutzt die Daten aktiv** (high) — `app/prompts/pv.php`: Keyword-Priorisierung, H1/Meta und
+   Sections am realen Suchvolumen ausrichten (kein erfundenes Volumen).
+3. **Transparenz „Datengrundlagen"-Tab** (medium) — anzeigen, welche echten Quellen tatsächlich verwendet
+   wurden (DWD/DataForSEO/GSC/Sistrix), inkl. „nicht verfügbar".
+4. **Sistrix/GSC standalone für `www.mvv.de`** (medium) — da das Tool ausschließlich für **mvv.de** genutzt
+   wird: Sichtbarkeit/Ranking-Keywords (Sistrix) + GSC-Daten direkt für `https://www.mvv.de` abrufen
+   (feste Domain, keine URL-Analyse nötig). `pvGenerate()` ruft `sistrix.php`/`gsc.php` mit fixer Domain und
+   füttert `sistrixContext`/`gscContext`.
+
+**Einschränkung:** Nicht lokal testbar (kein `curl` / keine API-Keys lokal). Struktur lokal via
+`php -l` / JS-Parse / HTML validieren; echte Datenprüfung am Railway-Deploy mit konfigurierten Credentials.
+
+---
+
 | Idee / Aufgabe | Warum relevant? | Priorität | Bereich | Möglicher nächster Schritt |
 |---|---|---|---|---|
 | Phase C — Monolith entflechten | `app/index.php` (~6060 Z.) ist schwer wartbar; CSS/JS nicht cachebar | high | Struktur/Performance | CSS (Z. 29–846) → `app/assets/lat.css`, JS (Z. 1993–6313) → `app/assets/lat.js`, `?v=<hash>`-Cache-Busting; in kleinen, verifizierbaren Schritten mit Smoke-Test |
