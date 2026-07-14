@@ -71,25 +71,31 @@ git checkout -b feature/v3-modular-structure
 ```
 - Railway: Preview-Deploy eingerichtet ✅ (08.06.2026)
 
-### Schritt 2.2 — Neue Dateistruktur anlegen ✅
+### Schritt 2.2 — Neue Dateistruktur anlegen ⚠️ (teilweise umgesetzt)
+
+> **Realität (Stand 14.07.2026):** Nur die **Proxy-Verschiebung** nach `app/proxies/` +
+> Thin-Include-Shims in `app/` wurde umgesetzt. Die geplante **Extraktion der Module**
+> (`modules/sqeg.php`, `technical.php`, …) sowie `synthesis.php`, `storage.php` und die
+> Reduktion von `index.php` auf eine schlanke UI-Shell sind **nicht** erfolgt — `index.php`
+> ist weiterhin ein ~6060-Zeilen-Monolith. Siehe „Phase C — Monolith entflechten" (offen).
+
+**Tatsächlich umgesetzt:**
 ```
 app/
-├── modules/
-│   ├── sqeg.php        ← aus index.php extrahiert
-│   ├── technical.php   ← aus index.php extrahiert
-│   ├── performance.php ← aus index.php extrahiert
-│   ├── geo.php         ← aus Phase 1 übernommen
-│   └── keywords.php    ← neu (Phase 3)
-├── proxies/
-│   ├── api.php         ← verschoben
-│   ├── dataforseo.php  ← verschoben
-│   ├── sistrix.php     ← verschoben
-│   ├── gsc.php         ← verschoben
-│   └── pagespeed.php   ← verschoben
-├── synthesis.php       ← NEU: LLM-Synthese über alle Module
-├── storage.php         ← NEU: Analyse-Ergebnisse speichern/laden
-├── index.php           ← UI-Shell (stark reduziert, ~500 Zeilen)
+├── proxies/            ← ✅ alle API-Proxies hierher verschoben
+│   ├── api.php · dataforseo.php · sistrix.php · gsc.php · pagespeed.php · …
+├── api.php … (14×)     ← ✅ Thin-Include-Shims (require_once proxies/…)
+├── index.php           ← ❌ NICHT reduziert (weiterhin ~6060 Zeilen)
 └── config.php          ← unverändert
+```
+
+**Geplant, aber offen:**
+```
+app/
+├── modules/            ← ❌ nie erstellt (Ordner existiert nicht mehr)
+│   └── sqeg.php · technical.php · performance.php · geo.php · keywords.php
+├── synthesis.php       ← ❌ nie erstellt (siehe Phase 3.2)
+└── storage.php         ← ❌ nie erstellt
 ```
 
 ### Schritt 2.3 — `router.php` anpassen ✅
@@ -373,7 +379,9 @@ Jede Section-Karte zeigt:
 
 ---
 
-## Phase 7.4 — PV-Generator: PLZ → Stadtname-Auflösung für Keyword-Vorschläge ❌
+## Phase 7.4 — PV-Generator: PLZ → Stadtname-Auflösung für Keyword-Vorschläge ✅
+
+> **Umgesetzt (14.07.2026, `72dc7f0`):** `pvResolvePLZ()` + `pvResolvedCity`, `resolvedCity` im POST-Body, UI-Hinweis `#pv-city-resolved`.
 
 > **Problem:** Gibt der Nutzer eine PLZ wie `61440` ein, generiert `pvSuggestKeywords()` nur Keywords mit der PLZ (z.B. „Photovoltaik 61440") — die praktisch null Suchvolumen haben. Der Stadtname „Oberursel" wird nie berücksichtigt.  
 > **Erwartung:** Das Tool soll PLZs automatisch in Stadtnamen auflösen und Keywords mit dem echten Ortsnamen prüfen und vorschlagen.
@@ -412,7 +420,9 @@ Jede Section-Karte zeigt:
 
 ---
 
-## Phase 7.5 — PV-Generator: „Conversion optimieren" direkt auf Rohfassung ❌
+## Phase 7.5 — PV-Generator: „Conversion optimieren" direkt auf Rohfassung ✅
+
+> **Umgesetzt (14.07.2026, `72dc7f0`):** `pvConvert()` nutzt `pvVersions.sharpened ?? pvVersions.raw` als Basis.
 
 > **Problem:** Der Conversion-Pass (Level 3) setzt aktuell voraus, dass Level 2 („Content schärfen") bereits durchgeführt wurde — `pvConvert()` prüft `pvVersions.sharpened` und tut nichts wenn null.  
 > **Erwartung:** „Conversion optimieren" soll auch direkt auf der Rohfassung (Level 1) funktionieren — der Nutzer soll nicht erst schärfen müssen.
@@ -447,7 +457,9 @@ Raw →                      [Conversion optimieren]   ← NEU: auch direkt
 
 ---
 
-## Phase 7.6 — PV-Generator: Placement Map Tab entfernen ❌
+## Phase 7.6 — PV-Generator: Placement Map Tab entfernen ✅
+
+> **Umgesetzt (14.07.2026, `72dc7f0`):** Placement-Map-Tab + Render-Block entfernt (keine `pv-tab-placement`-Referenzen mehr).
 
 > **Begründung:** Der Content-Tab zeigt alle Kacheln bereits in LP-Reihenfolge (Meta → Hero → Intro → Solarpotenzial → Kennzahlen → Prozess → Referenzen → Kundenstimmen → FAQ → Formular). Jede Kachel hat zudem einen inline Placement-Hinweis (`.pv-placement-badge`). Die separate Placement Map ist damit redundant.
 

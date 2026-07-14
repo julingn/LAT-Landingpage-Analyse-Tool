@@ -12,8 +12,8 @@
 | **Repo** | https://github.com/julingn/LAT-Landingpage-Analyse-Tool |
 | **Branch** | `main` → auto-deploy Railway |
 | **Stack** | PHP 8.3 CLI Alpine, kein Framework |
-| **Kern** | `app/index.php` (~3200 Zeilen — PHP + HTML + CSS + JS) |
-| **Letzter Deploy** | `9997e1c` — Content Finder Tooltips (10.07.2026) |
+| **Kern** | `app/index.php` (~6060 Zeilen — Monolith: CSS ~820 + HTML ~1150 + JS ~4320) |
+| **Letzter Deploy** | `9c09638` — Phase A Repo-Hygiene (14.07.2026) |
 
 ---
 
@@ -71,7 +71,7 @@ Alle API-Calls laufen serverseitig — der Browser sieht nie einen API-Key.
 ## Daten-Flow in `app/index.php`
 
 ```js
-// 1. Globale Variablen (Zeile ~1209)
+// 1. Globale Variablen (Suchanker: `let gscData=null`)
 let gscData=null, serpData=null, backlinkData=null, psiData=null, sistrixData=null, geoData=null, kwData=null;
 
 // 2. Reset bei jedem Start (startAnalysis + startDemo)
@@ -145,7 +145,7 @@ Beim Hinzufügen eines neuen Moduls müssen **immer** alle 4 Reset-Stellen aktua
 1. Reset-Array in `startAnalysis()` (`['sqeg-results','perf-results',...]`)
 2. Reset-Array in `startDemo()` (identisch)
 3. `renderResults()` — Aktivierungs-Block für das neue Modul
-4. `VIEW_META` Objekt (Zeile ~1271)
+4. `VIEW_META` Objekt (Suchanker: `const VIEW_META={`)
 
 ---
 
@@ -162,6 +162,14 @@ Beim Hinzufügen eines neuen Moduls müssen **immer** alle 4 Reset-Stellen aktua
 - **⚠ NIEMALS PowerShell für Datei-Writes nutzen wenn `replace_string_in_file` reicht** — PowerShell-Writes (WriteAllLines, WriteAllText mit falschem Encoding) führen zu BOM + CRLF + versehentlichen Code-Duplikaten/Löschungen. `replace_string_in_file` ändert nichts am Encoding.
 - **⚠ Duplikat-Code nach `return` in Funktion**: PowerShell-Writes können Code-Blöcke duplizieren. Ein `const X` das zweimal in derselben Funktion deklariert wird, erzeugt einen JavaScript SyntaxError → der gesamte `<script>`-Block wird nicht ausgeführt → Sidebar und alle JS-Funktionen broken (13.07.2026, `pvWidgetConfigHtml`).
 - **⚠ Beim Löschen von Duplikat-Blöcken**: Immer prüfen ob die Grenzen korrekt sind. Das "Duplikat" kann echte Funktionen enthalten die danach definiert sind (`pvFootnoteHtml` war Teil des Duplikat-Blocks und wurde mitgelöscht).
+
+### PV-Generator spezifische Bugs (14.07.2026)
+
+- **`pv-template` getElementById nach Feld-Entfernung**: Wenn ein Input-Feld aus dem HTML entfernt wird, müssen ALLE JS-Referenzen darauf mitentfernt werden. `null.value` wirft einen stillen `TypeError` → `pvGenerate()` bricht ab ohne Fehlermeldung. Symptom: Klick auf „Bausteine generieren" tut nichts. Fix: `3ee9661`
+- **`pvResolvePLZ` Carryover**: `pvDwdData` ist ein globales Objekt das nach jedem Generate-Call gesetzt bleibt. `pvResolvePLZ()` darf `pvDwdData.geocoded` nur nutzen wenn `pvDwdData.location === plz` — sonst wird die Stadt des letzten Aufrufs (z.B. Darmstadt) für eine neue PLZ (61440) zurückgegeben. Fix: `019ec39`
+- **`mCtAs` vor Initialisierung in `pvRenderResults()`**: `microCtaBySection`-Lookup wird in `secDefs.forEach()` gebaut, referenziert `mCtAs` — das aber erst im `ctaHtml`-Block weiter unten mit `const mCtAs = ...` definiert ist (`let` würde TDZ-Error geben). Fix: `mCtAs` am Anfang von `pvRenderResults()` aus `d.ctaStrategy?.microCtas` lesen, vor `secDefs`. Commit: `76b05ac`
+- **Sonnenstunden-Widget verschwindet bei DWD-Schätzung**: `pvWidgetConfigHtml()` gibt `''` zurück wenn `monthly_avg_sunshine_hours` fehlt. Der DWD-Fallback `dwdEstimateSolarByLat()` lieferte keine Monatswerte. Fix: Fallback berechnet Monatswerte aus Jahreswert × Klimanormal-Saisonprofil; Amber-Banner bei Schätzung. Commits: `c9d6fe3`, `5d9983b`
+- **Kopieren-Button Feedback zu subtil**: `.pv-copy-btn.copied` nutzte `background: var(--green-bg)` (hellmintgrün `#F0FDF4` im Light Mode) — kaum sichtbar. Fix: Solid-Green (`background: var(--green); color: #fff`), `transition: 0.15s`, Timeout 2.5s, `execCommand`-Fallback. Commit: `881d7c2`
 
 ---
 
