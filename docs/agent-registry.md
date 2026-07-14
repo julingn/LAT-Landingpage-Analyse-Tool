@@ -5,7 +5,7 @@
 > Implementierung. Sie ermöglicht, den späteren Code-Refactor risikoarm und schrittweise
 > umzusetzen (siehe „Migrationsplan").
 >
-> **Status:** Spezifikation vollständig · Schritt 2+3 umgesetzt (3 Frontend-Agenten registriert & im Tool editierbar) · Schritt 4–5 offen: Backend-Prompts (PV/UX/CF) nach `app/prompts/` + Override-Read in den Proxies (siehe `docs/roadmap.md`).
+> **Status:** Spezifikation vollständig · Schritt 2+3 umgesetzt (3 Frontend-Agenten registriert & im Tool editierbar) · Schritt 4 für PV-Agenten umgesetzt (Backend-Override + `app/prompts/`) · offen: UX + Content-Finder editierbar, `runAgent()` (siehe `docs/roadmap.md`).
 
 ## Ausgangslage
 

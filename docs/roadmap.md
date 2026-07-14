@@ -15,6 +15,7 @@
 | 2026-07-14 | Agent-Registry Schritt 2 | `ymyl` + `execSummary` in `AGENTS`-Registry aufgenommen, Call-Sites auf `getPrompt()` umgestellt (Verhalten unverändert, Smoke-getestet) | KI/index.php | — |
 | 2026-07-14 | Agent-Registry Schritt 3 | Zentrale „KI-Agenten"-Verwaltung (alle registrierten Agenten editierbar/persistent); 3-Ebenen-Verdrahtung synchronisiert | KI/index.php + settings_save.php | `947c45c` |
 | 2026-07-14 | KI-Agenten als eigener View | „KI-Agenten" aus den Einstellungen in einen eigenen Sidebar-Punkt unter „System" verschoben (`#view-agents`, `data-view="agents"`) | KI/index.php | — |
+| 2026-07-14 | PV-Generator-Agenten (L1–L3) | Prompts nach `app/prompts/` ausgelagert (Single Source); Proxies lesen Override aus `settings.json`; `pv`/`pvrefine`/`pvconvert` in Registry & im Tool editierbar | KI/PV/index.php + 3 Proxies | — |
 | 2026-07-14 | Governance-Dokumentation | `docs/`-Ordner mit Projektleitlinien, Designsystem-Nutzung, Component Inventory, Known-Issues, Roadmap, Checklist | Doku/Governance | — |
 | 2026-07-14 | Phase B — Doku-Abgleich | MUST_READ (Zeilenzahl/Anker), ROADMAP (Status 2.2 / 7.4–7.6) mit Realität abgeglichen | Doku | `48488b2` |
 | 2026-07-14 | Phase A — Repo-Hygiene | Legacy-Tool, Junk-Screenshots, redundante `.env.example`, leeres `modules/` entfernt; großes PDF untracked; README als schlanker Einstieg | Repo/Struktur | `9c09638` |
@@ -27,7 +28,7 @@
 
 | Titel | Ziel | Status | Offene Punkte |
 |---|---|---|---|
-| Agent-Registry vereinheitlichen | Alle 9 KI-Prompts als konfigurierbare Agenten | Schritt 2+3 umgesetzt (3 Frontend-Agenten registriert & im Tool editierbar) | Schritt 4–5 offen: Backend-Prompts (PV/UX/CF) nach `app/prompts/` + Override-Read in den Proxies, `runAgent()` |
+| Agent-Registry vereinheitlichen | Alle 9 KI-Prompts als konfigurierbare Agenten | SQEG + PV editierbar (6 Agenten registriert) | Offen: UX-Vision + Content-Finder (Synonyme/OCR) nach `app/prompts/` + Override-Read; optional `runAgent()` |
 
 ## Geplant / To-do
 

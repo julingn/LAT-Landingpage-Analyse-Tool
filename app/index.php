@@ -18,6 +18,11 @@ $_agentPrompts = [
     'pvrefine'    => $_sfData['agent_prompt_pvrefine']    ?? '',
     'pvconvert'   => $_sfData['agent_prompt_pvconvert']   ?? '',
 ];
+$_agentDefaults = [
+    'pv'        => require __DIR__ . '/prompts/pv.php',
+    'pvrefine'  => require __DIR__ . '/prompts/pvrefine.php',
+    'pvconvert' => require __DIR__ . '/prompts/pvconvert.php',
+];
 ?><!DOCTYPE html>
 <html lang="de">
 <head>
@@ -2017,6 +2022,7 @@ button{font-family:inherit}
 <script>
 const CSRF_TOKEN = '<?= htmlspecialchars($csrfToken, ENT_QUOTES) ?>';
 const AGENT_CUSTOM_PROMPTS = <?= json_encode($_agentPrompts, JSON_UNESCAPED_UNICODE) ?>;
+const AGENT_DEFAULT_PROMPTS = <?= json_encode($_agentDefaults, JSON_UNESCAPED_UNICODE) ?>;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
 // ── Agent Registry ────────────────────────────────────────────────────────
@@ -2077,6 +2083,36 @@ Global-Regeln:
     lastOutput: null,
     getPrompt(){ return AGENT_CUSTOM_PROMPTS.execSummary || this.defaultPrompt; },
     hasCustom(){ return !!AGENT_CUSTOM_PROMPTS.execSummary; }
+  },
+  pv: {
+    id: 'pv',
+    name: 'PV-Generator · L1 Bausteine',
+    description: 'Erzeugt die modularen SEO-/CRO-Content-Bausteine (Rohfassung) für lokale Photovoltaik-Landingpages.',
+    defaultPrompt: AGENT_DEFAULT_PROMPTS.pv,
+    status: 'idle',
+    lastOutput: null,
+    getPrompt(){ return AGENT_CUSTOM_PROMPTS.pv || this.defaultPrompt; },
+    hasCustom(){ return !!AGENT_CUSTOM_PROMPTS.pv; }
+  },
+  pvrefine: {
+    id: 'pvrefine',
+    name: 'PV-Generator · L2 Schärfen',
+    description: 'Schärft die generierten PV-Bausteine — konkreter, stärker lokal und nutzenorientiert.',
+    defaultPrompt: AGENT_DEFAULT_PROMPTS.pvrefine,
+    status: 'idle',
+    lastOutput: null,
+    getPrompt(){ return AGENT_CUSTOM_PROMPTS.pvrefine || this.defaultPrompt; },
+    hasCustom(){ return !!AGENT_CUSTOM_PROMPTS.pvrefine; }
+  },
+  pvconvert: {
+    id: 'pvconvert',
+    name: 'PV-Generator · L3 Conversion',
+    description: 'Optimiert die PV-Bausteine selektiv auf Conversion (CTA/FAQ) — nur bei echten Schwächen.',
+    defaultPrompt: AGENT_DEFAULT_PROMPTS.pvconvert,
+    status: 'idle',
+    lastOutput: null,
+    getPrompt(){ return AGENT_CUSTOM_PROMPTS.pvconvert || this.defaultPrompt; },
+    hasCustom(){ return !!AGENT_CUSTOM_PROMPTS.pvconvert; }
   }
 };
 
