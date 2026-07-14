@@ -147,8 +147,8 @@ if ($action === 'save_sistrix') {
 
 if ($action === 'save_agent_prompt') {
     // Only allow known agent IDs (whitelist)
-    $allowedAgents = ['sqeg', 'ux', 'pv', 'pvrefine', 'pvconvert'];
-    $agentId = preg_replace('/[^a-z_]/', '', trim($_POST['agent_id'] ?? ''));
+    $allowedAgents = ['sqeg', 'ymyl', 'execSummary', 'ux', 'pv', 'pvrefine', 'pvconvert'];
+    $agentId = preg_replace('/[^a-zA-Z_]/', '', trim($_POST['agent_id'] ?? ''));
     if (!in_array($agentId, $allowedAgents, true)) {
         http_response_code(422);
         echo json_encode(['error' => 'Unbekannte Agenten-ID.']);

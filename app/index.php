@@ -10,11 +10,13 @@ session_write_close(); // Session-Lock sofort freigeben (Proxies brauchen Zugrif
 $_sfPath = __DIR__ . '/settings.json';
 $_sfData = file_exists($_sfPath) ? (json_decode(file_get_contents($_sfPath), true) ?? []) : [];
 $_agentPrompts = [
-    'sqeg'       => $_sfData['agent_prompt_sqeg']       ?? '',
-    'ux'         => $_sfData['agent_prompt_ux']         ?? '',
-    'pv'         => $_sfData['agent_prompt_pv']         ?? '',
-    'pvrefine'   => $_sfData['agent_prompt_pvrefine']   ?? '',
-    'pvconvert'  => $_sfData['agent_prompt_pvconvert']  ?? '',
+    'sqeg'        => $_sfData['agent_prompt_sqeg']        ?? '',
+    'ymyl'        => $_sfData['agent_prompt_ymyl']        ?? '',
+    'execSummary' => $_sfData['agent_prompt_execSummary'] ?? '',
+    'ux'          => $_sfData['agent_prompt_ux']          ?? '',
+    'pv'          => $_sfData['agent_prompt_pv']          ?? '',
+    'pvrefine'    => $_sfData['agent_prompt_pvrefine']    ?? '',
+    'pvconvert'   => $_sfData['agent_prompt_pvconvert']   ?? '',
 ];
 ?><!DOCTYPE html>
 <html lang="de">
@@ -1972,6 +1974,12 @@ button{font-family:inherit}
     </div>
     <div style="height:1px;background:var(--border);margin:24px 0"></div>
     <div class="settings-section">
+      <div class="settings-section-title">KI-Agenten</div>
+      <div class="settings-section-desc">System-Prompts der einzelnen KI-Agenten anzeigen und anpassen. Leeres Feld beim Speichern = Standard-Prompt.</div>
+      <div id="agent-mgmt-list" style="margin-top:14px;display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+    <div style="height:1px;background:var(--border);margin:24px 0"></div>
+    <div class="settings-section">
       <div class="settings-section-title">Entwickler-Optionen</div>
       <div class="settings-section-desc">Optionen für Design-Tests und Entwicklung.</div>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:14px">
@@ -2111,6 +2119,7 @@ async function saveAgentPrompt(){
       // Update custom chip visibility
       const chip = document.getElementById('agent-custom-chip-' + agent.id);
       if(chip) chip.style.display = AGENT_CUSTOM_PROMPTS[agent.id] ? 'inline-flex' : 'none';
+      renderAgentMgmtList();
       const msg = document.getElementById('agent-modal-save-msg');
       if(msg){ msg.style.display='inline'; setTimeout(()=>msg.style.display='none', 2500); }
     } else {
@@ -2126,6 +2135,23 @@ Object.keys(AGENTS).forEach(id=>{
   const chip = document.getElementById('agent-custom-chip-' + id);
   if(chip && AGENT_CUSTOM_PROMPTS[id]) chip.style.display = 'inline-flex';
 });
+
+// Zentrale Agenten-Verwaltung (Einstellungen → KI-Agenten)
+function renderAgentMgmtList(){
+  const el = document.getElementById('agent-mgmt-list');
+  if(!el) return;
+  el.innerHTML = Object.values(AGENTS).map(a=>{
+    const custom = a.hasCustom();
+    return `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius)">
+      <div style="min-width:0">
+        <div style="font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px">${escHtml(a.name)}${custom?' <span class="agent-custom-chip" style="display:inline-flex">angepasst</span>':''}</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px">${escHtml(a.description)}</div>
+      </div>
+      <button class="btn-secondary btn-sm" onclick="openAgentModal('${a.id}')" style="flex-shrink:0">Bearbeiten</button>
+    </div>`;
+  }).join('');
+}
+renderAgentMgmtList();
 
 // === VIEW TITLES ===
 const VIEW_META={

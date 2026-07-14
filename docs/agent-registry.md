@@ -5,7 +5,7 @@
 > Implementierung. Sie ermöglicht, den späteren Code-Refactor risikoarm und schrittweise
 > umzusetzen (siehe „Migrationsplan").
 >
-> **Status:** Spezifikation vollständig · Schritt 2 umgesetzt (3 Frontend-Agenten registriert) · Schritt 3–5 offen (siehe `docs/roadmap.md`).
+> **Status:** Spezifikation vollständig · Schritt 2+3 umgesetzt (3 Frontend-Agenten registriert & im Tool editierbar) · Schritt 4–5 offen: Backend-Prompts (PV/UX/CF) nach `app/prompts/` + Override-Read in den Proxies (siehe `docs/roadmap.md`).
 
 ## Ausgangslage
 
@@ -74,8 +74,12 @@ Ziel: **eine** Quelle statt Prompts verstreut in JS + PHP.
 2. **Frontend-Registry erweitern:** `ymyl` und `execSummary` als Agenten registriert
    (defaultPrompt = exakt bisherige Strings), Call-Sites auf `AGENTS.<id>.getPrompt()` umgestellt.
    Muster wie `sqeg`. → ✅ umgesetzt & Smoke-getestet (14.07.2026). Jetzt 3 Frontend-Agenten registriert.
-3. **Multi-Agent-Modal:** bestehendes Agent-Modal von 1 auf N Agenten ausbauen
-   (Liste, Editieren, Zurücksetzen, Custom-Prompt speichern).
+3. **Multi-Agent-Modal:** bestehendes Agent-Modal von 1 auf N Agenten ausgebaut — zentrale
+   „KI-Agenten"-Sektion in den Einstellungen listet alle registrierten Agenten mit „Bearbeiten"
+   (öffnet das Modal), Speichern (persistiert in `settings.json`) und Reset-auf-Default.
+   → ✅ umgesetzt für die 3 Frontend-Agenten (14.07.2026). 3-Ebenen-Verdrahtung synchronisiert
+   (`$_agentPrompts`-Injection + `settings_save.php`-Whitelist + `AGENTS`-Registry; Regex erlaubt
+   nun Großbuchstaben für `execSummary`).
 4. **Prompts zentralisieren:** Backend-Prompts (PV L1–L3, UX, Synonyme, OCR) nach `app/prompts/`
    auslagern; Proxies lesen von dort. Verhalten unverändert.
 5. **Optionaler `runAgent()`-Runner** + einheitliche Fehler-/Timeout-Behandlung.

@@ -25,7 +25,7 @@
 
 | Titel | Ziel | Status | Offene Punkte |
 |---|---|---|---|
-| Agent-Registry vereinheitlichen | Alle 9 KI-Prompts als konfigurierbare Agenten | Schritt 2 umgesetzt (`ymyl`+`execSummary` registriert, Smoke-getestet) | Schritt 3–5 offen: Multi-Agent-Modal, Backend-Prompts nach `app/prompts/` zentralisieren, `runAgent()` |
+| Agent-Registry vereinheitlichen | Alle 9 KI-Prompts als konfigurierbare Agenten | Schritt 2+3 umgesetzt (3 Frontend-Agenten registriert & im Tool editierbar) | Schritt 4–5 offen: Backend-Prompts (PV/UX/CF) nach `app/prompts/` + Override-Read in den Proxies, `runAgent()` |
 
 ## Geplant / To-do
 

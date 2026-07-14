@@ -247,7 +247,10 @@ JS `showView(id)`.
 
 **Props/Konfiguration:** Overlay abdunkeln; `--shadow-lg`; Schließen via `.agent-modal-close`.
 
-**Verwendung:** Agent-/Prompt-Detailansicht.
+**Verwendung:** Agent-/Prompt-Detailansicht · zentrale „KI-Agenten"-Verwaltung (Einstellungen).
+
+**Hinweise:** Die „KI-Agenten"-Sektion in den Einstellungen (`#agent-mgmt-list`, JS `renderAgentMgmtList()`)
+listet alle registrierten Agenten aus `AGENTS` und öffnet je Zeile dieses Modal via `openAgentModal(id)`.
 
 **Status:** aktiv
 
