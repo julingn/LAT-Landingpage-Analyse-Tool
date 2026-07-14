@@ -1,5 +1,8 @@
 # LAT v3 — Roadmap: Modulare Analyse-Plattform
 
+> **Hinweis:** Dies ist das **historische Feature-Archiv**. Die **aktive, lebende Roadmap**
+> (Abgeschlossen / In Arbeit / Geplant / Backlog) liegt in `docs/roadmap.md`.
+
 **Erstellt:** 05. Juni 2026  
 **Basis:** Konzept-Session vom 05.06.2026 (PAGE360-Diskussion)  
 **Ziel:** LAT entwickelt sich vom Single-File-SQEG-Analyzer zur vollständigen 6-Modul-Analyseplattform für einzelne URLs/Landingpages.

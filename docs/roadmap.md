@@ -1,0 +1,43 @@
+# Roadmap — LAT (lebende Übersicht)
+
+> **Aktive Roadmap** für Projektstand & nächste Schritte. Die **historische Detailhistorie**
+> aller bereits umgesetzten Features liegt in `Documents/ROADMAP.md` (Archiv).
+>
+> **Regel:** Nach jedem abgeschlossenen Schritt aktualisieren. Umgesetztes wandert von
+> „Geplant / To-do" oder „In Arbeit" nach „Abgeschlossen". Neue Ideen gehen nicht verloren,
+> sondern werden als „Geplant / To-do" oder „Später / Backlog" festgehalten. Neue
+> Designsystem-Komponenten/Muster werden hier ebenfalls vermerkt.
+
+## Abgeschlossen
+
+| Datum | Titel | Beschreibung | Bereich | Ref |
+|---|---|---|---|---|
+| 2026-07-14 | Governance-Dokumentation | `docs/`-Ordner mit Projektleitlinien, Designsystem-Nutzung, Component Inventory, Known-Issues, Roadmap, Checklist | Doku/Governance | — |
+| 2026-07-14 | Phase B — Doku-Abgleich | MUST_READ (Zeilenzahl/Anker), ROADMAP (Status 2.2 / 7.4–7.6) mit Realität abgeglichen | Doku | `48488b2` |
+| 2026-07-14 | Phase A — Repo-Hygiene | Legacy-Tool, Junk-Screenshots, redundante `.env.example`, leeres `modules/` entfernt; großes PDF untracked; README als schlanker Einstieg | Repo/Struktur | `9c09638` |
+| 2026-07-14 | PV 7.4/7.5/7.6 | PLZ→Stadt-Auflösung, Conversion auf Rohfassung, Placement-Map-Tab entfernt | PV-Generator | `72dc7f0` |
+| 2026-07-10 | Content Finder | Standalone-Tool (Puppeteer, OCR, Synonyme, BFS-Crawl) | Tools | `9997e1c` |
+
+> Ältere Einträge: siehe `Documents/ROADMAP.md`.
+
+## In Arbeit
+
+| Titel | Ziel | Status | Offene Punkte |
+|---|---|---|---|
+| — | — | — | — |
+
+## Geplant / To-do
+
+| Idee / Aufgabe | Warum relevant? | Priorität | Bereich | Möglicher nächster Schritt |
+|---|---|---|---|---|
+| Phase C — Monolith entflechten | `app/index.php` (~6060 Z.) ist schwer wartbar; CSS/JS nicht cachebar | high | Struktur/Performance | CSS (Z. 29–846) → `app/assets/lat.css`, JS (Z. 1993–6313) → `app/assets/lat.js`, `?v=<hash>`-Cache-Busting; in kleinen, verifizierbaren Schritten mit Smoke-Test |
+| Phase D — Lint-Gate | Syntaxfehler vor Deploy abfangen | high | QS | `php -l` über Proxies + `node --check` auf ausgelagertes JS als Pre-Deploy-Check |
+| `app/synthesis.php` (Cross-Modul-KI-Synthese) | Roadmap 3.2 offen; aktuell nur Interim in Exec-Summary | medium | Analyse | Eigener LLM-Call mit strukturiertem Gesamt-Input oder als „verworfen" dokumentieren |
+| Gewichteter Gesamtscore | Übergreifender Score aus gewichteten Modul-Scores | low | Analyse | Gewichtungsschema definieren, Score-Hero erweitern |
+
+## Später / Backlog
+
+| Idee | Notiz |
+|---|---|
+| Git-History-Slim (großes PDF) | Repo-Historie enthält weiterhin den 8,7 MB-Blob; echtes Verkleinern nur via History-Rewrite (`git filter-repo`/BFG) + Force-Push — destruktiv, nur auf ausdrückliche Anweisung |
+| Modul-Extraktion (`app/modules/`) | Ursprünglich in ROADMAP 2.2 geplant, nie umgesetzt; sinnvoll erst nach Phase C |

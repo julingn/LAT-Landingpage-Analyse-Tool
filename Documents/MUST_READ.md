@@ -2,6 +2,9 @@
 
 > **Pflege-Regel:** Nach jedem Deploy, der Design, Struktur, Roadmap oder kritischen Code betrifft,
 > müssen dieses Dokument UND `/memories/repo/must-read.md` aktualisiert werden.
+>
+> **Entwicklungs-Governance:** Vor jeder Weiterentwicklung gelten die Regeln in `docs/project-guidelines.md`
+> (Designsystem-Nutzung, Component Inventory, Checkliste, Known-Issues, Roadmap).
 
 ---
 

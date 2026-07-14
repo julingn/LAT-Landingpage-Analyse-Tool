@@ -24,6 +24,17 @@ Das vollständige Betriebs- und Entwicklerwissen (API-Key-Regeln, Proxy-Muster,
 View-Struktur, Daten-Flow, bekannte Bugs & Fixes) liegt in
 **[Documents/MUST_READ.md](Documents/MUST_READ.md)** — vor jeder Code-Änderung lesen.
 
+### Entwicklungs-Governance (verbindlich)
+
+Vor jeder Weiterentwicklung gelten die Projektleitlinien und die Designsystem-Regeln:
+
+- [docs/project-guidelines.md](docs/project-guidelines.md) – zentrale Entwicklungsregeln
+- [docs/design-system-usage.md](docs/design-system-usage.md) – verpflichtende Designsystem-Nutzung
+- [docs/component-inventory.md](docs/component-inventory.md) – wiederverwendbare UI-Komponenten
+- [docs/development-checklist.md](docs/development-checklist.md) – Checkliste vor/nach Änderungen
+- [docs/known-issues-and-solutions.md](docs/known-issues-and-solutions.md) – Problem/Lösung-Log
+- [docs/roadmap.md](docs/roadmap.md) – aktive Roadmap (Abgeschlossen / In Arbeit / Geplant / Backlog)
+
 Weitere Dokumente:
 
 - [Documents/ROADMAP.md](Documents/ROADMAP.md) – Feature-Roadmap & Umsetzungsstand
