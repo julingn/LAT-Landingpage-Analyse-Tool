@@ -1449,28 +1449,6 @@ button{font-family:inherit}
       </button>
       <div id="pv-save-confirm" style="display:none;font-size:11px;color:var(--green);margin-top:6px">✓ Im Archiv gespeichert.</div>
     </div>
-
-    <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px">
-      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:8px">Perspektivisch nutzbare Datenquellen</div>
-      <div class="pv-sources-row">
-        <div class="pv-source-badge">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 21l-4.35-4.35M11 19A8 8 0 1 1 19 11"/></svg>
-          Google Search Console
-        </div>
-        <div class="pv-source-badge">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-          Sistrix
-        </div>
-        <div class="pv-source-badge">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          DataForSEO
-        </div>
-        <div class="pv-source-badge">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-          DWD OpenData
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- Lade-Zustand -->
