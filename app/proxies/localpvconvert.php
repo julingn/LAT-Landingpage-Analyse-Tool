@@ -90,14 +90,14 @@ $_hbFnC   = function($r,$dlt,$dln,$ult,$uln) use (&$_lastHbC): int {
 };
 
 if ($provider === 'openai') {
-    $payload = ['model' => $model, 'max_tokens' => 8000, 'messages' => [
+    $payload = ['model' => $model, 'max_tokens' => 16000, 'messages' => [
         ['role' => 'system', 'content' => $systemPrompt],
         ['role' => 'user',   'content' => $userPrompt],
     ]];
     $ch = curl_init('https://api.openai.com/v1/chat/completions');
     curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER=>true,CURLOPT_POST=>true,CURLOPT_POSTFIELDS=>json_encode($payload),CURLOPT_TIMEOUT=>300,CURLOPT_NOPROGRESS=>false,CURLOPT_PROGRESSFUNCTION=>$_hbFnC,CURLOPT_HTTPHEADER=>['Content-Type: application/json','Authorization: Bearer '.$apiKey]]);
 } else {
-    $payload = ['model' => $model, 'max_tokens' => 8000, 'system' => $systemPrompt, 'messages' => [['role'=>'user','content'=>$userPrompt]]];
+    $payload = ['model' => $model, 'max_tokens' => 16000, 'system' => $systemPrompt, 'messages' => [['role'=>'user','content'=>$userPrompt]]];
     $ch = curl_init('https://api.anthropic.com/v1/messages');
     curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER=>true,CURLOPT_POST=>true,CURLOPT_POSTFIELDS=>json_encode($payload),CURLOPT_TIMEOUT=>300,CURLOPT_NOPROGRESS=>false,CURLOPT_PROGRESSFUNCTION=>$_hbFnC,CURLOPT_HTTPHEADER=>['Content-Type: application/json','x-api-key: '.$apiKey,'anthropic-version: 2023-06-01']]);
 }
@@ -116,6 +116,8 @@ if ($httpCode !== 200) {
 
 $data    = json_decode($response, true);
 $rawText = ($provider === 'openai') ? ($data['choices'][0]['message']['content']??'') : ($data['content'][0]['text']??'');
+$stopReason = ($provider === 'openai') ? ($data['choices'][0]['finish_reason'] ?? '') : ($data['stop_reason'] ?? '');
+$truncated  = in_array($stopReason, ['length', 'max_tokens'], true);
 
 $jsonStr = $rawText;
 if (preg_match('/```(?:json)?\s*([\s\S]*?)```/s', $jsonStr, $m)) { $jsonStr = $m[1]; }
@@ -127,7 +129,10 @@ if (!str_starts_with($jsonStr, '{')) {
 
 $result = json_decode($jsonStr, true);
 if (!is_array($result)) {
-    pvSseEventConvert(json_encode(['status'=>'error','type'=>'parse','message'=>'KI-Antwort konnte nicht als JSON geparst werden.','raw'=>substr($rawText,0,500)]));
+    $msg = $truncated
+        ? 'KI-Antwort wurde abgeschnitten (Token-Limit erreicht). Bitte erneut versuchen.'
+        : 'KI-Antwort konnte nicht als JSON geparst werden (' . json_last_error_msg() . ').';
+    pvSseEventConvert(json_encode(['status'=>'error','type'=>'parse','message'=>$msg,'stop_reason'=>$stopReason,'raw'=>substr($rawText,0,500)]));
     exit;
 }
 
