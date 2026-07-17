@@ -789,6 +789,18 @@ button{font-family:inherit}
 /* ── Section Placement Badge ── */
 .pv-placement-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:999px;color:var(--text3);margin-bottom:8px}
 @media(max-width:900px){.pv-benefits-grid,.pv-cta-strategy{grid-template-columns:1fr}}
+/* ── PV Visuelle Vorschau (Mockup) ── */
+.pv-preview-note{font-size:11px;color:var(--text3);margin:0 0 12px;display:flex;align-items:center;gap:6px;line-height:1.5}
+.pv-preview{border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);background:var(--bg2)}
+.pv-pv-hero{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:52px 40px;text-align:center}
+.pv-pv-eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:12px;font-weight:700;opacity:.9;margin-bottom:14px}
+.pv-pv-h1{font-family:'Manrope',sans-serif;font-size:clamp(24px,3.4vw,36px);font-weight:800;line-height:1.15;margin:0 auto 18px;max-width:640px}
+.pv-pv-lead{font-size:15px;line-height:1.6;opacity:.95;max-width:560px;margin:0 auto 24px}
+.pv-pv-usps{list-style:none;display:flex;flex-wrap:wrap;gap:10px 22px;justify-content:center;margin:0 auto 26px;max-width:620px;padding:0}
+.pv-pv-usps li{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600}
+.pv-pv-usps svg{flex-shrink:0;opacity:.95}
+.pv-pv-cta{background:var(--hero-gradient);color:#08312A;font-family:'Manrope',sans-serif;font-weight:700;font-size:15px;padding:14px 30px;border:none;border-radius:var(--radius);cursor:pointer;box-shadow:0 6px 18px rgba(30,208,92,.35);transition:filter .15s,transform .1s}
+.pv-pv-cta:hover{filter:brightness(1.05);transform:translateY(-1px)}
 /* ── PV Datengrundlagen & Archiv ── */
 .pv-data-section{margin-bottom:20px}
 .pv-data-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:6px}
@@ -1513,6 +1525,7 @@ button{font-family:inherit}
     </div>
     <div class="pv-tabs">
       <button class="pv-tab-btn active" onclick="pvSwitchTab('content',this)">Content</button>
+      <button class="pv-tab-btn" onclick="pvSwitchTab('preview',this)">Vorschau</button>
       <button class="pv-tab-btn" onclick="pvSwitchTab('checks',this)">SEO / CRO Checks</button>
       <button class="pv-tab-btn" onclick="pvSwitchTab('export',this)">Markdown Export</button>
       <button class="pv-tab-btn" id="pv-tab-btn-data" onclick="pvSwitchTab('data',this)" style="display:none">📊 Datengrundlagen</button>
@@ -1520,6 +1533,9 @@ button{font-family:inherit}
     </div>
     <div id="pv-tab-content" class="pv-tab-panel active" style="margin-bottom:48px">
       <div id="pv-results-list" style="margin-top:16px"></div>
+    </div>
+    <div id="pv-tab-preview" class="pv-tab-panel" style="margin-bottom:48px">
+      <div id="pv-preview-content" style="margin-top:16px"></div>
     </div>
     <div id="pv-tab-checks" class="pv-tab-panel" style="margin-bottom:48px">
       <div id="pv-checks-list" style="margin-top:16px"></div>
@@ -5476,6 +5492,31 @@ function pvRenderResults(d){
 
   // ── Tab 4: Markdown Export ──
   document.getElementById('pv-export-content').innerHTML=cards[15]||cards[cards.length-1]||'';
+
+  // ── Tab: Visuelle Vorschau (Mockup) ──
+  pvRenderPreview(d);
+}
+
+function pvRenderPreview(d){
+  const el=document.getElementById('pv-preview-content');
+  if(!el)return;
+  const h=d.hero||{};
+  const prim=(d.ctaStrategy&&d.ctaStrategy.primaryConversion)||{};
+  const ctaText=(Array.isArray(prim.ctaExamples)&&prim.ctaExamples[0])||'Jetzt Solarpotenzial berechnen';
+  const usps=Array.isArray(h.usps)?h.usps:[];
+  const check='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  el.innerHTML=
+    '<div class="pv-preview-note">Visuelle Vorschau — so könnten die generierten Inhalte auf der Landingpage wirken. (Schritt 1: Hero — weitere Sektionen folgen.)</div>'+
+    '<div class="pv-preview">'+
+      '<div class="pv-pv-hero">'+
+        (h.dachzeile?`<div class="pv-pv-eyebrow">${escHtml(h.dachzeile)}</div>`:'')+
+        `<h1 class="pv-pv-h1">${escHtml(h.h1||'–')}</h1>`+
+        (usps.length
+          ? `<ul class="pv-pv-usps">${usps.map(u=>`<li>${check}<span>${escHtml(u)}</span></li>`).join('')}</ul>`
+          : (h.absatz?`<p class="pv-pv-lead">${escHtml(h.absatz)}</p>`:''))+
+        `<button class="pv-pv-cta" type="button">${escHtml(ctaText)}</button>`+
+      '</div>'+
+    '</div>';
 }
 
 function pvChecklistHtml(items){
