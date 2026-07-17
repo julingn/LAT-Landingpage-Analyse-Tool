@@ -162,10 +162,10 @@ button{font-family:inherit}
   height:42px;padding:0 20px;background:var(--accent);color:#fff;
   border:none;border-radius:var(--radius);font-size:13px;font-weight:600;
   cursor:pointer;transition:all .15s;font-family:inherit;
-  box-shadow:0 1px 3px rgba(79,70,229,.3),0 0 0 1px rgba(79,70,229,.2);flex-shrink:0;
+  box-shadow:0 1px 3px rgba(0,73,236,.3),0 0 0 1px rgba(0,73,236,.2);flex-shrink:0;
   display:flex;align-items:center;gap:7px;white-space:nowrap;
 }
-.btn-start:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 4px 12px rgba(79,70,229,.35)}
+.btn-start:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,73,236,.35)}
 .btn-start:active{transform:translateY(0);box-shadow:var(--shadow-sm)}
 .btn-start:focus-visible{outline:3px solid var(--accent-border);outline-offset:2px}
 .btn-start:disabled{background:var(--bg4);color:var(--text3);box-shadow:none;transform:none;cursor:not-allowed}
@@ -291,12 +291,12 @@ button{font-family:inherit}
 [data-tip]:hover::after{opacity:1}
 /* === CREDENTIAL SOURCE BADGES === */
 .src-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;letter-spacing:.03em}
-.src-badge.env{background:#16a34a1a;color:#16a34a;border:1px solid #16a34a33}
+.src-badge.env{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
 .src-badge.json{background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-border)}
 .src-badge.none{background:var(--bg4);color:var(--text3);border:1px solid var(--border)}
 .cred-status-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--bg2)}
-.cred-status-chip.ok{background:#16a34a1a;border-color:#16a34a33;color:#16a34a}
-.cred-status-chip.warn{background:var(--amber-bg,#fef3c7);border-color:#f59e0b33;color:#b45309}
+.cred-status-chip.ok{background:var(--green-bg);border-color:var(--green-border);color:var(--green)}
+.cred-status-chip.warn{background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber)}
 .cred-status-chip.miss{background:var(--bg3);border-color:var(--border);color:var(--text3)}
 .api-test-name{font-size:13px;font-weight:600;color:var(--text)}
 .api-test-msg{font-size:11px;color:var(--text3);margin-top:2px;font-family:'Geist Mono','Courier New',monospace}
@@ -320,7 +320,7 @@ button{font-family:inherit}
   height:38px;padding:0 18px;background:var(--accent);color:#fff;
   border:none;border-radius:var(--radius);font-size:13px;font-weight:600;
   cursor:pointer;transition:all .15s;font-family:inherit;
-  box-shadow:0 1px 3px rgba(79,70,229,.25);
+  box-shadow:0 1px 3px rgba(0,73,236,.25);
 }
 .btn-save:hover{background:var(--accent2)}
 .success-msg{padding:8px 14px;background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius);color:var(--green);font-size:13px;margin-top:10px;display:none}
@@ -351,9 +351,9 @@ button{font-family:inherit}
 .score-hero-bar-wrap{width:100%;margin-bottom:10px}
 .score-hero-bar-bg{height:6px;background:var(--bg4);border-radius:999px;overflow:hidden}
 .score-hero-bar{height:100%;border-radius:999px;transition:width .6s cubic-bezier(.4,0,.2,1)}
-.score-hero-bar.green{background:linear-gradient(90deg,#16A34A,#4ADE80)}
-.score-hero-bar.amber{background:linear-gradient(90deg,#D97706,#FCD34D)}
-.score-hero-bar.red{background:linear-gradient(90deg,#DC2626,#F87171)}
+.score-hero-bar.green{background:linear-gradient(90deg,var(--green),var(--grass))}
+.score-hero-bar.amber{background:linear-gradient(90deg,var(--amber),#FBBF24)}
+.score-hero-bar.red{background:linear-gradient(90deg,var(--red),#FF5C79)}
 .score-hero-chips{display:flex;gap:8px;flex-wrap:wrap}
 .score-hero-interp{font-size:12px;color:var(--text2);line-height:1.4;margin:4px 0 8px}
 .score-chip{
@@ -3050,7 +3050,7 @@ async function enrichGscWithSerpFeatures(keywords){
       const features=d.results[kw];
       if(!features)return;
       let badges='';
-      if(features.ai_overview>0)badges+=`<span data-tip="AI Overview: Google zeigt für dieses Keyword eine KI-generierte Antwort über den organischen Ergebnissen" style="font-size:9px;background:#6c47ff22;color:#6c47ff;border:1px solid #6c47ff44;border-radius:3px;padding:1px 4px;font-weight:600">AI</span>`;
+      if(features.ai_overview>0)badges+=`<span data-tip="AI Overview: Google zeigt für dieses Keyword eine KI-generierte Antwort über den organischen Ergebnissen" style="font-size:9px;background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-border);border-radius:3px;padding:1px 4px;font-weight:600">AI</span>`;
       if(features.featured_snippet>0)badges+=`<span data-tip="Featured Snippet: Google zeigt einen hervorgehobenen Textauszug direkt in den Suchergebnissen" style="font-size:9px;background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-border);border-radius:3px;padding:1px 4px;font-weight:600">FS</span>`;
       if(features.knowledge_graph>0||features.knowledge_panel>0)badges+=`<span data-tip="Knowledge Graph: Google zeigt ein Informationspanel mit strukturierten Daten zu diesem Thema" style="font-size:9px;background:var(--bg4);color:var(--text3);border:1px solid var(--border);border-radius:3px;padding:1px 4px">KG</span>`;
       el.innerHTML=badges;
@@ -3350,7 +3350,7 @@ function renderRadarChart(sqeg, perf, geo){
     h+=`<path d="${toD(pts)}" fill="none" stroke="var(--border2)" stroke-width="${i===3?1.5:1}" ${dash} opacity="${i===3?0.8:0.5}"/>`;
     if(i<3){
       const lp=pt(-Math.PI/2,frac);
-      h+=`<text x="${(lp.x+4).toFixed(1)}" y="${(lp.y-3).toFixed(1)}" font-size="8" fill="var(--text3)" font-family="Inter,sans-serif">${frac*100}%</text>`;
+      h+=`<text x="${(lp.x+4).toFixed(1)}" y="${(lp.y-3).toFixed(1)}" font-size="8" fill="var(--text3)" font-family="Manrope,sans-serif">${frac*100}%</text>`;
     }
   });
   // Axis lines
@@ -3371,8 +3371,8 @@ function renderRadarChart(sqeg, perf, geo){
     const anchor=Math.abs(a.angle+Math.PI/2)<0.1?'middle':Math.cos(a.angle)>0.05?'start':'end';
     const scoreColor=a.score>=70?'var(--green)':a.score>=45?'var(--amber)':'var(--red)';
     const displayScore=a.score?a.score+'%':'–';
-    h+=`<text x="${lp.x.toFixed(1)}" y="${(lp.y-5).toFixed(1)}" font-size="11" font-weight="600" fill="var(--text)" text-anchor="${anchor}" font-family="Inter,sans-serif">${a.label}</text>`;
-    h+=`<text x="${lp.x.toFixed(1)}" y="${(lp.y+10).toFixed(1)}" font-size="12" font-weight="700" fill="${scoreColor}" text-anchor="${anchor}" font-family="Inter,sans-serif">${displayScore}</text>`;
+    h+=`<text x="${lp.x.toFixed(1)}" y="${(lp.y-5).toFixed(1)}" font-size="11" font-weight="600" fill="var(--text)" text-anchor="${anchor}" font-family="Manrope,sans-serif">${a.label}</text>`;
+    h+=`<text x="${lp.x.toFixed(1)}" y="${(lp.y+10).toFixed(1)}" font-size="12" font-weight="700" fill="${scoreColor}" text-anchor="${anchor}" font-family="Manrope,sans-serif">${displayScore}</text>`;
   });
   svg.innerHTML=h;
   card.style.display='block';
@@ -4107,7 +4107,7 @@ function renderTechnicalSeo(){
         +`<div class="cluster-card-donut"><svg width="96" height="96" viewBox="0 0 96 96">`
         +`<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="var(--bg4)" stroke-width="${SW}"/>`
         +`<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="${color}" stroke-width="${SW}" stroke-dasharray="${dash} ${circ.toFixed(1)}" stroke-linecap="round" transform="rotate(-90 ${CX} ${CY})"/>`
-        +`<text x="${CX}" y="${CY}" text-anchor="middle" dominant-baseline="central" font-size="18" font-weight="700" fill="${color}" font-family="Inter,sans-serif">${cscore}%</text>`
+        +`<text x="${CX}" y="${CY}" text-anchor="middle" dominant-baseline="central" font-size="18" font-weight="700" fill="${color}" font-family="Manrope,sans-serif">${cscore}%</text>`
         +`</svg></div>`
         +`<div class="cluster-card-info">`
         +`<div class="cluster-card-name">${escHtml(cl.name)}</div>`
@@ -4268,7 +4268,7 @@ function renderClusterOverview(){
       +`<div class="cluster-card-donut"><svg width="96" height="96" viewBox="0 0 96 96">`
       +`<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="var(--bg4)" stroke-width="${SW}"/>`
       +`<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="${color}" stroke-width="${SW}" stroke-dasharray="${dash} ${circ.toFixed(1)}" stroke-linecap="round" transform="rotate(-90 ${CX} ${CY})"/>`
-      +`<text x="${CX}" y="${CY}" text-anchor="middle" dominant-baseline="central" font-size="18" font-weight="700" fill="${color}" font-family="Inter,sans-serif">${score}%</text>`
+      +`<text x="${CX}" y="${CY}" text-anchor="middle" dominant-baseline="central" font-size="18" font-weight="700" fill="${color}" font-family="Manrope,sans-serif">${score}%</text>`
       +`</svg></div>`
       +`<div class="cluster-card-info">`
       +`<div class="cluster-card-name">${escHtml(cl.name)}</div>`
@@ -4358,7 +4358,7 @@ function exportHtml(){
   const hasLowestSignal=analysisResults.some(r=>getEffectiveWeight(r.id)>=4&&r.status==='red');
   const level=hasLowestSignal?'Lowest':scoreToLevel(score);
   const cluster5=analysisResults.filter(r=>r.id.startsWith('5.'));
-  const html=`<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><title>SQEG Analyse – ${escHtml(currentUrl)}</title><style>body{font-family:sans-serif;max-width:900px;margin:40px auto;padding:0 20px;color:#1a1917}h1{font-size:22px}h2{font-size:16px;margin:24px 0 8px;border-bottom:1px solid #e3e2df;padding-bottom:6px}table{width:100%;border-collapse:collapse;margin-bottom:16px}th,td{text-align:left;padding:10px 12px;border:1px solid #e3e2df;font-size:13px}th{background:#f8f7f5;font-weight:700}.green{color:#15803d}.amber{color:#b45309}.red{color:#dc2626}.suggest{background:#E8EFFD;padding:6px 10px;border-left:3px solid #0049EC;margin-top:4px;font-size:12px}@media print{body{margin:0}}</style></head><body><h1>SQEG Analyse: ${escHtml(currentUrl)}</h1><p>Score: ${Math.round(score)}% · PQ-Stufe: ${escHtml(level)} · YMYL: ${escHtml(ymylResult||'none')} · ${new Date().toLocaleDateString('de-DE')}</p><h2>42 Kriterien (1.1–8.4) · SQEG September 2025</h2><table><thead><tr><th>ID</th><th>Cluster</th><th>Kriterium</th><th>Status</th><th>Befund</th><th>Verbesserung</th></tr></thead><tbody>${analysisResults.map(r=>{const crit=CRITERIA.find(c=>c.id===r.id)||{cat:'',name:r.criterion||r.id};return`<tr><td>${escHtml(r.id)}</td><td>${escHtml(crit.cat)}</td><td>${escHtml(crit.name)}</td><td class="${r.status}">${r.status}</td><td>${escHtml(r.finding||'')}</td><td>${r.improvement?`<div class="suggest">${escHtml(r.improvement)}</div>`:''}</td></tr>`}).join('')}</tbody></table>${cluster5.length?`<h2>Cluster 5 — Schaden &amp; Täuschung (Kritische Signale)</h2><table><thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Befund</th></tr></thead><tbody>${cluster5.map(r=>{const crit=CRITERIA.find(c=>c.id===r.id)||{name:r.id};return`<tr><td>${escHtml(r.id)}</td><td>${escHtml(crit.name)}</td><td class="${r.status}">${r.status}</td><td>${escHtml(r.finding||'')}</td></tr>`}).join('')}</tbody></table>`:''}</body></html>`;
+  const html=`<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><title>SQEG Analyse – ${escHtml(currentUrl)}</title><style>body{font-family:'Manrope',system-ui,sans-serif;max-width:900px;margin:40px auto;padding:0 20px;color:#0F172A}h1{font-size:22px}h2{font-size:16px;margin:24px 0 8px;border-bottom:1px solid #E2E8F0;padding-bottom:6px}table{width:100%;border-collapse:collapse;margin-bottom:16px}th,td{text-align:left;padding:10px 12px;border:1px solid #E2E8F0;font-size:13px}th{background:#F1F5F9;font-weight:700}.green{color:#12A150}.amber{color:#D97706}.red{color:#E90C3C}.suggest{background:#E8EFFD;padding:6px 10px;border-left:3px solid #0049EC;margin-top:4px;font-size:12px}@media print{body{margin:0}}</style></head><body><h1>SQEG Analyse: ${escHtml(currentUrl)}</h1><p>Score: ${Math.round(score)}% · PQ-Stufe: ${escHtml(level)} · YMYL: ${escHtml(ymylResult||'none')} · ${new Date().toLocaleDateString('de-DE')}</p><h2>42 Kriterien (1.1–8.4) · SQEG September 2025</h2><table><thead><tr><th>ID</th><th>Cluster</th><th>Kriterium</th><th>Status</th><th>Befund</th><th>Verbesserung</th></tr></thead><tbody>${analysisResults.map(r=>{const crit=CRITERIA.find(c=>c.id===r.id)||{cat:'',name:r.criterion||r.id};return`<tr><td>${escHtml(r.id)}</td><td>${escHtml(crit.cat)}</td><td>${escHtml(crit.name)}</td><td class="${r.status}">${r.status}</td><td>${escHtml(r.finding||'')}</td><td>${r.improvement?`<div class="suggest">${escHtml(r.improvement)}</div>`:''}</td></tr>`}).join('')}</tbody></table>${cluster5.length?`<h2>Cluster 5 — Schaden &amp; Täuschung (Kritische Signale)</h2><table><thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Befund</th></tr></thead><tbody>${cluster5.map(r=>{const crit=CRITERIA.find(c=>c.id===r.id)||{name:r.id};return`<tr><td>${escHtml(r.id)}</td><td>${escHtml(crit.name)}</td><td class="${r.status}">${r.status}</td><td>${escHtml(r.finding||'')}</td></tr>`}).join('')}</tbody></table>`:''}</body></html>`;
   const w=window.open('','_blank');w.document.write(html);w.document.close();
 }
 
@@ -5567,7 +5567,7 @@ function pvWidgetConfigHtml() {
       <td style="padding:3px 8px;font-size:11px;font-weight:700;color:var(--text);font-family:'Geist Mono',monospace;text-align:right">${val !== null ? val.toFixed(1) : '–'}</td>
       <td style="padding:3px 8px;width:120px">
         <div style="height:6px;border-radius:3px;background:var(--bg4);overflow:hidden">
-          <div style="height:100%;width:${bar}%;background:linear-gradient(90deg,var(--amber),#f97316);border-radius:3px"></div>
+          <div style="height:100%;width:${bar}%;background:linear-gradient(90deg,var(--amber),#FB923C);border-radius:3px"></div>
         </div>
       </td>
       <td style="padding:3px 8px;font-size:10px;color:var(--text3)">h/Tag</td>
