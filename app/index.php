@@ -851,6 +851,61 @@ button{font-family:inherit}
 .pv-preview[data-vp="mobile"] .pv-pv-split{grid-template-columns:1fr;gap:24px}
 .pv-preview[data-vp="mobile"] .pv-pv-split .pv-pv-section-media{order:-1;min-height:180px}
 .pv-preview[data-vp="mobile"] .pv-pv-benefits-grid{grid-template-columns:1fr;gap:24px}
+/* Kennzahlen-Sektion (Gradient-Block Blau→Grün + 4 Kennzahlen) */
+.pv-pv-stats{background:linear-gradient(90deg,#1973FB,#37B7EA,#2CD08F);color:#fff;padding:52px 44px;border-top:none}
+.pv-pv-stats .pv-pv-h2{color:#fff}
+.pv-pv-stats .pv-pv-section-head .pv-pv-text{color:rgba(255,255,255,.92)}
+.pv-pv-stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:4px}
+.pv-pv-stat{text-align:center}
+.pv-pv-stat-ico{width:52px;height:52px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.18);border-radius:50%}
+.pv-pv-stat-ico svg{width:26px;height:26px;stroke:#fff}
+.pv-pv-stat-val{font-family:'Manrope',sans-serif;font-size:20px;font-weight:800;line-height:1.2;margin-bottom:6px}
+.pv-pv-stat-label{font-size:13px;line-height:1.45;color:rgba(255,255,255,.9)}
+/* 3-Schritte-Prozess (2-spaltig: Text/CTA links, nummerierte Schritte rechts) */
+.pv-pv-process{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:start}
+.pv-pv-process-steps{display:flex;flex-direction:column;gap:22px}
+.pv-pv-step{display:flex;gap:16px;align-items:flex-start}
+.pv-pv-step-num{flex-shrink:0;width:38px;height:38px;border-radius:50%;background:#0049EC;color:#fff;font-family:'Manrope',sans-serif;font-weight:800;font-size:17px;display:flex;align-items:center;justify-content:center}
+.pv-pv-step h3{font-family:'Manrope',sans-serif;font-size:17px;font-weight:700;margin:0 0 5px;color:#000;line-height:1.25}
+.pv-pv-step p{font-size:15px;line-height:1.55;color:#444;margin:0}
+/* Referenzprojekte (3 Karten: Bild + Tabelle) */
+.pv-pv-projects-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:4px}
+.pv-pv-project{border:1px solid #e5e9f0;border-radius:12px;overflow:hidden;background:#fff}
+.pv-pv-project-img{background:linear-gradient(135deg,#e8effd,#d9f3fc);height:150px;display:flex;align-items:center;justify-content:center;color:#5b7290;font-size:12px;text-align:center;padding:12px}
+.pv-pv-project-body{padding:16px 18px}
+.pv-pv-project-body h3{font-family:'Manrope',sans-serif;font-size:16px;font-weight:700;margin:0 0 10px;color:#000}
+.pv-pv-project-table{width:100%;font-size:13px;border-collapse:collapse}
+.pv-pv-project-table td{padding:6px 0;border-bottom:1px solid #f0f2f6;color:#5b7290}
+.pv-pv-project-table tr:last-child td{border-bottom:none}
+.pv-pv-project-table td:last-child{text-align:right;font-weight:600;color:#000}
+/* Kundenstimmen (Bild + Zitat) */
+.pv-pv-testimonial{display:grid;grid-template-columns:170px 1fr;gap:28px;align-items:center;background:#f7f9fc;border-radius:12px;padding:28px;margin-top:4px}
+.pv-pv-testimonial-img{background:linear-gradient(135deg,#e8effd,#d9f3fc);border-radius:50%;width:130px;height:130px;display:flex;align-items:center;justify-content:center;color:#5b7290;font-size:11px;text-align:center;padding:8px}
+.pv-pv-testimonial blockquote{margin:0;font-size:17px;line-height:1.55;color:#222;font-style:italic}
+.pv-pv-testimonial cite{display:block;margin-top:12px;font-style:normal;font-weight:700;color:#0049EC;font-size:14px}
+/* FAQ-Accordion */
+.pv-pv-faq{max-width:820px;margin:4px auto 0}
+.pv-pv-faq-item{border-bottom:1px solid #e5e9f0}
+.pv-pv-faq-q{width:100%;text-align:left;background:none;border:none;padding:18px 0;font-family:'Manrope',sans-serif;font-size:17px;font-weight:700;color:#000;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.pv-pv-faq-q svg{flex-shrink:0;transition:transform .2s;stroke:#0049EC}
+.pv-pv-faq-item.open .pv-pv-faq-q svg{transform:rotate(180deg)}
+.pv-pv-faq-a{font-size:15px;line-height:1.65;color:#444;padding:0 0 18px;display:none}
+.pv-pv-faq-item.open .pv-pv-faq-a{display:block}
+/* Kontaktformular (Mockup) */
+.pv-pv-form{max-width:640px;margin:4px auto 0}
+.pv-pv-form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.pv-pv-field{display:flex;flex-direction:column;gap:6px}
+.pv-pv-field label{font-size:13px;font-weight:600;color:#333}
+.pv-pv-field input,.pv-pv-field textarea{border:1px solid #d5dbe6;border-radius:8px;padding:11px 14px;font-family:inherit;font-size:15px;color:#000;background:#fff;width:100%;box-sizing:border-box}
+.pv-pv-field input:focus,.pv-pv-field textarea:focus{outline:none;border-color:#0049EC}
+.pv-pv-form .pv-pv-cta{margin-top:4px;width:100%}
+.pv-preview[data-vp="mobile"] .pv-pv-stats-grid{grid-template-columns:1fr;gap:22px}
+.pv-preview[data-vp="tablet"] .pv-pv-stats-grid{grid-template-columns:repeat(2,1fr)}
+.pv-preview[data-vp="mobile"] .pv-pv-process{grid-template-columns:1fr;gap:28px}
+.pv-preview[data-vp="mobile"] .pv-pv-projects-grid{grid-template-columns:1fr}
+.pv-preview[data-vp="tablet"] .pv-pv-projects-grid{grid-template-columns:1fr 1fr}
+.pv-preview[data-vp="mobile"] .pv-pv-testimonial{grid-template-columns:1fr;text-align:center;justify-items:center}
+.pv-preview[data-vp="mobile"] .pv-pv-form-row{grid-template-columns:1fr}
 @media(max-width:760px){.pv-preview{max-width:100%!important}.pv-pv-hero{grid-template-columns:1fr;padding:32px 24px}}
 /* ── PV Datengrundlagen & Archiv ── */
 .pv-data-section{margin-bottom:20px}
@@ -5616,8 +5671,126 @@ function pvRenderPreview(d){
       (sp.statement?`<div class="pv-pv-statement">${sunIco}<span>${escHtml(sp.statement)}</span></div>`:'')+
     '</section>'
   ):'';
+  // ── Kennzahlen (Gradient-Block) ──
+  const st=s.statisticsExplanation||{};
+  const stItems=Array.isArray(st.items)?st.items:[];
+  const statIco={
+    house:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg>',
+    sun:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>',
+    energy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 10-12h-7l1-8Z"/></svg>',
+    co2:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 19a4.5 4.5 0 0 1 0-9 5.5 5.5 0 0 1 10.6-1.6A4 4 0 0 1 17.5 19H6.5Z"/></svg>'
+  };
+  const statsHtml=(st.h2||st.content||stItems.length)?(
+    '<section class="pv-pv-section pv-pv-stats">'+
+      '<div class="pv-pv-section-head">'+
+        (st.h2?`<h2 class="pv-pv-h2">${escHtml(st.h2)}</h2>`:'')+
+        (st.content?`<p class="pv-pv-text">${escHtml(st.content)}</p>`:'')+
+      '</div>'+
+      (stItems.length?`<div class="pv-pv-stats-grid">${stItems.map(it=>
+        '<div class="pv-pv-stat">'+
+          `<div class="pv-pv-stat-ico">${statIco[it.icon]||statIco.sun}</div>`+
+          `<div class="pv-pv-stat-val">${escHtml(it.display_value||'')}</div>`+
+          `<div class="pv-pv-stat-label">${escHtml(it.label||'')}</div>`+
+        '</div>').join('')}</div>`:'')+
+    '</section>'
+  ):'';
+  // ── 3-Schritte-Prozess ──
+  const pr=s.processIntro||{};
+  const prSteps=Array.isArray(pr.steps)?pr.steps:[];
+  const processHtml=(pr.h2||prSteps.length)?(
+    '<section class="pv-pv-section"><div class="pv-pv-process">'+
+      '<div class="pv-pv-process-text">'+
+        (pr.h2?`<h2 class="pv-pv-h2">${escHtml(pr.h2)}</h2>`:'')+
+        (pr.text?`<p class="pv-pv-text">${escHtml(pr.text)}</p>`:'')+
+        (pr.button?`<button class="pv-pv-cta" type="button">${escHtml(pr.button)}</button>`:'')+
+      '</div>'+
+      (prSteps.length?`<div class="pv-pv-process-steps">${prSteps.map((sstep,i)=>
+        '<div class="pv-pv-step">'+
+          `<div class="pv-pv-step-num">${i+1}</div>`+
+          `<div><h3>${escHtml(sstep.h3||'')}</h3><p>${escHtml(sstep.text||'')}</p></div>`+
+        '</div>').join('')}</div>`:'')+
+    '</div></section>'
+  ):'';
+  // ── Referenzprojekte (Beispiel-Karten zur Layout-Illustration) ──
+  const pj=s.projectsIntro||{};
+  const sampleProjects=[
+    {t:'Einfamilienhaus · Satteldach',rows:[['Dachfläche','48 m²'],['Ausrichtung','Süd'],['Leistung','9,8 kWp'],['Jahresertrag','9.400 kWh']]},
+    {t:'Reihenhaus · Pultdach',rows:[['Dachfläche','32 m²'],['Ausrichtung','Süd-West'],['Leistung','6,4 kWp'],['Jahresertrag','6.100 kWh']]},
+    {t:'Gewerbeobjekt · Flachdach',rows:[['Dachfläche','120 m²'],['Ausrichtung','Ost-West'],['Leistung','24 kWp'],['Jahresertrag','22.800 kWh']]}
+  ];
+  const projectsHtml=(pj.micro||pj.content)?(
+    '<section class="pv-pv-section">'+
+      '<div class="pv-pv-section-head">'+
+        (pj.micro?`<h2 class="pv-pv-h2">${escHtml(pj.micro)}</h2>`:'')+
+        (pj.content?`<p class="pv-pv-text">${escHtml(pj.content)}</p>`:'')+
+      '</div>'+
+      `<div class="pv-pv-projects-grid">${sampleProjects.map(p=>
+        '<div class="pv-pv-project">'+
+          '<div class="pv-pv-project-img">Projektbild<br>(aus CMS)</div>'+
+          '<div class="pv-pv-project-body">'+
+            `<h3>${escHtml(p.t)}</h3>`+
+            `<table class="pv-pv-project-table"><tbody>${p.rows.map(r=>`<tr><td>${escHtml(r[0])}</td><td>${escHtml(r[1])}</td></tr>`).join('')}</tbody></table>`+
+          '</div>'+
+        '</div>').join('')}</div>`+
+      '<p class="pv-preview-note" style="text-align:center;justify-content:center;margin:16px 0 0">Beispielhafte Darstellung — echte Referenzprojekte werden im CMS gepflegt.</p>'+
+    '</section>'
+  ):'';
+  // ── Kundenstimmen ──
+  const tm=s.testimonialsIntro||{};
+  const testimonialHtml=(tm.micro||tm.content)?(
+    '<section class="pv-pv-section">'+
+      '<div class="pv-pv-section-head">'+
+        (tm.micro?`<h2 class="pv-pv-h2">${escHtml(tm.micro)}</h2>`:'')+
+        (tm.content?`<p class="pv-pv-text">${escHtml(tm.content)}</p>`:'')+
+      '</div>'+
+      '<div class="pv-pv-testimonial">'+
+        '<div class="pv-pv-testimonial-img">Kundenfoto<br>(aus CMS)</div>'+
+        '<div><blockquote>„Die Beratung war unkompliziert und ehrlich. Vom ersten Termin bis zur Inbetriebnahme lief alles reibungslos — heute produzieren wir einen Großteil unseres Stroms selbst."</blockquote>'+
+        '<cite>— Beispiel-Kundenstimme (aus CMS)</cite></div>'+
+      '</div>'+
+    '</section>'
+  ):'';
+  // ── FAQ-Accordion ──
+  const fq=s.faqIntro||{};
+  const faqItems=Array.isArray(d.faq)?d.faq:[];
+  const chevron='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+  const faqHtml=(fq.micro||fq.content||faqItems.length)?(
+    '<section class="pv-pv-section">'+
+      '<div class="pv-pv-section-head">'+
+        (fq.micro?`<h2 class="pv-pv-h2">${escHtml(fq.micro)}</h2>`:'')+
+        (fq.content?`<p class="pv-pv-text">${escHtml(fq.content)}</p>`:'')+
+      '</div>'+
+      (faqItems.length?`<div class="pv-pv-faq">${faqItems.map((f,i)=>
+        `<div class="pv-pv-faq-item${i===0?' open':''}">`+
+          `<button class="pv-pv-faq-q" type="button" onclick="pvPreviewFaqToggle(this)">${escHtml(f.question||'')}${chevron}</button>`+
+          `<div class="pv-pv-faq-a">${escHtml(f.answer||'')}</div>`+
+        '</div>').join('')}</div>`:'')+
+    '</section>'
+  ):'';
+  // ── Kontaktformular (Mockup) ──
+  const fm=s.formIntro||{};
+  const sec2=(d.ctaStrategy&&d.ctaStrategy.secondaryConversion)||{};
+  const formCta=(Array.isArray(sec2.ctaExamples)&&sec2.ctaExamples[0])||'Beratung anfragen';
+  const formHtml=(fm.micro||fm.content)?(
+    '<section class="pv-pv-section">'+
+      '<div class="pv-pv-section-head">'+
+        (fm.micro?`<h2 class="pv-pv-h2">${escHtml(fm.micro)}</h2>`:'')+
+        (fm.content?`<p class="pv-pv-text">${escHtml(fm.content)}</p>`:'')+
+      '</div>'+
+      '<div class="pv-pv-form">'+
+        '<div class="pv-pv-form-row">'+
+          '<div class="pv-pv-field"><label>Name</label><input type="text" placeholder="Ihr Name" disabled></div>'+
+          '<div class="pv-pv-field"><label>E-Mail</label><input type="email" placeholder="ihre@email.de" disabled></div>'+
+        '</div>'+
+        '<div class="pv-pv-form-row" style="grid-template-columns:1fr">'+
+          '<div class="pv-pv-field"><label>Nachricht</label><textarea rows="3" placeholder="Ihre Nachricht" disabled></textarea></div>'+
+        '</div>'+
+        `<button class="pv-pv-cta" type="button">${escHtml(formCta)}</button>`+
+      '</div>'+
+    '</section>'
+  ):'';
   el.innerHTML=
-    '<div class="pv-preview-note">Visuelle Vorschau im MVV-Landingpage-Stil — so wirken die generierten Inhalte auf der echten Seite. (Schritt 4: Hero + Intro + Vorteile + Solarpotenzial — weitere Sektionen folgen.)</div>'+
+    '<div class="pv-preview-note">Visuelle Vorschau im MVV-Landingpage-Stil — so wirken die generierten Inhalte auf der echten Seite. Alle Sektionen (Hero bis Kontaktformular) in der Reihenfolge der echten Landingpage.</div>'+
     '<div class="pv-preview-toolbar">'+
       '<span class="pv-vp-label">Ansicht:</span>'+
       '<div class="pv-vp-switch">'+
@@ -5643,6 +5816,12 @@ function pvRenderPreview(d){
         introHtml+
         benefitsHtml+
         solarHtml+
+        statsHtml+
+        processHtml+
+        projectsHtml+
+        testimonialHtml+
+        faqHtml+
+        formHtml+
       '</div>'+
     '</div>';
 }
@@ -5654,6 +5833,11 @@ function pvSetPreviewVp(mode,btn){
   const widths={desktop:'1140 px',tablet:'768 px',mobile:'390 px'};
   const w=document.getElementById('pv-vp-width');
   if(w)w.textContent=widths[mode]||'';
+}
+
+function pvPreviewFaqToggle(btn){
+  const item=btn.closest('.pv-pv-faq-item');
+  if(item)item.classList.toggle('open');
 }
 
 function pvChecklistHtml(items){
