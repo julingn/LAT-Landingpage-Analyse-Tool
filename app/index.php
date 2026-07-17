@@ -818,6 +818,17 @@ button{font-family:inherit}
 .pv-preview[data-vp="mobile"] .pv-pv-h1{font-size:26px;margin-bottom:22px}
 .pv-preview[data-vp="mobile"] .pv-pv-hero-media{min-height:180px;order:-1}
 .pv-preview[data-vp="tablet"] .pv-pv-hero{gap:28px;padding:40px 32px}
+/* Content-Sektion (2-spaltig: Text + Bild), z.B. Intro „Lohnt es sich für Ihr Dach?" */
+.pv-pv-section{padding:48px 44px;border-top:1px solid #eef1f5}
+.pv-pv-split{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center}
+.pv-pv-eyebrow{color:#0049EC;font-weight:700;font-size:14px;line-height:1.4;margin:0 0 12px}
+.pv-pv-h2{font-family:'Manrope',sans-serif;font-size:clamp(24px,2.4vw,32px);font-weight:800;line-height:1.15;color:#000;margin:0 0 18px}
+.pv-pv-text{font-size:16px;line-height:1.65;color:#333;margin:0}
+.pv-pv-section-media{background:linear-gradient(135deg,#e8effd,#d9f3fc);border-radius:8px;min-height:260px;display:flex;align-items:center;justify-content:center;color:#5b7290;font-size:13px;text-align:center;padding:16px}
+.pv-preview[data-vp="tablet"] .pv-pv-section{padding:40px 32px}
+.pv-preview[data-vp="mobile"] .pv-pv-section{padding:32px 24px}
+.pv-preview[data-vp="mobile"] .pv-pv-split{grid-template-columns:1fr;gap:24px}
+.pv-preview[data-vp="mobile"] .pv-pv-split .pv-pv-section-media{order:-1;min-height:180px}
 @media(max-width:760px){.pv-preview{max-width:100%!important}.pv-pv-hero{grid-template-columns:1fr;padding:32px 24px}}
 /* ── PV Datengrundlagen & Archiv ── */
 .pv-data-section{margin-bottom:20px}
@@ -5526,8 +5537,20 @@ function pvRenderPreview(d){
   const icoDesktop='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>';
   const icoTablet='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M12 18h.01"/></svg>';
   const icoMobile='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M12 18h.01"/></svg>';
+  const s=d.sections||{};
+  const intro=s.intro||{};
+  const introHtml=(intro.h2||intro.content||intro.micro)?(
+    '<section class="pv-pv-section"><div class="pv-pv-split">'+
+      '<div class="pv-pv-split-text">'+
+        (intro.micro?`<p class="pv-pv-eyebrow">${escHtml(intro.micro)}</p>`:'')+
+        (intro.h2?`<h2 class="pv-pv-h2">${escHtml(intro.h2)}</h2>`:'')+
+        (intro.content?`<p class="pv-pv-text">${escHtml(intro.content)}</p>`:'')+
+      '</div>'+
+      '<div class="pv-pv-section-media">Bildbereich<br>(z. B. Dach mit PV-Anlage)</div>'+
+    '</div></section>'
+  ):'';
   el.innerHTML=
-    '<div class="pv-preview-note">Visuelle Vorschau im MVV-Landingpage-Stil — so wirken die generierten Inhalte auf der echten Seite. (Schritt 1: Hero — weitere Sektionen folgen.)</div>'+
+    '<div class="pv-preview-note">Visuelle Vorschau im MVV-Landingpage-Stil — so wirken die generierten Inhalte auf der echten Seite. (Schritt 2: Hero + Intro — weitere Sektionen folgen.)</div>'+
     '<div class="pv-preview-toolbar">'+
       '<span class="pv-vp-label">Ansicht:</span>'+
       '<div class="pv-vp-switch">'+
@@ -5550,6 +5573,7 @@ function pvRenderPreview(d){
           '</div>'+
           '<div class="pv-pv-hero-media">Bildbereich der Landingpage<br>(Hero-Motiv)</div>'+
         '</div>'+
+        introHtml+
       '</div>'+
     '</div>';
 }
