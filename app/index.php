@@ -789,18 +789,20 @@ button{font-family:inherit}
 /* ── Section Placement Badge ── */
 .pv-placement-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:999px;color:var(--text3);margin-bottom:8px}
 @media(max-width:900px){.pv-benefits-grid,.pv-cta-strategy{grid-template-columns:1fr}}
-/* ── PV Visuelle Vorschau (Mockup) ── */
+/* ── PV Visuelle Vorschau (MVV-Landingpage-Stil, immer light) ── */
 .pv-preview-note{font-size:11px;color:var(--text3);margin:0 0 12px;display:flex;align-items:center;gap:6px;line-height:1.5}
-.pv-preview{border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);background:var(--bg2)}
-.pv-pv-hero{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:52px 40px;text-align:center}
-.pv-pv-eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:12px;font-weight:700;opacity:.9;margin-bottom:14px}
-.pv-pv-h1{font-family:'Manrope',sans-serif;font-size:clamp(24px,3.4vw,36px);font-weight:800;line-height:1.15;margin:0 auto 18px;max-width:640px}
-.pv-pv-lead{font-size:15px;line-height:1.6;opacity:.95;max-width:560px;margin:0 auto 24px}
-.pv-pv-usps{list-style:none;display:flex;flex-wrap:wrap;gap:10px 22px;justify-content:center;margin:0 auto 26px;max-width:620px;padding:0}
-.pv-pv-usps li{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600}
-.pv-pv-usps svg{flex-shrink:0;opacity:.95}
-.pv-pv-cta{background:var(--hero-gradient);color:#08312A;font-family:'Manrope',sans-serif;font-weight:700;font-size:15px;padding:14px 30px;border:none;border-radius:var(--radius);cursor:pointer;box-shadow:0 6px 18px rgba(30,208,92,.35);transition:filter .15s,transform .1s}
-.pv-pv-cta:hover{filter:brightness(1.05);transform:translateY(-1px)}
+.pv-preview{border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);background:#fff;color:#000}
+.pv-pv-hero{display:grid;grid-template-columns:1.05fr .95fr;gap:36px;align-items:center;padding:48px 44px}
+.pv-pv-badge{display:inline-block;background:#0049EC;color:#fff;font-weight:700;font-size:14px;line-height:1.2;padding:8px 16px;margin-bottom:20px}
+.pv-pv-h1{font-family:'Manrope',sans-serif;font-size:clamp(28px,3.2vw,44px);font-weight:800;line-height:1.08;color:#000;margin:0 0 26px}
+.pv-pv-lead{font-size:16px;line-height:1.6;color:#333;margin:0 0 24px}
+.pv-pv-usps{list-style:none;display:flex;flex-direction:column;gap:16px;margin:0;padding:0}
+.pv-pv-usps li{display:flex;align-items:flex-start;gap:12px;font-size:16px;font-weight:400;color:#000;line-height:1.3}
+.pv-pv-usps svg{flex-shrink:0;margin-top:-1px}
+.pv-pv-cta{display:inline-block;margin-top:28px;background:#0049EC;color:#fff;font-family:'Manrope',sans-serif;font-weight:700;font-size:16px;padding:12px 30px;border:none;border-radius:999px;cursor:pointer;transition:background .2s}
+.pv-pv-cta:hover{background:#263FCC}
+.pv-pv-hero-media{background:linear-gradient(135deg,#e8effd,#d9f3fc);border-radius:8px;min-height:230px;display:flex;align-items:center;justify-content:center;color:#5b7290;font-size:13px;text-align:center;padding:16px}
+@media(max-width:760px){.pv-pv-hero{grid-template-columns:1fr;padding:32px 24px}}
 /* ── PV Datengrundlagen & Archiv ── */
 .pv-data-section{margin-bottom:20px}
 .pv-data-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:6px}
@@ -5504,17 +5506,20 @@ function pvRenderPreview(d){
   const prim=(d.ctaStrategy&&d.ctaStrategy.primaryConversion)||{};
   const ctaText=(Array.isArray(prim.ctaExamples)&&prim.ctaExamples[0])||'Jetzt Solarpotenzial berechnen';
   const usps=Array.isArray(h.usps)?h.usps:[];
-  const check='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  const check='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect width="24" height="24" rx="12" fill="#1ED05C"/><path d="M17.28 8.22a.75.75 0 0 1 0 1.06l-6 6a.75.75 0 0 1-1.06 0l-2.5-2.5a.75.75 0 1 1 1.06-1.06l1.97 1.97 5.47-5.47a.75.75 0 0 1 1.06 0Z" fill="rgba(0,0,0,.72)"/></svg>';
   el.innerHTML=
-    '<div class="pv-preview-note">Visuelle Vorschau — so könnten die generierten Inhalte auf der Landingpage wirken. (Schritt 1: Hero — weitere Sektionen folgen.)</div>'+
+    '<div class="pv-preview-note">Visuelle Vorschau im MVV-Landingpage-Stil — so wirken die generierten Inhalte auf der echten Seite. (Schritt 1: Hero — weitere Sektionen folgen.)</div>'+
     '<div class="pv-preview">'+
       '<div class="pv-pv-hero">'+
-        (h.dachzeile?`<div class="pv-pv-eyebrow">${escHtml(h.dachzeile)}</div>`:'')+
-        `<h1 class="pv-pv-h1">${escHtml(h.h1||'–')}</h1>`+
-        (usps.length
-          ? `<ul class="pv-pv-usps">${usps.map(u=>`<li>${check}<span>${escHtml(u)}</span></li>`).join('')}</ul>`
-          : (h.absatz?`<p class="pv-pv-lead">${escHtml(h.absatz)}</p>`:''))+
-        `<button class="pv-pv-cta" type="button">${escHtml(ctaText)}</button>`+
+        '<div class="pv-pv-hero-content">'+
+          (h.dachzeile?`<div class="pv-pv-badge">${escHtml(h.dachzeile)}</div>`:'')+
+          `<h1 class="pv-pv-h1">${escHtml(h.h1||'–')}</h1>`+
+          (usps.length
+            ? `<ul class="pv-pv-usps">${usps.map(u=>`<li>${check}<span>${escHtml(u)}</span></li>`).join('')}</ul>`
+            : (h.absatz?`<p class="pv-pv-lead">${escHtml(h.absatz)}</p>`:''))+
+          `<button class="pv-pv-cta" type="button">${escHtml(ctaText)}</button>`+
+        '</div>'+
+        '<div class="pv-pv-hero-media">Bildbereich der Landingpage<br>(Hero-Motiv)</div>'+
       '</div>'+
     '</div>';
 }
