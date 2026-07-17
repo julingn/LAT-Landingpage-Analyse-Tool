@@ -791,7 +791,18 @@ button{font-family:inherit}
 @media(max-width:900px){.pv-benefits-grid,.pv-cta-strategy{grid-template-columns:1fr}}
 /* ── PV Visuelle Vorschau (MVV-Landingpage-Stil, immer light) ── */
 .pv-preview-note{font-size:11px;color:var(--text3);margin:0 0 12px;display:flex;align-items:center;gap:6px;line-height:1.5}
-.pv-preview{border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);background:#fff;color:#000}
+.pv-preview-toolbar{display:flex;align-items:center;gap:12px;margin:0 0 14px;flex-wrap:wrap}
+.pv-preview-toolbar .pv-vp-label{font-size:11px;color:var(--text3);font-weight:600}
+.pv-vp-switch{display:inline-flex;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:3px;gap:2px}
+.pv-vp-btn{display:inline-flex;align-items:center;gap:6px;border:none;background:transparent;color:var(--text2);font-family:inherit;font-size:12px;font-weight:600;padding:6px 12px;border-radius:calc(var(--radius) - 3px);cursor:pointer;transition:background .15s,color .15s}
+.pv-vp-btn svg{width:14px;height:14px}
+.pv-vp-btn:hover{color:var(--text)}
+.pv-vp-btn.active{background:var(--accent);color:#fff}
+.pv-vp-width{font-size:11px;color:var(--text3);font-variant-numeric:tabular-nums;margin-left:auto}
+.pv-preview-frame{background:var(--bg3);border:1px dashed var(--border);border-radius:var(--radius-lg);padding:20px;display:flex;justify-content:center;overflow:hidden}
+.pv-preview{width:100%;max-width:1140px;border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);background:#fff;color:#000;transition:max-width .3s ease}
+.pv-preview[data-vp="tablet"]{max-width:768px}
+.pv-preview[data-vp="mobile"]{max-width:390px}
 .pv-pv-hero{display:grid;grid-template-columns:1.05fr .95fr;gap:36px;align-items:center;padding:48px 44px}
 .pv-pv-badge{display:inline-block;background:#0049EC;color:#fff;font-weight:700;font-size:14px;line-height:1.2;padding:8px 16px;margin-bottom:20px}
 .pv-pv-h1{font-family:'Manrope',sans-serif;font-size:clamp(28px,3.2vw,44px);font-weight:800;line-height:1.08;color:#000;margin:0 0 26px}
@@ -802,7 +813,12 @@ button{font-family:inherit}
 .pv-pv-cta{display:inline-block;margin-top:28px;background:#0049EC;color:#fff;font-family:'Manrope',sans-serif;font-weight:700;font-size:16px;padding:12px 30px;border:none;border-radius:999px;cursor:pointer;transition:background .2s}
 .pv-pv-cta:hover{background:#263FCC}
 .pv-pv-hero-media{background:linear-gradient(135deg,#e8effd,#d9f3fc);border-radius:8px;min-height:230px;display:flex;align-items:center;justify-content:center;color:#5b7290;font-size:13px;text-align:center;padding:16px}
-@media(max-width:760px){.pv-pv-hero{grid-template-columns:1fr;padding:32px 24px}}
+/* Mobil-Ansicht des Mockups: einspaltig (unabhängig von der echten Viewport-Breite) */
+.pv-preview[data-vp="mobile"] .pv-pv-hero{grid-template-columns:1fr;gap:24px;padding:32px 24px}
+.pv-preview[data-vp="mobile"] .pv-pv-h1{font-size:26px;margin-bottom:22px}
+.pv-preview[data-vp="mobile"] .pv-pv-hero-media{min-height:180px;order:-1}
+.pv-preview[data-vp="tablet"] .pv-pv-hero{gap:28px;padding:40px 32px}
+@media(max-width:760px){.pv-preview{max-width:100%!important}.pv-pv-hero{grid-template-columns:1fr;padding:32px 24px}}
 /* ── PV Datengrundlagen & Archiv ── */
 .pv-data-section{margin-bottom:20px}
 .pv-data-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:6px}
@@ -5507,21 +5523,44 @@ function pvRenderPreview(d){
   const ctaText=(Array.isArray(prim.ctaExamples)&&prim.ctaExamples[0])||'Jetzt Solarpotenzial berechnen';
   const usps=Array.isArray(h.usps)?h.usps:[];
   const check='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect width="24" height="24" rx="12" fill="#1ED05C"/><path d="M17.28 8.22a.75.75 0 0 1 0 1.06l-6 6a.75.75 0 0 1-1.06 0l-2.5-2.5a.75.75 0 1 1 1.06-1.06l1.97 1.97 5.47-5.47a.75.75 0 0 1 1.06 0Z" fill="rgba(0,0,0,.72)"/></svg>';
+  const icoDesktop='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>';
+  const icoTablet='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M12 18h.01"/></svg>';
+  const icoMobile='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M12 18h.01"/></svg>';
   el.innerHTML=
     '<div class="pv-preview-note">Visuelle Vorschau im MVV-Landingpage-Stil — so wirken die generierten Inhalte auf der echten Seite. (Schritt 1: Hero — weitere Sektionen folgen.)</div>'+
-    '<div class="pv-preview">'+
-      '<div class="pv-pv-hero">'+
-        '<div class="pv-pv-hero-content">'+
-          (h.dachzeile?`<div class="pv-pv-badge">${escHtml(h.dachzeile)}</div>`:'')+
-          `<h1 class="pv-pv-h1">${escHtml(h.h1||'–')}</h1>`+
-          (usps.length
-            ? `<ul class="pv-pv-usps">${usps.map(u=>`<li>${check}<span>${escHtml(u)}</span></li>`).join('')}</ul>`
-            : (h.absatz?`<p class="pv-pv-lead">${escHtml(h.absatz)}</p>`:''))+
-          `<button class="pv-pv-cta" type="button">${escHtml(ctaText)}</button>`+
+    '<div class="pv-preview-toolbar">'+
+      '<span class="pv-vp-label">Ansicht:</span>'+
+      '<div class="pv-vp-switch">'+
+        `<button type="button" class="pv-vp-btn active" onclick="pvSetPreviewVp('desktop',this)">${icoDesktop}Desktop</button>`+
+        `<button type="button" class="pv-vp-btn" onclick="pvSetPreviewVp('tablet',this)">${icoTablet}Tablet</button>`+
+        `<button type="button" class="pv-vp-btn" onclick="pvSetPreviewVp('mobile',this)">${icoMobile}Mobil</button>`+
+      '</div>'+
+      '<span class="pv-vp-width" id="pv-vp-width">1140 px</span>'+
+    '</div>'+
+    '<div class="pv-preview-frame">'+
+      '<div class="pv-preview" data-vp="desktop">'+
+        '<div class="pv-pv-hero">'+
+          '<div class="pv-pv-hero-content">'+
+            (h.dachzeile?`<div class="pv-pv-badge">${escHtml(h.dachzeile)}</div>`:'')+
+            `<h1 class="pv-pv-h1">${escHtml(h.h1||'–')}</h1>`+
+            (usps.length
+              ? `<ul class="pv-pv-usps">${usps.map(u=>`<li>${check}<span>${escHtml(u)}</span></li>`).join('')}</ul>`
+              : (h.absatz?`<p class="pv-pv-lead">${escHtml(h.absatz)}</p>`:''))+
+            `<button class="pv-pv-cta" type="button">${escHtml(ctaText)}</button>`+
+          '</div>'+
+          '<div class="pv-pv-hero-media">Bildbereich der Landingpage<br>(Hero-Motiv)</div>'+
         '</div>'+
-        '<div class="pv-pv-hero-media">Bildbereich der Landingpage<br>(Hero-Motiv)</div>'+
       '</div>'+
     '</div>';
+}
+
+function pvSetPreviewVp(mode,btn){
+  const prev=document.querySelector('#pv-preview-content .pv-preview');
+  if(prev)prev.setAttribute('data-vp',mode);
+  document.querySelectorAll('#pv-preview-content .pv-vp-btn').forEach(b=>b.classList.toggle('active',b===btn));
+  const widths={desktop:'1140 px',tablet:'768 px',mobile:'390 px'};
+  const w=document.getElementById('pv-vp-width');
+  if(w)w.textContent=widths[mode]||'';
 }
 
 function pvChecklistHtml(items){
