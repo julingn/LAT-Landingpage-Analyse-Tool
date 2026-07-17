@@ -825,10 +825,19 @@ button{font-family:inherit}
 .pv-pv-h2{font-family:'Manrope',sans-serif;font-size:clamp(24px,2.4vw,32px);font-weight:800;line-height:1.15;color:#000;margin:0 0 18px}
 .pv-pv-text{font-size:16px;line-height:1.65;color:#333;margin:0}
 .pv-pv-section-media{background:linear-gradient(135deg,#e8effd,#d9f3fc);border-radius:8px;min-height:260px;display:flex;align-items:center;justify-content:center;color:#5b7290;font-size:13px;text-align:center;padding:16px}
+/* Benefits-Sektion (zentrierter Kopf + 4 Vorteile mit grünem Häkchen) */
+.pv-pv-section-head{text-align:center;max-width:720px;margin:0 auto 40px}
+.pv-pv-section-head .pv-pv-h2{margin-bottom:14px}
+.pv-pv-benefits-grid{display:grid;grid-template-columns:1fr 1fr;gap:30px 44px}
+.pv-pv-benefit{display:flex;gap:14px;align-items:flex-start}
+.pv-pv-benefit svg{flex-shrink:0;margin-top:2px}
+.pv-pv-benefit h3{font-family:'Manrope',sans-serif;font-size:18px;font-weight:700;color:#000;margin:0 0 6px;line-height:1.25}
+.pv-pv-benefit p{font-size:15px;line-height:1.6;color:#444;margin:0}
 .pv-preview[data-vp="tablet"] .pv-pv-section{padding:40px 32px}
 .pv-preview[data-vp="mobile"] .pv-pv-section{padding:32px 24px}
 .pv-preview[data-vp="mobile"] .pv-pv-split{grid-template-columns:1fr;gap:24px}
 .pv-preview[data-vp="mobile"] .pv-pv-split .pv-pv-section-media{order:-1;min-height:180px}
+.pv-preview[data-vp="mobile"] .pv-pv-benefits-grid{grid-template-columns:1fr;gap:24px}
 @media(max-width:760px){.pv-preview{max-width:100%!important}.pv-pv-hero{grid-template-columns:1fr;padding:32px 24px}}
 /* ── PV Datengrundlagen & Archiv ── */
 .pv-data-section{margin-bottom:20px}
@@ -5549,8 +5558,23 @@ function pvRenderPreview(d){
       '<div class="pv-pv-section-media">Bildbereich<br>(z. B. Dach mit PV-Anlage)</div>'+
     '</div></section>'
   ):'';
+  const b=d.benefits||{};
+  const bItems=Array.isArray(b.items)?b.items:[];
+  const checkBig='<svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect width="24" height="24" rx="12" fill="#1ED05C"/><path d="M17.28 8.22a.75.75 0 0 1 0 1.06l-6 6a.75.75 0 0 1-1.06 0l-2.5-2.5a.75.75 0 1 1 1.06-1.06l1.97 1.97 5.47-5.47a.75.75 0 0 1 1.06 0Z" fill="rgba(0,0,0,.72)"/></svg>';
+  const benefitsHtml=(b.h2||bItems.length)?(
+    '<section class="pv-pv-section">'+
+      '<div class="pv-pv-section-head">'+
+        (b.h2?`<h2 class="pv-pv-h2">${escHtml(b.h2)}</h2>`:'')+
+        (b.intro?`<p class="pv-pv-text">${escHtml(b.intro)}</p>`:'')+
+      '</div>'+
+      (bItems.length?`<div class="pv-pv-benefits-grid">${bItems.map(it=>
+        '<div class="pv-pv-benefit">'+checkBig+
+          `<div><h3>${escHtml(it.h3||'')}</h3><p>${escHtml(it.text||'')}</p></div>`+
+        '</div>').join('')}</div>`:'')+
+    '</section>'
+  ):'';
   el.innerHTML=
-    '<div class="pv-preview-note">Visuelle Vorschau im MVV-Landingpage-Stil — so wirken die generierten Inhalte auf der echten Seite. (Schritt 2: Hero + Intro — weitere Sektionen folgen.)</div>'+
+    '<div class="pv-preview-note">Visuelle Vorschau im MVV-Landingpage-Stil — so wirken die generierten Inhalte auf der echten Seite. (Schritt 3: Hero + Intro + Vorteile — weitere Sektionen folgen.)</div>'+
     '<div class="pv-preview-toolbar">'+
       '<span class="pv-vp-label">Ansicht:</span>'+
       '<div class="pv-vp-switch">'+
@@ -5574,6 +5598,7 @@ function pvRenderPreview(d){
           '<div class="pv-pv-hero-media">Bildbereich der Landingpage<br>(Hero-Motiv)</div>'+
         '</div>'+
         introHtml+
+        benefitsHtml+
       '</div>'+
     '</div>';
 }
