@@ -833,6 +833,19 @@ button{font-family:inherit}
 .pv-pv-benefit svg{flex-shrink:0;margin-top:2px}
 .pv-pv-benefit h3{font-family:'Manrope',sans-serif;font-size:18px;font-weight:700;color:#000;margin:0 0 6px;line-height:1.25}
 .pv-pv-benefit p{font-size:15px;line-height:1.6;color:#444;margin:0}
+/* Solarpotenzial-Sektion (Vergleichs-Widget Standort vs. Deutschland + grünes Statement) */
+.pv-pv-compare{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:8px 0 20px}
+.pv-pv-compare-col{border:1px solid #e5e9f0;border-radius:12px;padding:22px 20px;text-align:center;background:#fff}
+.pv-pv-compare-col.local{background:linear-gradient(135deg,#e8effd,#eafaf2);border-color:#bacefa}
+.pv-pv-compare-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#5b7290;margin-bottom:16px}
+.pv-pv-compare-metric{margin-bottom:14px}
+.pv-pv-compare-metric:last-child{margin-bottom:0}
+.pv-pv-compare-val{font-family:'Manrope',sans-serif;font-size:28px;font-weight:800;color:#0049EC;line-height:1.05}
+.pv-pv-compare-unit{font-size:12px;color:#5b7290;margin-left:4px}
+.pv-pv-compare-cap{font-size:12px;color:#5b7290;margin-top:3px}
+.pv-pv-statement{display:flex;gap:12px;align-items:flex-start;background:#F4FDF7;border:1px solid #BCF1CE;border-radius:12px;padding:16px 18px;font-size:15px;line-height:1.5;color:#12693a;font-weight:500}
+.pv-pv-statement svg{flex-shrink:0;margin-top:1px}
+.pv-preview[data-vp="mobile"] .pv-pv-compare{grid-template-columns:1fr;gap:14px}
 .pv-preview[data-vp="tablet"] .pv-pv-section{padding:40px 32px}
 .pv-preview[data-vp="mobile"] .pv-pv-section{padding:32px 24px}
 .pv-preview[data-vp="mobile"] .pv-pv-split{grid-template-columns:1fr;gap:24px}
@@ -5573,8 +5586,38 @@ function pvRenderPreview(d){
         '</div>').join('')}</div>`:'')+
     '</section>'
   ):'';
+  const sp=s.solarPotential||{};
+  const dwd=(typeof pvDwdData!=='undefined'&&pvDwdData)?pvDwdData:null;
+  let compareHtml='';
+  if(dwd&&dwd.irradiance_kWhm2_year){
+    const cityLabel=(dwd.geocoded?String(dwd.geocoded).split(',')[0]:(dwd.location||'Ihr Standort')).trim();
+    const ga=dwd.germany_avg||{};
+    const deSun=ga.klimanormal_1991_2020||ga.sunshine_hours_year||null;
+    const nf=(n)=>typeof n==='number'?n.toLocaleString('de-DE'):n;
+    const col=(label,cls,irr,sun)=>
+      `<div class="pv-pv-compare-col ${cls}">`+
+        `<div class="pv-pv-compare-label">${escHtml(label)}</div>`+
+        `<div class="pv-pv-compare-metric"><span class="pv-pv-compare-val">${nf(irr)}</span><span class="pv-pv-compare-unit">kWh/m²</span><div class="pv-pv-compare-cap">Globalstrahlung pro Jahr</div></div>`+
+        (sun?`<div class="pv-pv-compare-metric"><span class="pv-pv-compare-val">${nf(sun)}</span><span class="pv-pv-compare-unit">h</span><div class="pv-pv-compare-cap">Sonnenstunden pro Jahr</div></div>`:'')+
+      '</div>';
+    compareHtml='<div class="pv-pv-compare">'+
+      col(cityLabel,'local',dwd.irradiance_kWhm2_year,dwd.sunshine_hours_year)+
+      col('Deutschland (Ø)','',ga.irradiance_kWhm2_year||null,deSun)+
+    '</div>';
+  }
+  const sunIco='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#12A150" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
+  const solarHtml=(sp.h2||sp.content||compareHtml||sp.statement)?(
+    '<section class="pv-pv-section">'+
+      '<div class="pv-pv-section-head">'+
+        (sp.h2?`<h2 class="pv-pv-h2">${escHtml(sp.h2)}</h2>`:'')+
+        (sp.content?`<p class="pv-pv-text">${escHtml(sp.content)}</p>`:'')+
+      '</div>'+
+      compareHtml+
+      (sp.statement?`<div class="pv-pv-statement">${sunIco}<span>${escHtml(sp.statement)}</span></div>`:'')+
+    '</section>'
+  ):'';
   el.innerHTML=
-    '<div class="pv-preview-note">Visuelle Vorschau im MVV-Landingpage-Stil — so wirken die generierten Inhalte auf der echten Seite. (Schritt 3: Hero + Intro + Vorteile — weitere Sektionen folgen.)</div>'+
+    '<div class="pv-preview-note">Visuelle Vorschau im MVV-Landingpage-Stil — so wirken die generierten Inhalte auf der echten Seite. (Schritt 4: Hero + Intro + Vorteile + Solarpotenzial — weitere Sektionen folgen.)</div>'+
     '<div class="pv-preview-toolbar">'+
       '<span class="pv-vp-label">Ansicht:</span>'+
       '<div class="pv-vp-switch">'+
@@ -5599,6 +5642,7 @@ function pvRenderPreview(d){
         '</div>'+
         introHtml+
         benefitsHtml+
+        solarHtml+
       '</div>'+
     '</div>';
 }
