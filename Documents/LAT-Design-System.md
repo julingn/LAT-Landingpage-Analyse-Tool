@@ -37,23 +37,40 @@ Professionelles B2B-SaaS-Design: Cool, crisp, datenorientiert. Keine Ablenkung v
 | `--text2` | `#475569` | Sekundärtext (Slate-600) |
 | `--text3` | `#94A3B8` | Placeholder, Labels, Meta (Slate-400) |
 
-### 2.4 Accent (Brand)
+### 2.4 Accent (Brand — MVV Technical Blue)
 
 | Token | Hex | Verwendung |
 |-------|-----|------------|
-| `--accent` | `#4F46E5` | CTAs, Active States (Indigo-600) |
-| `--accent2` | `#4338CA` | Hover (Indigo-700) |
-| `--accent-bg` | `#EEF2FF` | Accent-Flächen (Indigo-50) |
-| `--accent-border` | `#C7D2FE` | Accent-Border (Indigo-200) |
+| `--accent` | `#0049EC` | CTAs, Active States (MVV Technical Blue, Pantone 2387) |
+| `--accent2` | `#263FCC` | Hover (dunkelste Technical-Blue-Stufe) |
+| `--accent-bg` | `#E8EFFD` | Accent-Flächen (hellste Technical-Blue-Stufe) |
+| `--accent-border` | `#BACEFA` | Accent-Border |
 
-### 2.5 System-Farben (WCAG 2.1 AA)
+**Markenbezug:** Technical Blue ist laut MVV Corporate Design Manual die *primäre Interaktionsfarbe* (alle primären Buttons, Links, wichtigen Interaktionen). Dark Mode nutzt hellere Stufen (`--accent:#477CF1`).
 
-| Status | Hex | bg | border |
-|--------|-----|-----|--------|
-| Green | `#16A34A` | `#F0FDF4` | `#BBF7D0` |
-| Amber | `#D97706` | `#FFFBEB` | `#FDE68A` |
-| Red | `#DC2626` | `#FEF2F2` | `#FECACA` |
-| Blue | `#2563EB` | `#EFF6FF` | `#BFDBFE` |
+### 2.5 System-Farben (WCAG 2.1 AA · an MVV-Digitalpalette angeglichen)
+
+| Status | Hex | bg | border | Herkunft |
+|--------|-----|-----|--------|----------|
+| Green | `#12A150` | `#F4FDF7` | `#BCF1CE` | MVV Grass Green (textsicher abgedunkelt) |
+| Amber | `#D97706` | `#FFFBEB` | `#FDE68A` | LAT-Eigenwert (MVV hat kein Amber) |
+| Red | `#E90C3C` | `#FDECEF` | `#F8C2CD` | MVV Red (Spezialfarbe „Fehler") |
+| Blue | `#0087C9` | `#ECF9FD` | `#9FE2F7` | MVV Sky Blue (textsicher abgedunkelt) |
+
+### 2.6 MVV Sekundärfarben (Tags/Labels/Icons)
+
+| Token | Hex | Verwendung |
+|-------|-----|------------|
+| `--purple` / `--purple-bg` / `--purple-border` | `#8E3FD4` / `#F7F0FD` / `#E0C2F7` | Energizing Purple — **textsicher** (wie System-Farben); z.B. Sistrix-Datenquellen-Tag |
+| `--sky` | `#40C5EF` | Sky Blue — Fill/Icon (bright) |
+| `--grass` | `#1ED05C` | Grass Green — Fill/Badge (bright, dunkler Text); z.B. Pipeline-„done"-Nummer |
+| `--cool-grey` | `#B6C5CD` | Cool Grey — neutrale Tags |
+| `--hero-gradient` | `linear-gradient(135deg,#8FEBA4,#51F8A4)` | Hero Gradient für besonders wichtige CTAs |
+
+**Hinweis:** `--purple` ist textsicher abgedunkelt (Tag-Text), `--sky`/`--grass`/`--cool-grey` bleiben bright für Fill/Badge/Icon.
+
+**PV-Datenquellen-Tags** (distinkte Hues): DWD = Sky Blue (`--blue`), GSC = Technical Blue (`--accent`), DataForSEO = Grass Green (`--green`), Sistrix = Purple (`--purple`), PVGIS = Amber (`--amber`).
+
 
 ---
 
@@ -63,11 +80,13 @@ Professionelles B2B-SaaS-Design: Cool, crisp, datenorientiert. Keine Ablenkung v
 
 | Rolle | Familie | Quelle |
 |-------|---------|--------|
-| UI / Body | **Inter** | Google Fonts |
+| UI / Body | **Manrope** | Google Fonts (OFL) |
 | Monospace | **Geist Mono** | Vercel (CDN: `r2.vercel-storage.com`) |
-| *(Entfernt)* | ~~Bricolage Grotesque~~ | Ersetzt durch Inter 700 |
-| *(Entfernt)* | ~~DM Sans~~ | Ersetzt durch Inter |
-| *(Entfernt)* | ~~DM Mono~~ | Ersetzt durch Geist Mono |
+| *(Entfernt)* | ~~Inter~~ | Ersetzt durch Manrope (markennäher an MVV Circular XX) |
+| *(Entfernt)* | ~~Bricolage Grotesque~~ | Ersetzt |
+| *(Entfernt)* | ~~DM Sans / DM Mono~~ | Ersetzt |
+
+**Markenbezug:** MVV-Hausschrift ist **Circular XX** (geometrische Grotesk, Futura-Tradition, lizenzpflichtig/Lineto — keine Web-Lizenz im Tool). **Manrope** ist die nächste freie, geometrische Entsprechung mit hoher Screen-Lesbarkeit und Tabular-Figures (`font-feature-settings:'tnum'`) — geeignet für Zahlenspalten/Scores im Analyse-Tool. Fallback-Stack: `'Manrope', system-ui, sans-serif`. Ist eine MVV-Web-Lizenz für Circular XX vorhanden, kann sie als erste Familie im Stack ergänzt werden.
 
 ### 3.2 Type Scale
 

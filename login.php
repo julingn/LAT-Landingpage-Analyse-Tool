@@ -60,14 +60,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <title>evalu-pro · Login</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+@font-face{font-family:'Geist Mono';src:url('https://r2.vercel-storage.com/geist-mono/GeistMono-Regular.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}
   :root {
     --bg:#f8f7f5; --bg2:#ffffff; --bg3:#f2f1ef;
     --border:#e3e2df; --border2:#d0ceca;
     --text:#1a1917; --text2:#4a4845; --text3:#908d8a;
-    --accent:#4338ca; --accent2:#3730a3;
-    --accent-bg:rgba(67,56,202,.07); --accent-border:rgba(67,56,202,.18);
+    --accent:#0049EC; --accent2:#263FCC;
+    --accent-bg:rgba(0,73,236,.07); --accent-border:rgba(0,73,236,.18);
     --green:#15803d; --green-bg:#f0fdf4; --green-border:#bbf7d0;
     --amber:#b45309; --amber-bg:#fffbeb; --amber-border:#fde68a;
     --red:#dc2626; --red-bg:#fef2f2; --red-border:#fecaca;
@@ -75,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Manrope', system-ui, sans-serif;
     background: var(--bg);
     min-height: 100vh;
     display: flex;
@@ -111,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
   .brand-icon svg { color: #fff; }
   .brand-name {
-    font-family: 'Bricolage Grotesque', sans-serif;
+    font-family: 'Manrope', sans-serif;
     font-size: 22px;
     font-weight: 700;
     color: var(--text);
@@ -147,7 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     border: 1px solid var(--border2);
     border-radius: var(--radius);
     background: var(--bg);
-    font-family: 'DM Mono', monospace;
+    font-family: 'Geist Mono', monospace;
     font-size: 14px;
     color: var(--text);
     outline: none;
@@ -181,7 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     color: #fff;
     border: none;
     border-radius: var(--radius);
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Manrope', sans-serif;
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
