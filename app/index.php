@@ -989,6 +989,11 @@ button{font-family:inherit}
 .cf-loc.img{background:var(--amber-bg);color:var(--amber)}
 .cf-loc.meta{background:var(--blue-bg);color:var(--blue)}
 .cf-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.cf-actions{white-space:nowrap}
+.cf-action-btn{padding:3px 9px;font-size:11px;font-weight:600;font-family:inherit;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;transition:background .12s,color .12s,border-color .12s}
+.cf-action-btn+.cf-action-btn{margin-left:5px}
+.cf-action-ignore:hover{background:var(--bg4);color:var(--text);border-color:var(--text3)}
+.cf-action-done:hover{background:var(--green-bg);color:var(--green);border-color:var(--green)}
 .cf-empty{padding:48px 0;text-align:center;color:var(--text3);font-size:13px}
 @media(max-width:1100px){.cf-layout{grid-template-columns:1fr}}
 @media(max-width:600px){.cf-stat-grid{grid-template-columns:repeat(2,1fr)}.cf-opt-grid{grid-template-columns:1fr}}
@@ -1869,10 +1874,11 @@ button{font-family:inherit}
                 <th data-tip="Das tatsächlich gefundene Wort.&#10;Schwarz = exakter Treffer&#10;Blau = Schreibvariante (Bindestrich, Umlaut, Plural)&#10;Grün = KI-Synonym">Variante</th>
                 <th data-tip="Textausschnitt rund um den Treffer (± 80 Zeichen).&#10;Der Treffer ist gelb hervorgehoben.">Kontext</th>
                 <th data-tip="Wo auf der Seite der Treffer gefunden wurde.&#10;H1–H6 = Überschrift&#10;Absatz / Liste / Tabelle = Fließtext&#10;Bild-Alt = Alt-Attribut eines Bildes&#10;Bild-OCR = Aus Bild extrahierter Text&#10;Meta-Title / Meta-Description = Seitenmeta">Position</th>
+                <th data-tip="Treffer als „Ignorieren" oder „Erledigt" markieren.&#10;In beiden Fällen verschwindet der Treffer aus der Anzeige.">Aktion</th>
               </tr>
             </thead>
             <tbody id="cf-table-body">
-              <tr><td colspan="5" class="cf-empty">Keine Ergebnisse vorhanden.</td></tr>
+              <tr><td colspan="6" class="cf-empty">Keine Ergebnisse vorhanden.</td></tr>
             </tbody>
           </table>
         </div>
@@ -6289,6 +6295,7 @@ let cfTerms    = [];   // [{ term, variants:[{text,type}] }]
 let cfExcludeTerms = []; // string[] — Ausschluss-Begriffe
 let cfUrls     = [];   // string[]
 let cfAllHits  = [];   // alle Treffer aus allen URLs
+let cfDismissed = {};  // { [hitId]: 'ignored' | 'done' } — aus der Anzeige entfernte Treffer
 let cfRunning  = false;
 let cfStopped  = false;
 let cfOptions  = { plural:true, hyphen:true, umlauts:true, ai_synonyms:true, partial:true, js:true, ocr:true, case:false };
@@ -6490,6 +6497,7 @@ async function cfStart() {
   cfRunning = true;
   cfStopped = false;
   cfAllHits = [];
+  cfDismissed = {};
 
   // UI vorbereiten
   document.getElementById('cf-run-btn').disabled       = true;
@@ -6632,7 +6640,7 @@ async function cfCrawlUrl(url, idx) {
 
     const hitsEl = document.getElementById('cf-hits-' + idx);
     if (d.success && d.hits && d.hits.length > 0) {
-      d.hits.forEach(h => cfAllHits.push({ url, ...h }));
+      d.hits.forEach(h => cfAllHits.push({ _id: cfAllHits.length, url, ...h }));
       if (hitsEl) { hitsEl.textContent = d.hits.length + ' Treffer'; hitsEl.classList.add('has-hits'); }
     } else {
       if (hitsEl) hitsEl.textContent = '0';
@@ -6702,6 +6710,7 @@ function cfRenderTable() {
   const filterSource = document.getElementById('cf-filter-source')?.value || '';
 
   let hits = cfAllHits.filter(h => {
+    if (cfDismissed[h._id]) return false; // als Ignorieren/Erledigt markiert
     if (filterTerm   && h.term     !== filterTerm)   return false;
     if (filterType   && h.type     !== filterType)   return false;
     if (filterSource && h.location !== filterSource) return false;
@@ -6726,7 +6735,7 @@ function cfRenderTable() {
 
   const tbody = document.getElementById('cf-table-body');
   if (!hits.length) {
-    tbody.innerHTML = '<tr><td colspan="5" class="cf-empty">Keine Treffer für diese Filterauswahl.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="cf-empty">Keine Treffer für diese Filterauswahl.</td></tr>';
     return;
   }
 
@@ -6743,8 +6752,33 @@ function cfRenderTable() {
       <td style="font-family:'Geist Mono',monospace;font-size:11px">${escHtml(h.variant)}</td>
       <td class="cf-ctx">${ctx}</td>
       <td><span class="cf-loc ${locClass}">${escHtml(h.location)}</span></td>
+      <td class="cf-actions">
+        <button type="button" class="cf-action-btn cf-action-ignore" onclick="cfDismissHit(${h._id}, 'ignored')" data-tip="Treffer ignorieren – verschwindet aus der Anzeige.">Ignorieren</button>
+        <button type="button" class="cf-action-btn cf-action-done" onclick="cfDismissHit(${h._id}, 'done')" data-tip="Treffer als erledigt markieren – verschwindet aus der Anzeige.">Erledigt</button>
+      </td>
     </tr>`;
   }).join('');
+}
+
+// Treffer als „Ignorieren" oder „Erledigt" markieren → aus der Anzeige entfernen
+function cfDismissHit(id, status) {
+  cfDismissed[id] = status;
+  cfRenderTable();
+  cfUpdateResultsSummary();
+}
+
+function cfUpdateResultsSummary() {
+  const dismissedCount = Object.keys(cfDismissed).length;
+  const visible = cfAllHits.length - dismissedCount;
+  const pagesWithHits = [...new Set(cfAllHits.filter(h => !cfDismissed[h._id]).map(h => h.url))].length;
+  let txt = visible + ' Treffer auf ' + pagesWithHits + ' Seiten';
+  if (dismissedCount > 0) {
+    const ignored = Object.values(cfDismissed).filter(s => s === 'ignored').length;
+    const done    = Object.values(cfDismissed).filter(s => s === 'done').length;
+    txt += ' · ' + ignored + ' ignoriert, ' + done + ' erledigt (ausgeblendet)';
+  }
+  const el = document.getElementById('cf-results-summary');
+  if (el) el.textContent = txt;
 }
 
 function cfLocClass(loc) {
