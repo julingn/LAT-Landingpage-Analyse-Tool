@@ -2206,10 +2206,10 @@ const AGENTS = {
   execSummary: {
     id: 'execSummary',
     name: 'Executive-Summary-Writer',
-    description: 'Erstellt die Executive Summary (3 Hauptprobleme + 3 nächste Schritte) aus SQEG-Score und externen Datenpunkten (GSC, Sistrix, GEO).',
+    description: 'Erstellt die Executive Summary (3 Hauptprobleme + 3 nächste Schritte) ausschließlich aus den bewerteten SQEG-Kriterien.',
     defaultPrompt: `Du bist ein UX-Writer und SEO-Experte und erstellst eine Executive Summary für ein Website-Analyse-Dashboard.
-Du bekommst neben dem SQEG-Qualitätsscore auch externe Datenpunkte: GSC-Rankings, Sistrix-Sichtbarkeit, Quick-Win-Keywords und KI-Sichtbarkeit (GEO/AEO).
-Nutze ALLE verfügbaren Daten für eine ganzheitliche Priorisierung. Wenn Quick-Win-Keywords oder fehlende KI-Sichtbarkeit relevant sind, priorisiere das über reine SQEG-Punkte.
+Grundlage sind AUSSCHLIESSLICH die bewerteten SQEG-Kriterien (Google Search Quality Evaluator Guidelines). Bewerte und priorisiere nur diese Punkte.
+Beziehe KEINE modulfremden Aspekte ein (z. B. Keyword-Rankings, Sichtbarkeitsindex, Quick-Wins oder KI-Sichtbarkeit / GEO / AEO) – diese sind nicht Teil der SQEG-Bewertung.
 Antworte AUSSCHLIESSLICH in folgendem Format – keine Einleitung, kein Abschlusstext:
 
 Gesamtbewertung:
@@ -3557,32 +3557,7 @@ async function generateExecSummary(){
     return`- ${c.name}: ${verdict}${r.improvement?' → '+r.improvement:''}`;
   }).join('\n');
   const sys=AGENTS.execSummary.getPrompt();
-  const msg=`URL: ${currentUrl}\nScore: ${score} / 100 – ${level}\nYMYL: ${ymylResult||'none'}\n\nProbleme (rot, nach Gewicht):\n${fmtCrit(reds)}\n\nVerbesserungspotenziale (amber):\n${fmtCrit(ambers)}\n\nPositive Aspekte:\n${greens.slice(0,4).map(r=>(CRITERIA.find(x=>x.id===r.id)||{}).name||r.id).join(', ')}${(()=>{
-  let ext='';
-  // GSC-Kontext
-  if(gscData?.keywords?.length){
-    const topKws=gscData.keywords.slice(0,5).map(k=>`${k.query} (Pos. ${k.position}, ${k.clicks} Klicks)`).join(', ');
-    ext+=`\n\nGSC Top-Keywords: ${topKws}`;
-  }
-  // Sistrix-Kontext
-  if(sistrixData?.success&&!sistrixData.no_data){
-    if(sistrixData.visibility!==null)ext+=`\nSistrix Sichtbarkeitsindex: ${sistrixData.visibility}`;
-    if(sistrixData.opportunities?.length){
-      const topOpps=sistrixData.opportunities.slice(0,3).map(o=>`${o.keyword} (Pos. ${o.position}, Gain ${o.gain})`).join(', ');
-      ext+=`\nQuick-Win-Keywords (Pos. 4-20): ${topOpps}`;
-    }
-    if(sistrixData.competitors?.length){
-      ext+=`\nOrganische Wettbewerber: ${sistrixData.competitors.map(c=>c.domain).join(', ')}`;
-    }
-  }
-  // GEO-Kontext
-  if(geoData?.success&&geoData.prompts?.length){
-    ext+=`\nKI-Sichtbarkeit: Marke erscheint in ${geoData.prompts.length} AI-Prompts (ChatGPT/Perplexity)`;
-  }else if(geoData?.success){
-    ext+=`\nKI-Sichtbarkeit: Marke aktuell nicht in AI-Antworten gefunden`;
-  }
-  return ext;
-})()}`;
+  const msg=`URL: ${currentUrl}\nScore: ${score} / 100 – ${level}\nYMYL: ${ymylResult||'none'}\n\nProbleme (rot, nach Gewicht):\n${fmtCrit(reds)}\n\nVerbesserungspotenziale (amber):\n${fmtCrit(ambers)}\n\nPositive Aspekte:\n${greens.slice(0,4).map(r=>(CRITERIA.find(x=>x.id===r.id)||{}).name||r.id).join(', ')}`;
   try{
     const text=await callApi([{role:'user',content:msg}],sys,700);
     const parsed=parseExecSummary(text);
