@@ -24,6 +24,27 @@ gelöst | workaround | offen | erneut prüfen
 ---
 
 ## Problem
+JS-Änderungen im Monolithen (`app/index.php`) sollen wie vorgeschrieben mit `node --check`
+geprüft werden, aber `node` ist auf der Entwicklungsmaschine nicht im PATH verfügbar.
+## Ursache
+Node/Puppeteer läuft in Produktion im Container; lokal ist keine Node-Installation vorhanden.
+## Lösung
+JS-Block aus dem `<script>` in eine temporäre `.js`-Datei extrahieren und die Syntax über den
+**JS-Sprachserver von VS Code** prüfen (Diagnostics/„Get Errors") — funktional äquivalent zu
+`node --check` für Syntaxfehler. Zusätzlich Smoke-Test via lokalem PHP-Server
+(`php -S 127.0.0.1:8099 -t . router.php`) + Browser-Login (Default-Passwort) + View öffnen:
+Empty-/Fehler-/Validierungszustände und Light-/Dark-Mode ohne Konsolenfehler verifizieren.
+Temporäre `.js`-Datei danach löschen (nicht committen).
+## Betroffene Dateien
+Entwicklungsumgebung / QS-Prozess (kein Repo-Code).
+## Datum
+2026-09-09
+## Status
+gelöst
+
+---
+
+## Problem
 Nach dem Speichern von `app/index.php` mit einem externen Editor schlägt `session_start()`
 mit „headers already sent" fehl.
 ## Ursache

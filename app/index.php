@@ -997,6 +997,76 @@ button{font-family:inherit}
 .cf-empty{padding:48px 0;text-align:center;color:var(--text3);font-size:13px}
 @media(max-width:1100px){.cf-layout{grid-template-columns:1fr}}
 @media(max-width:600px){.cf-stat-grid{grid-template-columns:repeat(2,1fr)}.cf-opt-grid{grid-template-columns:1fr}}
+/* ── Modul: Wissensabdeckung & Chancen (Knowledge Coverage) ── */
+.kg-input-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.kg-field{display:flex;flex-direction:column;gap:6px}
+.kg-label{font-size:12px;font-weight:600;color:var(--text2);display:flex;align-items:center;gap:6px}
+.kg-check{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:var(--text2);cursor:pointer}
+.kg-check input{accent-color:var(--accent)}
+.kg-help{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:var(--bg4);color:var(--text3);font-size:10px;font-weight:700;cursor:help;position:relative;flex:0 0 auto}
+.kg-help:hover,.kg-help:focus{background:var(--accent-bg);color:var(--accent);outline:none}
+.kg-help::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);width:230px;background:var(--text);color:var(--bg2);font-size:11px;font-weight:500;line-height:1.4;text-align:left;padding:8px 10px;border-radius:var(--radius);box-shadow:var(--shadow-lg);opacity:0;visibility:hidden;transition:opacity .15s;z-index:50;pointer-events:none}
+.kg-help:hover::after,.kg-help:focus::after{opacity:1;visibility:visible}
+.kg-steps{margin-top:14px;display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2)}
+.kg-step{display:flex;align-items:center;gap:8px}
+.kg-step-dot{width:8px;height:8px;border-radius:50%;background:var(--border2);flex:0 0 auto}
+.kg-step.done .kg-step-dot{background:var(--green)}
+.kg-step.active .kg-step-dot{background:var(--accent);animation:skel-pulse 1.4s ease-in-out infinite}
+.kg-empty{padding:56px 24px;text-align:center;color:var(--text3)}
+.kg-empty-icon{color:var(--border2);margin-bottom:14px}
+.kg-empty-title{font-size:15px;font-weight:700;color:var(--text2);margin-bottom:6px}
+.kg-empty-text{font-size:13px;line-height:1.6;max-width:520px;margin:0 auto}
+.kg-score-hero{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.kg-score-big{font-size:38px;font-weight:800;line-height:1}
+.kg-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.kg-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.kg-cov-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.kg-cov-row:last-child{border-bottom:none}
+.kg-cov-name{font-size:13px;color:var(--text);font-weight:600}
+.kg-cov-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.kg-cov-bars{display:flex;flex-direction:column;gap:4px;min-width:160px}
+.kg-cov-bar{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase}
+.kg-cov-track{flex:1;height:7px;border-radius:4px;background:var(--bg4);overflow:hidden}
+.kg-cov-fill{height:100%;border-radius:4px}
+.kg-cov-fill.own{background:var(--accent)}
+.kg-cov-fill.comp{background:var(--purple)}
+.kg-cvg{font-size:10px;font-weight:700;text-transform:uppercase;padding:2px 7px;border-radius:var(--radius-sm)}
+.kg-cvg.stark{background:var(--green-bg);color:var(--green)}
+.kg-cvg.mittel{background:var(--amber-bg);color:var(--amber)}
+.kg-cvg.schwach{background:var(--red-bg);color:var(--red)}
+.kg-cvg.fehlt{background:var(--bg4);color:var(--text3)}
+.kg-opp-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow-sm)}
+.kg-opp-head{display:flex;align-items:flex-start;gap:14px}
+.kg-opp-score{flex:0 0 auto;width:52px;height:52px;border-radius:var(--radius);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff}
+.kg-opp-score small{font-size:8px;font-weight:600;text-transform:uppercase;opacity:.85}
+.kg-opp-main{flex:1;min-width:0}
+.kg-opp-title{font-size:14px;font-weight:700;color:var(--text)}
+.kg-opp-type{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text3);letter-spacing:.03em;margin-top:2px}
+.kg-opp-rationale{font-size:12px;line-height:1.5;color:var(--text2);margin-top:8px}
+.kg-opp-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.kg-detail{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:none}
+.kg-opp-card.open .kg-detail{display:block}
+.kg-detail-h{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text3);margin:12px 0 6px}
+.kg-driver{display:grid;grid-template-columns:130px 1fr 40px;gap:8px;align-items:center;font-size:11px;color:var(--text2);margin-bottom:4px}
+.kg-driver-track{height:6px;border-radius:3px;background:var(--bg4);overflow:hidden}
+.kg-driver-fill{height:100%;background:var(--accent);border-radius:3px}
+.kg-prov{font-size:10px;font-weight:700;text-transform:uppercase;padding:2px 7px;border-radius:var(--radius-sm);margin-right:5px}
+.kg-prov.source_fact{background:var(--green-bg);color:var(--green)}
+.kg-prov.search_signal{background:var(--blue-bg);color:var(--blue)}
+.kg-prov.ai_inferred{background:var(--accent-bg);color:var(--accent)}
+.kg-prov.user_confirmed{background:var(--bg4);color:var(--text2)}
+.kg-conf{font-size:11px;font-weight:600;color:var(--text3)}
+.kg-ws-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.kg-textarea{width:100%;min-height:280px;font-family:inherit;font-size:13px;line-height:1.6;padding:12px 14px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);resize:vertical}
+.kg-textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg)}
+.kg-md{font-size:13px;line-height:1.6;color:var(--text)}
+.kg-md h2{font-size:16px;margin:14px 0 6px}
+.kg-md h3{font-size:14px;margin:12px 0 4px}
+.kg-md ul{margin:6px 0 6px 18px}
+.kg-verify{background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:var(--radius);padding:10px 12px;font-size:12px;color:var(--text2);margin-top:10px}
+.kg-verify-h{font-weight:700;color:var(--amber);font-size:11px;text-transform:uppercase;margin-bottom:4px}
+.kg-ws-empty{padding:40px 20px;text-align:center;color:var(--text3);font-size:13px}
+@media(max-width:900px){.kg-input-grid,.kg-grid-2,.kg-ws-grid{grid-template-columns:1fr}.kg-grid-3{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -1050,6 +1120,10 @@ button{font-family:inherit}
     <button class="nav-item" data-view="content-finder" onclick="showView('content-finder')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="11" y1="8" x2="11" y2="14"/></svg>
       Content Finder
+    </button>
+    <button class="nav-item" data-view="knowledge" onclick="showView('knowledge')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><line x1="6.7" y1="7.3" x2="10.5" y2="16.4"/><line x1="17.3" y1="7.3" x2="13.5" y2="16.4"/><line x1="7" y1="6" x2="17" y2="6"/></svg>
+      Wissensabdeckung
     </button>
     <div class="nav-section-label" style="margin-top:auto">System</div>
     <button class="nav-item" data-view="agents" onclick="showView('agents')">
@@ -1898,6 +1972,70 @@ button{font-family:inherit}
   </div>
 </div><!-- /view-content-finder -->
 
+<div class="view-panel" id="view-knowledge">
+  <div class="input-card">
+    <div class="card-header">
+      <div class="card-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><line x1="6.7" y1="7.3" x2="10.5" y2="16.4"/><line x1="17.3" y1="7.3" x2="13.5" y2="16.4"/><line x1="7" y1="6" x2="17" y2="6"/></svg>
+      </div>
+      <div>
+        <div class="card-title">Wissensabdeckung &amp; Chancen</div>
+        <div class="card-sub">Vergleicht die semantische Abdeckung deiner Seite mit einem Wettbewerber und leitet konkrete, begr&uuml;ndete Content-Ma&szlig;nahmen ab.</div>
+      </div>
+    </div>
+    <div class="kg-input-grid">
+      <div class="kg-field">
+        <label class="kg-label" for="kg-own-url">Eigene URL (mvv.de)
+          <span class="kg-help" tabindex="0" data-tip="Die eigene Seite, deren Themen-Abdeckung gepr&uuml;ft wird.">?</span>
+        </label>
+        <input type="url" id="kg-own-url" class="url-input" placeholder="https://www.mvv.de/...">
+      </div>
+      <div class="kg-field">
+        <label class="kg-label" for="kg-comp-url">Wettbewerber-URL
+          <span class="kg-help" tabindex="0" data-tip="Eine erfolgreiche Wettbewerberseite zum Vergleich.">?</span>
+        </label>
+        <input type="url" id="kg-comp-url" class="url-input" placeholder="https://www.wettbewerber.de/...">
+      </div>
+    </div>
+    <label class="kg-check"><input type="checkbox" id="kg-use-search" checked> Suchsignale einbeziehen
+      <span class="kg-help" tabindex="0" data-tip="Holt gemeinsame Ranking-Keywords beider URLs (DataForSEO), um echte Suchnachfrage zu belegen.">?</span>
+    </label>
+    <button class="btn-start" id="kg-run-btn" onclick="kgRun()">Abdeckung analysieren</button>
+  </div>
+
+  <div id="kg-loading" class="pv-loading" style="display:none">
+    <div class="pv-loading-spinner"></div>
+    <div id="kg-loading-text">Analyse l&auml;uft &hellip;</div>
+    <div id="kg-steps" class="kg-steps"></div>
+  </div>
+
+  <div id="kg-error" class="pv-error-box" style="display:none"></div>
+
+  <div id="kg-empty" class="kg-empty">
+    <div class="kg-empty-icon">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><line x1="6.7" y1="7.3" x2="10.5" y2="16.4"/><line x1="17.3" y1="7.3" x2="13.5" y2="16.4"/><line x1="7" y1="6" x2="17" y2="6"/></svg>
+    </div>
+    <div class="kg-empty-title">Noch keine Analyse</div>
+    <div class="kg-empty-text">Gib eine eigene URL und eine Wettbewerber-URL ein und starte die Analyse. Du erf&auml;hrst, welche Themen, Eigenschaften und Zusammenh&auml;nge deine Seite noch nicht abdeckt &ndash; und kannst daraus direkt eine Content-Ma&szlig;nahme erstellen.</div>
+  </div>
+
+  <div id="kg-results" style="display:none">
+    <div id="kg-partial" class="pv-data-hint" style="display:none"></div>
+    <div class="pv-tabs" id="kg-tabs">
+      <button class="pv-tab-btn active" onclick="kgSwitchTab('overview',this)">&Uuml;bersicht</button>
+      <button class="pv-tab-btn" onclick="kgSwitchTab('coverage',this)">Themenabdeckung</button>
+      <button class="pv-tab-btn" onclick="kgSwitchTab('competitors',this)">Wettbewerber</button>
+      <button class="pv-tab-btn" onclick="kgSwitchTab('opportunities',this)">Chancen</button>
+      <button class="pv-tab-btn" onclick="kgSwitchTab('workspace',this)">Content Workspace</button>
+    </div>
+    <div id="kg-tab-overview" class="pv-tab-panel active"></div>
+    <div id="kg-tab-coverage" class="pv-tab-panel"></div>
+    <div id="kg-tab-competitors" class="pv-tab-panel"></div>
+    <div id="kg-tab-opportunities" class="pv-tab-panel"></div>
+    <div id="kg-tab-workspace" class="pv-tab-panel"></div>
+  </div>
+</div><!-- /view-knowledge -->
+
 <div class="view-panel" id="view-agents">
   <div class="input-card">
     <div class="card-header">
@@ -2371,6 +2509,7 @@ const VIEW_META={
   keywords:{title:'Keyword Fit',sub:'Intent-Analyse · Targeting · Potenzial'},
   localpv:{title:'Local PV Generator',sub:'SEO- & CRO-Bausteine für lokale Photovoltaik-Landingpages'},
   'content-finder':{title:'Content Finder',sub:'Vollständige Seitenanalyse nach definierten Begriffen · JS-Rendering · Bild-OCR'},
+  knowledge:{title:'Wissensabdeckung',sub:'Semantische Content-Abdeckung & Chancen · Entitäten · Eigenschaften · Zusammenhänge'},
   agents:{title:'KI-Agenten',sub:'System-Prompts der Tools anzeigen & anpassen'},
   settings:{title:'Einstellungen',sub:'API-Keys · Modell · Passwort'},
 };
@@ -2388,7 +2527,7 @@ function showView(name){
   document.getElementById('view-subtitle').textContent=meta.sub;
   // Hide URL-input header for standalone tool views
   const hf=document.getElementById('header-form');
-  if(name==='localpv'||name==='settings'||name==='content-finder'||name==='agents'){hf.style.display='none';}
+  if(name==='localpv'||name==='settings'||name==='content-finder'||name==='agents'||name==='knowledge'){hf.style.display='none';}
   else{hf.style.display='';}
   if(name==='overview'){
     // Progress-Section zeigen wenn Analyse läuft ODER Log-Inhalt vorhanden
@@ -2400,6 +2539,7 @@ function showView(name){
   }
   if(name==='settings'){loadCredentialStatus();loadGscDomains();}
   if(name==='agents'){renderAgentMgmtList();}
+  if(name==='knowledge'){kgOnShow();}
 }
 // Legacy alias
 function showTool(n){showView(n==='sqeg'?'overview':n);}
@@ -6809,6 +6949,401 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+</script>
+
+<script>
+/* ══ Modul: Wissensabdeckung & Chancen (Knowledge Coverage) ══ */
+const KG_CVG_PCT={stark:100,mittel:60,schwach:30,fehlt:0};
+const KG_TYPE_LABEL={entity_gap:'Fehlendes Thema',attribute_gap:'Fehlende Eigenschaft',relationship_gap:'Fehlender Zusammenhang',optimize_existing:'Bestehenden Inhalt optimieren',new_content:'Neuer Inhalt',internal_link:'Interne Verlinkung'};
+const KG_PROV_LABEL={source_fact:'Seiteninhalt',search_signal:'Suchdaten',ai_inferred:'KI-Ableitung',user_confirmed:'Bestätigt'};
+let kgState={own:null,comp:null,ownText:'',analysis:null,activeOpp:null,briefing:null,generated:null,recheck:null,partialNotes:[]};
+
+function kgOnShow(){
+  if(!kgState.analysis){
+    document.getElementById('kg-empty').style.display='';
+    document.getElementById('kg-results').style.display='none';
+  }
+}
+function kgSwitchTab(name,btn){
+  document.querySelectorAll('#view-knowledge .pv-tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#view-knowledge .pv-tab-panel').forEach(p=>p.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const p=document.getElementById('kg-tab-'+name);
+  if(p)p.classList.add('active');
+}
+function kgValidUrl(u){try{const x=new URL(u);return x.protocol==='http:'||x.protocol==='https:';}catch(e){return false;}}
+function kgScoreColor(s){return s>=70?'var(--green)':s>=50?'var(--amber)':'var(--red)';}
+function kgCvgClass(v){return['stark','mittel','schwach','fehlt'].includes(v)?v:'fehlt';}
+
+function kgSetSteps(steps){
+  const el=document.getElementById('kg-steps');
+  if(!el)return;
+  el.innerHTML=steps.map(s=>'<div class="kg-step '+s.state+'"><span class="kg-step-dot"></span>'+escHtml(s.label)+'</div>').join('');
+}
+async function kgGetJson(url){
+  const res=await fetch(url);const txt=await res.text();let data;
+  try{data=JSON.parse(txt);}catch(e){throw new Error('Ungültige Antwort ('+res.status+')');}
+  if(!res.ok||data.error){const m=data.error?(typeof data.error==='object'?data.error.message:data.error):('HTTP '+res.status);throw new Error(m);}
+  return data;
+}
+async function kgPost(url,body){
+  const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const txt=await res.text();let data;
+  try{data=JSON.parse(txt);}catch(e){throw new Error('Ungültige Antwort ('+res.status+')');}
+  if(!res.ok||data.error){const m=data.error?(typeof data.error==='object'?data.error.message:data.error):('HTTP '+res.status);throw new Error(m);}
+  return data;
+}
+function kgHtmlToText(html){
+  const d=document.createElement('div');d.innerHTML=html;
+  d.querySelectorAll('script,style,noscript').forEach(n=>n.remove());
+  return (d.textContent||'').replace(/\s+/g,' ').trim();
+}
+function kgShowError(msg){
+  const el=document.getElementById('kg-error');
+  el.innerHTML='<strong>Analyse nicht abgeschlossen.</strong><br>'+escHtml(msg)+'<br><span style="color:var(--text3);font-size:12px">Prüfe die URLs und ob die API-Keys (Anthropic/OpenAI, DataForSEO) in den Einstellungen hinterlegt sind.</span>';
+  el.style.display='';
+}
+
+async function kgFetchHtml(url){
+  const d=await kgGetJson('fetch.php?url='+encodeURIComponent(url));
+  if(!d.html)throw new Error('Seite konnte nicht abgerufen werden: '+url);
+  return d.html;
+}
+async function kgIntersection(ownUrl,compUrl){
+  const d=await kgPost('dataforseo.php?action=page_intersection',{targets:[ownUrl,compUrl]});
+  const result=(((d.tasks||[])[0]||{}).result||[])[0]||{};
+  const items=result.items||[];
+  const out=[];
+  items.forEach(it=>{
+    const kd=it.keyword_data||{};
+    const kw=kd.keyword||it.keyword||'';
+    const sv=(kd.keyword_info&&kd.keyword_info.search_volume!=null)?kd.keyword_info.search_volume:null;
+    if(kw)out.push({keyword:kw,search_volume:sv});
+  });
+  return out.slice(0,25);
+}
+
+async function kgRun(){
+  const ownUrl=document.getElementById('kg-own-url').value.trim();
+  const compUrl=document.getElementById('kg-comp-url').value.trim();
+  const useSearch=document.getElementById('kg-use-search').checked;
+  document.getElementById('kg-error').style.display='none';
+  if(!kgValidUrl(ownUrl)){kgShowError('Bitte eine gültige eigene URL (http/https) eingeben.');return;}
+  if(!kgValidUrl(compUrl)){kgShowError('Bitte eine gültige Wettbewerber-URL (http/https) eingeben.');return;}
+  document.getElementById('kg-empty').style.display='none';
+  document.getElementById('kg-results').style.display='none';
+  const btn=document.getElementById('kg-run-btn');btn.disabled=true;
+  document.getElementById('kg-loading').style.display='';
+  kgState.partialNotes=[];
+  const steps=[
+    {label:'Eigene Seite abrufen',state:'active'},
+    {label:'Themen der eigenen Seite erkennen',state:''},
+    {label:'Wettbewerberseite abrufen',state:''},
+    {label:'Themen des Wettbewerbers erkennen',state:''},
+    {label:'Suchsignale abrufen',state:''},
+    {label:'Abdeckung vergleichen & Chancen ableiten',state:''}
+  ];
+  kgSetSteps(steps);
+  const adv=(i)=>{steps[i].state='done';if(steps[i+1])steps[i+1].state='active';kgSetSteps(steps);};
+  try{
+    const ownHtml=await kgFetchHtml(ownUrl);
+    kgState.ownText=kgHtmlToText(ownHtml);adv(0);
+    const own=await kgPost('knowledge.php?action=extract',{url:ownUrl,html:ownHtml,role:'own'});
+    kgState.own=own;
+    if(own.partial)kgState.partialNotes.push('Eigene Seite: '+(own.note||'wenig auswertbarer Text.'));
+    adv(1);
+    const compHtml=await kgFetchHtml(compUrl);adv(2);
+    const comp=await kgPost('knowledge.php?action=extract',{url:compUrl,html:compHtml,role:'competitor'});
+    kgState.comp=comp;
+    if(comp.partial)kgState.partialNotes.push('Wettbewerberseite: '+(comp.note||'wenig auswertbarer Text.'));
+    adv(3);
+    let kws=[];
+    if(useSearch){
+      try{kws=await kgIntersection(ownUrl,compUrl);}
+      catch(e){kgState.partialNotes.push('Suchsignale nicht verfügbar ('+e.message+') — Analyse ohne DataForSEO-Daten.');}
+    }
+    steps[4].state='done';steps[5].state='active';kgSetSteps(steps);
+    const analysis=await kgPost('knowledge.php?action=analyze',{own:own,competitors:[comp],intersectionKeywords:kws});
+    kgState.analysis=analysis;kgState.activeOpp=null;kgState.briefing=null;kgState.generated=null;kgState.recheck=null;
+    steps[5].state='done';kgSetSteps(steps);
+    document.getElementById('kg-loading').style.display='none';
+    document.getElementById('kg-results').style.display='';
+    kgRenderAll();
+    kgSwitchTab('overview',document.querySelector('#view-knowledge .pv-tab-btn'));
+  }catch(e){
+    document.getElementById('kg-loading').style.display='none';
+    kgShowError(e.message||'Unbekannter Fehler bei der Analyse.');
+  }finally{btn.disabled=false;}
+}
+
+function kgRenderAll(){kgRenderPartial();kgRenderOverview();kgRenderCoverage();kgRenderCompetitors();kgRenderOpportunities();kgRenderWorkspace();}
+
+function kgRenderPartial(){
+  const el=document.getElementById('kg-partial');
+  if(kgState.partialNotes.length){
+    el.innerHTML='<strong>Teilergebnis:</strong> '+kgState.partialNotes.map(escHtml).join(' · ');
+    el.style.display='';
+  }else{el.style.display='none';}
+}
+
+function kgRenderOverview(){
+  const a=kgState.analysis,opps=a.opportunities||[];
+  const avg=opps.length?Math.round(opps.reduce((s,x)=>s+(x.score||0),0)/opps.length):0;
+  const byType={};opps.forEach(o=>{const t=KG_TYPE_LABEL[o.type]||o.type||'Sonstige';byType[t]=(byType[t]||0)+1;});
+  const dist=Object.keys(byType).map(t=>'<div class="kg-cov-row"><div class="kg-cov-name">'+escHtml(t)+'</div><div class="kg-cov-bars"><span class="score-chip">'+byType[t]+'</span></div></div>').join('')||'<div class="kg-ws-empty">Keine Chancen erkannt.</div>';
+  const top=opps.slice(0,3).map(o=>kgOppMini(o)).join('')||'<div class="kg-ws-empty">Keine Chancen erkannt.</div>';
+  const sources=['Seiteninhalte (eigene + Wettbewerber)'];
+  if(a.usedSearchSignals)sources.push('Suchsignale (DataForSEO)');
+  sources.push('KI-Klassifikation');
+  const el=document.getElementById('kg-tab-overview');
+  el.innerHTML=
+    '<div class="needs-met-block"><div class="needs-met-label">Überblick</div>'
+    +'<div class="kg-score-hero" style="margin-top:12px">'
+    +'<div><div class="kg-score-big" style="color:'+kgScoreColor(avg)+'">'+avg+'</div><div class="kg-cov-sub">Ø Priorität der Chancen (0–100)</div></div>'
+    +'<div style="flex:1"></div>'
+    +'<div class="kg-grid-3" style="flex:2;min-width:280px">'
+    +kgStat(opps.length,'Chancen gesamt')
+    +kgStat((kgState.own.entities||[]).length,'Themen eigene Seite')
+    +kgStat((kgState.comp.entities||[]).length,'Themen Wettbewerber')
+    +'</div></div></div>'
+    +'<div class="kg-grid-2" style="margin-top:16px">'
+    +'<div class="needs-met-block"><div class="needs-met-label">Wichtigste Chancen</div><div style="margin-top:10px">'+top+'</div></div>'
+    +'<div class="needs-met-block"><div class="needs-met-label">Verteilung nach Typ</div><div style="margin-top:10px">'+dist+'</div>'
+    +'<div class="needs-met-label" style="margin-top:16px">Datengrundlagen</div><div style="margin-top:8px">'+sources.map(s=>'<span class="kg-prov source_fact" style="margin-bottom:5px;display:inline-block">'+escHtml(s)+'</span>').join(' ')+'</div>'
+    +'</div></div>';
+}
+function kgStat(n,label){return '<div class="stat-box"><div style="font-size:22px;font-weight:800;color:var(--text)">'+n+'</div><div class="kg-cov-sub">'+escHtml(label)+'</div></div>';}
+function kgOppMini(o){
+  return '<div class="kg-cov-row" style="cursor:pointer" onclick="kgSwitchTab(\'opportunities\',document.querySelectorAll(\'#view-knowledge .pv-tab-btn\')[3])">'
+    +'<div><div class="kg-cov-name">'+escHtml(o.title||'Chance')+'</div><div class="kg-cov-sub">'+escHtml(KG_TYPE_LABEL[o.type]||o.type||'')+'</div></div>'
+    +'<div class="kg-opp-score" style="width:40px;height:40px;font-size:14px;background:'+kgScoreColor(o.score||0)+'">'+(o.score||0)+'</div></div>';
+}
+
+function kgCoverageSection(label,rows){
+  if(!rows||!rows.length)return '<div class="needs-met-block"><div class="needs-met-label">'+label+'</div><div class="kg-ws-empty">Keine Elemente erkannt.</div></div>';
+  const body=rows.map(r=>{
+    const ownV=kgCvgClass(r.own),compV=kgCvgClass(r.competitor);
+    const ownPct=KG_CVG_PCT[ownV],compPct=KG_CVG_PCT[compV];
+    const name=r.label+(r.entity?(' <span class="kg-cov-sub">('+r.entity+')</span>'):'');
+    return '<div class="kg-cov-row"><div><div class="kg-cov-name">'+escHtml(r.label)+'</div>'
+      +(r.entity?'<div class="kg-cov-sub">'+escHtml(r.entity)+'</div>':'')+'</div>'
+      +'<div class="kg-cov-bars">'
+      +'<div class="kg-cov-bar">Eigene<div class="kg-cov-track"><div class="kg-cov-fill own" style="width:'+ownPct+'%"></div></div><span class="kg-cvg '+ownV+'">'+ownV+'</span></div>'
+      +'<div class="kg-cov-bar">Wettb.<div class="kg-cov-track"><div class="kg-cov-fill comp" style="width:'+compPct+'%"></div></div><span class="kg-cvg '+compV+'">'+compV+'</span></div>'
+      +'</div></div>';
+  }).join('');
+  return '<div class="needs-met-block"><div class="needs-met-label">'+label+'</div><div style="margin-top:8px">'+body+'</div></div>';
+}
+function kgRenderCoverage(){
+  const c=kgState.analysis.coverage||{};
+  const el=document.getElementById('kg-tab-coverage');
+  el.innerHTML=
+    '<div class="pv-data-hint" style="margin-bottom:14px">Vergleich der Abdeckung: <strong>Eigene Seite</strong> (blau) gegenüber <strong>Wettbewerber</strong> (lila). „stark“ = ausführlich erklärt, „schwach“ = nur gestreift, „fehlt“ = nicht behandelt.</div>'
+    +kgCoverageSection('Abgedeckte Themen und Begriffe',c.entities)
+    +'<div style="height:14px"></div>'
+    +kgCoverageSection('Eigenschaften',c.attributes)
+    +'<div style="height:14px"></div>'
+    +kgCoverageSection('Thematische Zusammenhänge',c.relationships);
+}
+
+function kgRenderCompetitors(){
+  const c=kgState.analysis.coverage||{};
+  const all=[].concat(c.entities||[],c.attributes||[],c.relationships||[]);
+  const ahead=all.filter(r=>['fehlt','schwach'].includes(kgCvgClass(r.own))&&kgCvgClass(r.competitor)==='stark');
+  const strong=all.filter(r=>kgCvgClass(r.own)==='stark'&&['fehlt','schwach'].includes(kgCvgClass(r.competitor)));
+  const row=(r)=>'<div class="kg-cov-row"><div class="kg-cov-name">'+escHtml(r.label)+(r.entity?' <span class="kg-cov-sub">('+escHtml(r.entity)+')</span>':'')+'</div><div class="kg-cov-bars"><span class="kg-cvg '+kgCvgClass(r.own)+'">eigene: '+kgCvgClass(r.own)+'</span></div></div>';
+  const el=document.getElementById('kg-tab-competitors');
+  el.innerHTML=
+    '<div class="pv-data-hint" style="margin-bottom:14px">Nicht die Textmenge zählt, sondern echter Wissensgewinn. Hier siehst du, wo der Wettbewerber inhaltlich vorne liegt – und wo deine Seite bereits stärker ist.</div>'
+    +'<div class="needs-met-block"><div class="needs-met-label">Wettbewerber deckt ab, eigene Seite (noch) nicht</div><div style="margin-top:8px">'+(ahead.length?ahead.map(row).join(''):'<div class="kg-ws-empty">Kein klarer Wissensvorsprung des Wettbewerbers erkannt.</div>')+'</div></div>'
+    +'<div style="height:14px"></div>'
+    +'<div class="needs-met-block"><div class="needs-met-label">Eigene Seite bereits stärker</div><div style="margin-top:8px">'+(strong.length?strong.map(row).join(''):'<div class="kg-ws-empty">Kein eindeutiger eigener Vorsprung erkannt.</div>')+'</div></div>';
+}
+
+function kgRenderOpportunities(){
+  const opps=kgState.analysis.opportunities||[];
+  const el=document.getElementById('kg-tab-opportunities');
+  if(!opps.length){el.innerHTML='<div class="kg-ws-empty">In diesem Vergleich wurden keine eindeutigen Content-Chancen erkannt. Prüfe eine andere Wettbewerberseite oder aktiviere die Suchsignale.</div>';return;}
+  el.innerHTML=opps.map(o=>kgOppCard(o)).join('');
+}
+function kgOppCard(o){
+  const drivers=(o.scoreDrivers||[]).slice(0,5).map(d=>
+    '<div class="kg-driver"><span>'+escHtml(d.label)+'</span><div class="kg-driver-track"><div class="kg-driver-fill" style="width:'+Math.round((d.value||0)*100)+'%"></div></div><span>'+(d.value||0).toFixed(2)+'</span></div>').join('');
+  const prov=(o.provenance||[]).map(p=>'<span class="kg-prov '+p+'">'+escHtml(KG_PROV_LABEL[p]||p)+'</span>').join('');
+  const wa=(o.weakAttributes||[]).map(escHtml).join(', ');
+  const wr=(o.weakRelationships||[]).map(escHtml).join(', ');
+  return '<div class="kg-opp-card" id="kgc-'+escHtml(o.id)+'">'
+    +'<div class="kg-opp-head">'
+    +'<div class="kg-opp-score" style="background:'+kgScoreColor(o.score||0)+'">'+(o.score||0)+'<small>Prio</small></div>'
+    +'<div class="kg-opp-main">'
+    +'<div class="kg-opp-title">'+escHtml(o.title||'Chance')+'</div>'
+    +'<div class="kg-opp-type">'+escHtml(KG_TYPE_LABEL[o.type]||o.type||'')+(o.entity?(' · '+escHtml(o.entity)):'')+'</div>'
+    +'<div class="kg-opp-rationale">'+escHtml(o.rationale||'')+'</div>'
+    +'<div class="kg-opp-actions">'
+    +'<button class="btn-start btn-sm" onclick="kgStartWorkspace(\''+escHtml(o.id)+'\')">Maßnahme erstellen</button>'
+    +'<button class="btn-secondary btn-sm" onclick="kgToggleDetail(\''+escHtml(o.id)+'\')">Details anzeigen</button>'
+    +'<span class="kg-conf">Sicherheit: '+Math.round((o.confidence||0)*100)+'%</span>'
+    +'</div></div></div>'
+    +'<div class="kg-detail">'
+    +(o.recommendedAction?'<div class="kg-detail-h">Was sollte ergänzt werden?</div><div class="kg-opp-rationale">'+escHtml(o.recommendedAction)+'</div>':'')
+    +(wa?'<div class="kg-detail-h">Betroffene Eigenschaften</div><div class="kg-opp-rationale">'+wa+'</div>':'')
+    +(wr?'<div class="kg-detail-h">Betroffene Zusammenhänge</div><div class="kg-opp-rationale">'+wr+'</div>':'')
+    +(o.searchIntent?'<div class="kg-detail-h">Suchintention</div><div class="kg-opp-rationale">'+escHtml(o.searchIntent)+'</div>':'')
+    +(o.competitorEvidence?'<div class="kg-detail-h">Wettbewerber-Beleg</div><div class="kg-opp-rationale">'+escHtml(o.competitorEvidence)+'</div>':'')
+    +'<div class="kg-detail-h">Wie wurde das erkannt?</div><div style="margin-bottom:8px">'+prov+'</div>'
+    +'<div class="kg-detail-h">Score-Treiber</div>'+drivers
+    +'</div></div>';
+}
+function kgToggleDetail(id){const c=document.getElementById('kgc-'+id);if(c)c.classList.toggle('open');}
+
+function kgStartWorkspace(id){
+  const o=(kgState.analysis.opportunities||[]).find(x=>x.id===id);
+  if(!o)return;
+  kgState.activeOpp=o;kgState.briefing=null;kgState.generated=null;kgState.recheck=null;
+  kgRenderWorkspace();
+  kgSwitchTab('workspace',document.querySelectorAll('#view-knowledge .pv-tab-btn')[4]);
+}
+function kgRenderWorkspace(){
+  const el=document.getElementById('kg-tab-workspace');
+  const o=kgState.activeOpp;
+  if(!o){el.innerHTML='<div class="kg-ws-empty">Wähle unter „Chancen“ eine Maßnahme über „Maßnahme erstellen“ aus, um hier ein Briefing zu prüfen und einen Content-Baustein zu erzeugen.</div>';return;}
+  let html='<div class="needs-met-block"><div class="needs-met-label">Ausgewählte Chance</div>'
+    +'<div class="kg-opp-title" style="margin-top:8px">'+escHtml(o.title||'')+'</div>'
+    +'<div class="kg-opp-type">'+escHtml(KG_TYPE_LABEL[o.type]||o.type||'')+(o.entity?(' · '+escHtml(o.entity)):'')+'</div>'
+    +'<div class="kg-opp-rationale">'+escHtml(o.rationale||'')+'</div></div>';
+  // Schritt Briefing
+  html+='<div class="needs-met-block" style="margin-top:14px"><div class="needs-met-label">Content-Briefing</div>';
+  if(!kgState.briefing){
+    html+='<div style="margin-top:10px"><button class="btn-start" id="kg-brief-btn" onclick="kgMakeBriefing()">Briefing erstellen</button></div>';
+  }else{
+    html+=kgBriefingHtml(kgState.briefing);
+    html+='<div class="kg-detail-h">Zusätzliche Hinweise (optional)</div><textarea class="kg-textarea" id="kg-extra" style="min-height:70px" placeholder="z.B. Tonalität, Pflichtaussagen, interne Links …"></textarea>';
+    html+='<div style="margin-top:10px"><button class="btn-start" id="kg-gen-btn" onclick="kgGenerate()">Content-Baustein generieren</button> <button class="btn-secondary btn-sm" onclick="kgMakeBriefing()">Briefing neu erstellen</button></div>';
+  }
+  html+='</div>';
+  // Schritt Content + Diff
+  if(kgState.generated){
+    html+=kgWorkspaceContentHtml();
+  }
+  el.innerHTML=html;
+}
+function kgBriefingHtml(b){
+  const list=(arr)=>((arr&&arr.length)?('<ul>'+arr.map(x=>'<li>'+escHtml(typeof x==='object'?JSON.stringify(x):x)+'</li>').join('')+'</ul>'):'<div class="kg-cov-sub">–</div>');
+  const head=(b.headingStructure||[]).map(h=>'<li><strong>'+escHtml(h.level||'')+':</strong> '+escHtml(h.text||'')+'</li>').join('');
+  let h='<div style="margin-top:10px" class="kg-md">';
+  if(b.goal)h+='<div class="kg-detail-h">Ziel</div><div class="kg-opp-rationale">'+escHtml(b.goal)+'</div>';
+  if(b.audience)h+='<div class="kg-detail-h">Zielgruppe</div><div class="kg-opp-rationale">'+escHtml(b.audience)+'</div>';
+  if(b.searchIntent)h+='<div class="kg-detail-h">Suchintention</div><div class="kg-opp-rationale">'+escHtml(b.searchIntent)+'</div>';
+  if(head)h+='<div class="kg-detail-h">Überschriftenstruktur</div><ul>'+head+'</ul>';
+  if(b.userQuestions)h+='<div class="kg-detail-h">Abzudeckende Nutzerfragen</div>'+list(b.userQuestions);
+  if(b.attributes)h+='<div class="kg-detail-h">Relevante Eigenschaften</div>'+list(b.attributes);
+  if(b.relationships)h+='<div class="kg-detail-h">Relevante Zusammenhänge</div>'+list(b.relationships);
+  if(b.internalLinkTargets)h+='<div class="kg-detail-h">Interne Linkziele</div>'+list(b.internalLinkTargets);
+  if(b.avoidRedundancies)h+='<div class="kg-detail-h">Zu vermeidende Dopplungen</div>'+list(b.avoidRedundancies);
+  if(b.reviewRequired&&b.reviewRequired.length)h+='<div class="kg-verify"><div class="kg-verify-h">Vor Veröffentlichung fachlich prüfen</div><ul>'+b.reviewRequired.map(x=>'<li>'+escHtml(x)+'</li>').join('')+'</ul></div>';
+  if(b.dataSources)h+='<div class="kg-detail-h">Datenquellen</div><div>'+(b.dataSources||[]).map(s=>'<span class="kg-prov source_fact">'+escHtml(s)+'</span>').join(' ')+'</div>';
+  h+='</div>';
+  return h;
+}
+function kgWorkspaceContentHtml(){
+  const g=kgState.generated;
+  const orig=kgState.activeOpp&&kgState.activeOpp._orig?kgState.activeOpp._orig:'';
+  const covered=[].concat((g.coveredEntities||[]),(g.coveredAttributes||[]),(g.coveredRelationships||[]));
+  let h='<div class="needs-met-block" style="margin-top:14px"><div class="needs-met-label">Content Workspace — Ausgangstext vs. Vorschlag</div>';
+  h+='<div class="kg-ws-grid" style="margin-top:12px">';
+  h+='<div><div class="kg-detail-h">Ausgangstext (optional einfügen)</div><textarea class="kg-textarea" id="kg-orig">'+escHtml(orig)+'</textarea></div>';
+  h+='<div><div class="kg-detail-h">Generierter Vorschlag (bearbeitbar, Markdown)</div><textarea class="kg-textarea" id="kg-gentext">'+escHtml(g.markdown||'')+'</textarea></div>';
+  h+='</div>';
+  h+='<div class="kg-detail-h">Vorschau</div><div class="kg-md" id="kg-preview">'+kgMdToHtml(g.markdown||'')+'</div>';
+  if(covered.length)h+='<div class="kg-detail-h">Neu abgedeckt</div><div>'+covered.map(x=>'<span class="kg-cvg stark" style="margin:0 5px 5px 0;display:inline-block">'+escHtml(x)+'</span>').join('')+'</div>';
+  if(g.verificationRequired&&g.verificationRequired.length){
+    h+='<div class="kg-verify"><div class="kg-verify-h">Prüfpflichtige Aussagen (keine ungeprüften Fakten veröffentlichen)</div><ul>'+g.verificationRequired.map(v=>'<li>'+escHtml(v.claim||'')+(v.reason?(' <em>('+escHtml(v.reason)+')</em>'):'')+'</li>').join('')+'</ul></div>';
+  }
+  h+='<div class="kg-opp-actions" style="margin-top:14px">'
+    +'<button class="btn-secondary" onclick="kgPreviewUpdate()">Vorschau aktualisieren</button>'
+    +'<button class="btn-start" onclick="kgRecheck()">Abdeckung erneut prüfen</button>'
+    +'<button class="btn-secondary" onclick="kgExport()">Als Markdown exportieren</button>'
+    +'</div>';
+  h+='<div id="kg-recheck"></div>';
+  h+='</div>';
+  return h;
+}
+function kgMdToHtml(md){
+  const lines=String(md).split(/\n/);let out='';let inUl=false;
+  const closeUl=()=>{if(inUl){out+='</ul>';inUl=false;}};
+  lines.forEach(l=>{
+    const t=l.trim();
+    if(/^###\s+/.test(t)){closeUl();out+='<h3>'+escHtml(t.replace(/^###\s+/,''))+'</h3>';}
+    else if(/^##\s+/.test(t)){closeUl();out+='<h2>'+escHtml(t.replace(/^##\s+/,''))+'</h2>';}
+    else if(/^[-*]\s+/.test(t)){if(!inUl){out+='<ul>';inUl=true;}out+='<li>'+escHtml(t.replace(/^[-*]\s+/,''))+'</li>';}
+    else if(t===''){closeUl();}
+    else{closeUl();out+='<p>'+escHtml(t)+'</p>';}
+  });
+  closeUl();
+  return out||'<div class="kg-cov-sub">Kein Inhalt.</div>';
+}
+function kgPreviewUpdate(){
+  const ta=document.getElementById('kg-gentext');if(!ta)return;
+  if(kgState.generated)kgState.generated.markdown=ta.value;
+  const pv=document.getElementById('kg-preview');if(pv)pv.innerHTML=kgMdToHtml(ta.value);
+}
+
+async function kgMakeBriefing(){
+  const btn=document.getElementById('kg-brief-btn');if(btn){btn.disabled=true;btn.textContent='Briefing wird erstellt …';}
+  try{
+    const ownUrl=document.getElementById('kg-own-url').value.trim();
+    const b=await kgPost('knowledge.php?action=briefing',{opportunity:kgState.activeOpp,url:ownUrl});
+    kgState.briefing=b;kgState.generated=null;kgState.recheck=null;
+    kgRenderWorkspace();
+  }catch(e){kgWsError(e.message);}
+}
+async function kgGenerate(){
+  const btn=document.getElementById('kg-gen-btn');if(btn){btn.disabled=true;btn.textContent='Content wird generiert …';}
+  try{
+    const extra=(document.getElementById('kg-extra')||{}).value||'';
+    const briefing=Object.assign({},kgState.briefing);
+    if(extra.trim())briefing.additionalInstructions=extra.trim();
+    const g=await kgPost('knowledge.php?action=generate',{briefing:briefing,originalText:''});
+    kgState.generated=g;kgState.recheck=null;
+    kgRenderWorkspace();
+  }catch(e){kgWsError(e.message);}
+}
+async function kgRecheck(){
+  const ta=document.getElementById('kg-gentext');const text=ta?ta.value:'';
+  const box=document.getElementById('kg-recheck');
+  if(!text.trim()){box.innerHTML='<div class="pv-error-box" style="display:block">Kein Text zum Prüfen vorhanden.</div>';return;}
+  box.innerHTML='<div class="kg-cov-sub" style="margin-top:10px">Abdeckung wird geprüft …</div>';
+  try{
+    const ex=await kgPost('knowledge.php?action=extract',{url:'',html:'<div>'+text+'</div>',role:'own'});
+    const hay=JSON.stringify(ex).toLowerCase();
+    const o=kgState.activeOpp;
+    const targets=[].concat(o.entity?[o.entity]:[],o.weakAttributes||[],o.weakRelationships||[]).filter(Boolean);
+    const rows=targets.map(t=>{
+      const ok=hay.indexOf(String(t).toLowerCase())>=0;
+      return '<div class="kg-cov-row"><div class="kg-cov-name">'+escHtml(t)+'</div><div><span class="kg-cvg '+(ok?'stark':'fehlt')+'">'+(ok?'jetzt abgedeckt':'noch offen')+'</span></div></div>';
+    }).join('');
+    box.innerHTML='<div class="needs-met-block" style="margin-top:12px"><div class="needs-met-label">Erneute Abdeckungsprüfung</div><div style="margin-top:8px">'+(rows||'<div class="kg-ws-empty">Keine Zielbegriffe zum Prüfen.</div>')+'</div><div class="kg-cov-sub" style="margin-top:8px">Heuristische Prüfung per Begriffsabgleich – ersetzt keine fachliche Kontrolle.</div></div>';
+  }catch(e){box.innerHTML='<div class="pv-error-box" style="display:block">'+escHtml(e.message)+'</div>';}
+}
+function kgWsError(msg){
+  const el=document.getElementById('kg-tab-workspace');
+  const d=document.createElement('div');d.className='pv-error-box';d.style.display='block';d.style.marginTop='12px';
+  d.textContent='Fehler: '+msg;el.appendChild(d);
+}
+function kgExport(){
+  const o=kgState.activeOpp,b=kgState.briefing,g=kgState.generated;
+  const ta=document.getElementById('kg-gentext');
+  const md=ta?ta.value:(g?g.markdown:'');
+  let out='# Wissensabdeckung – Content-Maßnahme\n\n';
+  out+='## Chance\n- Titel: '+(o.title||'')+'\n- Typ: '+(KG_TYPE_LABEL[o.type]||o.type||'')+'\n- Entität: '+(o.entity||'')+'\n- Priorität: '+(o.score||0)+'/100 (Sicherheit '+Math.round((o.confidence||0)*100)+'%)\n- Begründung: '+(o.rationale||'')+'\n\n';
+  if(b){out+='## Briefing\n- Ziel: '+(b.goal||'')+'\n- Zielgruppe: '+(b.audience||'')+'\n- Suchintention: '+(b.searchIntent||'')+'\n';
+    if(b.reviewRequired&&b.reviewRequired.length)out+='- Prüfpflichtig: '+b.reviewRequired.join('; ')+'\n';
+    out+='\n';}
+  out+='## Content-Baustein\n\n'+(md||'')+'\n\n';
+  if(g&&g.verificationRequired&&g.verificationRequired.length){out+='## Vor Veröffentlichung prüfen\n'+g.verificationRequired.map(v=>'- '+(v.claim||'')+(v.reason?(' ('+v.reason+')'):'')).join('\n')+'\n';}
+  const blob=new Blob([out],{type:'text/markdown;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='wissensabdeckung-'+Date.now()+'.md';a.click();URL.revokeObjectURL(a.href);
+}
 </script>
 
 <!-- Agent Modal -->

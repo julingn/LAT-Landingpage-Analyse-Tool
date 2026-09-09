@@ -266,3 +266,83 @@ listet alle registrierten Agenten aus `AGENTS` und öffnet je Zeile dieses Modal
 **Verwendung:** UX/CRO-View.
 
 **Status:** aktiv
+
+---
+
+## Tooltip / Hilfe-Marker
+
+**Zweck:** Fachbegriffe kurz erklären (Progressive Disclosure), ohne die Oberfläche zu überladen.
+
+**Varianten**
+- `help-dot` — `.kg-help` (kleiner runder `?`-Marker, `tabindex="0"`; Tooltip via `data-tip`
+  als CSS-`::after`, erscheint bei Hover/Focus)
+
+**Props/Konfiguration:** Text über `data-tip="…"`; Tastatur-fokussierbar; nutzt `--shadow-lg`,
+`--text`/`--bg2` (dunkler Tooltip in beiden Themes).
+
+**Verwendung:** Modul „Wissensabdeckung" (Eingabefelder, Optionen).
+
+**Hinweise:** Für neue erklärungsbedürftige Begriffe wiederverwenden statt eigener Tooltip-Lösung.
+
+**Status:** aktiv
+
+---
+
+## Abdeckungs-Doppelbalken (eigen vs. Wettbewerber)
+
+**Zweck:** Zwei Werte (eigene Abdeckung vs. Wettbewerber) je Element vergleichend darstellen.
+
+**Varianten**
+- `coverage` — `.kg-cov-row` / `.kg-cov-bars` / `.kg-cov-bar` / `.kg-cov-track` /
+  `.kg-cov-fill.own` (Accent) · `.kg-cov-fill.comp` (Purple)
+- Status-Badge — `.kg-cvg` (`stark`/`mittel`/`schwach`/`fehlt`, System-Farben)
+
+**Props/Konfiguration:** Füllbreite aus Abdeckungsstufe (`stark`=100 / `mittel`=60 /
+`schwach`=30 / `fehlt`=0 %). Nur Tokens.
+
+**Verwendung:** „Wissensabdeckung" → Tab Themenabdeckung/Wettbewerber.
+
+**Status:** aktiv
+
+---
+
+## Opportunity-Card (Chancen-Karte)
+
+**Zweck:** Eine erkannte Content-Chance kompakt zeigen (Progressive Disclosure: Kern sichtbar,
+Details auf Klick).
+
+**Varianten**
+- `opp` — `.kg-opp-card` (+ `.open`) / `-head` / `-score` (Prio-Kachel, Score-Farbe) /
+  `-title` / `-type` / `-rationale` / `-actions`; Detailbereich `.kg-detail` / `.kg-detail-h`
+- Score-Treiber — `.kg-driver` / `.kg-driver-track` / `.kg-driver-fill`
+- Herkunft — `.kg-prov` (`source_fact`/`search_signal`/`ai_inferred`/`user_confirmed`)
+- Confidence — `.kg-conf`
+
+**Props/Konfiguration:** Score-Farbe grün ≥70 / amber ≥50 / rot <50 (wie übrige Score-Logik).
+
+**Verwendung:** „Wissensabdeckung" → Tab Chancen (+ Mini-Variante in Übersicht).
+
+**Hinweise:** Score/Treiber kommen transparent aus PHP (`knowledge.php`), nicht aus dem LLM.
+
+**Status:** aktiv
+
+---
+
+## Content Workspace (operative Umsetzung)
+
+**Zweck:** Aus einer Chance Briefing → Content-Baustein → Diff → erneute Abdeckungsprüfung → Export.
+
+**Varianten**
+- `workspace` — `.kg-ws-grid` (2 Spalten Ausgangstext/Vorschlag) / `.kg-textarea` /
+  `.kg-md` (Markdown-Vorschau) / `.kg-verify` / `.kg-verify-h` (Prüfpflicht-Hinweis, Amber) /
+  `.kg-ws-empty`
+- Fortschritt/Steps — `.kg-steps` / `.kg-step` (`.active`/`.done`) / `.kg-step-dot`
+- Empty-State — `.kg-empty` / `-icon` / `-title` / `-text`
+
+**Verwendung:** „Wissensabdeckung" → Tab Content Workspace.
+
+**Hinweise:** Reine Client-Bearbeitung (In-Session + Markdown-Export); keine Server-Persistenz
+im ersten Slice.
+
+**Status:** aktiv
+

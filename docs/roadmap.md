@@ -12,6 +12,7 @@
 
 | Datum | Titel | Beschreibung | Bereich | Ref |
 |---|---|---|---|---|
+| 2026-09-09 | Wissensabdeckung & Chancen — Slice 1 | Neues Modul (Sidebar „Tools" → `#view-knowledge`, 5 Tabs). Backend `app/proxies/knowledge.php` (extract/analyze/briefing/generate) + `app/prompts/knowledge_*.php` + Stub `app/knowledge.php`. Nutzt bestehende Services (`fetch.php`, `dataforseo.php page_intersection`, `api.php`). Transparentes PHP-Scoring (gewichtet × Confidence, Score-Treiber). End-to-End: URL+Wettbewerber → Entitäten/Eigenschaften/Zusammenhänge → begründete Opportunity (Quellen+Confidence) → Briefing → bearbeitbarer Content-Baustein → Diff → Re-Coverage → Markdown-Export. Zustände (Loading/Error/Empty/Partial) + Tooltips. Light+Dark smoke-getestet. Persistenz bewusst nur In-Session (DB = Backlog) | Modul/KI/UI | — |
 | 2026-07-14 | Agent-Registry Schritt 2 | `ymyl` + `execSummary` in `AGENTS`-Registry aufgenommen, Call-Sites auf `getPrompt()` umgestellt (Verhalten unverändert, Smoke-getestet) | KI/index.php | — |
 | 2026-07-14 | Agent-Registry Schritt 3 | Zentrale „KI-Agenten"-Verwaltung (alle registrierten Agenten editierbar/persistent); 3-Ebenen-Verdrahtung synchronisiert | KI/index.php + settings_save.php | `947c45c` |
 | 2026-07-14 | KI-Agenten als eigener View | „KI-Agenten" aus den Einstellungen in einen eigenen Sidebar-Punkt unter „System" verschoben (`#view-agents`, `data-view="agents"`) | KI/index.php | — |
@@ -62,6 +63,60 @@ Marktdaten arbeiten. Feste Domain für alle domainbezogenen Abfragen: **`https:/
 
 ---
 
+### 🧭 Neues Modul (2026-09-09) — „Wissensabdeckung & Chancen" (Knowledge Coverage & Opportunity Engine)
+
+**Ziel:** Content-Chancen bedeutungsbasiert erkennen (Entitäten, Eigenschaften, Zusammenhänge)
+statt rein keyword-basiert — und aus jeder Chance direkt ein Briefing + bearbeitbaren
+Content-Baustein ableiten. Nahtlose Integration ins bestehende LAT (keine isolierte Graph-App).
+
+**Wiederverwendung (bestätigt, keine neuen Schnittstellen):** `dataforseo.php` (`page_intersection`,
+`keywords`, `keyword_volume`), `sistrix.php` (`url_data`/`serp_features`), `fetch.php` (eigenes +
+Wettbewerber-HTML), `api.php` (KI), UI-Komponenten aus `docs/component-inventory.md`
+(`.pv-tabs`, `.needs-met-block`, `.cluster-card`, `.filter-bar`, `.pv-data-source-tag`, `.agent-modal`).
+
+**Informationsarchitektur:** neuer Sidebar-Punkt unter „Tools" (`data-view="knowledge"`), 5 Tabs:
+Übersicht · Themenabdeckung · Wettbewerber · Chancen (Action Queue) · Content Workspace
+(+ optionale Graph-Ansicht als Zusatz, nie einziger Zugang). Terminologie Deutsch-primär
+(„Abgedeckte Themen und Begriffe" / „Fehlende Eigenschaften" / „Fehlende Zusammenhänge").
+
+**Scoring:** transparente gewichtete Summe (0–100) × Daten-Confidence, sichtbare Top-Treiber,
+keine Blackbox-KI-Scores, keine scheinpräzisen Besucher-/Lead-/Umsatzprognosen.
+
+**Datenmodell (JSON, keine DB):** Entity · Attribute · Relationship · ContentAsset · Opportunity ·
+AnalysisRun — jedes Objekt mit `provenance` (source_fact | search_signal | ai_inferred |
+user_confirmed) und `confidence` (0–1). Rohdaten getrennt von interpretierten Ergebnissen.
+
+**Erster vertikaler Slice (Scope):**
+1. Neuer erreichbarer View „Wissensabdeckung" (Sidebar, Light+Dark).
+2. Eingabe: eine mvv.de-URL + ein Wettbewerber (URL).
+3. Datengewinnung via `fetch.php` (beide) + `dataforseo.php?action=page_intersection`.
+4. KI-Extraktion je Seite → Entities/Attribute/Relationships getrennt; Merge + Entity-Resolution (Synonyme/Varianten).
+5. Mind. eine nachvollziehbar begründete Opportunity (Quellen + Confidence + Score-Treiber).
+6. Opportunity → Briefing (bearbeitbar) → Content-Baustein (generiert, bearbeitbar) → Diff → Re-Coverage → Export.
+7. Zustände: Loading/Error/Empty/Partial/Low-Confidence; Fachbegriffe per Tooltip.
+
+**Persistenz-Entscheidung (2026-09-09):** Im Slice **keine** Server-Persistenz — nur In-Session +
+Markdown/JSON-Export. Echte DB ist **Backlog** (siehe unten), nicht Teil des Slice.
+
+**Neue Dateien (geplant):** `app/proxies/knowledge.php` (Actions extract/analyze/briefing/generate),
+`app/prompts/knowledge_extract.php` · `knowledge_briefing.php` · `knowledge_generate.php`;
+Monolith-Erweiterung an den 4 Pflichtstellen (`app/index.php`); neue Agenten in `AGENTS`-Registry.
+
+**Akzeptanzkriterien Slice:** erreichbar über Sidebar · bestehende Design-Komponenten · Light+Dark ·
+mvv.de-URL analysierbar · ≥1 Wettbewerber · bestehende DataForSEO-/Sistrix-/fetch-Services ·
+Entities/Attribute/Relationships getrennt · ≥1 begründete Opportunity mit Quellen+Confidence ·
+Briefing → bearbeitbarer Content-Baustein · Diff sichtbar · Re-Coverage möglich ·
+Lade-/Fehler-/Leer-/Teilzustände · Tooltips für Fachbegriffe · keine bestehende Funktion beeinträchtigt ·
+`php -l` + `node --check` grün · Architektur/Designsystem/Roadmap/Doku aktualisiert.
+
+**Ausbau (nach Slice, Phase 5):** mehrere Wettbewerber, Cluster-Analysen, volle Filter-Queue,
+Graph-Ansicht, vollständiges Scoring, Re-Analyse, weitere Content-Formate/Schema-Markup.
+
+**Einschränkung:** nicht lokal mit echten APIs testbar → Struktur via `php -l`/`node --check`/Demo,
+echte Datenprüfung am Railway-Deploy.
+
+---
+
 | Idee / Aufgabe | Warum relevant? | Priorität | Bereich | Möglicher nächster Schritt |
 |---|---|---|---|---|
 | Phase C — Monolith entflechten | `app/index.php` (~6060 Z.) ist schwer wartbar; CSS/JS nicht cachebar | high | Struktur/Performance | CSS (Z. 29–846) → `app/assets/lat.css`, JS (Z. 1993–6313) → `app/assets/lat.js`, `?v=<hash>`-Cache-Busting; in kleinen, verifizierbaren Schritten mit Smoke-Test |
@@ -69,6 +124,7 @@ Marktdaten arbeiten. Feste Domain für alle domainbezogenen Abfragen: **`https:/
 | `app/synthesis.php` (Cross-Modul-KI-Synthese) | Roadmap 3.2 offen; aktuell nur Interim in Exec-Summary | medium | Analyse | Eigener LLM-Call mit strukturiertem Gesamt-Input oder als „verworfen" dokumentieren |
 | Agent-Registry vereinheitlichen | Aktuell nur `AGENTS.sqeg` registriert; 8 weitere Prompts (YMYL, Exec-Summary, PV L1–L3, UX-Vision, Synonyme, OCR) sind inline hardcodiert. Eine zentrale Registry macht Prompts editierbar, testbar und wiederverwendbar | medium | KI/Architektur | **Spezifikation fertig** (`docs/agent-registry.md`). Offen: Frontend-Registry erweitern (ymyl, execSummary), Multi-Agent-Modal, Prompts nach `app/prompts/` zentralisieren, `runAgent()`. **Refactor mit App-Risiko → schrittweise mit Smoke-Test** |
 | Gewichteter Gesamtscore | Übergreifender Score aus gewichteten Modul-Scores | low | Analyse | Gewichtungsschema definieren, Score-Hero erweitern |
+| Modul „Wissensabdeckung & Chancen" | Bedeutungsbasierte Content-Opportunities (Entitäten/Eigenschaften/Zusammenhänge) + direkte operative Umsetzung; nutzt bestehende DataForSEO-/Sistrix-/fetch-/KI-Services | high | Analyse/KI/Content | Erster vertikaler Slice (siehe Fokus-Block oben): eigener View unter „Tools", 1 eigene URL + 1 Wettbewerber, Extraktion → Opportunity → Briefing → Content-Baustein → Diff → Re-Coverage → Export |
 
 ## Später / Backlog
 
@@ -76,3 +132,4 @@ Marktdaten arbeiten. Feste Domain für alle domainbezogenen Abfragen: **`https:/
 |---|---|
 | Git-History-Slim (großes PDF) | Repo-Historie enthält weiterhin den 8,7 MB-Blob; echtes Verkleinern nur via History-Rewrite (`git filter-repo`/BFG) + Force-Push — destruktiv, nur auf ausdrückliche Anweisung |
 | Modul-Extraktion (`app/modules/`) | Ursprünglich in ROADMAP 2.2 geplant, nie umgesetzt; sinnvoll erst nach Phase C |
+| DB-Persistenz für „Wissensabdeckung"-Runs | LAT ist bewusst DB-frei; Railway-Filesystem ist ephemer (JSON übersteht kein Redeploy). Für dauerhaft gespeicherte, versionierte Analyse-Runs wäre eine DB (o. externer Store) nötig. Bewusst **nicht** Teil des ersten Slice (dort nur In-Session + Export). Entscheidung vom 2026-09-09 |

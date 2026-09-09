@@ -47,3 +47,13 @@ Entwicklungen wird immer das vorhandene Designsystem bzw. die vorhandenen UI-Kom
 Jede neue interaktive Komponente definiert: **Default, Hover, Active, Focus, Disabled** —
 und, wo zutreffend, **Loading** und **Error**. Referenz: Button-States in
 `Documents/LAT-Design-System.md` §7.1.
+
+## Neue Muster (2026-09-09) — Modul „Wissensabdeckung"
+
+- **Hilfe-Tooltip** (`.kg-help`): kleiner `?`-Marker mit `data-tip`, Tooltip als CSS-`::after`
+  bei **Hover und Focus** (`tabindex="0"`, tastaturzugänglich). Für erklärungsbedürftige
+  Fachbegriffe verwenden (Progressive Disclosure), statt eigener Tooltip-Lösungen.
+- **Abdeckungs-Doppelbalken** (`.kg-cov-*`): zwei Werte vergleichend (eigene = `--accent`,
+  Wettbewerber = `--purple`); Abdeckungsstufe als Badge `.kg-cvg` (System-Farben).
+- **Score-Treiber** (`.kg-driver*`): transparente Faktor-Beiträge zum Score (aus PHP, nicht LLM).
+- Details siehe `docs/component-inventory.md`. Alle Muster nur mit Tokens, in Light + Dark geprüft.
