@@ -20,6 +20,8 @@ STRIKTE REGELN:
 - Übernimm KEINE Wettbewerbertexte wörtlich. Eigenständige Formulierung.
 - Schreibe klar, konkret und ohne generische KI-Floskeln.
 - Gib den Text als Markdown aus (Überschriften mit ##/###, Absätze, ggf. Listen/Tabellen laut Briefing).
+- Wenn im User-Prompt ein gewünschtes Format angegeben ist (z.B. Fließtext-Abschnitt, FAQ,
+  Vergleichstabelle, Infobox, Definition, Prozessbeschreibung), halte dich strikt an dieses Format.
 
 AUSGABE:
 Antworte AUSSCHLIESSLICH mit einem JSON-Objekt in exakt dieser Struktur, ohne erklärenden Text,

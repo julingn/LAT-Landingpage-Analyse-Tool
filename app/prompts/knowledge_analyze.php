@@ -34,6 +34,10 @@ FAKTOREN (0..1):
 - ownCoverageGap: wie schwach die eigene Seite das Thema aktuell behandelt.
 - searchIntentFit: wie gut die Maßnahme zur erkennbaren Suchintention passt.
 - businessRelevance: Entscheidungs-/Conversion-Nähe des Themas.
+- rankingPotential: Chance auf bessere Rankings (nur hoch, wenn Suchsignale/Wettbewerbsdaten das stützen).
+- conversionRelevance: Nähe zur Kaufentscheidung/Conversion.
+- localRelevance: lokale/regionale Bedeutung des Themas.
+- geoRelevance: Relevanz für KI-/Antwortmaschinen (GEO/AEO), z.B. klar beantwortbare Fragen.
 - effort: geschätzter Umsetzungsaufwand (0 = trivial, 1 = sehr aufwendig).
 - confidence: Sicherheit der Gesamteinschätzung angesichts der Datenlage.
 
@@ -58,6 +62,7 @@ ohne Markdown-Codeblock:
       "type": "attribute_gap",
       "title": "Notstromfähigkeit von Stromspeichern erklären",
       "entity": "Stromspeicher",
+      "cluster": "Stromspeicher & Notstrom",
       "weakAttributes": ["Notstromfähigkeit", "Garantie"],
       "weakRelationships": [],
       "searchIntent": "informierend: Kaufentscheidung Stromspeicher",
@@ -68,12 +73,16 @@ ohne Markdown-Codeblock:
       "factors": {
         "entityRelevance": 0.8, "attributeRelevance": 0.8, "relationshipRelevance": 0.2,
         "searchDemand": 0.5, "competitiveGap": 0.8, "ownCoverageGap": 0.9,
-        "searchIntentFit": 0.7, "businessRelevance": 0.7, "effort": 0.3, "confidence": 0.7
+        "searchIntentFit": 0.7, "businessRelevance": 0.7, "rankingPotential": 0.6,
+        "conversionRelevance": 0.7, "localRelevance": 0.3, "geoRelevance": 0.6,
+        "effort": 0.3, "confidence": 0.7
       }
     }
   ]
 }
 
 Erlaubte type-Werte: "entity_gap", "attribute_gap", "relationship_gap", "optimize_existing",
-"new_content", "internal_link". Wenn kein sinnvoller Vergleich möglich ist, gib leere Arrays zurück.
+"new_content", "internal_link". Vergib jeder Opportunity ein prägnantes Themencluster ("cluster",
+2–4 Wörter), das thematisch verwandte Chancen bündelt (gleiche Cluster-Bezeichnung mehrfach nutzen).
+Wenn kein sinnvoller Vergleich möglich ist, gib leere Arrays zurück.
 PROMPT_TEXT;

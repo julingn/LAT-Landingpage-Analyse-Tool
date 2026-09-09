@@ -346,7 +346,27 @@ Details auf Klick).
 **Verwendung:** „Wissensabdeckung" → Tab Content Workspace.
 
 **Hinweise:** Reine Client-Bearbeitung (In-Session + Markdown-Export); keine Server-Persistenz
-im ersten Slice.
+im ersten Slice. Content-Formate wählbar (Fließtext/FAQ/Tabelle/Infobox/Definition/Prozess);
+Schema-Markup-Vorschlag (JSON-LD) via `.kg-schema-code`.
+
+**Status:** aktiv
+
+---
+
+## Graph-Ansicht (Themen-Netz)
+
+**Zweck:** Explorative Zusatzansicht der Themen (Knoten) und Zusammenhänge (Kanten) — nie einziger
+Zugang; alle Aufgaben sind auch über Listen/Tabellen bedienbar.
+
+**Varianten**
+- `graph` — `.kg-graph-wrap` (SVG, Kreis-Layout) + `.kg-legend` / `.kg-legend i`; Knotenfarbe
+  grün = beide, Accent = nur eigene, Purple = nur Wettbewerber
+- Cluster-Gruppierung — `.kg-cluster-head` (Gruppenüberschrift in der Action Queue)
+
+**Props/Konfiguration:** reines SVG/CSS (keine Chart-Library); Knoten aus Entitäten, Kanten aus
+Beziehungen (eigene + Wettbewerber).
+
+**Verwendung:** „Wissensabdeckung" → Tab Graph; Cluster-Gruppierung im Tab Chancen.
 
 **Status:** aktiv
 

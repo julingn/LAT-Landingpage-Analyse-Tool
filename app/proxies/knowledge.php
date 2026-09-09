@@ -169,6 +169,10 @@ function knowScoreOpportunity(array $factors): array {
         'ownCoverageGap'        => ['w' => 1.5, 'label' => 'Eigene Lücke'],
         'searchIntentFit'       => ['w' => 1.0, 'label' => 'Intent-Passung'],
         'businessRelevance'     => ['w' => 1.2, 'label' => 'Business-Relevanz'],
+        'rankingPotential'      => ['w' => 1.0, 'label' => 'Ranking-Potenzial'],
+        'conversionRelevance'   => ['w' => 1.2, 'label' => 'Conversion-Relevanz'],
+        'localRelevance'        => ['w' => 0.8, 'label' => 'Lokale Relevanz'],
+        'geoRelevance'          => ['w' => 0.8, 'label' => 'GEO/AI-Relevanz'],
         'effortInverse'         => ['w' => 0.8, 'label' => 'Geringer Aufwand'],
     ];
     $clamp = fn($v) => max(0.0, min(1.0, (float)$v));
@@ -185,6 +189,10 @@ function knowScoreOpportunity(array $factors): array {
         'ownCoverageGap'        => $clamp($factors['ownCoverageGap']        ?? 0),
         'searchIntentFit'       => $clamp($factors['searchIntentFit']       ?? 0),
         'businessRelevance'     => $clamp($factors['businessRelevance']     ?? 0),
+        'rankingPotential'      => $clamp($factors['rankingPotential']      ?? 0),
+        'conversionRelevance'   => $clamp($factors['conversionRelevance']   ?? 0),
+        'localRelevance'        => $clamp($factors['localRelevance']        ?? 0),
+        'geoRelevance'          => $clamp($factors['geoRelevance']          ?? 0),
         'effortInverse'         => 1.0 - $effort,
     ];
 
@@ -406,9 +414,52 @@ if ($action === 'generate') {
     $origBlock = $original !== ''
         ? "\n\nBESTEHENDER AUSGANGSTEXT (optimieren statt neu anlegen):\n{$original}"
         : '';
-    $userPrompt = "CONTENT-BRIEFING:\n{$briefingJson}{$origBlock}\n\nErstelle den Content-Baustein. Antworte nur mit dem JSON-Objekt.";
+    $formatMap = [
+        'section'    => 'Fließtext-Abschnitt mit H2/H3 und Absätzen',
+        'faq'        => 'FAQ-Block: 3–6 Frage-Antwort-Paare (Frage als ###, Antwort als Absatz)',
+        'table'      => 'Vergleichstabelle als Markdown-Tabelle mit sinnvollen Spalten',
+        'infobox'    => 'kompakte Infobox: kurze Einleitung + Stichpunkt-Liste',
+        'definition' => 'prägnante Definition (2–4 Sätze) + optional kurze Ergänzung',
+        'howto'      => 'Prozessbeschreibung als nummerierte Schritt-für-Schritt-Liste',
+    ];
+    $format = trim((string)($body['format'] ?? ''));
+    $formatBlock = ($format !== '' && isset($formatMap[$format]))
+        ? "\n\nGEWÜNSCHTES FORMAT: {$formatMap[$format]}."
+        : '';
+    $userPrompt = "CONTENT-BRIEFING:\n{$briefingJson}{$origBlock}{$formatBlock}\n\nErstelle den Content-Baustein. Antworte nur mit dem JSON-Objekt.";
 
     [$aiText, $err] = knowCallAi($provider, $apiKey, $system, $userPrompt, 3500);
+    if ($err) { http_response_code(502); echo json_encode(['error' => $err], JSON_UNESCAPED_UNICODE); exit; }
+
+    $parsed = knowParseJson($aiText);
+    if ($parsed === null) {
+        http_response_code(502);
+        echo json_encode(['error' => ['type' => 'parse', 'message' => 'KI-Antwort konnte nicht als JSON gelesen werden.']], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    $parsed['ok'] = true;
+    echo json_encode($parsed, JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// ── action=schema ──────────────────────────────────────────────────────
+// Schlägt strukturiertes Daten-Markup (schema.org JSON-LD) zur Opportunity/Briefing vor.
+if ($action === 'schema') {
+    $opp      = is_array($body['opportunity'] ?? null) ? $body['opportunity'] : null;
+    $briefing = is_array($body['briefing'] ?? null) ? $body['briefing'] : null;
+    if ($opp === null && $briefing === null) {
+        http_response_code(400);
+        echo json_encode(['error' => ['type' => 'validation', 'message' => 'Keine Opportunity oder Briefing übergeben.']]);
+        exit;
+    }
+    $system = require __DIR__ . '/../prompts/knowledge_schema.php';
+    $override = trim((string) cfg('LAT_AGENT_PROMPT_KNOWLEDGE_SCHEMA', 'agent_prompt_knowledge_schema', ''));
+    if ($override !== '') $system = $override;
+
+    $ctx = json_encode(['opportunity' => $opp, 'briefing' => $briefing], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    $userPrompt = "KONTEXT:\n{$ctx}\n\nSchlage passendes schema.org-Markup vor. Antworte nur mit dem JSON-Objekt.";
+
+    [$aiText, $err] = knowCallAi($provider, $apiKey, $system, $userPrompt, 2000);
     if ($err) { http_response_code(502); echo json_encode(['error' => $err], JSON_UNESCAPED_UNICODE); exit; }
 
     $parsed = knowParseJson($aiText);

@@ -1080,6 +1080,14 @@ button{font-family:inherit}
 .kg-opp-card.ignoriert{opacity:.55}
 .kg-opp-card.erledigt{border-left:3px solid var(--green)}
 .kg-status-sel{font-family:inherit;font-size:11px;padding:4px 8px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--bg2);color:var(--text2);cursor:pointer}
+.kg-toolbar{display:flex;justify-content:flex-end;margin-bottom:10px}
+.kg-cluster-head{font-size:12px;font-weight:700;color:var(--accent);margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.kg-cluster-head:first-child{margin-top:4px}
+.kg-graph-wrap{overflow:auto;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--bg2);padding:8px}
+.kg-legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;font-size:11px;color:var(--text2)}
+.kg-legend span{display:inline-flex;align-items:center;gap:5px}
+.kg-legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.kg-schema-code{font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;white-space:pre-wrap;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px;color:var(--text);overflow:auto;max-height:340px;margin-top:8px}
 @media(max-width:900px){.kg-input-grid,.kg-grid-2,.kg-ws-grid{grid-template-columns:1fr}.kg-grid-3{grid-template-columns:1fr}}
 </style>
 </head>
@@ -2036,18 +2044,21 @@ button{font-family:inherit}
 
   <div id="kg-results" style="display:none">
     <div id="kg-partial" class="pv-data-hint" style="display:none"></div>
+    <div class="kg-toolbar"><button class="btn-secondary btn-sm" onclick="kgRun()" title="Analyse mit den aktuellen URLs erneut ausführen">&#8635; Neu analysieren</button></div>
     <div class="pv-tabs" id="kg-tabs">
       <button class="pv-tab-btn active" onclick="kgSwitchTab('overview',this)">&Uuml;bersicht</button>
       <button class="pv-tab-btn" onclick="kgSwitchTab('coverage',this)">Themenabdeckung</button>
       <button class="pv-tab-btn" onclick="kgSwitchTab('competitors',this)">Wettbewerber</button>
       <button class="pv-tab-btn" onclick="kgSwitchTab('opportunities',this)">Chancen</button>
       <button class="pv-tab-btn" onclick="kgSwitchTab('workspace',this)">Content Workspace</button>
+      <button class="pv-tab-btn" onclick="kgSwitchTab('graph',this)">Graph</button>
     </div>
     <div id="kg-tab-overview" class="pv-tab-panel active"></div>
     <div id="kg-tab-coverage" class="pv-tab-panel"></div>
     <div id="kg-tab-competitors" class="pv-tab-panel"></div>
     <div id="kg-tab-opportunities" class="pv-tab-panel"></div>
     <div id="kg-tab-workspace" class="pv-tab-panel"></div>
+    <div id="kg-tab-graph" class="pv-tab-panel"></div>
   </div>
 </div><!-- /view-knowledge -->
 
@@ -6973,7 +6984,7 @@ const KG_TYPE_LABEL={entity_gap:'Fehlendes Thema',attribute_gap:'Fehlende Eigens
 const KG_PROV_LABEL={source_fact:'Seiteninhalt',search_signal:'Suchdaten',ai_inferred:'KI-Ableitung',user_confirmed:'Bestätigt'};
 const KG_STATUS_LABEL={offen:'Offen',in_arbeit:'In Arbeit',erledigt:'Erledigt',ignoriert:'Ignoriert'};
 let kgState={own:null,comp:null,comps:[],ownText:'',analysis:null,activeOpp:null,briefing:null,generated:null,recheck:null,partialNotes:[]};
-let kgFilter={type:'all',status:'all',sort:'score_desc'};
+let kgFilter={type:'all',status:'all',sort:'score_desc',group:'none'};
 
 function kgOnShow(){
   const list=document.getElementById('kg-comp-list');
@@ -7104,7 +7115,7 @@ async function kgRun(){
     adv();
     const analysis=await kgPost('knowledge.php?action=analyze',{own:own,competitors:comps,intersectionKeywords:kws});
     kgState.analysis=analysis;kgState.activeOpp=null;kgState.briefing=null;kgState.generated=null;kgState.recheck=null;
-    kgFilter={type:'all',status:'all',sort:'score_desc'};
+    kgFilter={type:'all',status:'all',sort:'score_desc',group:'none'};
     steps[si].state='done';kgSetSteps(steps);
     document.getElementById('kg-loading').style.display='none';
     document.getElementById('kg-results').style.display='';
@@ -7116,7 +7127,7 @@ async function kgRun(){
   }finally{btn.disabled=false;}
 }
 
-function kgRenderAll(){kgRenderPartial();kgRenderOverview();kgRenderCoverage();kgRenderCompetitors();kgRenderOpportunities();kgRenderWorkspace();}
+function kgRenderAll(){kgRenderPartial();kgRenderOverview();kgRenderCoverage();kgRenderCompetitors();kgRenderOpportunities();kgRenderWorkspace();kgRenderGraph();}
 
 function kgRenderPartial(){
   const el=document.getElementById('kg-partial');
@@ -7216,10 +7227,12 @@ function kgFilterBar(all){
   const typeBtns=['all'].concat(types).map(t=>kgFbtn('type',t,t==='all'?'Alle Typen':(KG_TYPE_LABEL[t]||t))).join('');
   const statusBtns=[['all','Alle'],['offen','Offen'],['in_arbeit','In Arbeit'],['erledigt','Erledigt'],['ignoriert','Ignoriert']].map(s=>kgFbtn('status',s[0],s[1])).join('');
   const sortBtns=[['score_desc','Priorität ↓'],['score_asc','Priorität ↑']].map(s=>kgFbtn('sort',s[0],s[1])).join('');
+  const groupBtns=[['none','Liste'],['cluster','Nach Thema']].map(s=>kgFbtn('group',s[0],s[1])).join('');
   return '<div class="kg-qbar">'
     +'<div class="kg-qgroup"><span class="kg-qlabel">Typ</span><div class="filter-bar">'+typeBtns+'</div></div>'
     +'<div class="kg-qgroup"><span class="kg-qlabel">Status</span><div class="filter-bar">'+statusBtns+'</div></div>'
     +'<div class="kg-qgroup"><span class="kg-qlabel">Sortierung</span><div class="filter-bar">'+sortBtns+'</div></div>'
+    +'<div class="kg-qgroup"><span class="kg-qlabel">Gruppierung</span><div class="filter-bar">'+groupBtns+'</div></div>'
     +'</div>';
 }
 function kgFbtn(dim,val,label){
@@ -7238,6 +7251,11 @@ function kgOppListHtml(all){
   const list=kgApplyFilter(all);
   const meta='<div class="kg-cov-sub" style="margin:4px 0 10px">'+list.length+' von '+all.length+' Chancen</div>';
   if(!list.length)return meta+'<div class="kg-ws-empty">Keine Chancen für diese Filter.</div>';
+  if(kgFilter.group==='cluster'){
+    const groups={};
+    list.forEach(o=>{const c=o.cluster||'Ohne Cluster';(groups[c]=groups[c]||[]).push(o);});
+    return meta+Object.keys(groups).map(c=>'<div class="kg-cluster-head">'+escHtml(c)+' ('+groups[c].length+')</div>'+groups[c].map(o=>kgOppCard(o)).join('')).join('');
+  }
   return meta+list.map(o=>kgOppCard(o)).join('');
 }
 function kgOppCard(o){
@@ -7254,7 +7272,7 @@ function kgOppCard(o){
     +'<div class="kg-opp-score" style="background:'+kgScoreColor(o.score||0)+'">'+(o.score||0)+'<small>Prio</small></div>'
     +'<div class="kg-opp-main">'
     +'<div class="kg-opp-title">'+escHtml(o.title||'Chance')+'</div>'
-    +'<div class="kg-opp-type">'+escHtml(KG_TYPE_LABEL[o.type]||o.type||'')+(o.entity?(' · '+escHtml(o.entity)):'')+' <span class="kg-status '+st+'">'+KG_STATUS_LABEL[st]+'</span></div>'
+    +'<div class="kg-opp-type">'+escHtml(KG_TYPE_LABEL[o.type]||o.type||'')+(o.entity?(' · '+escHtml(o.entity)):'')+(o.cluster?(' · '+escHtml(o.cluster)):'')+' <span class="kg-status '+st+'">'+KG_STATUS_LABEL[st]+'</span></div>'
     +'<div class="kg-opp-rationale">'+escHtml(o.rationale||'')+'</div>'
     +'<div class="kg-opp-actions">'
     +'<button class="btn-start btn-sm" onclick="kgStartWorkspace(\''+escHtml(o.id)+'\')">Maßnahme erstellen</button>'
@@ -7301,6 +7319,7 @@ function kgRenderWorkspace(){
   }else{
     html+=kgBriefingHtml(kgState.briefing);
     html+='<div class="kg-detail-h">Zusätzliche Hinweise (optional)</div><textarea class="kg-textarea" id="kg-extra" style="min-height:70px" placeholder="z.B. Tonalität, Pflichtaussagen, interne Links …"></textarea>';
+    html+='<div class="kg-detail-h">Format</div><select class="kg-status-sel" id="kg-format"><option value="section">Fließtext-Abschnitt</option><option value="faq">FAQ</option><option value="table">Vergleichstabelle</option><option value="infobox">Infobox</option><option value="definition">Definition</option><option value="howto">Prozess-Schritte</option></select>';
     html+='<div style="margin-top:10px"><button class="btn-start" id="kg-gen-btn" onclick="kgGenerate()">Content-Baustein generieren</button> <button class="btn-secondary btn-sm" onclick="kgMakeBriefing()">Briefing neu erstellen</button></div>';
   }
   html+='</div>';
@@ -7345,8 +7364,10 @@ function kgWorkspaceContentHtml(){
   h+='<div class="kg-opp-actions" style="margin-top:14px">'
     +'<button class="btn-secondary" onclick="kgPreviewUpdate()">Vorschau aktualisieren</button>'
     +'<button class="btn-start" onclick="kgRecheck()">Abdeckung erneut prüfen</button>'
+    +'<button class="btn-secondary" onclick="kgSchema()">Schema-Markup vorschlagen</button>'
     +'<button class="btn-secondary" onclick="kgExport()">Als Markdown exportieren</button>'
     +'</div>';
+  h+='<div id="kg-schema"></div>';
   h+='<div id="kg-recheck"></div>';
   h+='</div>';
   return h;
@@ -7384,9 +7405,10 @@ async function kgGenerate(){
   const btn=document.getElementById('kg-gen-btn');if(btn){btn.disabled=true;btn.textContent='Content wird generiert …';}
   try{
     const extra=(document.getElementById('kg-extra')||{}).value||'';
+    const fmt=(document.getElementById('kg-format')||{}).value||'';
     const briefing=Object.assign({},kgState.briefing);
     if(extra.trim())briefing.additionalInstructions=extra.trim();
-    const g=await kgPost('knowledge.php?action=generate',{briefing:briefing,originalText:''});
+    const g=await kgPost('knowledge.php?action=generate',{briefing:briefing,originalText:'',format:fmt});
     kgState.generated=g;kgState.recheck=null;
     kgRenderWorkspace();
   }catch(e){kgWsError(e.message);}
@@ -7426,6 +7448,40 @@ function kgExport(){
   if(g&&g.verificationRequired&&g.verificationRequired.length){out+='## Vor Veröffentlichung prüfen\n'+g.verificationRequired.map(v=>'- '+(v.claim||'')+(v.reason?(' ('+v.reason+')'):'')).join('\n')+'\n';}
   const blob=new Blob([out],{type:'text/markdown;charset=utf-8'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='wissensabdeckung-'+Date.now()+'.md';a.click();URL.revokeObjectURL(a.href);
+}
+async function kgSchema(){
+  const box=document.getElementById('kg-schema');
+  if(box)box.innerHTML='<div class="kg-cov-sub" style="margin-top:10px">Schema-Vorschlag wird erstellt …</div>';
+  try{
+    const s=await kgPost('knowledge.php?action=schema',{opportunity:kgState.activeOpp,briefing:kgState.briefing});
+    let h='<div class="needs-met-block" style="margin-top:12px"><div class="needs-met-label">Schema-Markup-Vorschlag'+(s.schemaType?(' · '+escHtml(s.schemaType)):'')+'</div>';
+    if(s.reason)h+='<div class="kg-opp-rationale">'+escHtml(s.reason)+'</div>';
+    h+='<pre class="kg-schema-code">'+escHtml(s.jsonld||'')+'</pre>';
+    if(s.verificationRequired&&s.verificationRequired.length)h+='<div class="kg-verify"><div class="kg-verify-h">Vor Einsatz prüfen</div><ul>'+s.verificationRequired.map(v=>'<li>'+escHtml(v.claim||'')+(v.reason?(' <em>('+escHtml(v.reason)+')</em>'):'')+'</li>').join('')+'</ul></div>';
+    h+='</div>';
+    if(box)box.innerHTML=h;
+  }catch(e){if(box)box.innerHTML='<div class="pv-error-box" style="display:block">'+escHtml(e.message)+'</div>';}
+}
+function kgRenderGraph(){
+  const el=document.getElementById('kg-tab-graph');if(!el)return;
+  const map=new Map();
+  (kgState.own.entities||[]).forEach(e=>{if(e.prefLabel){map.set(e.prefLabel.toLowerCase(),{label:e.prefLabel,own:true,comp:false});}});
+  (kgState.comps||[]).forEach(c=>(c.entities||[]).forEach(e=>{if(e.prefLabel){const k=e.prefLabel.toLowerCase();if(map.has(k))map.get(k).comp=true;else map.set(k,{label:e.prefLabel,own:false,comp:true});}}));
+  const nodes=[...map.values()].slice(0,24);
+  if(!nodes.length){el.innerHTML='<div class="kg-ws-empty">Kein Graph verfügbar – es wurden keine Themen erkannt.</div>';return;}
+  const idx={};nodes.forEach((n,i)=>idx[n.label.toLowerCase()]=i);
+  const rels=[];const addRels=(arr)=>{(arr||[]).forEach(r=>{if(r.source&&r.target)rels.push([String(r.source).toLowerCase(),String(r.target).toLowerCase()]);});};
+  addRels(kgState.own.relationships);(kgState.comps||[]).forEach(c=>addRels(c.relationships));
+  const W=640,H=440,cx=W/2,cy=H/2,R=Math.min(W,H)/2-70;
+  const pos=nodes.map((n,i)=>{const a=(2*Math.PI*i/nodes.length)-Math.PI/2;return{x:cx+R*Math.cos(a),y:cy+R*Math.sin(a)};});
+  let edges='';const seen=new Set();
+  rels.forEach(pair=>{const s=pair[0],t=pair[1];if(idx[s]!=null&&idx[t]!=null&&s!==t){const key=s<t?(s+'|'+t):(t+'|'+s);if(seen.has(key))return;seen.add(key);const p1=pos[idx[s]],p2=pos[idx[t]];edges+='<line x1="'+p1.x.toFixed(1)+'" y1="'+p1.y.toFixed(1)+'" x2="'+p2.x.toFixed(1)+'" y2="'+p2.y.toFixed(1)+'" stroke="var(--border2)" stroke-width="1"/>';}});
+  let circles='';
+  nodes.forEach((n,i)=>{const color=(n.own&&n.comp)?'var(--green)':(n.own?'var(--accent)':'var(--purple)');const p=pos[i];const lbl=n.label.length>18?(n.label.slice(0,17)+'\u2026'):n.label;circles+='<g><circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="7" fill="'+color+'"/><text x="'+p.x.toFixed(1)+'" y="'+(p.y-11).toFixed(1)+'" text-anchor="middle" font-size="10" fill="var(--text2)">'+escHtml(lbl)+'</text></g>';});
+  el.innerHTML=
+    '<div class="pv-data-hint" style="margin-bottom:12px">Explorative Ansicht: Themen (Knoten) und ihre Zusammenhänge (Linien). Alle Aufgaben lassen sich auch über die anderen Tabs erledigen.</div>'
+    +'<div class="kg-legend"><span><i style="background:var(--green)"></i>beide</span><span><i style="background:var(--accent)"></i>nur eigene</span><span><i style="background:var(--purple)"></i>nur Wettbewerber</span></div>'
+    +'<div class="kg-graph-wrap"><svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:'+W+'px;display:block;margin:0 auto">'+edges+circles+'</svg></div>';
 }
 </script>
 
