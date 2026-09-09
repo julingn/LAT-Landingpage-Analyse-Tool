@@ -17,6 +17,9 @@ AUFGABE:
 
 STRIKTE REGELN:
 - Mehr Text bedeutet NICHT automatisch bessere Abdeckung. Bewerte echten Wissensgewinn, nicht Textmenge.
+- Fülle "coverage" IMMER mit den wichtigsten Themen, Eigenschaften und Zusammenhängen aus den
+  gelieferten Extraktionen (eigene + Wettbewerber) – auch dort, wo keine Lücke besteht. "coverage"
+  darf nicht leer sein, solange die Extraktionen Elemente enthalten.
 - Jede Opportunity braucht eine nachvollziehbare Begründung (rationale) und, wo vorhanden, einen
   Wettbewerber-Beleg (competitorEvidence).
 - Kennzeichne die Herkunft der Signale in provenance: "source_fact" (aus Seiteninhalten),

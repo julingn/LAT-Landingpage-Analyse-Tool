@@ -24,6 +24,31 @@ gelöst | workaround | offen | erneut prüfen
 ---
 
 ## Problem
+Im Modul „Wissensabdeckung" zeigte nach der Analyse nur der Chancen-Tab Inhalte; Übersicht,
+Themenabdeckung, Wettbewerber und Graph blieben (nahezu) leer.
+## Ursache
+Zwei Ursachen: (a) die KI (`analyze`) lieferte teils Opportunities, aber eine leere `coverage`
+(die anderen Tabs speisen sich aus `coverage`/Extraktionen); (b) bei JS-gerenderten Seiten liefert
+der einfache `fetch.php`-Abruf wenig Text → kaum extrahierte Entitäten.
+## Lösung
+1. **Coverage-Fallback** in `app/proxies/knowledge.php` (`knowBuildCoverageFallback()`): ist die
+   KI-`coverage` leer, wird sie deterministisch aus den Extraktionen synthetisiert (eigene vs. beste
+   Wettbewerber-Abdeckung je Element) → Themenabdeckung/Wettbewerber/Graph bekommen Daten.
+2. **Resiliente Darstellung**: `kgRenderAll()` rendert jeden Tab in eigenem try/catch — eine
+   fehlerhafte Ansicht leert nicht mehr die anderen, sondern zeigt einen Hinweis in ihrem Tab.
+3. **Diagnose-Zeile** in der Übersicht (Anzahl extrahierter Themen eigen/Wettbewerber, Coverage-
+   Einträge, Chancen) + Amber-Hinweis, wenn kaum Themen extrahiert wurden (JS-Rendering).
+4. Analyze-Prompt geschärft: `coverage` immer aus den Extraktionen füllen.
+## Betroffene Dateien
+`app/proxies/knowledge.php`, `app/index.php`, `app/prompts/knowledge_analyze.php`.
+## Datum
+2026-09-09
+## Status
+gelöst
+
+---
+
+## Problem
 JS-Änderungen im Monolithen (`app/index.php`) sollen wie vorgeschrieben mit `node --check`
 geprüft werden, aber `node` ist auf der Entwicklungsmaschine nicht im PATH verfügbar.
 ## Ursache

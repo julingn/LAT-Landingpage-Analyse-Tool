@@ -236,6 +236,46 @@ function knowExtractionSummary(array $ex): string {
     return $lines ? implode("\n", $lines) : '(keine Elemente erkannt)';
 }
 
+// ── Helper: Coverage-Fallback aus Extraktionen synthetisieren ─────────────
+// Wird genutzt, wenn die KI keine coverage liefert. Vergleicht die eigene
+// Abdeckung je Element mit der besten Wettbewerber-Abdeckung.
+function knowCoverageRank(?string $c): int {
+    $m = ['fehlt' => 0, 'schwach' => 1, 'mittel' => 2, 'stark' => 3];
+    return $m[(string)$c] ?? 0;
+}
+function knowBuildCoverageFallback(array $own, array $competitors): array {
+    $ent = []; $att = []; $rel = [];
+    $add = function (array &$arr, string $label, ?string $cov, string $side, ?string $entity = null): void {
+        $label = trim($label);
+        if ($label === '') return;
+        $k = mb_strtolower($label) . '|' . mb_strtolower((string)$entity);
+        if (!isset($arr[$k])) {
+            $arr[$k] = ['label' => $label, 'own' => 'fehlt', 'competitor' => 'fehlt', 'relevance' => 0.5];
+            if ($entity) $arr[$k]['entity'] = $entity;
+        }
+        $slot = ($side === 'own') ? 'own' : 'competitor';
+        if (knowCoverageRank($cov) > knowCoverageRank($arr[$k][$slot])) {
+            $arr[$k][$slot] = $cov ?: 'mittel';
+        }
+    };
+    $relLabel = fn(array $r): string => trim(($r['source'] ?? '') . ' ' . ($r['predicate'] ?? '') . ' ' . ($r['target'] ?? ''));
+
+    foreach (($own['entities'] ?? []) as $e)      $add($ent, (string)($e['prefLabel'] ?? ''), $e['coverage'] ?? 'mittel', 'own');
+    foreach (($own['attributes'] ?? []) as $a)    $add($att, (string)($a['name'] ?? ''),      $a['coverage'] ?? 'mittel', 'own', $a['entity'] ?? null);
+    foreach (($own['relationships'] ?? []) as $r) $add($rel, $relLabel($r),                     $r['coverage'] ?? 'mittel', 'own');
+    foreach ($competitors as $c) {
+        if (!is_array($c)) continue;
+        foreach (($c['entities'] ?? []) as $e)      $add($ent, (string)($e['prefLabel'] ?? ''), $e['coverage'] ?? 'mittel', 'comp');
+        foreach (($c['attributes'] ?? []) as $a)    $add($att, (string)($a['name'] ?? ''),      $a['coverage'] ?? 'mittel', 'comp', $a['entity'] ?? null);
+        foreach (($c['relationships'] ?? []) as $r) $add($rel, $relLabel($r),                     $r['coverage'] ?? 'mittel', 'comp');
+    }
+    return [
+        'entities'      => array_values($ent),
+        'attributes'    => array_values($att),
+        'relationships' => array_values($rel),
+    ];
+}
+
 // ════════════════════════════════════════════════════════════════════════
 //  ACTION-ROUTING
 // ════════════════════════════════════════════════════════════════════════
@@ -358,11 +398,30 @@ if ($action === 'analyze') {
     // Nach Score absteigend sortieren (Priorisierung)
     usort($opps, fn($a, $b) => ($b['score'] ?? 0) <=> ($a['score'] ?? 0));
 
+    // Coverage: KI-Ausgabe nutzen, sonst deterministisch aus Extraktionen synthetisieren
+    $coverage = is_array($parsed['coverage'] ?? null) ? $parsed['coverage'] : [];
+    $covEmpty = empty($coverage['entities']) && empty($coverage['attributes']) && empty($coverage['relationships']);
+    $coverageSource = 'ki';
+    if ($covEmpty) {
+        $coverage = knowBuildCoverageFallback($own, $competitors);
+        $coverageSource = 'abgeleitet';
+    }
+
+    $compEntCount = 0;
+    foreach ($competitors as $c) { if (is_array($c)) $compEntCount += count($c['entities'] ?? []); }
+
     echo json_encode([
         'ok'            => true,
-        'coverage'      => $parsed['coverage'] ?? ['entities' => [], 'attributes' => [], 'relationships' => []],
+        'coverage'      => $coverage,
+        'coverageSource' => $coverageSource,
         'opportunities' => $opps,
         'usedSearchSignals' => !empty($intersect),
+        'diagnostics'   => [
+            'ownEntities'      => count($own['entities'] ?? []),
+            'competitorEntities' => $compEntCount,
+            'coverageEntities' => count($coverage['entities'] ?? []),
+            'opportunities'    => count($opps),
+        ],
     ], JSON_UNESCAPED_UNICODE);
     exit;
 }

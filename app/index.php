@@ -7127,7 +7127,11 @@ async function kgRun(){
   }finally{btn.disabled=false;}
 }
 
-function kgRenderAll(){kgRenderPartial();kgRenderOverview();kgRenderCoverage();kgRenderCompetitors();kgRenderOpportunities();kgRenderWorkspace();kgRenderGraph();}
+function kgRenderAll(){
+  kgRenderPartial();
+  const parts=[['kg-tab-overview',kgRenderOverview],['kg-tab-coverage',kgRenderCoverage],['kg-tab-competitors',kgRenderCompetitors],['kg-tab-opportunities',kgRenderOpportunities],['kg-tab-workspace',kgRenderWorkspace],['kg-tab-graph',kgRenderGraph]];
+  parts.forEach(function(p){try{p[1]();}catch(e){const el=document.getElementById(p[0]);if(el)el.innerHTML='<div class="pv-error-box" style="display:block">Diese Ansicht konnte nicht dargestellt werden: '+escHtml(e.message||String(e))+'</div>';}});
+}
 
 function kgRenderPartial(){
   const el=document.getElementById('kg-partial');
@@ -7146,6 +7150,12 @@ function kgRenderOverview(){
   const sources=['Seiteninhalte (eigene + Wettbewerber)'];
   if(a.usedSearchSignals)sources.push('Suchsignale (DataForSEO)');
   sources.push('KI-Klassifikation');
+  const cov=a.coverage||{};
+  const ownN=(kgState.own&&kgState.own.entities)?kgState.own.entities.length:0;
+  const compN=(kgState.comps||[]).reduce(function(s,c){return s+((c.entities||[]).length);},0);
+  const covN=((cov.entities||[]).length)+((cov.attributes||[]).length)+((cov.relationships||[]).length);
+  const diag='<div class="kg-cov-sub" style="margin-top:10px">Datengrundlage: '+ownN+' Themen eigene Seite · '+compN+' Themen Wettbewerber · '+covN+' Abdeckungs-Einträge'+(a.coverageSource==='abgeleitet'?' (aus Extraktion abgeleitet)':'')+' · '+opps.length+' Chancen</div>';
+  const dhint=(ownN===0&&compN===0)?'<div class="pv-data-hint" style="margin-top:10px;background:var(--amber-bg);border-color:var(--amber-border)">Es wurden kaum Themen aus den Seiten extrahiert – die Seiten sind evtl. clientseitig gerendert (JavaScript), sodass der einfache Seitenabruf zu wenig Text liefert. Die erkannten Chancen stützen sich dann vor allem auf Suchsignale.</div>':'';
   const el=document.getElementById('kg-tab-overview');
   el.innerHTML=
     '<div class="needs-met-block"><div class="needs-met-label">Überblick</div>'
@@ -7161,6 +7171,7 @@ function kgRenderOverview(){
     +'<div class="needs-met-block"><div class="needs-met-label">Wichtigste Chancen</div><div style="margin-top:10px">'+top+'</div></div>'
     +'<div class="needs-met-block"><div class="needs-met-label">Verteilung nach Typ</div><div style="margin-top:10px">'+dist+'</div>'
     +'<div class="needs-met-label" style="margin-top:16px">Datengrundlagen</div><div style="margin-top:8px">'+sources.map(s=>'<span class="kg-prov source_fact" style="margin-bottom:5px;display:inline-block">'+escHtml(s)+'</span>').join(' ')+'</div>'
+    +diag+dhint
     +'</div></div>';
 }
 function kgStat(n,label){return '<div class="stat-box"><div style="font-size:22px;font-weight:800;color:var(--text)">'+n+'</div><div class="kg-cov-sub">'+escHtml(label)+'</div></div>';}
