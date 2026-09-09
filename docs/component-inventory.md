@@ -312,11 +312,15 @@ listet alle registrierten Agenten aus `AGENTS` und öffnet je Zeile dieses Modal
 Details auf Klick).
 
 **Varianten**
-- `opp` — `.kg-opp-card` (+ `.open`) / `-head` / `-score` (Prio-Kachel, Score-Farbe) /
-  `-title` / `-type` / `-rationale` / `-actions`; Detailbereich `.kg-detail` / `.kg-detail-h`
+- `opp` — `.kg-opp-card` (+ `.open`, + Status-Klasse `offen`/`in_arbeit`/`erledigt`/`ignoriert`) /
+  `-head` / `-score` (Prio-Kachel, Score-Farbe) / `-title` / `-type` / `-rationale` / `-actions`;
+  Detailbereich `.kg-detail` / `.kg-detail-h`
 - Score-Treiber — `.kg-driver` / `.kg-driver-track` / `.kg-driver-fill`
 - Herkunft — `.kg-prov` (`source_fact`/`search_signal`/`ai_inferred`/`user_confirmed`)
 - Confidence — `.kg-conf`
+- **Action Queue** — Filterleiste `.kg-qbar` / `.kg-qgroup` / `.kg-qlabel` + `.filter-bar`/`.filter-btn`
+  (Filter nach Typ/Status, Sortierung nach Priorität); Status-Badge `.kg-status.*` +
+  Status-Auswahl `.kg-status-sel` je Karte
 
 **Props/Konfiguration:** Score-Farbe grün ≥70 / amber ≥50 / rot <50 (wie übrige Score-Logik).
 

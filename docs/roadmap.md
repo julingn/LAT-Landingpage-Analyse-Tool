@@ -12,6 +12,7 @@
 
 | Datum | Titel | Beschreibung | Bereich | Ref |
 |---|---|---|---|---|
+| 2026-09-09 | Wissensabdeckung — Slice 2 | Ausbau: **mehrere Wettbewerber** (dynamische URL-Liste, max. 5; `analyze`/`page_intersection` nehmen alle Targets; Wettbewerber-Tab mit Aufschlüsselung je URL) + **Action Queue** im Chancen-Tab (Filter nach Typ/Status, Sortierung nach Priorität, Status je Chance offen/in Arbeit/erledigt/ignoriert). Smoke-getestet (Filter/Sortier/Status-Logik + Light/Dark). | Modul/UI | — |
 | 2026-09-09 | Wissensabdeckung & Chancen — Slice 1 | Neues Modul (Sidebar „Tools" → `#view-knowledge`, 5 Tabs). Backend `app/proxies/knowledge.php` (extract/analyze/briefing/generate) + `app/prompts/knowledge_*.php` + Stub `app/knowledge.php`. Nutzt bestehende Services (`fetch.php`, `dataforseo.php page_intersection`, `api.php`). Transparentes PHP-Scoring (gewichtet × Confidence, Score-Treiber). End-to-End: URL+Wettbewerber → Entitäten/Eigenschaften/Zusammenhänge → begründete Opportunity (Quellen+Confidence) → Briefing → bearbeitbarer Content-Baustein → Diff → Re-Coverage → Markdown-Export. Zustände (Loading/Error/Empty/Partial) + Tooltips. Light+Dark smoke-getestet. Persistenz bewusst nur In-Session (DB = Backlog) | Modul/KI/UI | — |
 | 2026-07-14 | Agent-Registry Schritt 2 | `ymyl` + `execSummary` in `AGENTS`-Registry aufgenommen, Call-Sites auf `getPrompt()` umgestellt (Verhalten unverändert, Smoke-getestet) | KI/index.php | — |
 | 2026-07-14 | Agent-Registry Schritt 3 | Zentrale „KI-Agenten"-Verwaltung (alle registrierten Agenten editierbar/persistent); 3-Ebenen-Verdrahtung synchronisiert | KI/index.php + settings_save.php | `947c45c` |
@@ -109,8 +110,9 @@ Briefing → bearbeitbarer Content-Baustein · Diff sichtbar · Re-Coverage mög
 Lade-/Fehler-/Leer-/Teilzustände · Tooltips für Fachbegriffe · keine bestehende Funktion beeinträchtigt ·
 `php -l` + `node --check` grün · Architektur/Designsystem/Roadmap/Doku aktualisiert.
 
-**Ausbau (nach Slice, Phase 5):** mehrere Wettbewerber, Cluster-Analysen, volle Filter-Queue,
-Graph-Ansicht, vollständiges Scoring, Re-Analyse, weitere Content-Formate/Schema-Markup.
+**Ausbau (nach Slice):** ✅ mehrere Wettbewerber + Action Queue (Filter/Status/Sortierung) erledigt
+(2026-09-09). Offen: Cluster-Analysen, Graph-Ansicht, vollständiges Scoring über alle Dimensionen,
+Re-Analyse, weitere Content-Formate/Schema-Markup, SSE-Heartbeat für lange KI-Calls.
 
 **Einschränkung:** nicht lokal mit echten APIs testbar → Struktur via `php -l`/`node --check`/Demo,
 echte Datenprüfung am Railway-Deploy.
