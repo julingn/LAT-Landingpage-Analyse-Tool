@@ -7089,18 +7089,22 @@ async function kgRun(){
   kgSetSteps(steps);
   let si=0;const adv=()=>{steps[si].state='done';if(steps[si+1])steps[si+1].state='active';si++;kgSetSteps(steps);};
   try{
-    const ownHtml=await kgFetchHtml(ownUrl);
+    let ownHtml='';
+    try{ownHtml=await kgFetchHtml(ownUrl);}catch(e){kgState.partialNotes.push('Eigene Seite: direkter Abruf fehlgeschlagen – versuche serverseitiges Rendern.');}
     kgState.ownText=kgHtmlToText(ownHtml);
     const own=await kgPost('knowledge.php?action=extract',{url:ownUrl,html:ownHtml,role:'own'});
     kgState.own=own;
+    if(own.rendered)kgState.partialNotes.push('Eigene Seite: serverseitig gerendert (JS-Seite).');
     if(own.partial)kgState.partialNotes.push('Eigene Seite: '+(own.note||'wenig auswertbarer Text.'));
     adv();
     const comps=[];
     for(let i=0;i<compUrls.length;i++){
       try{
-        const cHtml=await kgFetchHtml(compUrls[i]);
+        let cHtml='';
+        try{cHtml=await kgFetchHtml(compUrls[i]);}catch(e){}
         const cEx=await kgPost('knowledge.php?action=extract',{url:compUrls[i],html:cHtml,role:'competitor'});
         comps.push(cEx);
+        if(cEx.rendered)kgState.partialNotes.push('Wettbewerber '+(i+1)+': serverseitig gerendert.');
         if(cEx.partial)kgState.partialNotes.push('Wettbewerber '+(i+1)+': '+(cEx.note||'wenig auswertbarer Text.'));
       }catch(e){kgState.partialNotes.push('Wettbewerber '+(i+1)+' ('+compUrls[i]+') übersprungen: '+e.message);}
       adv();

@@ -39,6 +39,11 @@ der einfache `fetch.php`-Abruf wenig Text → kaum extrahierte Entitäten.
 3. **Diagnose-Zeile** in der Übersicht (Anzahl extrahierter Themen eigen/Wettbewerber, Coverage-
    Einträge, Chancen) + Amber-Hinweis, wenn kaum Themen extrahiert wurden (JS-Rendering).
 4. Analyze-Prompt geschärft: `coverage` immer aus den Extraktionen füllen.
+5. **Serverseitiges Rendern (Puppeteer)**: Liefert `fetch.php` zu wenig Text (< 400 Zeichen, typisch
+   bei JS-gerenderten Seiten wie mvv.de), rendert `knowRenderText()` die Seite mit demselben
+   Extraktor wie der Content Finder (`contentfinder_extract.mjs`) serverseitig und extrahiert daraus.
+   Das Frontend ruft `extract` auch dann mit URL auf, wenn der direkte Abruf fehlschlägt. Antwort-Flag
+   `rendered` zeigt es im Teilergebnis an. (Nur auf Railway wirksam — lokal kein Node/Chromium.)
 ## Betroffene Dateien
 `app/proxies/knowledge.php`, `app/index.php`, `app/prompts/knowledge_analyze.php`.
 ## Datum

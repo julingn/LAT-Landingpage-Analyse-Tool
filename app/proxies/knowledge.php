@@ -275,7 +275,28 @@ function knowBuildCoverageFallback(array $own, array $competitors): array {
         'relationships' => array_values($rel),
     ];
 }
-
+// ── Helper: Seite serverseitig via Puppeteer rendern (JS-Seiten) ───────────
+// Nutzt denselben Extraktor wie der Content Finder; gibt zusammengeführten Text zurück.
+function knowRenderText(string $url): string {
+    if (!filter_var($url, FILTER_VALIDATE_URL)) return '';
+    if (!in_array(parse_url($url, PHP_URL_SCHEME), ['http', 'https'], true)) return '';
+    $scriptPath = dirname(__DIR__, 2) . '/app/contentfinder_extract.mjs';
+    if (!file_exists($scriptPath)) $scriptPath = __DIR__ . '/../contentfinder_extract.mjs';
+    if (!file_exists($scriptPath)) return '';
+    $nodeCmd = trim((string)@shell_exec('which node 2>/dev/null')) ?: '/usr/bin/node';
+    if (!file_exists($nodeCmd)) return '';
+    $cmd = 'timeout 45 ' . escapeshellarg($nodeCmd) . ' ' . escapeshellarg($scriptPath) . ' ' . escapeshellarg($url) . ' 2>/dev/null';
+    $outLines = []; $exitCode = 0;
+    @exec($cmd, $outLines, $exitCode);
+    if ($exitCode !== 0) return '';
+    $data = json_decode(implode('', $outLines), true);
+    if (!is_array($data) || empty($data['blocks'])) return '';
+    $parts = [];
+    foreach ($data['blocks'] as $b) { if (!empty($b['text'])) $parts[] = $b['text']; }
+    $text = preg_replace('/\s+/u', ' ', trim(implode(' ', $parts))) ?? '';
+    if (mb_strlen($text) > 12000) $text = mb_substr($text, 0, 12000);
+    return $text;
+}
 // ════════════════════════════════════════════════════════════════════════
 //  ACTION-ROUTING
 // ════════════════════════════════════════════════════════════════════════
@@ -285,20 +306,23 @@ if ($action === 'extract') {
     $url  = trim((string)($body['url'] ?? ''));
     $html = (string)($body['html'] ?? '');
     $role = (($body['role'] ?? 'own') === 'competitor') ? 'competitor' : 'own';
-    if ($html === '') {
-        http_response_code(400);
-        echo json_encode(['error' => ['type' => 'validation', 'message' => 'Kein Seiteninhalt (html) übergeben.']]);
-        exit;
+
+    $text = $html !== '' ? knowHtmlToText($html) : '';
+    $rendered = false;
+    // Zu wenig Text (z.B. JS-gerenderte Seite)? Serverseitig via Puppeteer rendern.
+    if (mb_strlen($text) < 400 && $url !== '') {
+        $rt = knowRenderText($url);
+        if (mb_strlen($rt) > mb_strlen($text)) { $text = $rt; $rendered = true; }
     }
-    $text = knowHtmlToText($html);
     if (mb_strlen($text) < 40) {
         echo json_encode([
             'ok'       => true,
             'partial'  => true,
             'url'      => $url,
             'role'     => $role,
+            'rendered' => $rendered,
             'entities' => [], 'attributes' => [], 'relationships' => [],
-            'note'     => 'In diesem Inhalt wurde zu wenig auswertbarer Text gefunden (evtl. clientseitig gerendert).',
+            'note'     => 'In diesem Inhalt wurde zu wenig auswertbarer Text gefunden (evtl. clientseitig gerendert oder nicht erreichbar).',
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
@@ -323,6 +347,7 @@ if ($action === 'extract') {
         'ok'            => true,
         'url'           => $url,
         'role'          => $role,
+        'rendered'      => $rendered,
         'entities'      => $parsed['entities']      ?? [],
         'attributes'    => $parsed['attributes']    ?? [],
         'relationships' => $parsed['relationships'] ?? [],
