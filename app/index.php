@@ -998,6 +998,7 @@ button{font-family:inherit}
 @media(max-width:1100px){.cf-layout{grid-template-columns:1fr}}
 @media(max-width:600px){.cf-stat-grid{grid-template-columns:repeat(2,1fr)}.cf-opt-grid{grid-template-columns:1fr}}
 /* ── Modul: Wissensabdeckung & Chancen (Knowledge Coverage) ── */
+#view-knowledge .needs-met-block{display:block}
 .kg-input-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
 .kg-field{display:flex;flex-direction:column;gap:6px}
 .kg-label{font-size:12px;font-weight:600;color:var(--text2);display:flex;align-items:center;gap:6px}

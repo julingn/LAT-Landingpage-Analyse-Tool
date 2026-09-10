@@ -24,8 +24,34 @@ gelöst | workaround | offen | erneut prüfen
 ---
 
 ## Problem
+Im Modul „Wissensabdeckung" waren nach der Analyse fast alle Tabs (Übersicht, Themenabdeckung,
+Wettbewerber, Content Workspace) optisch leer — nur „Chancen" zeigte Inhalte. Die Daten waren
+korrekt vorhanden (im DOM), das Panel `display:block` und aktiv, aber `offsetHeight` war 0.
+## Ursache
+Die wiederverwendete Karten-Klasse `.needs-met-block` ist im Basis-Design **`display:none`**
+(Zeile ~419) — sie wird im SQEG-Kontext gezielt eingeblendet. Im neuen Modul blieben alle
+`.needs-met-block`-Karten dadurch unsichtbar (Höhe 0). „Chancen" war nur deshalb sichtbar, weil
+dessen Karten (`.kg-opp-card`, `.kg-qbar`) keine `.needs-met-block` sind.
+## Lösung
+Scoped-Override, der SQEG nicht berührt: `#view-knowledge .needs-met-block{display:block}`.
+Danach: Übersicht 1029px, Wettbewerber 874px, Graph 374px, Coverage-Zeilen sichtbar.
+## Betroffene Dateien
+`app/index.php` (CSS-Block des Moduls).
+## Lehre (Test)
+Sichtbarkeit IMMER über `offsetHeight`/`getComputedStyle` prüfen, nicht nur über `textContent`/
+`querySelectorAll`-Zähler — letztere liefern auch bei `display:none` Werte und verbergen genau
+solche Anzeigefehler. (Wurde in früheren Smoke-Tests dieses Moduls übersehen.)
+## Datum
+2026-09-10
+## Status
+gelöst
+
+---
+
+## Problem
 Im Modul „Wissensabdeckung" zeigte nach der Analyse nur der Chancen-Tab Inhalte; Übersicht,
-Themenabdeckung, Wettbewerber und Graph blieben (nahezu) leer.
+Themenabdeckung, Wettbewerber und Graph blieben (nahezu) leer (frühere Iteration, vor dem
+`display:none`-Fund oben).
 ## Ursache
 Zwei Ursachen: (a) die KI (`analyze`) lieferte teils Opportunities, aber eine leere `coverage`
 (die anderen Tabs speisen sich aus `coverage`/Extraktionen); (b) bei JS-gerenderten Seiten liefert
