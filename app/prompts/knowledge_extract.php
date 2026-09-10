@@ -8,6 +8,8 @@ AUFGABE:
 Extrahiere aus dem gelieferten Seitentext die tatsächlich behandelten:
 1. Themen/Begriffe (Entitäten) — z.B. Photovoltaikanlage, Stromspeicher, Wechselrichter, Wallbox,
    Einspeisevergütung, Wärmepumpe, Förderprogramm, Standort, Anbieter.
+   Vergib je Entität einen "type" aus: produkt, anbieter, organisation, person, standort,
+   foerderung, technologie, dienstleistung oder konzept (wenn nichts passt: konzept).
 2. Eigenschaften (Attribute) einer Entität — z.B. für Stromspeicher: Kapazität, Wirkungsgrad,
    Garantie, Ladezyklen, Notstromfähigkeit, Kosten.
 3. Zusammenhänge (Beziehungen) zwischen Entitäten — z.B. "Photovoltaikanlage benötigt Wechselrichter",

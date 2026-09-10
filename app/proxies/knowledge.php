@@ -242,7 +242,8 @@ function knowExtractionSummary(array $ex): string {
     $lines = [];
     foreach (($ex['entities'] ?? []) as $e) {
         $syn = !empty($e['synonyms']) ? ' (' . implode(', ', (array)$e['synonyms']) . ')' : '';
-        $lines[] = '- Thema: ' . ($e['prefLabel'] ?? '?') . $syn . ' [Abdeckung: ' . ($e['coverage'] ?? '?') . ']';
+        $typ = !empty($e['type']) ? ' [Typ: ' . $e['type'] . ']' : '';
+        $lines[] = '- Thema: ' . ($e['prefLabel'] ?? '?') . $syn . $typ . ' [Abdeckung: ' . ($e['coverage'] ?? '?') . ']';
     }
     foreach (($ex['attributes'] ?? []) as $a) {
         $lines[] = '- Eigenschaft: ' . ($a['name'] ?? '?') . ' von ' . ($a['entity'] ?? '?') . ' [Abdeckung: ' . ($a['coverage'] ?? '?') . ']';
@@ -262,13 +263,16 @@ function knowCoverageRank(?string $c): int {
 }
 function knowBuildCoverageFallback(array $own, array $competitors): array {
     $ent = []; $att = []; $rel = [];
-    $add = function (array &$arr, string $label, ?string $cov, string $side, ?string $entity = null): void {
+    $add = function (array &$arr, string $label, ?string $cov, string $side, ?string $entity = null, ?string $type = null): void {
         $label = trim($label);
         if ($label === '') return;
         $k = mb_strtolower($label) . '|' . mb_strtolower((string)$entity);
         if (!isset($arr[$k])) {
             $arr[$k] = ['label' => $label, 'own' => 'fehlt', 'competitor' => 'fehlt', 'relevance' => 0.5];
             if ($entity) $arr[$k]['entity'] = $entity;
+            if ($type)   $arr[$k]['type'] = $type;
+        } elseif ($type && empty($arr[$k]['type'])) {
+            $arr[$k]['type'] = $type;
         }
         $slot = ($side === 'own') ? 'own' : 'competitor';
         if (knowCoverageRank($cov) > knowCoverageRank($arr[$k][$slot])) {
@@ -277,12 +281,12 @@ function knowBuildCoverageFallback(array $own, array $competitors): array {
     };
     $relLabel = fn(array $r): string => trim(($r['source'] ?? '') . ' ' . ($r['predicate'] ?? '') . ' ' . ($r['target'] ?? ''));
 
-    foreach (($own['entities'] ?? []) as $e)      $add($ent, (string)($e['prefLabel'] ?? ''), $e['coverage'] ?? 'mittel', 'own');
+    foreach (($own['entities'] ?? []) as $e)      $add($ent, (string)($e['prefLabel'] ?? ''), $e['coverage'] ?? 'mittel', 'own', null, $e['type'] ?? null);
     foreach (($own['attributes'] ?? []) as $a)    $add($att, (string)($a['name'] ?? ''),      $a['coverage'] ?? 'mittel', 'own', $a['entity'] ?? null);
     foreach (($own['relationships'] ?? []) as $r) $add($rel, $relLabel($r),                     $r['coverage'] ?? 'mittel', 'own');
     foreach ($competitors as $c) {
         if (!is_array($c)) continue;
-        foreach (($c['entities'] ?? []) as $e)      $add($ent, (string)($e['prefLabel'] ?? ''), $e['coverage'] ?? 'mittel', 'comp');
+        foreach (($c['entities'] ?? []) as $e)      $add($ent, (string)($e['prefLabel'] ?? ''), $e['coverage'] ?? 'mittel', 'comp', null, $e['type'] ?? null);
         foreach (($c['attributes'] ?? []) as $a)    $add($att, (string)($a['name'] ?? ''),      $a['coverage'] ?? 'mittel', 'comp', $a['entity'] ?? null);
         foreach (($c['relationships'] ?? []) as $r) $add($rel, $relLabel($r),                     $r['coverage'] ?? 'mittel', 'comp');
     }

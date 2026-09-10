@@ -20,6 +20,8 @@ STRIKTE REGELN:
 - Fülle "coverage" IMMER mit den wichtigsten Themen, Eigenschaften und Zusammenhängen aus den
   gelieferten Extraktionen (eigene + Wettbewerber) – auch dort, wo keine Lücke besteht. "coverage"
   darf nicht leer sein, solange die Extraktionen Elemente enthalten.
+- Gib bei jeder coverage-Entität den "type" an (aus der Extraktion übernehmen): produkt, anbieter,
+  organisation, person, standort, foerderung, technologie, dienstleistung oder konzept.
 - Jede Opportunity braucht eine nachvollziehbare Begründung (rationale) und, wo vorhanden, einen
   Wettbewerber-Beleg (competitorEvidence).
 - Kennzeichne die Herkunft der Signale in provenance: "source_fact" (aus Seiteninhalten),
@@ -51,7 +53,7 @@ ohne Markdown-Codeblock:
 {
   "coverage": {
     "entities": [
-      {"label": "Stromspeicher", "own": "schwach", "competitor": "stark", "relevance": 0.8}
+      {"label": "Stromspeicher", "type": "produkt", "own": "schwach", "competitor": "stark", "relevance": 0.8}
     ],
     "attributes": [
       {"label": "Notstromfähigkeit", "entity": "Stromspeicher", "own": "fehlt", "competitor": "stark", "relevance": 0.7}

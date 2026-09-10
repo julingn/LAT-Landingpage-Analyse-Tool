@@ -296,6 +296,8 @@ listet alle registrierten Agenten aus `AGENTS` und öffnet je Zeile dieses Modal
 - `coverage` — `.kg-cov-row` / `.kg-cov-bars` / `.kg-cov-bar` / `.kg-cov-track` /
   `.kg-cov-fill.own` (Accent) · `.kg-cov-fill.comp` (Purple)
 - Status-Badge — `.kg-cvg` (`stark`/`mittel`/`schwach`/`fehlt`, System-Farben)
+- Entitäts-Typ — `.kg-etype` (Badge: Produkt/Anbieter-Organisation/Person/Standort/Förderprogramm …)
+- Eigenschafts-Zugehörigkeit — `.kg-belongs` (Chip „gehört zu: <Thema>")
 
 **Props/Konfiguration:** Füllbreite aus Abdeckungsstufe (`stark`=100 / `mittel`=60 /
 `schwach`=30 / `fehlt`=0 %). Nur Tokens.

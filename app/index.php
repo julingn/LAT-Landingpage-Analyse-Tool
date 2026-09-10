@@ -1036,6 +1036,8 @@ button{font-family:inherit}
 .kg-cvg.mittel{background:var(--amber-bg);color:var(--amber)}
 .kg-cvg.schwach{background:var(--red-bg);color:var(--red)}
 .kg-cvg.fehlt{background:var(--bg4);color:var(--text3)}
+.kg-etype{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:2px 6px;border-radius:var(--radius-sm);background:var(--accent-bg);color:var(--accent);white-space:nowrap}
+.kg-belongs{font-size:10px;font-weight:600;padding:2px 7px;border-radius:var(--radius-sm);background:var(--bg4);color:var(--text2);white-space:nowrap}
 .kg-opp-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow-sm)}
 .kg-opp-head{display:flex;align-items:flex-start;gap:14px}
 .kg-opp-score{flex:0 0 auto;width:52px;height:52px;border-radius:var(--radius);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff}
@@ -6984,6 +6986,8 @@ const KG_CVG_PCT={stark:100,mittel:60,schwach:30,fehlt:0};
 const KG_TYPE_LABEL={entity_gap:'Fehlendes Thema',attribute_gap:'Fehlende Eigenschaft',relationship_gap:'Fehlender Zusammenhang',optimize_existing:'Bestehenden Inhalt optimieren',new_content:'Neuer Inhalt',internal_link:'Interne Verlinkung'};
 const KG_PROV_LABEL={source_fact:'Seiteninhalt',search_signal:'Suchdaten',ai_inferred:'KI-Ableitung',user_confirmed:'Bestätigt'};
 const KG_STATUS_LABEL={offen:'Offen',in_arbeit:'In Arbeit',erledigt:'Erledigt',ignoriert:'Ignoriert'};
+const KG_ETYPE={produkt:'Produkt',konzept:'Konzept',thema:'Thema',standort:'Standort',ort:'Standort',anbieter:'Anbieter/Organisation',organisation:'Anbieter/Organisation',unternehmen:'Anbieter/Organisation',person:'Person',foerderung:'Förderprogramm','förderung':'Förderprogramm',technologie:'Technologie',dienstleistung:'Dienstleistung'};
+function kgEtypeLabel(t){const k=String(t||'').toLowerCase();return KG_ETYPE[k]||(t||'Thema');}
 let kgState={own:null,comp:null,comps:[],ownText:'',analysis:null,activeOpp:null,briefing:null,generated:null,recheck:null,partialNotes:[]};
 let kgFilter={type:'all',status:'all',sort:'score_desc',group:'none'};
 
@@ -7186,31 +7190,33 @@ function kgOppMini(o){
     +'<div class="kg-opp-score" style="width:40px;height:40px;font-size:14px;background:'+kgScoreColor(o.score||0)+'">'+(o.score||0)+'</div></div>';
 }
 
-function kgCoverageSection(label,rows){
-  if(!rows||!rows.length)return '<div class="needs-met-block"><div class="needs-met-label">'+label+'</div><div class="kg-ws-empty">Keine Elemente erkannt.</div></div>';
+function kgCoverageSection(label,rows,kind,intro){
+  const head='<div class="needs-met-label">'+escHtml(label)+'</div>'+(intro?'<div class="kg-cov-sub" style="margin:4px 0 8px">'+escHtml(intro)+'</div>':'');
+  if(!rows||!rows.length)return '<div class="needs-met-block">'+head+'<div class="kg-ws-empty">Keine Elemente erkannt.</div></div>';
   const body=rows.map(r=>{
     const ownV=kgCvgClass(r.own),compV=kgCvgClass(r.competitor);
     const ownPct=KG_CVG_PCT[ownV],compPct=KG_CVG_PCT[compV];
-    const name=r.label+(r.entity?(' <span class="kg-cov-sub">('+r.entity+')</span>'):'');
-    return '<div class="kg-cov-row"><div><div class="kg-cov-name">'+escHtml(r.label)+'</div>'
-      +(r.entity?'<div class="kg-cov-sub">'+escHtml(r.entity)+'</div>':'')+'</div>'
+    let tag='';
+    if(kind==='entity')tag=' <span class="kg-etype">'+escHtml(kgEtypeLabel(r.type))+'</span>';
+    else if(kind==='attribute'&&r.entity)tag=' <span class="kg-belongs">gehört zu: '+escHtml(r.entity)+'</span>';
+    return '<div class="kg-cov-row"><div><div class="kg-cov-name">'+escHtml(r.label)+tag+'</div></div>'
       +'<div class="kg-cov-bars">'
       +'<div class="kg-cov-bar">Eigene<div class="kg-cov-track"><div class="kg-cov-fill own" style="width:'+ownPct+'%"></div></div><span class="kg-cvg '+ownV+'">'+ownV+'</span></div>'
       +'<div class="kg-cov-bar">Wettb.<div class="kg-cov-track"><div class="kg-cov-fill comp" style="width:'+compPct+'%"></div></div><span class="kg-cvg '+compV+'">'+compV+'</span></div>'
       +'</div></div>';
   }).join('');
-  return '<div class="needs-met-block"><div class="needs-met-label">'+label+'</div><div style="margin-top:8px">'+body+'</div></div>';
+  return '<div class="needs-met-block">'+head+'<div style="margin-top:8px">'+body+'</div></div>';
 }
 function kgRenderCoverage(){
   const c=kgState.analysis.coverage||{};
   const el=document.getElementById('kg-tab-coverage');
   el.innerHTML=
-    '<div class="pv-data-hint" style="margin-bottom:14px">Vergleich der Abdeckung: <strong>Eigene Seite</strong> (blau) gegenüber <strong>Wettbewerber</strong> (lila). „stark“ = ausführlich erklärt, „schwach“ = nur gestreift, „fehlt“ = nicht behandelt.</div>'
-    +kgCoverageSection('Abgedeckte Themen und Begriffe',c.entities)
+    '<div class="pv-data-hint" style="margin-bottom:14px">So liest du diese Ansicht: <strong>Themen</strong> sind eigenständige Begriffe (mit Typ, z.B. Produkt, Anbieter/Organisation, Person, Standort). <strong>Eigenschaften</strong> beschreiben ein Thema näher und „gehören zu“ ihm (z.B. „Garantie“ → „Stromspeicher“). <strong>Zusammenhänge</strong> verbinden zwei Themen. Balken: <strong>Eigene Seite</strong> (blau) vs. <strong>Wettbewerber</strong> (lila) – stark / mittel / schwach / fehlt.</div>'
+    +kgCoverageSection('Themen (Entitäten)',c.entities,'entity','Eigenständige Begriffe mit Typ – z.B. Produkt, Anbieter/Organisation, Person, Standort, Förderprogramm.')
     +'<div style="height:14px"></div>'
-    +kgCoverageSection('Eigenschaften',c.attributes)
+    +kgCoverageSection('Eigenschaften der Themen',c.attributes,'attribute','Merkmale, die ein Thema näher beschreiben – jede Eigenschaft gehört zu einem Thema.')
     +'<div style="height:14px"></div>'
-    +kgCoverageSection('Thematische Zusammenhänge',c.relationships);
+    +kgCoverageSection('Zusammenhänge zwischen Themen',c.relationships,'relationship','Wie zwei Themen zusammenhängen – z.B. „Photovoltaik kann mit Wärmepumpe kombiniert werden“.');
 }
 
 function kgRenderCompetitors(){
