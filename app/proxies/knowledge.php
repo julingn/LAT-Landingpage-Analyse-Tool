@@ -73,7 +73,7 @@ if ($provider === 'openai') {
 /** @return array{0:?string,1:?array} [text, error] */
 function knowCallAi(string $provider, string $apiKey, string $systemPrompt, string $userPrompt, int $maxTokens): array {
     $model = ($provider === 'openai') ? CFG_OPENAI_MODEL : CFG_AI_MODEL;
-    $maxTokens = max(256, min($maxTokens, 4096)); // api.php-Cap respektieren
+    $maxTokens = max(256, min($maxTokens, 8000)); // Cap (Anthropic/OpenAI unterstützen mehr)
 
     if ($provider === 'openai') {
         $payload = [
@@ -127,22 +127,39 @@ function knowCallAi(string $provider, string $apiKey, string $systemPrompt, stri
     return [$text, null];
 }
 
-// ── Helper: JSON aus KI-Text robust extrahieren ───────────────────────────
+// ── Helper: JSON aus KI-Text robust extrahieren (inkl. Reparatur bei Abschneidung) ──
 function knowParseJson(string $text): ?array {
     $t = trim($text);
     // Markdown-Codeblock-Fences entfernen
-    $t = preg_replace('/^```(?:json)?\s*/i', '', $t);
-    $t = preg_replace('/\s*```$/', '', $t);
-    $decoded = json_decode($t, true);
-    if (is_array($decoded)) return $decoded;
-    // Fallback: erstes {...}-Objekt herausschneiden
+    $t = preg_replace('/^```(?:json)?\s*/i', '', $t) ?? $t;
+    $t = preg_replace('/\s*```$/', '', $t) ?? $t;
+    $try = function (string $s): ?array { $d = json_decode($s, true); return is_array($d) ? $d : null; };
+    if (($d = $try($t)) !== null) return $d;
+    // Auf den JSON-Kern ab dem ersten { beschränken
     $start = strpos($t, '{');
-    $end   = strrpos($t, '}');
-    if ($start !== false && $end !== false && $end > $start) {
-        $decoded = json_decode(substr($t, $start, $end - $start + 1), true);
-        if (is_array($decoded)) return $decoded;
+    if ($start === false) return null;
+    $core = substr($t, $start);
+    $end = strrpos($core, '}');
+    if ($end !== false && ($d = $try(substr($core, 0, $end + 1))) !== null) return $d;
+    // Reparaturversuch: trailing commas entfernen + offene Strings/Klammern schließen (Truncation)
+    $repair = preg_replace('/,\s*([}\]])/', '$1', $core) ?? $core;
+    $inStr = false; $esc = false; $stack = [];
+    for ($i = 0, $n = strlen($repair); $i < $n; $i++) {
+        $ch = $repair[$i];
+        if ($inStr) {
+            if ($esc) { $esc = false; }
+            elseif ($ch === '\\') { $esc = true; }
+            elseif ($ch === '"') { $inStr = false; }
+            continue;
+        }
+        if ($ch === '"') { $inStr = true; }
+        elseif ($ch === '{' || $ch === '[') { $stack[] = $ch; }
+        elseif ($ch === '}' || $ch === ']') { array_pop($stack); }
     }
-    return null;
+    if ($inStr) $repair .= '"';
+    while (!empty($stack)) { $open = array_pop($stack); $repair .= ($open === '{') ? '}' : ']'; }
+    $repair = preg_replace('/,\s*([}\]])/', '$1', $repair) ?? $repair;
+    return $try($repair);
 }
 
 // ── Helper: HTML → Klartext (Token sparen, bessere Extraktion) ────────────
@@ -334,7 +351,7 @@ if ($action === 'extract') {
     $roleLabel = $role === 'competitor' ? 'Wettbewerberseite' : 'eigene Seite';
     $userPrompt = "Analysiere den folgenden Seitentext ({$roleLabel}, URL: {$url}).\n\nSEITENTEXT:\n{$text}";
 
-    [$aiText, $err] = knowCallAi($provider, $apiKey, $system, $userPrompt, 3000);
+    [$aiText, $err] = knowCallAi($provider, $apiKey, $system, $userPrompt, 4000);
     if ($err) { http_response_code(502); echo json_encode(['error' => $err], JSON_UNESCAPED_UNICODE); exit; }
 
     $parsed = knowParseJson($aiText);
@@ -397,13 +414,13 @@ if ($action === 'analyze') {
     $userPrompt = "EIGENE SEITE:\n{$ownSummary}\n\n{$compText}{$searchBlock}\n\n"
         . "Vergleiche die Abdeckung und leite nachvollziehbare Content-Chancen ab. Antworte nur mit dem JSON-Objekt.";
 
-    [$aiText, $err] = knowCallAi($provider, $apiKey, $system, $userPrompt, 4096);
+    [$aiText, $err] = knowCallAi($provider, $apiKey, $system, $userPrompt, 8000);
     if ($err) { http_response_code(502); echo json_encode(['error' => $err], JSON_UNESCAPED_UNICODE); exit; }
 
     $parsed = knowParseJson($aiText);
     if ($parsed === null) {
         http_response_code(502);
-        echo json_encode(['error' => ['type' => 'parse', 'message' => 'KI-Antwort konnte nicht als JSON gelesen werden.']], JSON_UNESCAPED_UNICODE);
+        echo json_encode(['error' => ['type' => 'parse', 'message' => 'Die KI-Antwort war unvollständig oder kein gültiges JSON. Bitte erneut versuchen (ggf. mit weniger Wettbewerbern).']], JSON_UNESCAPED_UNICODE);
         exit;
     }
 
@@ -512,7 +529,7 @@ if ($action === 'generate') {
         : '';
     $userPrompt = "CONTENT-BRIEFING:\n{$briefingJson}{$origBlock}{$formatBlock}\n\nErstelle den Content-Baustein. Antworte nur mit dem JSON-Objekt.";
 
-    [$aiText, $err] = knowCallAi($provider, $apiKey, $system, $userPrompt, 3500);
+    [$aiText, $err] = knowCallAi($provider, $apiKey, $system, $userPrompt, 4000);
     if ($err) { http_response_code(502); echo json_encode(['error' => $err], JSON_UNESCAPED_UNICODE); exit; }
 
     $parsed = knowParseJson($aiText);
