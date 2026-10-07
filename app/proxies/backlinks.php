@@ -701,6 +701,7 @@ if ($action === 'list') {
             'id' => (int)$r['id'], 'source_url' => $r['source_url'], 'source_domain' => $r['source_domain'],
             'http_status' => (int)$r['http_status'], 'reachable' => pgBool($r['reachable']),
             'has_mvv_link' => pgBool($r['has_mvv_link']), 'mvv_link_count' => (int)$r['mvv_link_count'],
+            'has_metrics' => isset($r['source_metrics']) && $r['source_metrics'] !== '' && trim($r['source_metrics']) !== '{}',
             'primary_target' => $primary['target_url'] ?? '', 'primary_anchor' => $primary['anchor_text'] ?? '',
             'score' => (int)$r['score'], 'quality_class' => $r['quality_class'], 'risk_level' => $r['risk_level'],
             'checked_at' => $r['checked_at'],

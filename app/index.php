@@ -2124,6 +2124,7 @@ button{font-family:inherit}
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button id="bl-recheck-all-btn" onclick="blRecheckAll()" style="padding:8px 14px;font-size:13px;font-weight:600;border:1px solid var(--border2);background:var(--bg2);color:var(--text);border-radius:var(--radius);cursor:pointer;font-family:inherit">Alle prüfen</button>
+        <button id="bl-enrich-btn" onclick="blEnrichMissing()" title="Nur Einträge ohne SISTRIX/DataForSEO-Daten nachträglich anreichern" style="padding:8px 14px;font-size:13px;font-weight:600;border:1px solid var(--accent-border);background:var(--accent-bg);color:var(--accent);border-radius:var(--radius);cursor:pointer;font-family:inherit">Fehlende anreichern</button>
         <button onclick="blCleanupMvv()" title="Eigene mvv.de-Quellen (interne Links) entfernen" style="padding:8px 14px;font-size:13px;font-weight:600;border:1px solid var(--border2);background:var(--bg2);color:var(--text);border-radius:var(--radius);cursor:pointer;font-family:inherit">MVV-Quellen entfernen</button>
         <a href="backlinks.php?action=export" style="padding:8px 14px;font-size:13px;font-weight:600;border:1px solid var(--border2);background:var(--bg2);color:var(--text);border-radius:var(--radius);cursor:pointer;font-family:inherit;text-decoration:none">Export CSV</a>
       </div>
@@ -7224,6 +7225,25 @@ async function blRecheckAll(){
     try{await blCheckOne(items[i].id,items[i].source_url);}catch(e){}
   }
   prog.textContent='Alle geprüft.';
+  await blLoadList();
+  setTimeout(()=>{prog.style.display='none';},2500);
+  btn.disabled=false;blBusy=false;
+}
+
+async function blEnrichMissing(){
+  if(blBusy||!blData.length)return;
+  const prog=document.getElementById('bl-progress');
+  const todo=blData.filter(b=>!b.has_metrics);
+  if(!todo.length){prog.style.display='';prog.textContent='Alle Einträge sind bereits angereichert.';setTimeout(()=>{prog.style.display='none';},2500);return;}
+  if(!confirm(todo.length+' Einträge ohne Metriken anreichern (SISTRIX + DataForSEO)?'))return;
+  blBusy=true;
+  const btn=document.getElementById('bl-enrich-btn');btn.disabled=true;
+  prog.style.display='';
+  for(let i=0;i<todo.length;i++){
+    prog.textContent=`Reichere an ${i+1} / ${todo.length} · ${todo[i].source_domain}`;
+    try{await blCheckOne(todo[i].id,todo[i].source_url);}catch(e){}
+  }
+  prog.textContent='Nachanreicherung abgeschlossen.';
   await blLoadList();
   setTimeout(()=>{prog.style.display='none';},2500);
   btn.disabled=false;blBusy=false;
