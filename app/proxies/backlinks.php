@@ -81,6 +81,27 @@ function pgBool(mixed $v): bool {
     return $v === true || $v === 't' || $v === '1' || $v === 1 || $v === 'true';
 }
 
+/**
+ * Konservative URL-Normalisierung für Dedupe: vereinheitlicht kosmetische Varianten
+ * (Host-Groß/Klein, Default-Port, #fragment, Trailing-Slash). www vs. non-www und
+ * http vs. https bleiben bewusst getrennt, da dies real verschiedene Seiten sein können.
+ */
+function blNormalizeUrl(string $url): string {
+    $url = trim($url);
+    $p = parse_url($url);
+    if ($p === false || empty($p['host'])) return $url;
+    $scheme = strtolower($p['scheme'] ?? 'https');
+    $host   = strtolower($p['host']);
+    $port   = $p['port'] ?? null;
+    if (($scheme === 'http' && $port === 80) || ($scheme === 'https' && $port === 443)) $port = null;
+    $path = $p['path'] ?? '';
+    if ($path === '') $path = '/';
+    if (strlen($path) > 1) $path = rtrim($path, '/'); // Trailing-Slash entfernen (außer Root)
+    $query = (isset($p['query']) && $p['query'] !== '') ? '?' . $p['query'] : '';
+    $portStr = $port ? ':' . $port : '';
+    return $scheme . '://' . $host . $portStr . $path . $query; // Fragment wird bewusst verworfen
+}
+
 /** Relative URL gegen Basis auflösen. */
 function blResolveUrl(string $rel, string $base): string {
     $rel = trim($rel);
@@ -526,16 +547,27 @@ function blInsertUrl(string $url): array {
     $url = trim($url);
     if ($url === '' || !filter_var($url, FILTER_VALIDATE_URL)) return ['id' => 0, 'new' => false, 'error' => 'Ungültige URL'];
     $scheme = parse_url($url, PHP_URL_SCHEME);
-    if (!in_array($scheme, ['http', 'https'], true)) return ['id' => 0, 'new' => false, 'error' => 'Nur HTTP/HTTPS erlaubt'];
+    if (!in_array(strtolower((string)$scheme), ['http', 'https'], true)) return ['id' => 0, 'new' => false, 'error' => 'Nur HTTP/HTTPS erlaubt'];
+
+    // Kosmetische Varianten derselben Seite zusammenführen (Trailing-Slash, #fragment, Host-Groß/Klein, Default-Port).
+    $url = blNormalizeUrl($url);
 
     $st = db()->prepare('SELECT id FROM bl_backlinks WHERE source_url = :u');
     $st->execute([':u' => $url]);
     $existing = $st->fetch();
     if ($existing) return ['id' => (int)$existing['id'], 'new' => false, 'error' => ''];
 
-    $ins = db()->prepare('INSERT INTO bl_backlinks (source_url, source_domain) VALUES (:u, :d) RETURNING id');
-    $ins->execute([':u' => $url, ':d' => blHost($url)]);
-    return ['id' => (int)$ins->fetchColumn(), 'new' => true, 'error' => ''];
+    try {
+        $ins = db()->prepare('INSERT INTO bl_backlinks (source_url, source_domain) VALUES (:u, :d) RETURNING id');
+        $ins->execute([':u' => $url, ':d' => blHost($url)]);
+        return ['id' => (int)$ins->fetchColumn(), 'new' => true, 'error' => ''];
+    } catch (PDOException $e) {
+        // Race-Condition: zwischen SELECT und INSERT parallel angelegt (UNIQUE-Verletzung) → vorhandenen Eintrag zurückgeben.
+        $st->execute([':u' => $url]);
+        $row = $st->fetch();
+        if ($row) return ['id' => (int)$row['id'], 'new' => false, 'error' => ''];
+        throw $e;
+    }
 }
 
 /* ============================================================================
