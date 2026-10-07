@@ -71,6 +71,12 @@ function blIsMvvHost(string $host): bool {
     return $host === 'mvv.de' || $host === 'www.mvv.de';
 }
 
+/** MVV-Produkt-/Themenbegriffe für die regelbasierte thematische Nähe. */
+const BL_PRODUCT_TERMS = [
+    'Strom', 'Gas', 'Wasser', 'Solar', 'Photovoltaik', 'Fernwärme', 'Wärmepumpe',
+    'E-Mobilität', 'Mannheim', 'Energie', 'Smart Meter', 'Energiemanagement', 'Smart Home',
+];
+
 function blHost(string $url): string {
     $h = parse_url($url, PHP_URL_HOST);
     return $h ? strtolower($h) : '';
@@ -209,6 +215,7 @@ function blAnalyze(string $url, array $fetch): array {
         'mvv_mentions'  => 0,
         'published_at'  => '',
         'modified_at'   => '',
+        'thematic_hits' => [],
     ];
     if ($body === '') return $out;
 
@@ -250,6 +257,13 @@ function blAnalyze(string $url, array $fetch): array {
     $txt = blCleanText($body);
     $out['mvv_mentions'] = preg_match_all('/\bMVV\b/u', $txt);
     $out['mvv_in_text']  = $out['mvv_mentions'] > 0;
+
+    // Thematische Nähe: welche MVV-Produktbegriffe kommen im Seitentext vor?
+    $hits = [];
+    foreach (BL_PRODUCT_TERMS as $term) {
+        if (preg_match('/\b' . preg_quote($term, '/') . '\b/iu', $txt)) $hits[] = $term;
+    }
+    $out['thematic_hits'] = $hits;
 
     // Alle MVV-Links finden
     if (preg_match_all('#<a\b([^>]*?)href\s*=\s*("|\')(.*?)\2([^>]*)>(.*?)</a>#is', $body, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
@@ -297,7 +311,10 @@ function blPickPrimary(array $links): int {
     return 0;
 }
 
-/** Regelbasiertes Scoring (0–100) + Klasse, Risiko, Empfehlung. */
+/**
+ * Regelbasiertes Scoring (0–100) + Klasse, Risiko, Empfehlung.
+ * Block A: Link-Qualität (55) · Block B: Quell-Wertigkeit (45, SISTRIX + DataForSEO + Thematik).
+ */
 function blScore(array $state): array {
     $detail = [];
     $reachable = $state['reachable'];
@@ -313,74 +330,106 @@ function blScore(array $state): array {
         ];
     }
 
+    $m = is_array($state['metrics'] ?? null) ? $state['metrics'] : [];
+    $thematic = is_array($state['thematic'] ?? null) ? $state['thematic'] : [];
     $score = 0; $issues = [];
 
-    // MVV-Link vorhanden (35)
+    // ── Block A: Link-Qualität (55) ──────────────────────────────────────────
+    // MVV-Link vorhanden (20)
     $hasLink = $primary !== null;
-    $p = $hasLink ? 35 : 0;
+    $p = $hasLink ? 20 : 0;
     $score += $p;
-    $detail[] = ['label' => 'MVV-Link vorhanden', 'points' => $p, 'max' => 35, 'note' => $hasLink ? 'ja' : 'kein Link auf mvv.de'];
+    $detail[] = ['label' => 'MVV-Link vorhanden', 'points' => $p, 'max' => 20, 'note' => $hasLink ? 'ja' : 'kein Link auf mvv.de'];
     if (!$hasLink) $issues[] = 'no_link';
 
-    // Linkattribut (20 / 6)
+    // Linkattribut (15 / 4)
     if ($hasLink) {
         $isNofollow = preg_match('/\b(nofollow|ugc|sponsored)\b/', $primary['rel_attr']) === 1;
-        $p = $isNofollow ? 6 : 20;
+        $p = $isNofollow ? 4 : 15;
         $score += $p;
-        $detail[] = ['label' => 'Linkattribut', 'points' => $p, 'max' => 20, 'note' => $isNofollow ? ($primary['rel_attr'] ?: 'nofollow') : 'dofollow'];
+        $detail[] = ['label' => 'Linkattribut', 'points' => $p, 'max' => 15, 'note' => $isNofollow ? ($primary['rel_attr'] ?: 'nofollow') : 'dofollow'];
         if ($isNofollow) $issues[] = 'nofollow';
     } else {
-        $detail[] = ['label' => 'Linkattribut', 'points' => 0, 'max' => 20, 'note' => '–'];
+        $detail[] = ['label' => 'Linkattribut', 'points' => 0, 'max' => 15, 'note' => '–'];
     }
 
-    // Indexierbarkeit (15)
-    $idx = $state['indexable'];
-    $p = $idx === true ? 15 : ($idx === null ? 8 : 0);
-    $score += $p;
-    $detail[] = ['label' => 'Indexierbarkeit', 'points' => $p, 'max' => 15, 'note' => $idx === true ? 'indexierbar' : ($idx === null ? 'unbekannt' : 'noindex')];
-    if ($idx === false) $issues[] = 'noindex';
-
-    // Linkposition (12)
+    // Linkposition (10)
     if ($hasLink) {
         $pos = $primary['link_position'];
-        $p = match ($pos) { 'Content' => 12, 'Navigation', 'Seitenleiste' => 6, 'Header' => 4, 'Footer' => 3, default => 6 };
+        $p = match ($pos) { 'Content' => 10, 'Navigation', 'Seitenleiste' => 5, 'Header' => 3, 'Footer' => 3, default => 5 };
         $score += $p;
-        $detail[] = ['label' => 'Linkposition', 'points' => $p, 'max' => 12, 'note' => $pos];
+        $detail[] = ['label' => 'Linkposition', 'points' => $p, 'max' => 10, 'note' => $pos];
         if (in_array($pos, ['Footer', 'Header', 'Seitenleiste'], true)) $issues[] = 'position';
     } else {
-        $detail[] = ['label' => 'Linkposition', 'points' => 0, 'max' => 12, 'note' => '–'];
+        $detail[] = ['label' => 'Linkposition', 'points' => 0, 'max' => 10, 'note' => '–'];
     }
 
-    // MVV im Fließtext (8)
-    $p = $state['mvv_in_text'] ? 8 : 0;
+    // Indexierbarkeit (6)
+    $idx = $state['indexable'];
+    $p = $idx === true ? 6 : ($idx === null ? 3 : 0);
     $score += $p;
-    $detail[] = ['label' => 'MVV im Fließtext', 'points' => $p, 'max' => 8, 'note' => $state['mvv_in_text'] ? ($state['mvv_mentions'] . '× genannt') : 'nicht genannt'];
+    $detail[] = ['label' => 'Indexierbarkeit', 'points' => $p, 'max' => 6, 'note' => $idx === true ? 'indexierbar' : ($idx === null ? 'unbekannt' : 'noindex')];
+    if ($idx === false) $issues[] = 'noindex';
 
-    // Canonical (3)
+    // MVV im Fließtext (2)
+    $p = $state['mvv_in_text'] ? 2 : 0;
+    $score += $p;
+    $detail[] = ['label' => 'MVV im Fließtext', 'points' => $p, 'max' => 2, 'note' => $state['mvv_in_text'] ? ($state['mvv_mentions'] . '× genannt') : 'nicht genannt'];
+
+    // Canonical (2)
     $canon = $state['canonical_url'];
     if ($canon !== '') {
         $consistent = blHost($canon) === blHost($state['final_url']);
-        $p = $consistent ? 3 : 1;
-        $detail[] = ['label' => 'Canonical', 'points' => $p, 'max' => 3, 'note' => $consistent ? 'konsistent' : 'fremde Domain'];
+        $p = $consistent ? 2 : 1;
+        $detail[] = ['label' => 'Canonical', 'points' => $p, 'max' => 2, 'note' => $consistent ? 'konsistent' : 'fremde Domain'];
     } else {
         $p = 0;
-        $detail[] = ['label' => 'Canonical', 'points' => 0, 'max' => 3, 'note' => 'keine'];
+        $detail[] = ['label' => 'Canonical', 'points' => 0, 'max' => 2, 'note' => 'keine'];
     }
     $score += $p;
 
-    // SISTRIX-Domain-Autorität (7)
-    $vis = (float)($state['sistrix_data']['visibility'] ?? 0);
-    $p = 0;
-    if ($vis >= 1)      $p = 7;
-    elseif ($vis >= 0.1) $p = 5;
-    elseif ($vis > 0)    $p = 3;
+    // ── Block B: Quell-Wertigkeit (45) ───────────────────────────────────────
+    // Domain-Sichtbarkeit (12) — SISTRIX
+    $vis = (float)($m['visibility'] ?? 0);
+    $p = $vis >= 5 ? 12 : ($vis >= 1 ? 9 : ($vis >= 0.1 ? 6 : ($vis > 0 ? 3 : 0)));
     $score += $p;
-    $detail[] = ['label' => 'Domain-Autorität (SISTRIX)', 'points' => $p, 'max' => 7, 'note' => $vis > 0 ? ('Sichtbarkeit ' . $vis) : 'keine Daten'];
+    $detail[] = ['label' => 'Domain-Sichtbarkeit (SISTRIX)', 'points' => $p, 'max' => 12, 'note' => $vis > 0 ? ('Index ' . $vis) : 'keine Daten'];
+    if ($vis > 0 && $vis < 0.1) $issues[] = 'low_vis';
+
+    // Backlinkprofil (12) — Referring Domains + Spam-Score (DataForSEO/SISTRIX)
+    $refDom = max((int)($m['referring_domains'] ?? 0), (int)($m['sistrix_ref_domains'] ?? 0));
+    $refPts = $refDom >= 1000 ? 6 : ($refDom >= 200 ? 5 : ($refDom >= 50 ? 4 : ($refDom >= 10 ? 2 : ($refDom > 0 ? 1 : 0))));
+    $hasDfs = (($m['rank'] ?? 0) || ($m['referring_domains'] ?? 0) || ($m['backlinks'] ?? 0));
+    $spam   = (int)($m['spam_score'] ?? 0);
+    if (!$hasDfs) { $spamPts = 3; $spamNote = 'keine Daten'; }
+    else {
+        $spamPts = $spam <= 5 ? 6 : ($spam <= 15 ? 4 : ($spam <= 30 ? 2 : ($spam <= 50 ? 1 : 0)));
+        $spamNote = 'Spam ' . $spam . '%';
+    }
+    $p = min(12, $refPts + $spamPts);
+    $score += $p;
+    $detail[] = ['label' => 'Backlinkprofil', 'points' => $p, 'max' => 12, 'note' => $refDom . ' Ref.-Domains · ' . $spamNote];
+    if ($hasDfs && $spam > 30) $issues[] = 'spam';
+
+    // Traffic (9) — DataForSEO ETV
+    $traffic = (int)($m['est_traffic'] ?? 0);
+    $p = $traffic >= 100000 ? 9 : ($traffic >= 10000 ? 7 : ($traffic >= 1000 ? 5 : ($traffic >= 100 ? 3 : ($traffic > 0 ? 1 : 0))));
+    $score += $p;
+    $detail[] = ['label' => 'Traffic (geschätzt)', 'points' => $p, 'max' => 9, 'note' => $traffic > 0 ? (number_format($traffic, 0, ',', '.') . ' Besuche/Monat') : 'keine Daten'];
+    if ($traffic > 0 && $traffic < 100) $issues[] = 'low_traffic';
+
+    // Thematische Nähe (12)
+    $hitCount = count($thematic);
+    $p = $hitCount >= 5 ? 12 : ($hitCount >= 3 ? 9 : ($hitCount >= 1 ? 6 : 0));
+    $score += $p;
+    $detail[] = ['label' => 'Thematische Nähe', 'points' => $p, 'max' => 12, 'note' => $hitCount > 0 ? implode(', ', array_slice($thematic, 0, 6)) : 'kein Produktbezug'];
+    if ($hitCount === 0) $issues[] = 'offtopic';
 
     $score = max(0, min(100, $score));
 
     $class = $score >= 80 ? 'A' : ($score >= 60 ? 'B' : ($score >= 40 ? 'C' : 'D'));
     $risk  = (!$hasLink) ? 'hoch' : ($score >= 70 ? 'niedrig' : ($score >= 45 ? 'mittel' : 'hoch'));
+    if (in_array('spam', $issues, true) && $risk === 'niedrig') $risk = 'mittel';
 
     // Empfehlung
     $rec = [];
@@ -388,6 +437,9 @@ function blScore(array $state): array {
     if (in_array('nofollow', $issues, true)) $rec[] = 'Link ist nofollow/ugc/sponsored — kein direkter SEO-Wert; ggf. dofollow anfragen.';
     if (in_array('noindex', $issues, true)) $rec[] = 'Quellseite ist nicht indexierbar (noindex) — Linkwert eingeschränkt.';
     if (in_array('position', $issues, true)) $rec[] = 'Link in Footer/Header/Seitenleiste — geringere Relevanz als ein Content-Link.';
+    if (in_array('spam', $issues, true)) $rec[] = 'Hoher Spam-Score der Quell-Domain (' . $spam . '%) — Linkqualität kritisch prüfen.';
+    if (in_array('low_vis', $issues, true) && in_array('low_traffic', $issues, true)) $rec[] = 'Geringe Sichtbarkeit und wenig Traffic der Quell-Domain — begrenzter Linkwert.';
+    if (in_array('offtopic', $issues, true)) $rec[] = 'Thematisch wenig Bezug zu MVV-Themen — Relevanz fraglich.';
     if (!$rec) $rec[] = 'Backlink in Ordnung — keine Maßnahme nötig.';
 
     return ['score' => $score, 'quality_class' => $class, 'risk_level' => $risk, 'recommendation' => implode(' ', $rec), 'score_detail' => $detail];
@@ -459,9 +511,10 @@ function blDiff(array $old, array $new): array {
 
 /**
  * Führt die vollständige Prüfung eines Backlinks aus: Fetch, Analyse, Scoring,
- * Speichern, Historie + Diff. $sistrix enthält optionale SISTRIX-Domaindaten.
+ * Speichern, Historie + Diff. $metrics enthält optionale Quell-Domain-Werte
+ * (SISTRIX + DataForSEO, vom Frontend übergeben).
  */
-function blProcess(int $id, array $sistrix): array {
+function blProcess(int $id, array $metrics): array {
     $row = blRowById($id);
     if (!$row) throw new RuntimeException('Backlink nicht gefunden');
 
@@ -484,7 +537,8 @@ function blProcess(int $id, array $sistrix): array {
         'mvv_links'    => $links,
         'mvv_in_text'  => $analyze['mvv_in_text'],
         'mvv_mentions' => $analyze['mvv_mentions'],
-        'sistrix_data' => $sistrix,
+        'metrics'      => $metrics,
+        'thematic'     => $analyze['thematic_hits'],
     ];
     $scored = blScore($state);
 
@@ -497,7 +551,7 @@ function blProcess(int $id, array $sistrix): array {
                 redirect_chain = :chain, page_title = :title, canonical_url = :canon, indexable = :idx,
                 meta_robots = :robots, has_mvv_link = :haslink, mvv_link_count = :linkcount,
                 mvv_in_text = :intext, mvv_mentions = :mentions, published_at = :pub, modified_at = :mod,
-                sistrix_data = :sistrix, score = :score, quality_class = :class, risk_level = :risk,
+                source_metrics = :metrics, thematic_hits = :thematic, score = :score, quality_class = :class, risk_level = :risk,
                 recommendation = :rec, score_detail = :detail, checked_at = now()
             WHERE id = :id
         SQL);
@@ -509,7 +563,8 @@ function blProcess(int $id, array $sistrix): array {
             ':robots' => $analyze['meta_robots'], ':haslink' => $links ? 1 : 0, ':linkcount' => count($links),
             ':intext' => $analyze['mvv_in_text'] ? 1 : 0, ':mentions' => $analyze['mvv_mentions'],
             ':pub' => $analyze['published_at'], ':mod' => $analyze['modified_at'],
-            ':sistrix' => json_encode($sistrix), ':score' => $scored['score'], ':class' => $scored['quality_class'],
+            ':metrics' => json_encode($metrics), ':thematic' => json_encode($analyze['thematic_hits']),
+            ':score' => $scored['score'], ':class' => $scored['quality_class'],
             ':risk' => $scored['risk_level'], ':rec' => $scored['recommendation'],
             ':detail' => json_encode($scored['score_detail']), ':id' => $id,
         ]);
@@ -665,7 +720,7 @@ if ($action === 'add') {
     $ins = blInsertUrl($jsonBody['url'] ?? '');
     if ($ins['error']) jsonErr($ins['error']);
     try {
-        $result = blProcess($ins['id'], is_array($jsonBody['sistrix'] ?? null) ? $jsonBody['sistrix'] : []);
+        $result = blProcess($ins['id'], is_array($jsonBody['metrics'] ?? null) ? $jsonBody['metrics'] : []);
     } catch (Throwable $e) {
         jsonErr('Prüfung fehlgeschlagen: ' . $e->getMessage(), 500);
     }
@@ -677,7 +732,7 @@ if ($action === 'check') {
     $id = (int)($jsonBody['id'] ?? 0);
     if (!$id) jsonErr('id fehlt');
     try {
-        $result = blProcess($id, is_array($jsonBody['sistrix'] ?? null) ? $jsonBody['sistrix'] : []);
+        $result = blProcess($id, is_array($jsonBody['metrics'] ?? null) ? $jsonBody['metrics'] : []);
     } catch (Throwable $e) {
         jsonErr('Prüfung fehlgeschlagen: ' . $e->getMessage(), 500);
     }

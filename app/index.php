@@ -7143,13 +7143,36 @@ function blRenderTable(){
     </tr></thead><tbody>${rows}</tbody></table>`;
 }
 
-async function blFetchSistrix(url){
+const blMetricsCache={};
+function blDomainKey(url){try{let h=new URL(url).hostname.toLowerCase();return h.replace(/^www\./,'');}catch(e){return url;}}
+
+async function blFetchJson(action,url){
   try{
-    const res=await fetch('sistrix.php?action=links_overview',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify({url,csrf_token:CSRF_TOKEN})});
-    const d=await res.json();
-    if(d&&d.success)return{visibility:d.visibility,link_count:d.link_count,referring_domains:d.referring_domains};
-  }catch(e){}
-  return {};
+    const res=await fetch(action,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify({url,csrf_token:CSRF_TOKEN})});
+    return await res.json();
+  }catch(e){return {};}
+}
+
+// Quell-Domain-Metriken (SISTRIX + DataForSEO), pro Domain gecacht.
+async function blGetMetrics(url){
+  const key=blDomainKey(url);
+  if(blMetricsCache[key])return blMetricsCache[key];
+  const [sis,dfs]=await Promise.all([
+    blFetchJson('sistrix.php?action=links_overview',url),
+    blFetchJson('dataforseo.php?action=domain_metrics',url),
+  ]);
+  const metrics={
+    visibility:          (sis&&sis.success)?(sis.visibility||0):0,
+    sistrix_ref_domains: (sis&&sis.success)?(sis.referring_domains||0):0,
+    rank:                (dfs&&dfs.success)?(dfs.rank||0):0,
+    spam_score:          (dfs&&dfs.success)?(dfs.spam_score||0):0,
+    referring_domains:   (dfs&&dfs.success)?(dfs.referring_domains||0):0,
+    backlinks:           (dfs&&dfs.success)?(dfs.backlinks||0):0,
+    est_traffic:         (dfs&&dfs.success)?(dfs.est_traffic||0):0,
+    organic_keywords:    (dfs&&dfs.success)?(dfs.organic_keywords||0):0,
+  };
+  blMetricsCache[key]=metrics;
+  return metrics;
 }
 
 async function blAddSingle(){
@@ -7161,8 +7184,8 @@ async function blAddSingle(){
   const btn=document.getElementById('bl-add-btn');
   blBusy=true;btn.disabled=true;st.style.color='var(--text2)';st.textContent='Prüfe Quelle …';
   try{
-    const sistrix=await blFetchSistrix(url);
-    const res=await fetch('backlinks.php?action=add',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify({url,sistrix,csrf_token:CSRF_TOKEN})});
+    const metrics=await blGetMetrics(url);
+    const res=await fetch('backlinks.php?action=add',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify({url,metrics,csrf_token:CSRF_TOKEN})});
     const d=await res.json();
     if(d.error){st.style.color='var(--red)';st.textContent=d.error;}
     else{st.style.color='var(--green)';st.textContent=d.new?'Backlink hinzugefügt und geprüft.':'Backlink war bereits erfasst — erneut geprüft.';inp.value='';await blLoadList();}
@@ -7171,8 +7194,8 @@ async function blAddSingle(){
 }
 
 async function blCheckOne(id,url){
-  const sistrix=await blFetchSistrix(url);
-  const res=await fetch('backlinks.php?action=check',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify({id,sistrix,csrf_token:CSRF_TOKEN})});
+  const metrics=await blGetMetrics(url);
+  const res=await fetch('backlinks.php?action=check',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify({id,metrics,csrf_token:CSRF_TOKEN})});
   return res.json();
 }
 
@@ -7256,6 +7279,10 @@ async function blShowDetail(id){
     let chain=[],detail=[];
     try{chain=JSON.parse(r.redirect_chain||'[]');}catch(e){}
     try{detail=JSON.parse(r.score_detail||'[]');}catch(e){}
+    let metrics={},thematic=[];
+    try{metrics=JSON.parse(r.source_metrics||'{}')||{};}catch(e){}
+    try{thematic=JSON.parse(r.thematic_hits||'[]')||[];}catch(e){}
+    const nf=n=>Number(n||0).toLocaleString('de-DE');
     const idx=r.indexable;
     const idxTxt=idx===null?'unbekannt':(blTruthy(idx)?'indexierbar':'noindex (nicht indexierbar)');
     const reach=blTruthy(r.reachable);
@@ -7303,6 +7330,14 @@ async function blShowDetail(id){
       ${row('Veröffentlicht',escHtml(r.published_at||'—'))}
       ${row('Aktualisiert',escHtml(r.modified_at||'—'))}
       ${row('Zuletzt geprüft',blFmtDate(r.checked_at))}
+      <div class="card-title" style="font-size:14px;margin:18px 0 6px">Quell-Wertigkeit</div>
+      ${row('Domain-Sichtbarkeit',(metrics.visibility!=null?'SISTRIX-Index '+metrics.visibility:'—'))}
+      ${row('Domain-Rank (DataForSEO)',(metrics.rank?metrics.rank+' / 1000':'—'))}
+      ${row('Spam-Score',(metrics.spam_score!=null&&(metrics.rank||metrics.referring_domains||metrics.backlinks)?metrics.spam_score+'%':'—'))}
+      ${row('Referring Domains',nf(Math.max(metrics.referring_domains||0,metrics.sistrix_ref_domains||0)))}
+      ${row('Backlinks gesamt',(metrics.backlinks?nf(metrics.backlinks):'—'))}
+      ${row('Traffic (geschätzt)',(metrics.est_traffic?nf(metrics.est_traffic)+' Besuche/Monat'+(metrics.organic_keywords?' · '+nf(metrics.organic_keywords)+' Keywords':''):'—'))}
+      ${row('Thematische Nähe',thematic.length?thematic.map(t=>escHtml(t)).join(', '):'<span style="color:var(--red)">kein Produktbezug</span>')}
       <div class="card-title" style="font-size:14px;margin:18px 0 6px">MVV-Links (${(d.mvv_links||[]).length})</div>
       <table style="width:100%;border-collapse:collapse"><thead><tr style="text-align:left;color:var(--text2);font-size:11px;border-bottom:1px solid var(--border2)"><th style="padding:6px 8px"></th><th style="padding:6px 8px">Ziel-URL</th><th style="padding:6px 8px">Ankertext</th><th style="padding:6px 8px">Attribut</th><th style="padding:6px 8px">Position</th></tr></thead><tbody>${mvvRows}</tbody></table>
       ${detail.length?`<div class="card-title" style="font-size:14px;margin:18px 0 6px">Score-Zusammensetzung</div><div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px">${detRows}</div>`:''}

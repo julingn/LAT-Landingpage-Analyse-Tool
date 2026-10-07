@@ -115,4 +115,8 @@ function db_init(): void {
     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_bl_mvv_links_backlink ON bl_mvv_links(backlink_id)");
     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_bl_checks_backlink ON bl_checks(backlink_id)");
     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_bl_backlinks_domain ON bl_backlinks(source_domain)");
+
+    // Quell-Wertigkeit (SISTRIX + DataForSEO, zusammengeführt) + thematische Treffer — nachträglich ergänzt.
+    $pdo->exec("ALTER TABLE bl_backlinks ADD COLUMN IF NOT EXISTS source_metrics JSONB NOT NULL DEFAULT '{}'::jsonb");
+    $pdo->exec("ALTER TABLE bl_backlinks ADD COLUMN IF NOT EXISTS thematic_hits JSONB NOT NULL DEFAULT '[]'::jsonb");
 }

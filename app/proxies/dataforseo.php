@@ -226,5 +226,45 @@ if ($action === 'keyword_volume') {
     exit;
 }
 
+// ── action=domain_metrics — Quell-Domain-Wertigkeit für den Backlink-Monitor ──
+// Liefert normalisiert: Domain-Rank, Spam-Score, Referring Domains, Backlinks, Traffic-Schätzung.
+if ($action === 'domain_metrics') {
+    $target = trim($body['url'] ?? $body['domain'] ?? $url);
+    if (empty($target)) { echo json_encode(['error' => 'url/domain fehlt']); exit; }
+    $domain = preg_replace('#^https?://(www\.)?#i', '', $target);
+    $domain = explode('/', $domain)[0];
+    if ($domain === '') { echo json_encode(['error' => 'Domain nicht erkennbar']); exit; }
+
+    // 1) Backlink-Profil (Rank, Spam-Score, Referring Domains)
+    $sum = dfsRequest('backlinks/summary/live', [[
+        'target'             => $domain,
+        'limit'              => 1,
+        'include_subdomains' => true,
+    ]], $dfsLogin, $dfsPassword);
+    $sumRes = $sum['tasks'][0]['result'][0] ?? [];
+
+    // 2) Traffic-Schätzung (organische ETV) + Keyword-Anzahl
+    $rank = dfsRequest('dataforseo_labs/google/domain_rank_overview/live', [[
+        'target'        => $domain,
+        'location_code' => 2276,
+        'language_code' => 'de',
+    ]], $dfsLogin, $dfsPassword);
+    $organic = $rank['tasks'][0]['result'][0]['items'][0]['metrics']['organic']
+             ?? $rank['tasks'][0]['result'][0]['metrics']['organic']
+             ?? [];
+
+    echo json_encode([
+        'success'           => true,
+        'domain'            => $domain,
+        'rank'              => (int)($sumRes['rank']              ?? 0),
+        'spam_score'        => (int)($sumRes['backlinks_spam_score'] ?? $sumRes['spam_score'] ?? 0),
+        'referring_domains' => (int)($sumRes['referring_domains']  ?? 0),
+        'backlinks'         => (int)($sumRes['backlinks']         ?? 0),
+        'est_traffic'       => (int)round((float)($organic['etv'] ?? 0)),
+        'organic_keywords'  => (int)($organic['count']            ?? 0),
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 http_response_code(400);
 echo json_encode(['error' => 'Unbekannte action: ' . htmlspecialchars($action, ENT_QUOTES, 'UTF-8')]);
