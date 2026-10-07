@@ -71,6 +71,12 @@ function blIsMvvHost(string $host): bool {
     return $host === 'mvv.de' || $host === 'www.mvv.de';
 }
 
+/** Jede mvv.de-Domain (inkl. Subdomains) als Quelle = interner Link, kein Backlink. */
+function blIsMvvSourceHost(string $host): bool {
+    $host = strtolower(trim($host));
+    return $host === 'mvv.de' || str_ends_with($host, '.mvv.de');
+}
+
 /** MVV-Produkt-/Themenbegriffe für die regelbasierte thematische Nähe. */
 const BL_PRODUCT_TERMS = [
     'Strom', 'Gas', 'Wasser', 'Solar', 'Photovoltaik', 'Fernwärme', 'Wärmepumpe',
@@ -607,6 +613,9 @@ function blInsertUrl(string $url): array {
     // Kosmetische Varianten derselben Seite zusammenführen (Trailing-Slash, #fragment, Host-Groß/Klein, Default-Port).
     $url = blNormalizeUrl($url);
 
+    // MVV-eigene Seiten sind interne Links, keine Backlinks.
+    if (blIsMvvSourceHost(blHost($url))) return ['id' => 0, 'new' => false, 'error' => 'MVV-eigene Seite ist kein Backlink'];
+
     $st = db()->prepare('SELECT id FROM bl_backlinks WHERE source_url = :u');
     $st->execute([':u' => $url]);
     $existing = $st->fetch();
@@ -760,6 +769,12 @@ if ($action === 'delete') {
     if (!$id) jsonErr('id fehlt');
     db()->prepare('DELETE FROM bl_backlinks WHERE id = :id')->execute([':id' => $id]);
     jsonOut(['success' => true]);
+}
+
+if ($action === 'cleanup_mvv') {
+    requireCsrf($jsonBody, $sessionCsrf);
+    $st = db()->query("DELETE FROM bl_backlinks WHERE source_domain = 'mvv.de' OR source_domain LIKE '%.mvv.de'");
+    jsonOut(['success' => true, 'deleted' => $st->rowCount()]);
 }
 
 if ($action === 'export') {

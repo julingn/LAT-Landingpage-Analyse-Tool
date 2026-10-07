@@ -2124,6 +2124,7 @@ button{font-family:inherit}
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button id="bl-recheck-all-btn" onclick="blRecheckAll()" style="padding:8px 14px;font-size:13px;font-weight:600;border:1px solid var(--border2);background:var(--bg2);color:var(--text);border-radius:var(--radius);cursor:pointer;font-family:inherit">Alle prüfen</button>
+        <button onclick="blCleanupMvv()" title="Eigene mvv.de-Quellen (interne Links) entfernen" style="padding:8px 14px;font-size:13px;font-weight:600;border:1px solid var(--border2);background:var(--bg2);color:var(--text);border-radius:var(--radius);cursor:pointer;font-family:inherit">MVV-Quellen entfernen</button>
         <a href="backlinks.php?action=export" style="padding:8px 14px;font-size:13px;font-weight:600;border:1px solid var(--border2);background:var(--bg2);color:var(--text);border-radius:var(--radius);cursor:pointer;font-family:inherit;text-decoration:none">Export CSV</a>
       </div>
     </div>
@@ -7261,6 +7262,18 @@ async function blDelete(id){
   try{
     await fetch('backlinks.php?action=delete',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify({id,csrf_token:CSRF_TOKEN})});
     await blLoadList();
+  }catch(e){alert('Fehler: '+e.message);}
+}
+
+async function blCleanupMvv(){
+  if(!confirm('Alle eigenen mvv.de-Quellen (interne Links, keine Backlinks) entfernen?'))return;
+  try{
+    const res=await fetch('backlinks.php?action=cleanup_mvv',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify({csrf_token:CSRF_TOKEN})});
+    const d=await res.json();
+    if(d.error){alert('Fehler: '+d.error);return;}
+    await blLoadList();
+    const prog=document.getElementById('bl-progress');prog.style.display='';prog.textContent=(d.deleted||0)+' MVV-Quelle(n) entfernt.';
+    setTimeout(()=>{prog.style.display='none';},2500);
   }catch(e){alert('Fehler: '+e.message);}
 }
 
