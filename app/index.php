@@ -7113,36 +7113,35 @@ function blRenderTable(){
     const statusTxt=b.http_status>0?b.http_status:'n/a';
     const hasLink=blTruthy(b.has_mvv_link);
     const mvvCell=hasLink
-      ? `${escHtml(blTrunc(b.primary_anchor||b.primary_target,38))}${b.mvv_link_count>1?` <span style="color:var(--text3);font-size:11px">+${b.mvv_link_count-1}</span>`:''}`
-      : '<span style="color:var(--red)">kein MVV-Link</span>';
-    const scoreBadge=b.checked_at?blBadge(b.score,`color:#fff;background:${blScoreColor(b.score)}`):'<span style="color:var(--text3)">—</span>';
-    const classBadge=b.checked_at?blBadge(b.quality_class,'color:var(--text);background:var(--bg3);border:1px solid var(--border2)'):'';
-    const riskBadge=b.checked_at?blBadge(b.risk_level,blRiskStyle(b.risk_level)):'<span style="color:var(--text3)">ungeprüft</span>';
-    return `<tr style="border-bottom:1px solid var(--border)">
-      <td style="padding:10px 8px;max-width:280px">
-        <a href="${escHtml(b.source_url)}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;font-weight:500">${escHtml(b.source_domain||b.source_url)}</a>
-        <div style="font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(b.source_url)}</div>
-      </td>
-      <td style="padding:10px 8px;color:${statusCol};font-weight:600;font-family:'Geist Mono',monospace">${statusTxt}</td>
-      <td style="padding:10px 8px;font-size:13px">${mvvCell}</td>
-      <td style="padding:10px 8px;text-align:center">${scoreBadge}</td>
-      <td style="padding:10px 8px;text-align:center">${classBadge}</td>
-      <td style="padding:10px 8px;text-align:center">${riskBadge}</td>
-      <td style="padding:10px 8px;color:var(--text3);font-size:11px;white-space:nowrap">${blFmtDate(b.checked_at)}</td>
-      <td style="padding:10px 8px;white-space:nowrap;text-align:right">
-        <button onclick="blShowDetail(${b.id})" title="Details" style="background:none;border:1px solid var(--border2);border-radius:var(--radius-sm);padding:4px 8px;cursor:pointer;color:var(--text2);font-family:inherit;margin-right:4px">Details</button>
-        <button onclick="blRecheckOne(${b.id})" title="Erneut prüfen" style="background:none;border:1px solid var(--border2);border-radius:var(--radius-sm);padding:4px 8px;cursor:pointer;color:var(--text2);font-family:inherit;margin-right:4px">Prüfen</button>
-        <button onclick="blDelete(${b.id})" title="Löschen" style="background:none;border:1px solid var(--red-border);border-radius:var(--radius-sm);padding:4px 8px;cursor:pointer;color:var(--red);font-family:inherit">✕</button>
-      </td>
-    </tr>`;
+      ? `<span style="color:var(--text)">${escHtml(blTrunc(b.primary_anchor||b.primary_target,60))}</span>${b.mvv_link_count>1?` <span style="color:var(--text3);font-size:11px">+${b.mvv_link_count-1} weitere</span>`:''}`
+      : '<span style="color:var(--red);font-weight:600">kein MVV-Link</span>';
+    const scoreBadge=b.checked_at?blBadge('Score '+b.score,`color:#fff;background:${blScoreColor(b.score)}`):blBadge('ungeprüft','color:var(--text3);background:var(--bg3);border:1px solid var(--border)');
+    const classBadge=b.checked_at?blBadge('Klasse '+b.quality_class,'color:var(--text);background:var(--bg3);border:1px solid var(--border2)'):'';
+    const riskBadge=b.checked_at?blBadge(b.risk_level,blRiskStyle(b.risk_level)):'';
+    const statusBadge=blBadge('HTTP '+statusTxt,`color:${statusCol};background:var(--bg3);border:1px solid var(--border2)`);
+    return `<div style="border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;background:var(--bg2);display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+        <div style="min-width:0;flex:1 1 320px">
+          <a href="${escHtml(b.source_url)}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;font-weight:600;font-size:14px;word-break:break-word">${escHtml(b.source_domain||b.source_url)}</a>
+          <div style="font-size:11px;color:var(--text3);word-break:break-all;margin-top:2px">${escHtml(b.source_url)}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;justify-content:flex-end">
+          ${statusBadge}${scoreBadge}${classBadge}${riskBadge}
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:13px;border-top:1px solid var(--border);padding-top:10px">
+        <div style="min-width:0"><span style="color:var(--text3);font-size:11px;text-transform:uppercase;letter-spacing:.04em">MVV-Link</span><br>${mvvCell}</div>
+        <div style="color:var(--text3);font-size:11px;white-space:nowrap">Geprüft: ${blFmtDate(b.checked_at)}</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button onclick="blShowDetail(${b.id})" style="background:none;border:1px solid var(--border2);border-radius:var(--radius-sm);padding:5px 12px;cursor:pointer;color:var(--text2);font-family:inherit;font-size:12px">Details</button>
+        <button onclick="blRecheckOne(${b.id})" style="background:none;border:1px solid var(--border2);border-radius:var(--radius-sm);padding:5px 12px;cursor:pointer;color:var(--text2);font-family:inherit;font-size:12px">Prüfen</button>
+        <button onclick="blDelete(${b.id})" style="background:none;border:1px solid var(--red-border);border-radius:var(--radius-sm);padding:5px 12px;cursor:pointer;color:var(--red);font-family:inherit;font-size:12px">Löschen</button>
+      </div>
+    </div>`;
   }).join('');
 
-  wrap.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:13px">
-    <thead><tr style="border-bottom:2px solid var(--border2);text-align:left;color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:.04em">
-      <th style="padding:8px">Quelle</th><th style="padding:8px">Status</th><th style="padding:8px">MVV-Link</th>
-      <th style="padding:8px;text-align:center">Score</th><th style="padding:8px;text-align:center">Klasse</th>
-      <th style="padding:8px;text-align:center">Risiko</th><th style="padding:8px">Geprüft</th><th style="padding:8px;text-align:right">Aktionen</th>
-    </tr></thead><tbody>${rows}</tbody></table>`;
+  wrap.innerHTML=`<div style="display:flex;flex-direction:column;gap:12px">${rows}</div>`;
 }
 
 const blMetricsCache={};
