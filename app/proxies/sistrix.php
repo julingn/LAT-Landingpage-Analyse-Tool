@@ -385,5 +385,81 @@ if ($action === 'serp_features') {
     exit;
 }
 
+// ── POST: Links-/Domain-Übersicht (Backlink-Monitor) ─────────────────────────
+// Liefert Sichtbarkeit + Backlink-Kennzahlen einer (Quell-)Domain.
+
+if ($action === 'links_overview') {
+    $body  = json_decode(file_get_contents('php://input'), true) ?? [];
+    $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($body['csrf_token'] ?? '');
+    if ($token !== ($_SESSION['csrf_token'] ?? '')) {
+        http_response_code(403);
+        echo json_encode(['error' => 'CSRF-Token ungültig']);
+        exit;
+    }
+    session_write_close();
+
+    $input  = trim($body['url'] ?? $body['domain'] ?? '');
+    if ($input === '') { echo json_encode(['error' => 'url/domain fehlt']); exit; }
+    $host   = parse_url($input, PHP_URL_HOST) ?: $input;
+    $domain = preg_replace('/^www\./i', '', strtolower($host));
+    if ($domain === '') { echo json_encode(['error' => 'Domain nicht erkennbar']); exit; }
+
+    $multi      = curl_multi_init();
+    $handles    = [];
+    $baseParams = ['api_key' => $apiKey, 'format' => 'json', 'country' => 'de'];
+    $endpoints  = [
+        'domain.visibilityindex' => array_merge($baseParams, ['domain' => $domain]),
+        'links.overview'         => array_merge($baseParams, ['host' => $domain]),
+    ];
+    foreach ($endpoints as $ep => $params) {
+        $epUrl = 'https://api.sistrix.com/' . $ep . '?' . http_build_query($params);
+        $ch    = curl_init($epUrl);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 15,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_USERAGENT      => 'LAT/2.0 (+https://github.com/julingn/LAT-Landingpage-Analyse-Tool)',
+            CURLOPT_FOLLOWLOCATION => true,
+        ]);
+        curl_multi_add_handle($multi, $ch);
+        $handles[$ep] = $ch;
+    }
+    $running = null;
+    do { curl_multi_exec($multi, $running); } while ($running > 0);
+
+    $raw = [];
+    foreach ($handles as $ep => $ch) {
+        $resp     = curl_multi_getcontent($ch);
+        curl_multi_remove_handle($multi, $ch);
+        curl_close($ch);
+        $raw[$ep] = json_decode($resp ?: '{}', true) ?? [];
+    }
+    curl_multi_close($multi);
+
+    $visEntry   = $raw['domain.visibilityindex']['answer'][0]['sichtbarkeitsindex'][0] ?? null;
+    $visibility = $visEntry ? round((float)($visEntry['value'] ?? 0), 4) : 0.0;
+
+    // links.overview-Struktur variiert; defensiv auslesen.
+    $linkAns  = $raw['links.overview']['answer'][0] ?? [];
+    $readNum  = function($node) {
+        if (is_array($node)) {
+            if (isset($node[0]['value'])) return (int)$node[0]['value'];
+            if (isset($node['value']))    return (int)$node['value'];
+        }
+        return 0;
+    };
+    $linkCount   = $readNum($linkAns['links'] ?? $linkAns['links.count'] ?? []);
+    $domainCount = $readNum($linkAns['links.domains'] ?? $linkAns['domains'] ?? []);
+
+    echo json_encode([
+        'success'         => true,
+        'domain'          => $domain,
+        'visibility'      => $visibility,
+        'link_count'      => $linkCount,
+        'referring_domains' => $domainCount,
+    ]);
+    exit;
+}
+
 http_response_code(400);
 echo json_encode(['error' => 'Unbekannte Action: ' . htmlspecialchars($action, ENT_QUOTES)]);

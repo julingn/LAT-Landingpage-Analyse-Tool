@@ -29,6 +29,10 @@ Accent aus `--accent`/`--accent2`; Radius `--radius`.
 
 **Status:** aktiv
 
+> **Backlink Monitor (`#view-backlinks`):** nutzt `.input-card`/`.card-header`/`.settings-field`/`.pv-generate-btn`/`.pv-upload-zone`;
+> Score-/Klasse-/Risiko-Badges und Tabelle sind token-basiert inline gestylt (Pill-Badges via `--green/--amber/--red/--blue` + `*-bg`/`*-border`),
+> Detail-Overlay als modales Panel (`#bl-modal`). Perspektivisch in wiederverwendbare Badge-/Table-Klassen überführen.
+
 ---
 
 ## Card / Panel

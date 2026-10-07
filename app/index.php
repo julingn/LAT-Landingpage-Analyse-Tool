@@ -1146,6 +1146,10 @@ button{font-family:inherit}
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="11" y1="8" x2="11" y2="14"/></svg>
       Content Finder
     </button>
+    <button class="nav-item" data-view="backlinks" onclick="showView('backlinks')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+      Backlink Monitor
+    </button>
     <button class="nav-item" data-view="knowledge" onclick="showView('knowledge')">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><line x1="6.7" y1="7.3" x2="10.5" y2="16.4"/><line x1="17.3" y1="7.3" x2="13.5" y2="16.4"/><line x1="7" y1="6" x2="17" y2="6"/></svg>
       Wissensabdeckung
@@ -2065,6 +2069,80 @@ button{font-family:inherit}
   </div>
 </div><!-- /view-knowledge -->
 
+<div class="view-panel" id="view-backlinks">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <!-- Backlink hinzufügen -->
+    <div class="input-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+        </div>
+        <div>
+          <div class="card-title">Backlink hinzufügen</div>
+          <div class="card-sub">Nur die URL angeben — alle weiteren Daten werden automatisch ermittelt</div>
+        </div>
+      </div>
+      <div class="settings-field">
+        <label class="settings-label">Backlink-URL</label>
+        <input type="url" id="bl-url-input" class="settings-input" placeholder="https://quelle.de/artikel-mit-mvv-link" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')blAddSingle()">
+      </div>
+      <button class="pv-generate-btn" id="bl-add-btn" onclick="blAddSingle()" style="margin-top:12px">Hinzufügen &amp; prüfen</button>
+      <div id="bl-add-status" style="font-size:12px;color:var(--text2);margin-top:8px"></div>
+    </div>
+    <!-- Massenimport -->
+    <div class="input-card">
+      <div class="card-header">
+        <div class="card-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div>
+          <div class="card-title">Massenimport</div>
+          <div class="card-sub">XLSX oder CSV — eine Spalte mit Backlink-URLs</div>
+        </div>
+      </div>
+      <div class="pv-upload-zone" id="bl-upload-zone" onclick="document.getElementById('bl-file-input').click()" style="border:1.5px dashed var(--border2);border-radius:var(--radius-lg);padding:24px 16px;text-align:center;background:var(--bg3);cursor:pointer;transition:border-color .12s">
+        <div style="font-size:26px">📊</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text);margin-top:6px">XLSX oder CSV hier ablegen</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">.xlsx · .csv &nbsp;|&nbsp; URLs (http/https) werden automatisch erkannt</div>
+        <input type="file" id="bl-file-input" accept=".xlsx,.csv,.txt" style="display:none" onchange="blHandleImport(this)">
+      </div>
+      <div id="bl-import-status" style="font-size:12px;color:var(--text2);margin-top:10px;display:none"></div>
+    </div>
+  </div>
+
+  <!-- Profil / Tabelle -->
+  <div class="input-card" style="margin-top:16px">
+    <div class="card-header" style="justify-content:space-between;align-items:center">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="card-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <div>
+          <div class="card-title">Backlink-Profil</div>
+          <div class="card-sub" id="bl-summary">Noch keine Backlinks erfasst</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button id="bl-recheck-all-btn" onclick="blRecheckAll()" style="padding:8px 14px;font-size:13px;font-weight:600;border:1px solid var(--border2);background:var(--bg2);color:var(--text);border-radius:var(--radius);cursor:pointer;font-family:inherit">Alle prüfen</button>
+        <a href="backlinks.php?action=export" style="padding:8px 14px;font-size:13px;font-weight:600;border:1px solid var(--border2);background:var(--bg2);color:var(--text);border-radius:var(--radius);cursor:pointer;font-family:inherit;text-decoration:none">Export CSV</a>
+      </div>
+    </div>
+    <div id="bl-progress" style="display:none;margin-top:14px;font-size:12px;color:var(--text2)"></div>
+    <div id="bl-table-wrap" style="margin-top:14px;overflow-x:auto"></div>
+  </div>
+</div><!-- /view-backlinks -->
+
+<!-- Backlink-Detail-Modal -->
+<div id="bl-modal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:2000;padding:32px;overflow-y:auto" onclick="if(event.target===this)blCloseModal()">
+  <div style="max-width:820px;margin:0 auto;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg)">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--border)">
+      <div class="card-title" style="font-size:16px">Backlink-Details</div>
+      <button onclick="blCloseModal()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:22px;line-height:1;font-family:inherit">×</button>
+    </div>
+    <div id="bl-modal-body" style="padding:22px"></div>
+  </div>
+</div>
+
 <div class="view-panel" id="view-agents">
   <div class="input-card">
     <div class="card-header">
@@ -2538,6 +2616,7 @@ const VIEW_META={
   keywords:{title:'Keyword Fit',sub:'Intent-Analyse · Targeting · Potenzial'},
   localpv:{title:'Local PV Generator',sub:'SEO- & CRO-Bausteine für lokale Photovoltaik-Landingpages'},
   'content-finder':{title:'Content Finder',sub:'Vollständige Seitenanalyse nach definierten Begriffen · JS-Rendering · Bild-OCR'},
+  backlinks:{title:'Backlink Monitor',sub:'Qualitätsprüfung & Monitoring von Backlinks → mvv.de'},
   knowledge:{title:'Wissensabdeckung',sub:'Semantische Content-Abdeckung & Chancen · Entitäten · Eigenschaften · Zusammenhänge'},
   agents:{title:'KI-Agenten',sub:'System-Prompts der Tools anzeigen & anpassen'},
   settings:{title:'Einstellungen',sub:'API-Keys · Modell · Passwort'},
@@ -2556,7 +2635,7 @@ function showView(name){
   document.getElementById('view-subtitle').textContent=meta.sub;
   // Hide URL-input header for standalone tool views
   const hf=document.getElementById('header-form');
-  if(name==='localpv'||name==='settings'||name==='content-finder'||name==='agents'||name==='knowledge'){hf.style.display='none';}
+  if(name==='localpv'||name==='settings'||name==='content-finder'||name==='backlinks'||name==='agents'||name==='knowledge'){hf.style.display='none';}
   else{hf.style.display='';}
   if(name==='overview'){
     // Progress-Section zeigen wenn Analyse läuft ODER Log-Inhalt vorhanden
@@ -2569,6 +2648,7 @@ function showView(name){
   if(name==='settings'){loadCredentialStatus();loadGscDomains();}
   if(name==='agents'){renderAgentMgmtList();}
   if(name==='knowledge'){kgOnShow();}
+  if(name==='backlinks'){blOnShow();}
 }
 // Legacy alias
 function showTool(n){showView(n==='sqeg'?'overview':n);}
@@ -6978,6 +7058,260 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+// ============================================================
+// === BACKLINK MONITOR =======================================
+// ============================================================
+let blData = [];
+let blBusy = false;
+
+function blTruthy(v){return v===true||v==='t'||v==='1'||v===1||v==='true';}
+function blTrunc(s,n){s=String(s||'');return s.length>n?s.slice(0,n-1)+'…':s;}
+function blFmtDate(x){if(!x)return '—';const d=new Date(String(x).replace(' ','T'));return isNaN(d)?'—':d.toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+
+function blScoreColor(s){s=+s;if(s>=80)return 'var(--green)';if(s>=60)return 'var(--blue)';if(s>=40)return 'var(--amber)';return 'var(--red)';}
+function blRiskStyle(r){
+  if(r==='niedrig')return 'color:var(--green);background:var(--green-bg);border:1px solid var(--green-border)';
+  if(r==='mittel') return 'color:var(--amber);background:var(--amber-bg);border:1px solid var(--amber-border)';
+  if(r==='hoch')   return 'color:var(--red);background:var(--red-bg);border:1px solid var(--red-border)';
+  return 'color:var(--text3);background:var(--bg3);border:1px solid var(--border)';
+}
+function blBadge(txt,style){return `<span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;${style}">${escHtml(txt)}</span>`;}
+
+function blOnShow(){ blLoadList(); }
+
+async function blLoadList(){
+  const wrap=document.getElementById('bl-table-wrap');
+  wrap.innerHTML='<div style="padding:20px;color:var(--text3)">Lade …</div>';
+  try{
+    const res=await fetch('backlinks.php?action=list',{headers:{'X-CSRF-Token':CSRF_TOKEN}});
+    const data=await res.json();
+    if(data.error){wrap.innerHTML=`<div style="padding:20px;color:var(--red)">${escHtml(data.error)}</div>`;return;}
+    blData=data.backlinks||[];
+    blRenderTable();
+  }catch(e){wrap.innerHTML=`<div style="padding:20px;color:var(--red)">Fehler: ${escHtml(e.message)}</div>`;}
+}
+
+function blRenderTable(){
+  const wrap=document.getElementById('bl-table-wrap');
+  const sum=document.getElementById('bl-summary');
+  if(!blData.length){
+    wrap.innerHTML='<div style="padding:28px;text-align:center;color:var(--text3)">Noch keine Backlinks. Füge oben eine URL hinzu oder importiere eine Datei.</div>';
+    sum.textContent='Noch keine Backlinks erfasst';
+    return;
+  }
+  const n=blData.length;
+  const withLink=blData.filter(b=>blTruthy(b.has_mvv_link)).length;
+  const risky=blData.filter(b=>b.risk_level==='hoch').length;
+  sum.textContent=`${n} Backlink${n!==1?'s':''} · ${withLink} mit MVV-Link · ${risky} mit hohem Risiko`;
+
+  const rows=blData.map(b=>{
+    const reach=blTruthy(b.reachable);
+    const statusCol=reach?'var(--green)':'var(--red)';
+    const statusTxt=b.http_status>0?b.http_status:'n/a';
+    const hasLink=blTruthy(b.has_mvv_link);
+    const mvvCell=hasLink
+      ? `${escHtml(blTrunc(b.primary_anchor||b.primary_target,38))}${b.mvv_link_count>1?` <span style="color:var(--text3);font-size:11px">+${b.mvv_link_count-1}</span>`:''}`
+      : '<span style="color:var(--red)">kein MVV-Link</span>';
+    const scoreBadge=b.checked_at?blBadge(b.score,`color:#fff;background:${blScoreColor(b.score)}`):'<span style="color:var(--text3)">—</span>';
+    const classBadge=b.checked_at?blBadge(b.quality_class,'color:var(--text);background:var(--bg3);border:1px solid var(--border2)'):'';
+    const riskBadge=b.checked_at?blBadge(b.risk_level,blRiskStyle(b.risk_level)):'<span style="color:var(--text3)">ungeprüft</span>';
+    return `<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:10px 8px;max-width:280px">
+        <a href="${escHtml(b.source_url)}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;font-weight:500">${escHtml(b.source_domain||b.source_url)}</a>
+        <div style="font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(b.source_url)}</div>
+      </td>
+      <td style="padding:10px 8px;color:${statusCol};font-weight:600;font-family:'Geist Mono',monospace">${statusTxt}</td>
+      <td style="padding:10px 8px;font-size:13px">${mvvCell}</td>
+      <td style="padding:10px 8px;text-align:center">${scoreBadge}</td>
+      <td style="padding:10px 8px;text-align:center">${classBadge}</td>
+      <td style="padding:10px 8px;text-align:center">${riskBadge}</td>
+      <td style="padding:10px 8px;color:var(--text3);font-size:11px;white-space:nowrap">${blFmtDate(b.checked_at)}</td>
+      <td style="padding:10px 8px;white-space:nowrap;text-align:right">
+        <button onclick="blShowDetail(${b.id})" title="Details" style="background:none;border:1px solid var(--border2);border-radius:var(--radius-sm);padding:4px 8px;cursor:pointer;color:var(--text2);font-family:inherit;margin-right:4px">Details</button>
+        <button onclick="blRecheckOne(${b.id})" title="Erneut prüfen" style="background:none;border:1px solid var(--border2);border-radius:var(--radius-sm);padding:4px 8px;cursor:pointer;color:var(--text2);font-family:inherit;margin-right:4px">Prüfen</button>
+        <button onclick="blDelete(${b.id})" title="Löschen" style="background:none;border:1px solid var(--red-border);border-radius:var(--radius-sm);padding:4px 8px;cursor:pointer;color:var(--red);font-family:inherit">✕</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  wrap.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:13px">
+    <thead><tr style="border-bottom:2px solid var(--border2);text-align:left;color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:.04em">
+      <th style="padding:8px">Quelle</th><th style="padding:8px">Status</th><th style="padding:8px">MVV-Link</th>
+      <th style="padding:8px;text-align:center">Score</th><th style="padding:8px;text-align:center">Klasse</th>
+      <th style="padding:8px;text-align:center">Risiko</th><th style="padding:8px">Geprüft</th><th style="padding:8px;text-align:right">Aktionen</th>
+    </tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+async function blFetchSistrix(url){
+  try{
+    const res=await fetch('sistrix.php?action=links_overview',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify({url,csrf_token:CSRF_TOKEN})});
+    const d=await res.json();
+    if(d&&d.success)return{visibility:d.visibility,link_count:d.link_count,referring_domains:d.referring_domains};
+  }catch(e){}
+  return {};
+}
+
+async function blAddSingle(){
+  if(blBusy)return;
+  const inp=document.getElementById('bl-url-input');
+  const url=inp.value.trim();
+  const st=document.getElementById('bl-add-status');
+  if(!url){st.textContent='Bitte eine URL eingeben.';st.style.color='var(--red)';return;}
+  const btn=document.getElementById('bl-add-btn');
+  blBusy=true;btn.disabled=true;st.style.color='var(--text2)';st.textContent='Prüfe Quelle …';
+  try{
+    const sistrix=await blFetchSistrix(url);
+    const res=await fetch('backlinks.php?action=add',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify({url,sistrix,csrf_token:CSRF_TOKEN})});
+    const d=await res.json();
+    if(d.error){st.style.color='var(--red)';st.textContent=d.error;}
+    else{st.style.color='var(--green)';st.textContent=d.new?'Backlink hinzugefügt und geprüft.':'Backlink war bereits erfasst — erneut geprüft.';inp.value='';await blLoadList();}
+  }catch(e){st.style.color='var(--red)';st.textContent='Fehler: '+e.message;}
+  blBusy=false;btn.disabled=false;
+}
+
+async function blCheckOne(id,url){
+  const sistrix=await blFetchSistrix(url);
+  const res=await fetch('backlinks.php?action=check',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify({id,sistrix,csrf_token:CSRF_TOKEN})});
+  return res.json();
+}
+
+async function blRecheckOne(id){
+  if(blBusy)return;
+  const item=blData.find(b=>b.id===id);
+  if(!item)return;
+  blBusy=true;
+  const prog=document.getElementById('bl-progress');
+  prog.style.display='';prog.textContent='Prüfe '+item.source_domain+' …';
+  try{await blCheckOne(id,item.source_url);await blLoadList();prog.textContent='Fertig.';}
+  catch(e){prog.textContent='Fehler: '+e.message;}
+  setTimeout(()=>{prog.style.display='none';},2500);
+  blBusy=false;
+}
+
+async function blRecheckAll(){
+  if(blBusy||!blData.length)return;
+  blBusy=true;
+  const btn=document.getElementById('bl-recheck-all-btn');btn.disabled=true;
+  const prog=document.getElementById('bl-progress');prog.style.display='';
+  const items=[...blData];
+  for(let i=0;i<items.length;i++){
+    prog.textContent=`Prüfe ${i+1} / ${items.length} · ${items[i].source_domain}`;
+    try{await blCheckOne(items[i].id,items[i].source_url);}catch(e){}
+  }
+  prog.textContent='Alle geprüft.';
+  await blLoadList();
+  setTimeout(()=>{prog.style.display='none';},2500);
+  btn.disabled=false;blBusy=false;
+}
+
+async function blHandleImport(input){
+  if(!input.files||!input.files[0])return;
+  const file=input.files[0];
+  const st=document.getElementById('bl-import-status');
+  st.style.display='';st.style.color='var(--text2)';st.textContent='Lese Datei …';
+  const fd=new FormData();fd.append('file',file);fd.append('csrf_token',CSRF_TOKEN);
+  try{
+    const res=await fetch('backlinks.php?action=import',{method:'POST',headers:{'X-CSRF-Token':CSRF_TOKEN},body:fd});
+    const d=await res.json();
+    input.value='';
+    if(d.error){st.style.color='var(--red)';st.textContent=d.error;return;}
+    const added=d.added||[];
+    st.textContent=`${d.total} URLs erkannt · ${added.length} neu · ${d.skipped} bereits vorhanden. Prüfe neue …`;
+    await blLoadList();
+    const prog=document.getElementById('bl-progress');prog.style.display='';
+    blBusy=true;
+    for(let i=0;i<added.length;i++){
+      prog.textContent=`Prüfe ${i+1} / ${added.length} · ${added[i].url}`;
+      try{await blCheckOne(added[i].id,added[i].url);}catch(e){}
+    }
+    blBusy=false;
+    prog.textContent='Import abgeschlossen.';
+    st.style.color='var(--green)';st.textContent=`Import fertig: ${added.length} neue Backlinks geprüft.`;
+    await blLoadList();
+    setTimeout(()=>{prog.style.display='none';},2500);
+  }catch(e){st.style.color='var(--red)';st.textContent='Fehler: '+e.message;}
+}
+
+async function blDelete(id){
+  if(!confirm('Diesen Backlink wirklich löschen?'))return;
+  try{
+    await fetch('backlinks.php?action=delete',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify({id,csrf_token:CSRF_TOKEN})});
+    await blLoadList();
+  }catch(e){alert('Fehler: '+e.message);}
+}
+
+function blCloseModal(){document.getElementById('bl-modal').style.display='none';}
+
+async function blShowDetail(id){
+  const modal=document.getElementById('bl-modal');
+  const body=document.getElementById('bl-modal-body');
+  body.innerHTML='<div style="color:var(--text3)">Lade …</div>';
+  modal.style.display='';
+  try{
+    const res=await fetch('backlinks.php?action=detail',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify({id,csrf_token:CSRF_TOKEN})});
+    const d=await res.json();
+    if(d.error){body.innerHTML=`<div style="color:var(--red)">${escHtml(d.error)}</div>`;return;}
+    const r=d.backlink;
+    let chain=[],detail=[];
+    try{chain=JSON.parse(r.redirect_chain||'[]');}catch(e){}
+    try{detail=JSON.parse(r.score_detail||'[]');}catch(e){}
+    const idx=r.indexable;
+    const idxTxt=idx===null?'unbekannt':(blTruthy(idx)?'indexierbar':'noindex (nicht indexierbar)');
+    const reach=blTruthy(r.reachable);
+
+    const row=(k,v)=>`<div style="display:flex;gap:10px;padding:5px 0;border-bottom:1px solid var(--border)"><div style="flex:0 0 160px;color:var(--text2);font-size:12px">${k}</div><div style="flex:1;font-size:13px;word-break:break-word">${v}</div></div>`;
+
+    const mvvRows=(d.mvv_links||[]).map(l=>`<tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:6px 8px">${blTruthy(l.is_primary)?blBadge('primär','color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-border)'):''}</td>
+        <td style="padding:6px 8px;font-size:12px"><a href="${escHtml(l.target_url)}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">${escHtml(blTrunc(l.target_url,46))}</a></td>
+        <td style="padding:6px 8px;font-size:12px">${escHtml(l.anchor_text||'—')}</td>
+        <td style="padding:6px 8px;font-size:12px">${escHtml(l.rel_attr||'dofollow')}</td>
+        <td style="padding:6px 8px;font-size:12px">${escHtml(l.link_position)}</td>
+      </tr>`).join('')||'<tr><td colspan="5" style="padding:10px 8px;color:var(--red)">Kein Link auf mvv.de gefunden.</td></tr>';
+
+    const detRows=detail.map(x=>`<div style="display:flex;justify-content:space-between;gap:8px;padding:3px 0;font-size:12px"><span style="color:var(--text2)">${escHtml(x.label)} <span style="color:var(--text3)">(${escHtml(x.note)})</span></span><span style="font-weight:600">${x.points}/${x.max}</span></div>`).join('');
+
+    const chainHtml=chain.length?chain.map(c=>`<span style="font-family:'Geist Mono',monospace;font-size:11px">${c.status} → ${escHtml(blTrunc(c.url,60))}</span>`).join('<br>'):'—';
+
+    let changesHtml='';
+    if(d.last_check&&d.last_check.changes&&d.last_check.changes.length){
+      changesHtml=`<div style="margin-top:18px"><div class="card-title" style="font-size:14px;margin-bottom:8px">Letzte Änderungen (${blFmtDate(d.last_check.checked_at)})</div>`+
+        d.last_check.changes.map(c=>`<div style="font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)"><strong>${escHtml(c.field)}:</strong> <span style="color:var(--text3)">${escHtml(c.old||'—')}</span> → <span style="color:var(--text)">${escHtml(c.new||'—')}</span></div>`).join('')+'</div>';
+    } else if(d.last_check){
+      changesHtml=`<div style="margin-top:18px;font-size:12px;color:var(--text3)">Keine Änderungen gegenüber dem vorherigen Check (${blFmtDate(d.last_check.checked_at)}).</div>`;
+    }
+
+    body.innerHTML=`
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        ${r.checked_at?blBadge('Score '+r.score,`color:#fff;background:${blScoreColor(r.score)}`):''}
+        ${r.checked_at?blBadge('Klasse '+r.quality_class,'color:var(--text);background:var(--bg3);border:1px solid var(--border2)'):''}
+        ${r.checked_at?blBadge('Risiko '+r.risk_level,blRiskStyle(r.risk_level)):''}
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px;font-size:13px;margin-bottom:18px">
+        <strong>Handlungsempfehlung:</strong> ${escHtml(r.recommendation||'—')}
+      </div>
+      <div class="card-title" style="font-size:14px;margin-bottom:6px">Technische Prüfung</div>
+      ${row('Quell-URL',`<a href="${escHtml(r.source_url)}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">${escHtml(r.source_url)}</a>`)}
+      ${row('HTTP-Status',`<span style="color:${reach?'var(--green)':'var(--red)'};font-weight:600">${r.http_status||'n/a'}</span> ${reach?'erreichbar':'nicht erreichbar'}`)}
+      ${row('Finale URL',escHtml(r.final_url||'—'))}
+      ${row('Redirect-Verlauf',chainHtml)}
+      ${row('Seitentitel',escHtml(r.page_title||'—'))}
+      ${row('Canonical',escHtml(r.canonical_url||'—'))}
+      ${row('Indexierbarkeit',escHtml(idxTxt)+(r.meta_robots?` <span style="color:var(--text3)">(robots: ${escHtml(r.meta_robots)})</span>`:''))}
+      ${row('MVV im Fließtext',blTruthy(r.mvv_in_text)?`ja (${r.mvv_mentions}×)`:'nein')}
+      ${row('Veröffentlicht',escHtml(r.published_at||'—'))}
+      ${row('Aktualisiert',escHtml(r.modified_at||'—'))}
+      ${row('Zuletzt geprüft',blFmtDate(r.checked_at))}
+      <div class="card-title" style="font-size:14px;margin:18px 0 6px">MVV-Links (${(d.mvv_links||[]).length})</div>
+      <table style="width:100%;border-collapse:collapse"><thead><tr style="text-align:left;color:var(--text2);font-size:11px;border-bottom:1px solid var(--border2)"><th style="padding:6px 8px"></th><th style="padding:6px 8px">Ziel-URL</th><th style="padding:6px 8px">Ankertext</th><th style="padding:6px 8px">Attribut</th><th style="padding:6px 8px">Position</th></tr></thead><tbody>${mvvRows}</tbody></table>
+      ${detail.length?`<div class="card-title" style="font-size:14px;margin:18px 0 6px">Score-Zusammensetzung</div><div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px">${detRows}</div>`:''}
+      ${changesHtml}
+      <div style="margin-top:20px;text-align:right">
+        <button onclick="blRecheckOne(${r.id});blCloseModal()" style="padding:8px 16px;font-size:13px;font-weight:600;border:none;background:var(--accent);color:#fff;border-radius:var(--radius);cursor:pointer;font-family:inherit">Erneut prüfen</button>
+      </div>`;
+  }catch(e){body.innerHTML=`<div style="color:var(--red)">Fehler: ${escHtml(e.message)}</div>`;}
+}
 </script>
 
 <script>

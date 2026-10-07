@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["php83", "php83Extensions.curl", "php83Extensions.mbstring", "php83Extensions.openssl", "php83Extensions.zip"]
+nixPkgs = ["php83", "php83Extensions.curl", "php83Extensions.mbstring", "php83Extensions.openssl", "php83Extensions.zip", "php83Extensions.pgsql", "php83Extensions.pdo_pgsql"]
 
 [start]
 cmd = "PHP_CLI_SERVER_WORKERS=4 php -S 0.0.0.0:$PORT -t . router.php"
