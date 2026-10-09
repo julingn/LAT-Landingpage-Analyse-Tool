@@ -798,7 +798,8 @@ if ($action === 'detail') {
 
 if ($action === 'add') {
     requireCsrf($jsonBody, $sessionCsrf);
-    $ins = blInsertUrl($jsonBody['url'] ?? '');
+    // Manuell ergänzte Links: Datum automatisch auf den aktuellen Monat setzen.
+    $ins = blInsertUrl($jsonBody['url'] ?? '', date('m/Y'));
     if ($ins['error']) jsonErr($ins['error']);
     try {
         $result = blProcess($ins['id'], is_array($jsonBody['metrics'] ?? null) ? $jsonBody['metrics'] : []);
