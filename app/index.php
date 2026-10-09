@@ -2130,7 +2130,25 @@ button{font-family:inherit}
       </div>
     </div>
     <div id="bl-progress" style="display:none;margin-top:14px;font-size:12px;color:var(--text2)"></div>
-    <div id="bl-table-wrap" style="margin-top:14px;overflow-x:auto"></div>
+    <div id="bl-controls" style="display:none;margin-top:14px">
+      <div class="filter-bar">
+        <button class="filter-btn active" data-blfilter="all" onclick="blSetFilter('all',this)">Alle <span id="bl-cnt-all">0</span></button>
+        <button class="filter-btn" data-blfilter="linked" onclick="blSetFilter('linked',this)">✅ Mit Link <span id="bl-cnt-linked">0</span></button>
+        <button class="filter-btn" data-blfilter="nolink" onclick="blSetFilter('nolink',this)">⚠️ Ohne Link <span id="bl-cnt-nolink">0</span></button>
+        <button class="filter-btn" data-blfilter="dead" onclick="blSetFilter('dead',this)">❌ Nicht erreichbar <span id="bl-cnt-dead">0</span></button>
+        <button class="filter-btn" data-blfilter="unchecked" onclick="blSetFilter('unchecked',this)">◻ Ungeprüft <span id="bl-cnt-unchecked">0</span></button>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:4px">
+        <input id="bl-search" class="settings-input" placeholder="Domain oder URL suchen…" oninput="blRenderTable()" autocomplete="off" spellcheck="false" style="max-width:300px;flex:1 1 220px">
+        <select id="bl-sort" class="settings-input" onchange="blRenderTable()" style="max-width:220px">
+          <option value="score_desc">Score (hoch → niedrig)</option>
+          <option value="score_asc">Score (niedrig → hoch)</option>
+          <option value="date_desc">Zuletzt hinzugefügt</option>
+          <option value="status">Status (Probleme zuerst)</option>
+        </select>
+      </div>
+    </div>
+    <div id="bl-table-wrap" style="margin-top:14px"></div>
   </div>
 </div><!-- /view-backlinks -->
 
@@ -7066,6 +7084,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================================
 let blData = [];
 let blBusy = false;
+let blFilter = 'all';
 
 function blTruthy(v){return v===true||v==='t'||v==='1'||v===1||v==='true';}
 function blTrunc(s,n){s=String(s||'');return s.length>n?s.slice(0,n-1)+'…':s;}
@@ -7094,32 +7113,75 @@ async function blLoadList(){
   }catch(e){wrap.innerHTML=`<div style="padding:20px;color:var(--red)">Fehler: ${escHtml(e.message)}</div>`;}
 }
 
+function blStatusOf(b){
+  if(!b.checked_at) return 'unchecked';
+  if(!blTruthy(b.reachable)) return 'dead';
+  return blTruthy(b.has_mvv_link)?'linked':'nolink';
+}
+function blStatusBorder(s){return s==='linked'?'var(--green)':s==='nolink'?'var(--amber)':s==='dead'?'var(--red)':'var(--border2)';}
+
+function blSetFilter(f,btn){
+  blFilter=f;
+  document.querySelectorAll('#bl-controls .filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  blRenderTable();
+}
+
 function blRenderTable(){
   const wrap=document.getElementById('bl-table-wrap');
   const sum=document.getElementById('bl-summary');
+  const controls=document.getElementById('bl-controls');
   if(!blData.length){
+    if(controls)controls.style.display='none';
     wrap.innerHTML='<div style="padding:28px;text-align:center;color:var(--text3)">Noch keine Backlinks. Füge oben eine URL hinzu oder importiere eine Datei.</div>';
     sum.textContent='Noch keine Backlinks erfasst';
     return;
   }
-  const n=blData.length;
-  const withLink=blData.filter(b=>blTruthy(b.has_mvv_link)).length;
-  const risky=blData.filter(b=>b.risk_level==='hoch').length;
-  sum.textContent=`${n} Backlink${n!==1?'s':''} · ${withLink} mit MVV-Link · ${risky} mit hohem Risiko`;
+  if(controls)controls.style.display='';
 
-  const rows=blData.map(b=>{
+  // Zustände zählen
+  const counts={all:blData.length,linked:0,nolink:0,dead:0,unchecked:0};
+  blData.forEach(b=>{counts[blStatusOf(b)]++;});
+  const setc=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  setc('bl-cnt-all',counts.all);setc('bl-cnt-linked',counts.linked);setc('bl-cnt-nolink',counts.nolink);setc('bl-cnt-dead',counts.dead);setc('bl-cnt-unchecked',counts.unchecked);
+  sum.textContent=`${counts.all} Backlinks · ✅ ${counts.linked} mit Link · ⚠️ ${counts.nolink} ohne Link · ❌ ${counts.dead} nicht erreichbar${counts.unchecked?` · ◻ ${counts.unchecked} ungeprüft`:''}`;
+
+  // Filter + Suche + Sortierung
+  const q=(document.getElementById('bl-search')?.value||'').trim().toLowerCase();
+  const sort=document.getElementById('bl-sort')?.value||'score_desc';
+  let items=blData.filter(b=>{
+    if(blFilter!=='all' && blStatusOf(b)!==blFilter) return false;
+    if(q){const hay=((b.source_url||'')+' '+(b.source_domain||'')).toLowerCase();if(!hay.includes(q))return false;}
+    return true;
+  });
+  const statusRank={dead:0,nolink:1,unchecked:2,linked:3};
+  items.sort((a,b)=>{
+    if(sort==='score_desc')return (b.score||0)-(a.score||0);
+    if(sort==='score_asc') return (a.score||0)-(b.score||0);
+    if(sort==='date_desc') return (b.id||0)-(a.id||0);
+    if(sort==='status')    return (statusRank[blStatusOf(a)]-statusRank[blStatusOf(b)])||((b.score||0)-(a.score||0));
+    return 0;
+  });
+
+  if(!items.length){
+    wrap.innerHTML='<div style="padding:28px;text-align:center;color:var(--text3)">Keine Einträge für diesen Filter/die Suche.</div>';
+    return;
+  }
+
+  const rows=items.map(b=>{
+    const st=blStatusOf(b);
     const reach=blTruthy(b.reachable);
     const statusCol=reach?'var(--green)':'var(--red)';
     const statusTxt=b.http_status>0?b.http_status:'n/a';
     const hasLink=blTruthy(b.has_mvv_link);
     const mvvCell=hasLink
       ? `<span style="color:var(--text)">${escHtml(blTrunc(b.primary_anchor||b.primary_target,60))}</span>${b.mvv_link_count>1?` <span style="color:var(--text3);font-size:11px">+${b.mvv_link_count-1} weitere</span>`:''}`
-      : '<span style="color:var(--red);font-weight:600">kein MVV-Link</span>';
+      : (reach?'<span style="color:var(--amber);font-weight:600">kein MVV-Link</span>':'<span style="color:var(--text3)">—</span>');
     const scoreBadge=b.checked_at?blBadge('Score '+b.score,`color:#fff;background:${blScoreColor(b.score)}`):blBadge('ungeprüft','color:var(--text3);background:var(--bg3);border:1px solid var(--border)');
     const classBadge=b.checked_at?blBadge('Klasse '+b.quality_class,'color:var(--text);background:var(--bg3);border:1px solid var(--border2)'):'';
     const riskBadge=b.checked_at?blBadge(b.risk_level,blRiskStyle(b.risk_level)):'';
     const statusBadge=blBadge('HTTP '+statusTxt,`color:${statusCol};background:var(--bg3);border:1px solid var(--border2)`);
-    return `<div style="border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;background:var(--bg2);display:flex;flex-direction:column;gap:10px">
+    return `<div style="border:1px solid var(--border);border-left:4px solid ${blStatusBorder(st)};border-radius:var(--radius-lg);padding:14px 16px;background:var(--bg2);display:flex;flex-direction:column;gap:10px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
         <div style="min-width:0;flex:1 1 320px">
           <a href="${escHtml(b.source_url)}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;font-weight:600;font-size:14px;word-break:break-word">${escHtml(b.source_domain||b.source_url)}</a>
