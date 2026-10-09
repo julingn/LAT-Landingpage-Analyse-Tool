@@ -7252,8 +7252,8 @@ async function blAddSingle(){
     const d=await res.json();
     if(d.error){st.style.color='var(--red)';st.textContent=d.error;}
     else{st.style.color='var(--green)';st.textContent=d.new?'Backlink hinzugefügt und geprüft.':'Backlink war bereits erfasst — erneut geprüft.';inp.value='';await blLoadList();}
-  }catch(e){st.style.color='var(--red)';st.textContent='Fehler: '+e.message;}
-  blBusy=false;btn.disabled=false;
+  }catch(e){st.style.color='var(--red)';st.textContent='Fehler: '+(e&&e.message?e.message:e);}
+  finally{blBusy=false;btn.disabled=false;}
 }
 
 async function blCheckOne(id,url){
@@ -7263,51 +7263,50 @@ async function blCheckOne(id,url){
 }
 
 async function blRecheckOne(id){
-  if(blBusy)return;
   const item=blData.find(b=>b.id===id);
   if(!item)return;
-  blBusy=true;
   const prog=document.getElementById('bl-progress');
+  if(blBusy){prog.style.display='';prog.textContent='Bitte warten – es läuft bereits eine Prüfung …';setTimeout(()=>{prog.style.display='none';},2500);return;}
+  blBusy=true;
   prog.style.display='';prog.textContent='Prüfe '+item.source_domain+' …';
   try{await blCheckOne(id,item.source_url);await blLoadList();prog.textContent='Fertig.';}
-  catch(e){prog.textContent='Fehler: '+e.message;}
-  setTimeout(()=>{prog.style.display='none';},2500);
-  blBusy=false;
+  catch(e){prog.textContent='Fehler: '+(e&&e.message?e.message:e);}
+  finally{blBusy=false;setTimeout(()=>{prog.style.display='none';},2500);}
 }
 
 async function blRecheckAll(){
-  if(blBusy||!blData.length)return;
+  if(!blData.length||blBusy)return;
   blBusy=true;
-  const btn=document.getElementById('bl-recheck-all-btn');btn.disabled=true;
+  const btn=document.getElementById('bl-recheck-all-btn');if(btn)btn.disabled=true;
   const prog=document.getElementById('bl-progress');prog.style.display='';
-  const items=[...blData];
-  for(let i=0;i<items.length;i++){
-    prog.textContent=`Prüfe ${i+1} / ${items.length} · ${items[i].source_domain}`;
-    try{await blCheckOne(items[i].id,items[i].source_url);}catch(e){}
-  }
-  prog.textContent='Alle geprüft.';
-  await blLoadList();
-  setTimeout(()=>{prog.style.display='none';},2500);
-  btn.disabled=false;blBusy=false;
+  try{
+    const items=[...blData];
+    for(let i=0;i<items.length;i++){
+      prog.textContent=`Prüfe ${i+1} / ${items.length} · ${items[i].source_domain}`;
+      try{await blCheckOne(items[i].id,items[i].source_url);}catch(e){}
+    }
+    prog.textContent='Alle geprüft.';
+    await blLoadList();
+  }finally{if(btn)btn.disabled=false;blBusy=false;setTimeout(()=>{prog.style.display='none';},2500);}
 }
 
 async function blEnrichMissing(){
-  if(blBusy||!blData.length)return;
+  if(!blData.length||blBusy)return;
   const prog=document.getElementById('bl-progress');
   const todo=blData.filter(b=>!b.has_metrics);
   if(!todo.length){prog.style.display='';prog.textContent='Alle Einträge sind bereits angereichert.';setTimeout(()=>{prog.style.display='none';},2500);return;}
   if(!confirm(todo.length+' Einträge ohne Metriken anreichern (SISTRIX + DataForSEO)?'))return;
   blBusy=true;
-  const btn=document.getElementById('bl-enrich-btn');btn.disabled=true;
+  const btn=document.getElementById('bl-enrich-btn');if(btn)btn.disabled=true;
   prog.style.display='';
-  for(let i=0;i<todo.length;i++){
-    prog.textContent=`Reichere an ${i+1} / ${todo.length} · ${todo[i].source_domain}`;
-    try{await blCheckOne(todo[i].id,todo[i].source_url);}catch(e){}
-  }
-  prog.textContent='Nachanreicherung abgeschlossen.';
-  await blLoadList();
-  setTimeout(()=>{prog.style.display='none';},2500);
-  btn.disabled=false;blBusy=false;
+  try{
+    for(let i=0;i<todo.length;i++){
+      prog.textContent=`Reichere an ${i+1} / ${todo.length} · ${todo[i].source_domain}`;
+      try{await blCheckOne(todo[i].id,todo[i].source_url);}catch(e){}
+    }
+    prog.textContent='Nachanreicherung abgeschlossen.';
+    await blLoadList();
+  }finally{if(btn)btn.disabled=false;blBusy=false;setTimeout(()=>{prog.style.display='none';},2500);}
 }
 
 async function blHandleImport(input){
@@ -7335,7 +7334,8 @@ async function blHandleImport(input){
     st.style.color='var(--green)';st.textContent=`Import fertig: ${added.length} neue Backlinks geprüft.`;
     await blLoadList();
     setTimeout(()=>{prog.style.display='none';},2500);
-  }catch(e){st.style.color='var(--red)';st.textContent='Fehler: '+e.message;}
+  }catch(e){st.style.color='var(--red)';st.textContent='Fehler: '+(e&&e.message?e.message:e);}
+  finally{blBusy=false;}
 }
 
 async function blDelete(id){
