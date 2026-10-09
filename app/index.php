@@ -7131,7 +7131,7 @@ function blRenderTable(){
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:13px;border-top:1px solid var(--border);padding-top:10px">
         <div style="min-width:0"><span style="color:var(--text3);font-size:11px;text-transform:uppercase;letter-spacing:.04em">MVV-Link</span><br>${mvvCell}</div>
-        <div style="color:var(--text3);font-size:11px;white-space:nowrap">Geprüft: ${blFmtDate(b.checked_at)}</div>
+        <div style="text-align:right;color:var(--text3);font-size:11px;white-space:nowrap">${b.link_set_date?`Backlink gesetzt: <strong style="color:var(--text2)">${escHtml(b.link_set_date)}</strong><br>`:''}Geprüft: ${blFmtDate(b.checked_at)}</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button onclick="blShowDetail(${b.id})" style="background:none;border:1px solid var(--border2);border-radius:var(--radius-sm);padding:5px 12px;cursor:pointer;color:var(--text2);font-family:inherit;font-size:12px">Details</button>
@@ -7352,6 +7352,7 @@ async function blShowDetail(id){
       </div>
       <div class="card-title" style="font-size:14px;margin-bottom:6px">Technische Prüfung</div>
       ${row('Quell-URL',`<a href="${escHtml(r.source_url)}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">${escHtml(r.source_url)}</a>`)}
+      ${r.link_set_date?row('Backlink gesetzt',escHtml(r.link_set_date)):''}
       ${row('HTTP-Status',`<span style="color:${reach?'var(--green)':'var(--red)'};font-weight:600">${r.http_status||'n/a'}</span> ${reach?'erreichbar':'nicht erreichbar'}`)}
       ${row('Finale URL',escHtml(r.final_url||'—'))}
       ${row('Redirect-Verlauf',chainHtml)}

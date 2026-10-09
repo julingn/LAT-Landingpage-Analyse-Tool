@@ -603,8 +603,8 @@ function blProcess(int $id, array $metrics): array {
     return ['row' => blRowById($id), 'links' => blLinksByBacklink($id), 'changes' => $changes ?? [], 'fetch_error' => $fetch['error']];
 }
 
-/** URL anlegen (falls neu), liefert die id. */
-function blInsertUrl(string $url): array {
+/** URL anlegen (falls neu), liefert die id. $linkSetDate = Datum aus dem Import ("Backlink gesetzt"). */
+function blInsertUrl(string $url, string $linkSetDate = ''): array {
     $url = trim($url);
     if ($url === '' || !filter_var($url, FILTER_VALIDATE_URL)) return ['id' => 0, 'new' => false, 'error' => 'Ungültige URL'];
     $scheme = parse_url($url, PHP_URL_SCHEME);
@@ -616,14 +616,21 @@ function blInsertUrl(string $url): array {
     // MVV-eigene Seiten sind interne Links, keine Backlinks.
     if (blIsMvvSourceHost(blHost($url))) return ['id' => 0, 'new' => false, 'error' => 'MVV-eigene Seite ist kein Backlink'];
 
-    $st = db()->prepare('SELECT id FROM bl_backlinks WHERE source_url = :u');
+    $st = db()->prepare('SELECT id, link_set_date FROM bl_backlinks WHERE source_url = :u');
     $st->execute([':u' => $url]);
     $existing = $st->fetch();
-    if ($existing) return ['id' => (int)$existing['id'], 'new' => false, 'error' => ''];
+    if ($existing) {
+        // Datum nachtragen, falls beim ersten Import noch keins gesetzt war.
+        if ($linkSetDate !== '' && ($existing['link_set_date'] ?? '') === '') {
+            db()->prepare('UPDATE bl_backlinks SET link_set_date = :d WHERE id = :id')
+                ->execute([':d' => $linkSetDate, ':id' => (int)$existing['id']]);
+        }
+        return ['id' => (int)$existing['id'], 'new' => false, 'error' => ''];
+    }
 
     try {
-        $ins = db()->prepare('INSERT INTO bl_backlinks (source_url, source_domain) VALUES (:u, :d) RETURNING id');
-        $ins->execute([':u' => $url, ':d' => blHost($url)]);
+        $ins = db()->prepare('INSERT INTO bl_backlinks (source_url, source_domain, link_set_date) VALUES (:u, :d, :dt) RETURNING id');
+        $ins->execute([':u' => $url, ':d' => blHost($url), ':dt' => $linkSetDate]);
         return ['id' => (int)$ins->fetchColumn(), 'new' => true, 'error' => ''];
     } catch (PDOException $e) {
         // Race-Condition: zwischen SELECT und INSERT parallel angelegt (UNIQUE-Verletzung) → vorhandenen Eintrag zurückgeben.
@@ -638,20 +645,51 @@ function blInsertUrl(string $url): array {
  *  XLSX / CSV einlesen
  * ==========================================================================*/
 
-/** Liest URLs aus einer hochgeladenen XLSX- oder CSV-Datei. */
+/** Excel-Spaltenbuchstaben (A, B, …, AA) in 0-basierten Index umwandeln. */
+function blColIndex(string $letters): int {
+    $n = 0;
+    for ($i = 0, $len = strlen($letters); $i < $len; $i++) {
+        $c = ord(strtoupper($letters[$i]));
+        if ($c < 65 || $c > 90) continue;
+        $n = $n * 26 + ($c - 64);
+    }
+    return $n - 1;
+}
+
+/** Excel-Seriennummer → Datum. 1. des Monats → "m/Y", sonst "d.m.Y". Leer bei Unplausibilität. */
+function blExcelSerialToDate(string $raw): string {
+    if (!preg_match('/^\d+(\.\d+)?$/', $raw)) return '';
+    $serial = (float)$raw;
+    if ($serial < 20000 || $serial > 80000) return ''; // ~1954 bis ~2089
+    $d = (new DateTime('1899-12-30'))->modify('+' . (int)floor($serial) . ' days');
+    return ((int)$d->format('j') === 1) ? $d->format('m/Y') : $d->format('d.m.Y');
+}
+
+/** Datumswert normalisieren: Seriennummer umwandeln, Text (z. B. "09/2026") unverändert übernehmen. */
+function blNormDate(string $raw, bool $isNumeric): string {
+    $raw = trim($raw);
+    if ($raw === '') return '';
+    if ($isNumeric) { $d = blExcelSerialToDate($raw); if ($d !== '') return $d; }
+    return $raw;
+}
+
+/**
+ * Liest URL + Datum ("Backlink gesetzt") aus XLSX/CSV.
+ * @return array<int,array{url:string,date:string}>
+ */
 function blParseUpload(string $tmpPath, string $name): array {
     $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
-    $urls = [];
+    $matrix = []; // $matrix[rowIdx][colIdx] = ['v'=>string, 'num'=>bool]
+
     if ($ext === 'csv' || $ext === 'txt') {
-        $fh = fopen($tmpPath, 'r');
-        if ($fh) {
-            while (($line = fgets($fh)) !== false) {
-                foreach (preg_split('/[;,\t]/', $line) as $cell) {
-                    $cell = trim($cell, " \t\r\n\"'");
-                    if (preg_match('#^https?://#i', $cell)) $urls[] = $cell;
-                }
+        $lines = file($tmpPath, FILE_IGNORE_NEW_LINES);
+        if ($lines === false) return [];
+        $delim = (substr_count($lines[0] ?? '', ';') >= substr_count($lines[0] ?? '', ',')) ? ';' : ',';
+        foreach ($lines as $r => $line) {
+            foreach (str_getcsv($line, $delim) as $c => $cell) {
+                $cell = trim((string)$cell);
+                $matrix[$r][$c] = ['v' => $cell, 'num' => is_numeric($cell)];
             }
-            fclose($fh);
         }
     } elseif ($ext === 'xlsx') {
         if (!class_exists('ZipArchive')) return [];
@@ -669,20 +707,52 @@ function blParseUpload(string $tmpPath, string $name): array {
         }
         $sheet = $zip->getFromName('xl/worksheets/sheet1.xml');
         $zip->close();
-        if ($sheet !== false && ($sx = @simplexml_load_string($sheet))) {
-            foreach ($sx->sheetData->row as $row) {
-                foreach ($row->c as $c) {
-                    $type = (string)$c['t']; $v = (string)$c->v;
-                    if ($type === 's') $v = $shared[(int)$v] ?? '';
-                    elseif ($type === 'inlineStr') $v = (string)$c->is->t;
-                    $v = trim($v);
-                    if (preg_match('#^https?://#i', $v)) $urls[] = $v;
-                }
+        if ($sheet === false || !($sx = @simplexml_load_string($sheet))) return [];
+        $r = 0;
+        foreach ($sx->sheetData->row as $row) {
+            foreach ($row->c as $c) {
+                $type = (string)$c['t'];
+                $ref  = (string)$c['r'];
+                $colLetters = preg_replace('/\d+/', '', $ref);
+                $ci = $colLetters !== '' ? blColIndex($colLetters) : 0;
+                $v = (string)$c->v;
+                $isNum = false;
+                if ($type === 's')            $v = $shared[(int)$v] ?? '';
+                elseif ($type === 'inlineStr') $v = (string)$c->is->t;
+                elseif ($type === '' || $type === 'n') $isNum = is_numeric($v);
+                $matrix[$r][$ci] = ['v' => trim($v), 'num' => $isNum];
             }
+            $r++;
         }
+    } else {
+        return [];
     }
-    // Dedupe, Reihenfolge erhalten
-    return array_values(array_unique($urls));
+    if (!$matrix) return [];
+
+    // Datums-Spalte am Header erkennen ("Datum …"); Fallback: Spalte mit datumsartigen Werten.
+    $rowKeys = array_keys($matrix);
+    $header  = $matrix[$rowKeys[0]] ?? [];
+    $dateCol = null;
+    foreach ($header as $ci => $cell) {
+        if (preg_match('/datum|date/i', $cell['v'])) { $dateCol = $ci; break; }
+    }
+
+    $pairs = [];
+    $seen  = [];
+    foreach ($matrix as $cells) {
+        $url = '';
+        foreach ($cells as $cell) {
+            if (preg_match('#^https?://#i', $cell['v'])) { $url = $cell['v']; break; }
+        }
+        if ($url === '' || isset($seen[$url])) continue;
+        $seen[$url] = true;
+        $date = '';
+        if ($dateCol !== null && isset($cells[$dateCol])) {
+            $date = blNormDate($cells[$dateCol]['v'], $cells[$dateCol]['num']);
+        }
+        $pairs[] = ['url' => $url, 'date' => $date];
+    }
+    return $pairs;
 }
 
 /* ============================================================================
@@ -704,6 +774,7 @@ if ($action === 'list') {
             'has_metrics' => isset($r['source_metrics']) && $r['source_metrics'] !== '' && trim($r['source_metrics']) !== '{}',
             'primary_target' => $primary['target_url'] ?? '', 'primary_anchor' => $primary['anchor_text'] ?? '',
             'score' => (int)$r['score'], 'quality_class' => $r['quality_class'], 'risk_level' => $r['risk_level'],
+            'link_set_date' => $r['link_set_date'] ?? '',
             'checked_at' => $r['checked_at'],
         ];
     }
@@ -753,15 +824,15 @@ if ($action === 'import') {
     $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($_POST['csrf_token'] ?? '');
     if (!$sessionCsrf || $token !== $sessionCsrf) jsonErr('CSRF-Token ungültig', 403);
     if (empty($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) jsonErr('Keine gültige Datei hochgeladen');
-    $urls = blParseUpload($_FILES['file']['tmp_name'], $_FILES['file']['name']);
-    if (!$urls) jsonErr('Keine URLs in der Datei gefunden (Spalte mit http(s)-URLs erwartet).');
+    $pairs = blParseUpload($_FILES['file']['tmp_name'], $_FILES['file']['name']);
+    if (!$pairs) jsonErr('Keine URLs in der Datei gefunden (Spalte mit http(s)-URLs erwartet).');
     $added = []; $skipped = 0;
-    foreach ($urls as $u) {
-        $r = blInsertUrl($u);
-        if ($r['id'] && $r['new']) $added[] = ['id' => $r['id'], 'url' => $u];
+    foreach ($pairs as $p) {
+        $r = blInsertUrl($p['url'], $p['date'] ?? '');
+        if ($r['id'] && $r['new']) $added[] = ['id' => $r['id'], 'url' => $p['url']];
         elseif ($r['id']) $skipped++;
     }
-    jsonOut(['success' => true, 'added' => $added, 'skipped' => $skipped, 'total' => count($urls)]);
+    jsonOut(['success' => true, 'added' => $added, 'skipped' => $skipped, 'total' => count($pairs)]);
 }
 
 if ($action === 'delete') {
@@ -784,10 +855,10 @@ if ($action === 'export') {
     header('Content-Disposition: attachment; filename="backlinks_' . date('Y-m-d') . '.csv"');
     $out = fopen('php://output', 'w');
     fwrite($out, "\xEF\xBB\xBF"); // UTF-8 BOM für Excel
-    fputcsv($out, ['Quell-URL', 'Domain', 'HTTP-Status', 'Finale URL', 'MVV-Link', 'MVV-Links', 'Indexierbar', 'Score', 'Klasse', 'Risiko', 'Empfehlung', 'Geprüft am'], ';');
+    fputcsv($out, ['Quell-URL', 'Domain', 'Backlink gesetzt', 'HTTP-Status', 'Finale URL', 'MVV-Link', 'MVV-Links', 'Indexierbar', 'Score', 'Klasse', 'Risiko', 'Empfehlung', 'Geprüft am'], ';');
     foreach ($rows as $r) {
         fputcsv($out, [
-            $r['source_url'], $r['source_domain'], $r['http_status'], $r['final_url'],
+            $r['source_url'], $r['source_domain'], $r['link_set_date'] ?? '', $r['http_status'], $r['final_url'],
             pgBool($r['has_mvv_link']) ? 'ja' : 'nein',
             $r['mvv_link_count'],
             $r['indexable'] === null ? '?' : (pgBool($r['indexable']) ? 'ja' : 'nein'),

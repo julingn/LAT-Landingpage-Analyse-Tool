@@ -119,4 +119,6 @@ function db_init(): void {
     // Quell-Wertigkeit (SISTRIX + DataForSEO, zusammengeführt) + thematische Treffer — nachträglich ergänzt.
     $pdo->exec("ALTER TABLE bl_backlinks ADD COLUMN IF NOT EXISTS source_metrics JSONB NOT NULL DEFAULT '{}'::jsonb");
     $pdo->exec("ALTER TABLE bl_backlinks ADD COLUMN IF NOT EXISTS thematic_hits JSONB NOT NULL DEFAULT '[]'::jsonb");
+    // Datum aus dem Import („Backlink gesetzt", z. B. "09/2026").
+    $pdo->exec("ALTER TABLE bl_backlinks ADD COLUMN IF NOT EXISTS link_set_date TEXT NOT NULL DEFAULT ''");
 }
