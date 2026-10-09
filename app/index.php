@@ -7105,7 +7105,7 @@ async function blLoadList(){
   const wrap=document.getElementById('bl-table-wrap');
   wrap.innerHTML='<div style="padding:20px;color:var(--text3)">Lade …</div>';
   try{
-    const res=await fetch('backlinks.php?action=list',{headers:{'X-CSRF-Token':CSRF_TOKEN}});
+    const res=await fetch('backlinks.php?action=list&_='+Date.now(),{cache:'no-store',headers:{'X-CSRF-Token':CSRF_TOKEN}});
     const data=await res.json();
     if(data.error){wrap.innerHTML=`<div style="padding:20px;color:var(--red)">${escHtml(data.error)}</div>`;return;}
     blData=data.backlinks||[];
@@ -7258,8 +7258,11 @@ async function blAddSingle(){
 
 async function blCheckOne(id,url){
   const metrics=await blGetMetrics(url);
-  const res=await fetch('backlinks.php?action=check',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify({id,metrics,csrf_token:CSRF_TOKEN})});
-  return res.json();
+  const res=await fetch('backlinks.php?action=check&_='+Date.now(),{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json','X-CSRF-Token':CSRF_TOKEN},body:JSON.stringify({id,metrics,csrf_token:CSRF_TOKEN})});
+  let d=null;
+  try{d=await res.json();}catch(e){throw new Error('Ungültige Serverantwort (HTTP '+res.status+')');}
+  if(!res.ok||(d&&d.error)) throw new Error((d&&d.error)?d.error:('HTTP '+res.status));
+  return d;
 }
 
 async function blRecheckOne(id){
@@ -7269,9 +7272,14 @@ async function blRecheckOne(id){
   if(blBusy){prog.style.display='';prog.textContent='Bitte warten – es läuft bereits eine Prüfung …';setTimeout(()=>{prog.style.display='none';},2500);return;}
   blBusy=true;
   prog.style.display='';prog.textContent='Prüfe '+item.source_domain+' …';
-  try{await blCheckOne(id,item.source_url);await blLoadList();prog.textContent='Fertig.';}
+  try{
+    const d=await blCheckOne(id,item.source_url);
+    await blLoadList();
+    const rr=d&&d.result&&d.result.row?d.result.row:null;
+    prog.textContent=rr?`Fertig: HTTP ${rr.http_status} · Score ${rr.score} · ${rr.quality_class||''}`:'Fertig.';
+  }
   catch(e){prog.textContent='Fehler: '+(e&&e.message?e.message:e);}
-  finally{blBusy=false;setTimeout(()=>{prog.style.display='none';},2500);}
+  finally{blBusy=false;setTimeout(()=>{prog.style.display='none';},4000);}
 }
 
 async function blRecheckAll(){
@@ -7281,13 +7289,14 @@ async function blRecheckAll(){
   const prog=document.getElementById('bl-progress');prog.style.display='';
   try{
     const items=[...blData];
+    let errs=0;
     for(let i=0;i<items.length;i++){
       prog.textContent=`Prüfe ${i+1} / ${items.length} · ${items[i].source_domain}`;
-      try{await blCheckOne(items[i].id,items[i].source_url);}catch(e){}
+      try{await blCheckOne(items[i].id,items[i].source_url);}catch(e){errs++;}
     }
-    prog.textContent='Alle geprüft.';
+    prog.textContent=errs?`Fertig — ${errs} Fehler von ${items.length}.`:'Alle geprüft.';
     await blLoadList();
-  }finally{if(btn)btn.disabled=false;blBusy=false;setTimeout(()=>{prog.style.display='none';},2500);}
+  }finally{if(btn)btn.disabled=false;blBusy=false;setTimeout(()=>{prog.style.display='none';},4000);}
 }
 
 async function blEnrichMissing(){
@@ -7300,13 +7309,14 @@ async function blEnrichMissing(){
   const btn=document.getElementById('bl-enrich-btn');if(btn)btn.disabled=true;
   prog.style.display='';
   try{
+    let errs=0;
     for(let i=0;i<todo.length;i++){
       prog.textContent=`Reichere an ${i+1} / ${todo.length} · ${todo[i].source_domain}`;
-      try{await blCheckOne(todo[i].id,todo[i].source_url);}catch(e){}
+      try{await blCheckOne(todo[i].id,todo[i].source_url);}catch(e){errs++;}
     }
-    prog.textContent='Nachanreicherung abgeschlossen.';
+    prog.textContent=errs?`Fertig — ${errs} Fehler von ${todo.length}.`:'Nachanreicherung abgeschlossen.';
     await blLoadList();
-  }finally{if(btn)btn.disabled=false;blBusy=false;setTimeout(()=>{prog.style.display='none';},2500);}
+  }finally{if(btn)btn.disabled=false;blBusy=false;setTimeout(()=>{prog.style.display='none';},4000);}
 }
 
 async function blHandleImport(input){
