@@ -133,6 +133,14 @@ function blResolveUrl(string $rel, string $base): string {
     return $scheme . '://' . $host . $dir . $rel;
 }
 
+/** Stellt sicher, dass ein String gültiges UTF-8 ist (Quellseiten sind oft ISO-8859-1/Windows-1252). */
+function blUtf8(string $s): string {
+    if ($s === '' || preg_match('//u', $s)) return $s; // leer oder bereits gültiges UTF-8
+    $c = @mb_convert_encoding($s, 'UTF-8', 'Windows-1252'); // deckt ISO-8859-1/Umlaute ab
+    if (is_string($c) && preg_match('//u', $c)) return $c;
+    return (string) @mb_convert_encoding($s, 'UTF-8', 'UTF-8'); // Fallback: ungültige Bytes entfernen
+}
+
 /** HTML-Tags grob entfernen und Text normalisieren. Immer String (null-sicher bei defektem UTF-8/großen Seiten). */
 function blCleanText(string $html): string {
     $html = preg_replace('#<script\b[^>]*>.*?</script>#is', ' ', $html) ?? $html;
@@ -567,14 +575,15 @@ function blProcess(int $id, array $metrics): array {
                 recommendation = :rec, score_detail = :detail, checked_at = now()
             WHERE id = :id
         SQL);
+        $chainSafe = array_map(fn($c) => ['url' => blUtf8((string)($c['url'] ?? '')), 'status' => (int)($c['status'] ?? 0)], $fetch['chain']);
         $upd->execute([
-            ':dom' => blHost($row['source_url']), ':final' => $fetch['final_url'], ':status' => $fetch['status'],
-            ':reach' => $reachable ? 1 : 0, ':chain' => json_encode($fetch['chain']), ':title' => $analyze['page_title'],
-            ':canon' => $analyze['canonical_url'],
+            ':dom' => blUtf8(blHost($row['source_url'])), ':final' => blUtf8($fetch['final_url']), ':status' => $fetch['status'],
+            ':reach' => $reachable ? 1 : 0, ':chain' => json_encode($chainSafe), ':title' => blUtf8($analyze['page_title']),
+            ':canon' => blUtf8($analyze['canonical_url']),
             ':idx' => $analyze['indexable'] === null ? null : ($analyze['indexable'] ? 1 : 0),
-            ':robots' => $analyze['meta_robots'], ':haslink' => $links ? 1 : 0, ':linkcount' => count($links),
+            ':robots' => blUtf8($analyze['meta_robots']), ':haslink' => $links ? 1 : 0, ':linkcount' => count($links),
             ':intext' => $analyze['mvv_in_text'] ? 1 : 0, ':mentions' => $analyze['mvv_mentions'],
-            ':pub' => $analyze['published_at'], ':mod' => $analyze['modified_at'],
+            ':pub' => blUtf8($analyze['published_at']), ':mod' => blUtf8($analyze['modified_at']),
             ':metrics' => json_encode($metrics), ':thematic' => json_encode($analyze['thematic_hits']),
             ':score' => $scored['score'], ':class' => $scored['quality_class'],
             ':risk' => $scored['risk_level'], ':rec' => $scored['recommendation'],
@@ -586,8 +595,8 @@ function blProcess(int $id, array $metrics): array {
             $ins = $pdo->prepare('INSERT INTO bl_mvv_links (backlink_id, target_url, anchor_text, rel_attr, link_position, is_primary) VALUES (:bid, :url, :anchor, :rel, :pos, :prim)');
             foreach ($links as $i => $l) {
                 $ins->execute([
-                    ':bid' => $id, ':url' => $l['target_url'], ':anchor' => $l['anchor_text'],
-                    ':rel' => $l['rel_attr'], ':pos' => $l['link_position'], ':prim' => $i === $primaryIdx ? 1 : 0,
+                    ':bid' => $id, ':url' => blUtf8($l['target_url']), ':anchor' => blUtf8($l['anchor_text']),
+                    ':rel' => blUtf8($l['rel_attr']), ':pos' => $l['link_position'], ':prim' => $i === $primaryIdx ? 1 : 0,
                 ]);
             }
         }
