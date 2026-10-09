@@ -19,6 +19,10 @@
 
 declare(strict_types=1);
 
+// Große/komplexe HTML-Seiten: PCRE-Backtrack-Limit anheben (sonst liefert preg_* null).
+ini_set('pcre.backtrack_limit', '10000000');
+ini_set('pcre.recursion_limit', '1000000');
+
 session_start();
 if (empty($_SESSION['logged_in'])) {
     http_response_code(401);
@@ -129,13 +133,15 @@ function blResolveUrl(string $rel, string $base): string {
     return $scheme . '://' . $host . $dir . $rel;
 }
 
-/** HTML-Tags grob entfernen und Text normalisieren. */
+/** HTML-Tags grob entfernen und Text normalisieren. Immer String (null-sicher bei defektem UTF-8/großen Seiten). */
 function blCleanText(string $html): string {
-    $html = preg_replace('#<script\b[^>]*>.*?</script>#is', ' ', $html);
-    $html = preg_replace('#<style\b[^>]*>.*?</style>#is', ' ', $html);
-    $txt  = preg_replace('#<[^>]+>#', ' ', $html);
+    $html = preg_replace('#<script\b[^>]*>.*?</script>#is', ' ', $html) ?? $html;
+    $html = preg_replace('#<style\b[^>]*>.*?</style>#is', ' ', $html) ?? $html;
+    $txt  = preg_replace('#<[^>]+>#', ' ', $html) ?? $html;
     $txt  = html_entity_decode($txt, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-    return preg_replace('/\s+/u', ' ', $txt);
+    $norm = preg_replace('/\s+/u', ' ', $txt);       // /u schlägt bei defektem UTF-8 fehl → Fallback
+    if ($norm === null) $norm = preg_replace('/\s+/', ' ', $txt);
+    return $norm ?? $txt;
 }
 
 /**
@@ -261,7 +267,7 @@ function blAnalyze(string $url, array $fetch): array {
 
     // MVV im Fließtext
     $txt = blCleanText($body);
-    $out['mvv_mentions'] = preg_match_all('/\bMVV\b/u', $txt);
+    $out['mvv_mentions'] = (int)preg_match_all('/\bMVV\b/u', $txt);
     $out['mvv_in_text']  = $out['mvv_mentions'] > 0;
 
     // Thematische Nähe: welche MVV-Produktbegriffe kommen im Seitentext vor?
